@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.30</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.31</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -81,7 +81,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .hostEmptyTimeline{color:var(--mut);font-size:12px;padding:12px 4px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.30</small></div><div class="badge" id="online">Redo · V4.30</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.31</small></div><div class="badge" id="online">Redo · V4.31</div></div>
 <section id="home" class="panel home">
 <div id="modeChooser">
   <div class="hero"><h1>Hur vill du spela?</h1><p class="mut">Välj spelläge.</p></div>
@@ -202,7 +202,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.30</strong>
+  Version <strong style="color:#fff">V4.31</strong>
 </div>
 
 </section>
@@ -959,7 +959,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.30";
+    if(badge)badge.textContent="Återansluten · V4.31";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -990,7 +990,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.30"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.31"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1034,7 +1034,7 @@ function showOnlineMode(){
   $("localMode").classList.add("hidden");
   $("onlineMode").classList.remove("hidden");
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.30":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.31":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1761,7 +1761,7 @@ async function endFailedTurn(){
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
 // =======================
-// SPELA ONLINE – V4.30
+// SPELA ONLINE – V4.31
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -1774,6 +1774,9 @@ let onlineMyPlayer=null;
 let onlineSelected=null;
 let onlineGuessSaved=false;
 let onlineDecisionOpen=false;
+let onlineView="listen";
+let onlineViewSongId=null;
+let onlineLocalResultHold=null;
 let onlineLastPlayedSongId=null;
 let onlinePlaybackTimer=null;
 let onlineDragZone=null;
@@ -2027,9 +2030,30 @@ async function loadOnlineMatches(){
 async function fetchOnlineGameState(){
   if(!onlineMatch)return;
   try{
+    const previousSongId=onlineMatch?.current_song?.id||null;
+    const previousPhase=onlineMatch?.phase||null;
+
     const mr=await db.from("online_matches").select("*").eq("id",onlineMatch.id).maybeSingle();
     if(!mr.data)return;
     onlineMatch=mr.data;
+
+    const newSongId=onlineMatch?.current_song?.id||null;
+
+    // En ny låt ska alltid börja på huvudvalet, men vanlig polling får
+    // aldrig kasta spelaren ur Gissa- eller Placera-vyn.
+    if(newSongId && newSongId!==previousSongId){
+      onlineView="listen";
+      onlineViewSongId=newSongId;
+      onlineSelected=null;
+      onlineGuessSaved=false;
+      if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
+      if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
+    }
+
+    // Om servern byter fas ska gamla lokala delvyer inte ligga kvar.
+    if(previousPhase!==onlineMatch.phase && onlineMatch.phase!=="listen"){
+      onlineView="listen";
+    }
     const ps=await db.from("online_players").select("*").eq("match_id",onlineMatch.id).eq("active",true).order("turn_order");
     onlinePlayers=ps.data||[];
     onlineMyPlayer=onlinePlayers.find(p=>p.user_id===ensureOnlineUserId())||null;
@@ -2044,6 +2068,11 @@ async function openOnlineMatch(id){
   const mr=await db.from("online_matches").select("*").eq("id",id).maybeSingle();
   if(mr.error||!mr.data){alert("Matchen kunde inte öppnas.");return}
   onlineMatch=mr.data;
+  onlineView="listen";
+  onlineViewSongId=onlineMatch?.current_song?.id||null;
+  onlineLocalResultHold=null;
+  onlineSelected=null;
+  onlineGuessSaved=false;
   const ps=await db.from("online_players").select("*").eq("match_id",id).eq("active",true).order("turn_order");
   onlinePlayers=ps.data||[];
   onlineMyPlayer=onlinePlayers.find(p=>p.user_id===ensureOnlineUserId())||null;
@@ -2057,8 +2086,9 @@ async function openOnlineMatch(id){
 
 function closeOnlineGame(){
   clearInterval(onlineGameTimer);
-  clearInterval(onlinePlaybackTimer);
+  clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
   onlineMatch=null;onlinePlayers=[];onlineMyPlayer=null;
+  onlineView="listen";onlineViewSongId=null;onlineLocalResultHold=null;onlineSelected=null;onlineGuessSaved=false;
   $("onlineGame").classList.add("hidden");
   $("home").classList.remove("hidden");
   showOnlineMode();
@@ -2091,13 +2121,22 @@ function renderOnlineGame(){
   if(!onlineMatch||!onlineMyPlayer)return;
   renderOnlinePlayers();
   $("onlineGameCode").textContent=onlineMatch.code;
+
   const opp=onlineOpponent();
   $("onlineGameTitle").textContent=opp?`${onlineMyPlayer.display_name} mot ${opp.display_name}`:"Väntar på motspelare";
+
   const myTurn=onlineMatch.status==="active"&&onlineMatch.current_user_id===ensureOnlineUserId();
 
-  onlineHideScreens();
+  // Ett lokalt resultat efter FEL PLACERING ska få ligga kvar tills
+  // spelaren själv lämnar resultatet. Serverpolling får inte sopa bort det.
+  if(onlineLocalResultHold){
+    onlineHideScreens();
+    showOnlineLocalResult(onlineLocalResultHold,false,true);
+    return;
+  }
 
   if(onlineMatch.status==="waiting"){
+    onlineHideScreens();
     $("onlineGameBadge").textContent="Väntar";
     $("onlineWaitingScreen").classList.remove("hidden");
     $("onlineWaitingScreen").innerHTML=`Dela matchkoden <b>${onlineMatch.code}</b> med din vän.`;
@@ -2105,6 +2144,7 @@ function renderOnlineGame(){
   }
 
   if(onlineMatch.status==="ended"){
+    onlineHideScreens();
     $("onlineGameBadge").textContent="Match slut";
     $("onlineResultScreen").classList.remove("hidden");
     const winner=onlinePlayers.find(p=>p.user_id===onlineMatch.winner_user_id);
@@ -2118,6 +2158,7 @@ function renderOnlineGame(){
   }
 
   if(!myTurn){
+    onlineHideScreens();
     $("onlineGameBadge").textContent="Väntar";
     $("onlineWaitingScreen").classList.remove("hidden");
     $("onlineWaitingScreen").innerHTML=`Väntar på ${opp?.display_name||"motspelaren"}. Du behöver inte ha sidan öppen.`;
@@ -2127,6 +2168,7 @@ function renderOnlineGame(){
   $("onlineGameBadge").textContent="DIN TUR";
 
   if(onlineMatch.phase==="turn_ready"){
+    onlineHideScreens();
     clearOnlineRoundLocal();
     $("onlineReadyScreen").classList.remove("hidden");
     $("onlineGameSub").textContent="Starta när det passar dig.";
@@ -2134,26 +2176,46 @@ function renderOnlineGame(){
   }
 
   if(onlineMatch.phase==="listen"&&onlineMatch.current_song){
-    $("onlineListenScreen").classList.remove("hidden");
     const locked=(onlineMyPlayer.locked_timeline||[]).length;
     const risk=(onlineMyPlayer.turn_cards||[]).length;
     $("onlineTurnStats").textContent=`${locked}/${onlineMatch.target_cards||10} låsta kort · ${risk} Olåsta kort · ${onlineMyPlayer.swap_cards||0}/3 Byta-låt-kort`;
     $("onlineSwapBtn").disabled=(onlineMyPlayer.swap_cards||0)<=0;
     $("onlineSwapBtn").style.opacity=(onlineMyPlayer.swap_cards||0)>0?"1":".45";
+
+    // Bevara den delvy spelaren själv valt under hela samma låt.
+    onlineHideScreens();
+    if(onlineView==="guess"){
+      $("onlineGuessScreen").classList.remove("hidden");
+    }else if(onlineView==="place"){
+      $("onlinePlaceScreen").classList.remove("hidden");
+      renderOnlineTimeline();
+      requestAnimationFrame(bindOnlineSecretDrag);
+    }else{
+      onlineView="listen";
+      $("onlineListenScreen").classList.remove("hidden");
+    }
+
     autoPlayOnlineSong();
     startOnlinePlaybackPolling();
     return;
   }
 
   if(onlineMatch.phase==="decision"){
+    onlineHideScreens();
     showOnlineResult(true);
     return;
   }
-}
 
+  onlineHideScreens();
+  $("onlineWaitingScreen").classList.remove("hidden");
+  $("onlineWaitingScreen").textContent="Synkar matchen…";
+}
 function clearOnlineRoundLocal(){
+  if($("onlineGuessFirstModal"))$("onlineGuessFirstModal").classList.add("hidden");
   onlineSelected=null;
   onlineGuessSaved=false;
+  onlineView="listen";
+  onlineViewSongId=onlineMatch?.current_song?.id||null;
   if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
   if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
   onlineDecisionOpen=false;
@@ -2179,6 +2241,7 @@ async function startOnlineTurn(){
     }).eq("id",onlineMatch.id);
     if(up.error)throw new Error(up.error.message);
     onlineMatch={...onlineMatch,deck,current_song:song,phase:"listen",last_result:null};
+    onlineLocalResultHold=null;
     clearOnlineRoundLocal();
     setOnlineGameStatus("");
     renderOnlineGame();
@@ -2206,7 +2269,7 @@ async function autoPlayOnlineSong(){
   }
 }
 function startOnlinePlaybackPolling(){
-  clearInterval(onlinePlaybackTimer);
+  if(onlinePlaybackTimer)return;
   const run=async()=>{
     if(!onlineMatch?.current_song)return;
     try{
@@ -2237,18 +2300,42 @@ async function onlineRestartPlayback(){
   }catch(e){alert("Spotify: "+e.message)}
 }
 
-function showOnlineListen(){onlineHideScreens();$("onlineListenScreen").classList.remove("hidden")}
-function showOnlineGuess(){onlineHideScreens();$("onlineGuessScreen").classList.remove("hidden")}
-function saveOnlineGuess(){onlineGuessSaved=true;showOnlineListen();setOnlineGameStatus("Gissningen är sparad.")}
+function showOnlineListen(){
+  onlineView="listen";
+  onlineHideScreens();
+  $("onlineListenScreen").classList.remove("hidden");
+}
+function showOnlineGuess(){
+  onlineView="guess";
+  onlineViewSongId=onlineMatch?.current_song?.id||null;
+  onlineHideScreens();
+  $("onlineGuessScreen").classList.remove("hidden");
+}
+function saveOnlineGuess(){
+  onlineGuessSaved=true;
+  onlineView="listen";
+  showOnlineListen();
+  setOnlineGameStatus("Gissningen är sparad.");
+}
 
 function requestOnlinePlace(){
   if(!onlineGuessSaved){
-    const yes=confirm("Vill du gissa artist och låtnamn först?\n\nOK = gissa först\nAvbryt = placera kort");
-    if(yes){showOnlineGuess();return}
+    $("onlineGuessFirstModal").classList.remove("hidden");
+    return;
   }
   showOnlinePlace();
 }
+function onlineChooseGuessFirst(){
+  $("onlineGuessFirstModal").classList.add("hidden");
+  showOnlineGuess();
+}
+function onlineChoosePlaceAnyway(){
+  $("onlineGuessFirstModal").classList.add("hidden");
+  showOnlinePlace();
+}
 function showOnlinePlace(){
+  onlineView="place";
+  onlineViewSongId=onlineMatch?.current_song?.id||null;
   onlineHideScreens();
   $("onlinePlaceScreen").classList.remove("hidden");
   renderOnlineTimeline();
@@ -2377,7 +2464,7 @@ async function confirmOnlinePlacement(){
       }).eq("id",onlineMatch.id);
       if(mr.error)throw new Error(mr.error.message);
       onlineMatch={...onlineMatch,current_song:null,phase:"decision",last_result:result};
-      clearInterval(onlinePlaybackTimer);
+      clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
       onlineSelected=null;
       renderOnlineGame();
     }else{
@@ -2391,9 +2478,10 @@ async function confirmOnlinePlacement(){
         updated_at:new Date().toISOString()
       }).eq("id",onlineMatch.id);
       if(mr.error)throw new Error(mr.error.message);
-      clearInterval(onlinePlaybackTimer);
-      showOnlineLocalResult(result,false);
+      clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
+      onlineLocalResultHold=result;
       onlineMatch={...onlineMatch,current_song:null,phase:"turn_ready",current_user_id:next.user_id,last_result:null};
+      showOnlineLocalResult(result,false,true);
       loadOnlineMatches();
     }
   }catch(e){
@@ -2403,7 +2491,7 @@ async function confirmOnlinePlacement(){
   }
 }
 
-function showOnlineLocalResult(r,decision){
+function showOnlineLocalResult(r,decision,held=false){
   onlineHideScreens();
   $("onlineResultScreen").classList.remove("hidden");
   $("onlineResultTitle").textContent=r.placeOk?"RÄTT PLACERING":"FEL PLACERING";
@@ -2413,27 +2501,40 @@ function showOnlineLocalResult(r,decision){
     <div class="check">${r.titleOk?"✅ Rätt låtnamn":"❌ Fel låtnamn"}</div>`;
   $("onlineBonus").innerHTML=r.bonus?`<div class="check">🔄 Rätt artist och låtnamn – Byta-låt-kort: ${onlineMyPlayer.swap_cards||0}/3</div>`:`<div class="mut">Byta-låt-kort: ${onlineMyPlayer.swap_cards||0}/3</div>`;
   $("onlineTimelineToggle").classList.toggle("hidden",!decision);
+  if(decision){
+    $("onlineTimelineToggle").textContent=onlineDecisionOpen?"DÖLJ TIDSLINJE":"VISA TIDSLINJE";
+    $("onlineDecisionTimeline").classList.toggle("hidden",!onlineDecisionOpen);
+    if(onlineDecisionOpen)renderOnlineDecisionTimeline();
+  }else{
+    onlineDecisionOpen=false;
+    $("onlineDecisionTimeline").classList.add("hidden");
+  }
   $("onlineDecisionButtons").innerHTML=decision
     ? `<button class="btn purple" onclick="onlineContinue()">▶ FORTSÄTT<br><small>Riskera ${(onlineMyPlayer.turn_cards||[]).length} olåsta kort</small></button>
        <button class="btn green" onclick="onlineLockIn()">🔒 LÅS IN ${(onlineMyPlayer.turn_cards||[]).length} KORT</button>`
-    : `<button class="btn green full" onclick="closeOnlineGame()">TILL MINA MATCHER</button>`;
+    : `<button class="btn green full" onclick="dismissOnlineLocalResult()">TILL MINA MATCHER</button>`;
+}
+function dismissOnlineLocalResult(){
+  onlineLocalResultHold=null;
+  closeOnlineGame();
 }
 function showOnlineResult(decision=true){
   const r=onlineMatch.last_result;
   if(!r)return;
   showOnlineLocalResult(r,decision);
 }
+function renderOnlineDecisionTimeline(){
+  const cards=onlineAllTimeline(onlineMyPlayer);
+  $("onlineDecisionTimeline").innerHTML=`<div class="onlineTimeline">${cards.map(c=>{
+    const risk=(onlineMyPlayer.turn_cards||[]).some(x=>x.id===c.id);
+    return onlineCardMarkup(c,risk);
+  }).join("")}</div>`;
+}
 function toggleOnlineDecisionTimeline(){
   onlineDecisionOpen=!onlineDecisionOpen;
   $("onlineDecisionTimeline").classList.toggle("hidden",!onlineDecisionOpen);
   $("onlineTimelineToggle").textContent=onlineDecisionOpen?"DÖLJ TIDSLINJE":"VISA TIDSLINJE";
-  if(onlineDecisionOpen){
-    const cards=onlineAllTimeline(onlineMyPlayer);
-    $("onlineDecisionTimeline").innerHTML=`<div class="onlineTimeline">${cards.map(c=>{
-      const risk=(onlineMyPlayer.turn_cards||[]).some(x=>x.id===c.id);
-      return onlineCardMarkup(c,risk);
-    }).join("")}</div>`;
-  }
+  if(onlineDecisionOpen)renderOnlineDecisionTimeline();
 }
 async function onlineContinue(){
   if(actionBusy)return;
@@ -2448,6 +2549,8 @@ async function onlineContinue(){
     }).eq("id",onlineMatch.id);
     if(mr.error)throw new Error(mr.error.message);
     onlineMatch={...onlineMatch,deck,current_song:song,phase:"listen",last_result:null};
+    onlineLocalResultHold=null;
+    clearOnlineRoundLocal();
     renderOnlineGame();
     await onlinePlaySong(song.id);
   }catch(e){alert(e.message)}
@@ -2498,6 +2601,7 @@ async function onlineSwapSong(){
     if(mr.error)throw new Error(mr.error.message);
     onlineMyPlayer.swap_cards--;
     onlineMatch={...onlineMatch,deck,current_song:song};
+    onlineLocalResultHold=null;
     clearOnlineRoundLocal();
     renderOnlineGame();
     await onlinePlaySong(song.id);
@@ -2527,4 +2631,16 @@ showOnlineMode=function(){
     </div>
   </div>
 </div>
+
+<div id="onlineGuessFirstModal" class="modalBackdrop hidden">
+  <div class="modalBox">
+    <h3>Vill du gissa artist och låtnamn först?</h3>
+    <p class="mut">Det är frivilligt. Rätt artist och rätt låtnamn ger ett Byta-låt-kort.</p>
+    <div class="modalActions">
+      <button class="btn cyan full" onclick="onlineChooseGuessFirst()">JA, GISSA FÖRST</button>
+      <button class="btn dark full" onclick="onlineChoosePlaceAnyway()">NEJ, PLACERA KORT</button>
+    </div>
+  </div>
+</div>
+
 </body></html>
