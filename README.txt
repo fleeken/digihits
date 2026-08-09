@@ -1,23 +1,20 @@
-DIGIHITS V4.36
+DIGIHITS V4.41
 
-STARTSIDAN:
-- Ingen extra DIGIHITS-rubrik mitt på sidan.
-- Tydlig steg-för-steg-layout:
-  1. Ditt namn
-  2. Kontrollera Spotify
-  3. Starta ny match eller gå med i en match
-- Självförklarande knappar:
-  KONTROLLERA ATT SPOTIFY FUNGERAR
-  STARTA NY MATCH
-  GÅ MED I MATCHEN
-- Mina matcher förklarar att det är där man ser när det är ens tur.
+OFFLINEFUNKTION BORTTAGEN HELT
+- SPELA OFFLINE är borttaget från startsidan.
+- Offline-listor och URL-fält är borttagna.
+- Offline-ljudspelaren är borttagen.
+- Offline-specifik CSS och JavaScript är borttaget.
+- OFFLINE_LIST_EXAMPLE.json ingår inte.
+- Spotify-offlinelistor används inte och nämns inte som spelalternativ.
 
-MINA MATCHER:
-- Blinkningen är borttagen.
-- Laddningstext visas endast första gången listan hämtas.
-- Realtime- och pollinguppdateringar sker i bakgrunden.
-- Befintliga matchkort ligger kvar medan nya data hämtas.
-- DOM uppdateras endast när matchinformationen faktiskt ändrats.
-- Parallella listladdningar blockeras.
+Kvar:
+- Onlinematcher
+- Spotify-kontroll
+- Mina matcher + realtime
+- Historik
+- Lämna match
+- Tidslinjer
+- Alla vanliga spelregler
 
 Ingen ny SQL krävs.

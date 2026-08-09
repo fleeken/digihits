@@ -1,14 +1,14 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.36</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.41</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
-*{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
+*{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
-.app{width:min(1150px,96%);margin:auto;padding:14px 0 50px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.brand{font-size:32px;font-weight:950}.brand span{color:var(--c)}.badge{background:#171922;border:1px solid var(--line);padding:8px 11px;border-radius:999px;font-size:12px}
-.badge.ok{border-color:#2d8a50;color:#72ee9e;background:#102318}
-.badge.bad{border-color:#8f3945;color:#ff8c99;background:#291217}
-.badge.checking{border-color:#8b6b2f;color:#ffd77a;background:#241d0e}
-.panel{background:rgba(17,19,26,.98);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 18px 50px #0006}.hidden{display:none!important}.home{max-width:720px;margin:5vh auto}.hero{text-align:center}.hero h1{font-size:40px;margin:8px 0}.mut{color:var(--mut);line-height:1.45}.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}.role{background:#171a22;border:1px solid #303440;border-radius:17px;padding:17px}.role h3{margin:0 0 5px}.btn{border:0;border-radius:14px;padding:14px 16px;font-weight:900}.full{width:100%}.green{background:var(--g);color:#00190b}.cyan{background:var(--c);color:#00151d}.purple{background:var(--v);color:#160025}.dark{background:#2a2d37;color:#fff}.orange{background:var(--o);color:#251300}.red{background:#55252c;color:#fff}select.input{appearance:auto}.input{width:100%;background:#0b0c11;color:#fff;border:1px solid #393d49;border-radius:12px;padding:13px;outline:none}.setup{margin-top:15px;padding-top:15px;border-top:1px solid var(--line)}.setupRow{display:grid;grid-template-columns:1fr auto;gap:8px;margin:7px 0}
+.app{width:min(1150px,96%);margin:auto;padding:14px 0 50px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.brand{font-size:32px;font-weight:950}.brand span{color:var(--c)}.badge{background:#1b1f29;border:1px solid #4a5160;color:#eef2f8;padding:8px 11px;border-radius:999px;font-size:12px;font-weight:800}
+.badge.ok{border-color:#38b866;color:#8ff0ad;background:#0f2a19;box-shadow:0 0 0 1px #38b86622}
+.badge.bad{border-color:#bf4d5c;color:#ffabb4;background:#2a1318}
+.badge.checking{border-color:#c89431;color:#ffe09a;background:#2a210f}
+.panel{background:rgba(17,19,26,.98);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 18px 50px #0006}.hidden{display:none!important}.home{max-width:720px;margin:5vh auto}.hero{text-align:center}.hero h1{font-size:40px;margin:8px 0}.mut{color:#b9c0cc;line-height:1.45}.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}.role{background:#171a22;border:1px solid #3b4250;border-radius:17px;padding:17px}.role h3{margin:0 0 5px}.btn{border:0;border-radius:14px;padding:14px 16px;font-weight:900}.full{width:100%}.green{background:var(--g);color:#06210f}.cyan{background:var(--c);color:#00151d}.purple{background:var(--v);color:#160025}.dark{background:#2a2d37;color:#fff}.orange{background:var(--o);color:#251300}.red{background:#55252c;color:#fff}select.input{appearance:auto}.input{width:100%;background:#0b0c11;color:#fff;border:1px solid #393d49;border-radius:12px;padding:13px;outline:none}.setup{margin-top:15px;padding-top:15px;border-top:1px solid var(--line)}.setupRow{display:grid;grid-template-columns:1fr auto;gap:8px;margin:7px 0}
 .grid{display:grid;grid-template-columns:300px 1fr;gap:16px}.code{font-size:30px;letter-spacing:5px;font-weight:950;color:var(--c)}.players{display:grid;gap:8px}.prow{display:grid;grid-template-columns:1fr auto;gap:8px;background:#181b23;border:1px solid #2e323d;border-radius:13px;padding:11px}.prow.active{border-color:var(--c)}.pname{font-weight:850}.pmeta{font-size:11px;color:var(--mut);margin-top:3px}.swaps{color:var(--o);font-weight:900}
 .head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.turn{font-size:26px;font-weight:950}.status{min-height:25px;margin:12px 0;color:var(--c);font-weight:800}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:#171a22;border:1px solid #2d313c;border-radius:13px;padding:10px;text-align:center}.stat b{display:block;font-size:21px}.stat small{color:var(--mut)}
@@ -30,14 +30,14 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 @keyframes snapIn{from{opacity:.35;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 .onlineToolbar{display:grid;gap:10px;margin-top:14px}
 .onlineMatches{display:grid;gap:10px;margin-top:14px}
-.onlineMatchCard{background:#151821;border:1px solid #343945;border-radius:16px;padding:14px;text-align:left}
-.onlineMatchCard.yourTurn{border-color:var(--g);box-shadow:0 0 22px #35db7b22}
-.onlineMatchCard.waiting{border-color:#4a4f5d}
+.onlineMatchCard{width:100%;background:#171b24;border:1px solid #3e4655;border-radius:16px;padding:14px;text-align:left;color:#f7f9fc;box-shadow:0 8px 22px #0003;transition:border-color .15s,background .15s,transform .15s}
+.onlineMatchCard.yourTurn{border-color:#38b866;background:#122319;box-shadow:0 0 0 1px #38b86622,0 10px 28px #0004}
+.onlineMatchCard.waiting{border-color:#4a5261;background:#181c25}
 .onlineMatchTop{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.onlineMatchNames{font-weight:950;font-size:17px}
-.onlineMatchState{font-size:11px;font-weight:900;border-radius:999px;padding:6px 9px;background:#20232d}
-.onlineMatchState.turn{color:#72ee9e;border:1px solid #2d8a50;background:#102318}
-.onlineMatchState.wait{color:#b8bdc9;border:1px solid #454b59}
+.onlineMatchNames{font-weight:950;font-size:17px;color:#ffffff;line-height:1.25}
+.onlineMatchState{font-size:11px;font-weight:950;border-radius:999px;padding:7px 10px;background:#222733;color:#eef2f8;border:1px solid #4b5363;white-space:nowrap}
+.onlineMatchState.turn{color:#9cf4b6;border:1px solid #38b866;background:#0f2a19}
+.onlineMatchState.wait{color:#d3d8e2;border:1px solid #525a69;background:#202530}
 .playerRowActions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .playerTimelineBtn{padding:6px 9px;font-size:10px;border-radius:9px}
 .playerInlineTimeline{margin-top:9px;padding:10px;border:1px solid #343945;border-radius:12px;background:#0d0f14;overflow-x:auto}
@@ -110,14 +110,49 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .startChoice .mut{font-size:12px;min-height:36px}
 @media(max-width:650px){.startChoiceGrid{grid-template-columns:1fr}.startChoice .mut{min-height:0}}
 
+.statusLegend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:11px}
+.statusLegend span{display:inline-flex;align-items:center;gap:6px}
+.statusDot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.statusDot.turn{background:#35db7b;box-shadow:0 0 8px #35db7b88}
+.statusDot.wait{background:#777f8e}
+input.input{color:#fff;background:#0f1218;border:1px solid #424a59}
+input.input::placeholder{color:#8f97a5}
+input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff22}
+
+.matchCardShell{position:relative}.onlineMatchCard{padding-right:54px}.leaveIconBtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:10px;border:1px solid #5a4350;background:#24171d;color:#ff9eaa;font-size:18px;display:grid;place-items:center;z-index:3}.leaveIconBtn:hover{background:#351c25}.leaveMatchBtn{margin-top:14px;background:#29171c;color:#ffabb4;border:1px solid #8e3e4a}.confirmLeaveName{color:#fff;font-weight:900}
+
+.historyList{display:grid;gap:9px;margin-top:12px}
+.historyCard{background:#141821;border:1px solid #394150;border-radius:14px;padding:13px}
+.historyCard.win{border-left:4px solid var(--g)}
+.historyCard.loss{border-left:4px solid var(--r)}
+.historyCard.left{border-left:4px solid var(--o)}
+.historyTop{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.historyName{font-weight:950;color:#fff}
+.historyResult{font-size:11px;font-weight:950;padding:6px 9px;border-radius:999px;white-space:nowrap}
+.historyResult.win{background:#0f2a19;color:#9cf4b6;border:1px solid #38b866}
+.historyResult.loss{background:#2a1318;color:#ffabb4;border:1px solid #bf4d5c}
+.historyResult.left{background:#2a210f;color:#ffe09a;border:1px solid #c89431}
+.historyMeta{font-size:11px;color:#c3cad5;margin-top:7px;line-height:1.45}
+.historySummary{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px solid #2e3440;font-size:11px;color:#d8dde6}
+.historyDanger{background:#29171c;color:#ffabb4;border:1px solid #8e3e4a}
+
+
+
+
+
+
+
+
+
+
+
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.36</small></div><div class="badge" id="online">Redo · V4.36</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.41</small></div><div class="badge" id="online">Redo · V4.41</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
     <div class="hero">
-      <h1 style="font-size:30px;margin-bottom:6px">Spela musik mot en vän</h1>
-      <p class="mut" style="margin-top:0">Skapa en ny match eller gå med med en matchkod. Spela när det passar dig.</p>
+      <h1 style="font-size:30px;margin-bottom:6px">Vilket år släpptes låten?</h1>
     </div>
 
     <div class="role" style="margin-top:18px">
@@ -132,38 +167,21 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
     </div>
 
     <div class="role" style="margin-top:12px">
-      <div class="startStepHead">
-        <div class="startStepNumber">2</div>
-        <div style="flex:1">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-            <h3>Spotify Premium</h3>
-            <span id="onlineSpotifyBadge" class="badge">Inte kontrollerat</span>
-          </div>
-          <div class="mut startStepHelp">Spotify används bara när det är din tur. Digihits visar inte vilken låt som spelas.</div>
-        </div>
-      </div>
-      <button id="onlineSpotifyBtn" class="btn dark full startPrimaryAction" style="margin-top:12px" onclick="onlineSpotifyCheck()">KONTROLLERA ATT SPOTIFY FUNGERAR</button>
+      <button id="onlineSpotifyBtn" class="btn dark full startPrimaryAction" onclick="onlineSpotifyCheck()">KLICKA HÄR FÖR ATT KONTROLLERA SPOTIFY</button>
+      <div style="display:flex;justify-content:center;margin-top:10px"><span id="onlineSpotifyBadge" class="badge">SPOTIFY EJ KONTROLLERAT</span></div>
       <div id="onlineStatus" class="mut" style="font-size:12px;margin-top:9px"></div>
     </div>
 
     <div class="role" style="margin-top:12px">
-      <div class="startStepHead">
-        <div class="startStepNumber">3</div>
-        <div>
-          <h3>Starta eller gå med</h3>
-          <div class="mut startStepHelp">Välj ett av alternativen nedan.</div>
-        </div>
-      </div>
-
       <div class="startChoiceGrid">
         <div class="startChoice">
-          <strong>Starta en ny match</strong>
+          <strong style="color:#fff">Starta en ny match</strong>
           <div class="mut">Du får en matchkod som du skickar till personen du vill spela mot.</div>
           <button class="btn green full" onclick="createOnlineMatch()">STARTA NY MATCH</button>
         </div>
 
         <div class="startChoice">
-          <strong>Har du fått en matchkod?</strong>
+          <strong style="color:#fff">Har du fått en matchkod?</strong>
           <div class="mut">Skriv koden du fått av din vän.</div>
           <input id="onlineJoinCode" class="input" maxlength="6" placeholder="Skriv matchkod" style="text-transform:uppercase">
           <button class="btn cyan full" onclick="joinOnlineMatch()">GÅ MED I MATCHEN</button>
@@ -175,7 +193,11 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
         <div>
           <h3 style="margin:0">Mina matcher</h3>
-          <div class="mut" style="font-size:12px;margin-top:4px">Här ser du direkt när det är din tur.</div>
+          <div class="mut" style="font-size:12px;margin-top:4px">Grönt betyder att det är din tur. Grått betyder att du väntar.</div>
+          <div class="statusLegend">
+            <span><i class="statusDot turn"></i> Din tur</span>
+            <span><i class="statusDot wait"></i> Väntar på motspelaren</span>
+          </div>
         </div>
         <button class="btn dark" style="padding:8px 11px" onclick="manualOnlineMatchesRefresh(this)">UPPDATERA</button>
       </div>
@@ -183,13 +205,27 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
         <div class="wait" style="padding:18px">Hämtar dina matcher…</div>
       </div>
     </div>
+
+    <div class="role" style="margin-top:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div>
+          <h3 style="margin:0">Historik</h3>
+          <div class="mut" style="font-size:12px;margin-top:4px">Slutförda och lämnade matcher.</div>
+        </div>
+        <button id="clearHistoryBtn" class="btn historyDanger" style="padding:8px 11px" onclick="askClearHistory()">NOLLSTÄLL HISTORIK</button>
+      </div>
+      <div id="onlineHistory" class="historyList">
+        <div class="wait" style="padding:18px">Hämtar historik…</div>
+      </div>
+    </div>
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.36</strong>
+    Version <strong style="color:#fff">V4.41</strong>
   </div>
 </section>
 
+</div>
 
 <section id="onlineGame" class="hidden">
   <div class="grid">
@@ -198,6 +234,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
       <div style="margin-top:16px"><small class="mut">MATCHKOD</small><div id="onlineGameCode" class="code">–</div></div>
       <h3>Spelare</h3>
       <div id="onlineGamePlayers" class="players"></div>
+      <button class="btn full leaveMatchBtn" onclick="askLeaveCurrentMatch()">LÄMNA MATCHEN</button>
     </aside>
 
     <main class="panel main">
@@ -775,7 +812,6 @@ class RestQuery {
 }
 const db={from:(table)=>new RestQuery(table)};
 
-
 const SESSION_KEY="digihits_active_session_v2";
 const SESSION_TTL_MS=6*60*60*1000; // 6 timmar
 let intentionalLeave=false;
@@ -915,7 +951,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.36";
+    if(badge)badge.textContent="Återansluten · V4.41";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -923,7 +959,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.36 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.41 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -934,7 +970,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.36"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.41"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -971,7 +1007,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.36":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.41":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1298,7 +1334,6 @@ async function autoPlayPreparedSong(){
     },7000);
   }
 }
-
 
 let hostTimelinesOpen=false;
 
@@ -1725,8 +1760,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// =======================
-// SPELA ONLINE – V4.36
+// SPELA ONLINE – V4.41
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -1755,7 +1789,8 @@ let onlineRealtimeDebounce=null;
 let onlineRealtimeAvailable=false;
 let onlineMatchesRenderedHtml="";
 let onlineMatchesLoading=false;
-
+let onlineHistoryRenderedHtml="";
+let onlineHistoryLoading=false;
 
 function getRealtimeClient(){
   if(realtimeClient)return realtimeClient;
@@ -1782,6 +1817,7 @@ function scheduleOnlineListRefresh(delay=40){
       return;
     }
     await loadOnlineMatches({silent:true});
+    await loadOnlineHistory({silent:true});
   },delay);
 }
 
@@ -1910,7 +1946,7 @@ async function onlineSpotifyCheck(){
     const ok=await ensureSpotifyDevice(false);
     if(!ok)throw new Error("Öppna Spotify på den här mobilen, starta valfri låt några sekunder, pausa och gå tillbaka.");
     await spotifyApi("/me/player");
-    if(badge){badge.textContent="Spotify fungerar ✓";badge.className="badge ok"}
+    if(badge){badge.textContent="SPOTIFY FUNGERAR ✓";badge.className="badge ok"}
     return true;
   }catch(e){
     if(badge){badge.textContent="Spotify fungerar inte";badge.className="badge bad"}
@@ -1977,6 +2013,8 @@ async function createOnlineMatch(){
       turn_cards:[],
       swap_cards:0,
       active:true,
+      history_hidden:false,
+      left_at:null,
       updated_at:new Date().toISOString()
     }).select("*").single();
     if(pr.error)throw new Error(pr.error.message);
@@ -2027,6 +2065,8 @@ async function joinOnlineMatch(){
       turn_cards:[],
       swap_cards:0,
       active:true,
+      history_hidden:false,
+      left_at:null,
       updated_at:new Date().toISOString()
     }).select("*").single();
     if(pr.error)throw new Error(pr.error.message);
@@ -2109,15 +2149,18 @@ async function loadOnlineMatches(options={}){
               ?(m.winner_user_id===ensureOnlineUserId()?"Du vann":"Avslutad")
               :(yourTurn?"DIN TUR":"Väntar");
 
-          return `<button class="onlineMatchCard ${yourTurn?"yourTurn":"waiting"}" onclick="openOnlineMatch(${m.id})">
-            <div class="onlineMatchTop">
-              <div>
-                <div class="onlineMatchNames">${row.me.display_name} mot ${opponent}</div>
-                <div class="mut" style="font-size:11px;margin-top:4px">Matchkod ${m.code}</div>
+          return `<div class="matchCardShell">
+            <button class="onlineMatchCard ${yourTurn?"yourTurn":"waiting"}" onclick="openOnlineMatch(${m.id})">
+              <div class="onlineMatchTop">
+                <div>
+                  <div class="onlineMatchNames">${row.me.display_name} mot ${opponent}</div>
+                  <div style="font-size:11px;margin-top:4px;color:#c7ced9">Matchkod ${m.code}</div>
+                </div>
+                <div class="onlineMatchState ${yourTurn?"turn":"wait"}">${text}</div>
               </div>
-              <div class="onlineMatchState ${yourTurn?"turn":"wait"}">${text}</div>
-            </div>
-          </button>`;
+            </button>
+            <button class="leaveIconBtn" aria-label="Lämna match" title="Lämna match" onclick="event.stopPropagation();askLeaveMatch(${m.id},'${String(opponent).replace(/'/g,"\\'")}')">🗑</button>
+          </div>`;
         }).join("");
 
     // Skriv bara om listan när innehållet verkligen har ändrats.
@@ -2136,6 +2179,109 @@ async function loadOnlineMatches(options={}){
     }
   }finally{
     onlineMatchesLoading=false;
+  }
+}
+
+function fmtHistoryDate(value){
+  if(!value)return "";
+  try{
+    return new Intl.DateTimeFormat("sv-SE",{year:"numeric",month:"short",day:"numeric"}).format(new Date(value));
+  }catch(_){return ""}
+}
+
+async function loadOnlineHistory(options={}){
+  const box=$("onlineHistory");
+  if(!box||onlineHistoryLoading)return;
+  onlineHistoryLoading=true;
+  const firstLoad=!onlineHistoryRenderedHtml;
+
+  try{
+    const pr=await db.from("online_players").select("*").eq("user_id",ensureOnlineUserId());
+    if(pr.error)throw new Error(pr.error.message);
+
+    const memberships=(pr.data||[]).filter(p=>p.history_hidden!==true);
+    const rows=[];
+
+    for(const me of memberships){
+      const mr=await db.from("online_matches").select("*").eq("id",me.match_id).maybeSingle();
+      if(!mr.data||mr.data.status!=="ended")continue;
+
+      const ps=await db.from("online_players").select("*").eq("match_id",me.match_id).order("turn_order");
+      if(ps.error)continue;
+      const allPlayers=ps.data||[];
+      const opp=allPlayers.find(p=>p.user_id!==ensureOnlineUserId())||null;
+      rows.push({match:mr.data,me,opp,players:allPlayers});
+    }
+
+    rows.sort((a,b)=>String(b.match.updated_at||"").localeCompare(String(a.match.updated_at||"")));
+
+    const nextHtml=!rows.length
+      ? '<div class="wait" style="padding:18px">Ingen historik ännu.</div>'
+      : rows.map(row=>{
+          const m=row.match, me=row.me, opp=row.opp;
+          const left=!!me.left_at || me.active===false;
+          const won=!left && m.winner_user_id===ensureOnlineUserId();
+          const resultClass=left?"left":won?"win":"loss";
+          const resultText=left?"LÄMNAD":won?"VINST":"FÖRLUST";
+          const myLocked=(me.locked_timeline||[]).length;
+          const oppLocked=(opp?.locked_timeline||[]).length;
+          const opponent=opp?.display_name||"Okänd spelare";
+          const date=fmtHistoryDate(m.updated_at||me.updated_at);
+          return `<div class="historyCard ${resultClass}">
+            <div class="historyTop">
+              <div class="historyName">Mot ${opponent}</div>
+              <div class="historyResult ${resultClass}">${resultText}</div>
+            </div>
+            <div class="historyMeta">Matchkod ${m.code}${date?` · ${date}`:""}</div>
+            <div class="historySummary">
+              <span><strong>${myLocked}</strong> låsta kort för dig</span>
+              <span><strong>${oppLocked}</strong> för ${opponent}</span>
+            </div>
+          </div>`;
+        }).join("");
+
+    if(nextHtml!==onlineHistoryRenderedHtml){
+      onlineHistoryRenderedHtml=nextHtml;
+      box.innerHTML=nextHtml;
+    }
+  }catch(e){
+    if(firstLoad){
+      box.innerHTML='<div class="wait" style="padding:18px">Kunde inte hämta historiken.</div>';
+    }else{
+      console.warn("Historik kunde inte uppdateras:",e);
+    }
+  }finally{
+    onlineHistoryLoading=false;
+  }
+}
+
+function askClearHistory(){
+  $("clearHistoryModal").classList.remove("hidden");
+}
+function cancelClearHistory(){
+  $("clearHistoryModal").classList.add("hidden");
+}
+async function confirmClearHistory(){
+  const btn=$("confirmClearHistoryBtn");
+  if(btn){btn.disabled=true;btn.textContent="NOLLSTÄLLER…"}
+  try{
+    const pr=await db.from("online_players").select("*").eq("user_id",ensureOnlineUserId());
+    if(pr.error)throw new Error(pr.error.message);
+
+    for(const membership of (pr.data||[])){
+      const mr=await db.from("online_matches").select("*").eq("id",membership.match_id).maybeSingle();
+      if(mr.data?.status!=="ended")continue;
+      const up=await db.from("online_players").update({history_hidden:true,updated_at:new Date().toISOString()}).eq("id",membership.id);
+      if(up.error)throw new Error(up.error.message);
+    }
+
+    onlineHistoryRenderedHtml="";
+    cancelClearHistory();
+    await loadOnlineHistory({silent:true});
+  }catch(e){
+    alert("Kunde inte nollställa historiken: "+e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="JA, NOLLSTÄLL HISTORIK"}
   }
 }
 
@@ -2199,6 +2345,60 @@ async function openOnlineMatch(id){
   // Realtime är primärt. 700 ms polling är endast reserv om websocket
   // tappas eller en mobil lägger anslutningen i viloläge.
   onlineGameTimer=setInterval(fetchOnlineGameState,700);
+}
+
+let pendingLeaveMatchId=null;
+
+function askLeaveMatch(matchId,opponentName=""){
+  pendingLeaveMatchId=Number(matchId);
+  const who=$("leaveMatchWho");
+  if(who)who.textContent=opponentName?`Matchen mot ${opponentName}`:"Den här matchen";
+  $("leaveMatchModal").classList.remove("hidden");
+}
+function askLeaveCurrentMatch(){
+  if(!onlineMatch)return;
+  askLeaveMatch(onlineMatch.id,onlineOpponent()?.display_name||"");
+}
+function cancelLeaveMatch(){
+  pendingLeaveMatchId=null;
+  $("leaveMatchModal").classList.add("hidden");
+}
+async function confirmLeaveMatch(){
+  const id=pendingLeaveMatchId;
+  if(!id)return;
+  const btn=$("confirmLeaveBtn");
+  if(btn){btn.disabled=true;btn.textContent="LÄMNAR…"}
+  try{
+    const me=ensureOnlineUserId();
+    const pr=await db.from("online_players").select("*").eq("match_id",id).eq("active",true);
+    if(pr.error)throw new Error(pr.error.message);
+    const activePlayers=pr.data||[];
+    const mine=activePlayers.find(p=>p.user_id===me);
+    if(!mine)throw new Error("Du är inte längre med i matchen.");
+
+    const up=await db.from("online_players").update({active:false,left_at:new Date().toISOString(),history_hidden:false,updated_at:new Date().toISOString()}).eq("id",mine.id);
+    if(up.error)throw new Error(up.error.message);
+
+    const other=activePlayers.find(p=>p.user_id!==me);
+    // Om en pågående tvåspelarmatch lämnas avslutas den så den kvarvarande
+    // spelaren inte fastnar i en tur som aldrig kan spelas.
+    const mr=await db.from("online_matches").select("*").eq("id",id).maybeSingle();
+    if(mr.data && mr.data.status!=="ended"){
+      const patch={status:"ended",phase:"ended",updated_at:new Date().toISOString()};
+      if(other)patch.winner_user_id=other.user_id;
+      const mu=await db.from("online_matches").update(patch).eq("id",id);
+      if(mu.error)throw new Error(mu.error.message);
+    }
+
+    cancelLeaveMatch();
+    if(onlineMatch?.id===id)closeOnlineGame();
+    onlineMatchesRenderedHtml="";
+    await loadOnlineMatches({silent:true});
+  }catch(e){
+    alert("Kunde inte lämna matchen: "+e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="JA, LÄMNA MATCHEN"}
+  }
 }
 
 function closeOnlineGame(){
@@ -2764,12 +2964,13 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.36.
+// Startsidan är alltid online i V4.41.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
   setupOnlineRealtimeList();
   loadOnlineMatches();
+  loadOnlineHistory();
 
   clearInterval(onlineMatchesTimer);
   // Realtime uppdaterar normalt direkt. Detta är reservsynk.
@@ -2779,6 +2980,30 @@ function startOnlineHomeSync(){
 }
 
 </script>
+
+<div id="clearHistoryModal" class="modalBackdrop hidden">
+  <div class="modalBox">
+    <h3>Nollställ historiken?</h3>
+    <p class="mut">Din lista med slutförda och lämnade matcher töms. Aktiva matcher påverkas inte.</p>
+    <div class="modalActions">
+      <button id="confirmClearHistoryBtn" class="btn historyDanger full" onclick="confirmClearHistory()">JA, NOLLSTÄLL HISTORIK</button>
+      <button class="btn dark full" onclick="cancelClearHistory()">AVBRYT</button>
+    </div>
+  </div>
+</div>
+
+<div id="leaveMatchModal" class="modalBackdrop hidden">
+  <div class="modalBox">
+    <h3>Lämna matchen?</h3>
+    <p id="leaveMatchWho" class="confirmLeaveName">Den här matchen</p>
+    <p class="mut">Matchen försvinner från Mina matcher och du kan inte fortsätta spela den.</p>
+    <div class="modalActions">
+      <button id="confirmLeaveBtn" class="btn full leaveMatchBtn" onclick="confirmLeaveMatch()">JA, LÄMNA MATCHEN</button>
+      <button class="btn dark full" onclick="cancelLeaveMatch()">NEJ, GÅ TILLBAKA</button>
+    </div>
+  </div>
+</div>
+
 <div id="guessFirstModal" class="modalBackdrop hidden">
   <div class="modalBox">
     <h3>Vill du gissa artist och låtnamn först?</h3>
