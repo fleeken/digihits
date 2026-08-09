@@ -1,25 +1,15 @@
-DIGIHITS V4.10
+DIGIHITS V4.12
 
-Spotify-flödet är förenklat:
+Ledarmobil:
+- Ingen text "Spelar".
+- Visuell Spotify-tidslinje med aktuell tid och total låtlängd.
+- PAUSA
+- FORTSÄTT SPELA
+- SPELA FRÅN BÖRJAN
+- FÖRSÖK SPELA IGEN visas bara om automatisk start misslyckas.
 
-FÖRSTA GÅNGEN:
-1. ANSLUT SPOTIFY.
-2. Godkänn hos Spotify.
-3. Digihits hittar automatiskt aktiv Spotify-enhet.
-4. Klart.
-
-VANLIG ANVÄNDARE SER INTE LÄNGRE:
-- Hitta Spotify-enhet
-- Spotify-enhetslista
-- Client ID
-- Redirect URI
-
-Om ingen enhet hittas visas bara instruktionen:
-Öppna Spotify-appen på ledarmobilen, starta valfri låt några sekunder, pausa och gå tillbaka.
-
-Vid Starta låt, Pausa och Fortsätt försöker Digihits automatiskt hitta enheten igen om det behövs.
-
-Ersätt på GitHub:
-- index.html
-- sw.js
-- manifest.webmanifest
+Flöde:
+- När nästa spelare trycker REDO väljs nästa låt.
+- Ledarmobilen upptäcker den förberedda låten via Supabase och försöker starta den automatiskt i Spotify.
+- Vid FORTSÄTT väljs ny låt och samma automatiska uppspelning sker.
+- Progressbaren läser riktig playback-status från Spotify cirka var 1,5 sekund.
