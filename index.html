@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.1</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.3</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
@@ -17,14 +17,16 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .wait{border:1px dashed #3b3f4b;border-radius:17px;padding:30px;text-align:center;color:var(--mut)}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.1</small></div><div class="badge" id="online">Startar…</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.3</small></div><div class="badge" id="online">Startar…</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Musik. Tidslinje. Våga fortsätta.</h1><p class="mut">En ledarmobil ligger på bordet. En spelarmobil skickas runt mellan spelarna.</p></div>
 <div class="roles"><div class="role"><h3>📺 Ledarmobil</h3><p class="mut">Skapa match, lägg till spelare och styr låtarna.</p><button type="button" class="btn green full" onclick="hostSetup()">SKAPA MATCH</button></div>
 <div class="role"><h3>🎮 Spelarmobil</h3><p class="mut">Anslut till matchen och skicka mobilen mellan spelarna.</p><button type="button" class="btn cyan full" onclick="joinSetup()">ANSLUT SPELARMOBIL</button></div></div>
-<div id="hs" class="setup hidden"><h3>Skapa match</h3><div id="names"></div><button class="btn dark full" onclick="addName()">+ Lägg till spelare</button><div style="height:8px"></div><button class="btn green full" onclick="createMatch()">STARTA MATCH</button></div>
+<div id="hs" class="setup hidden"><h3>Skapa match</h3><div id="names"></div><button class="btn dark full" onclick="addName()">+ Lägg till spelare</button><div style="height:8px"></div><button id="createBtn" class="btn green full" onclick="createMatch()">STARTA MATCH</button>
+    <div id="createStatus" class="mut" style="margin-top:10px;text-align:center;min-height:20px"></div>
+    </div>
 <div id="js" class="setup hidden"><h3>Anslut spelarmobil</h3><input id="joinCode" class="input" maxlength="6" placeholder="MATCHKOD" style="text-transform:uppercase"><div style="height:8px"></div><button class="btn cyan full" onclick="joinMatch()">ANSLUT</button></div>
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.1</strong> · Om knapparna fungerar ska "Skapa match" direkt visa spelarlistan.
+  Version <strong style="color:#fff">V4.3</strong> · Om knapparna fungerar ska "Skapa match" direkt visa spelarlistan.
 </div>
 </section>
 
@@ -45,13 +47,14 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0", TRACKS=[{"title": "Take On Me", "artist": "a-ha", "year": 1985, "id": "2WfaOiMkCvy7F5fcp2zZ8L"}, {"title": "Like a Prayer", "artist": "Madonna", "year": 1989, "id": "1z3ugFmUKoCzGsI6jdY4Ci"}, {"title": "Smells Like Teen Spirit", "artist": "Nirvana", "year": 1991, "id": "4CeeEOM32jQcH3eN9Q2dGj"}, {"title": "Wannabe", "artist": "Spice Girls", "year": 1996, "id": "1Je1IMUlBXcx1Fz0WE7oPT"}, {"title": "...Baby One More Time", "artist": "Britney Spears", "year": 1998, "id": "3MjUtNVVq3C8Fn0MP3zhXa"}, {"title": "Freestyler", "artist": "Bomfunk MC's", "year": 1999, "id": "2AsJqU7Z3J7cBQrKHVNJcA"}, {"title": "Crazy in Love", "artist": "Beyoncé", "year": 2003, "id": "5IVuqXILoxVWvWEPm82Jxr"}, {"title": "Poker Face", "artist": "Lady Gaga", "year": 2008, "id": "5R8dQOPq8haW94K7mgERlO"}, {"title": "Rolling in the Deep", "artist": "Adele", "year": 2010, "id": "1c8gk2PeTE04A1pIDH9YMk"}, {"title": "Wake Me Up", "artist": "Avicii", "year": 2013, "id": "0nrRP2bk19rLc0orkWPQk2"}, {"title": "Shape of You", "artist": "Ed Sheeran", "year": 2017, "id": "7qiZfU4dY1lWllzX7mPBI3"}, {"title": "Blinding Lights", "artist": "The Weeknd", "year": 2019, "id": "0VjIjW4GlUZAMYd2vXMi3b"}, {"title": "As It Was", "artist": "Harry Styles", "year": 2022, "id": "4LRPiXqCikLlN15c3yImP7"}, {"title": "Flowers", "artist": "Miley Cyrus", "year": 2023, "id": "0yLdNVWF3Srea0uzk55zFn"}];
 let db=null;
 let role="",code="",match=null,players=[],poll=null,selected=null,guessSaved=false,localNames=["Anna","Viktor"];
+let actionBusy=false, startSongBusy=false, confirmBusy=false;
 
 function initDb(){
   if(db) return true;
   if(window.supabase && window.supabase.createClient){
     db=window.supabase.createClient(URL,KEY);
     const badge=document.getElementById("online");
-    if(badge) badge.textContent="Supabase online · V4.1";
+    if(badge) badge.textContent="Supabase online · V4.3";
     return true;
   }
   const badge=document.getElementById("online");
@@ -70,6 +73,29 @@ window.addEventListener("load",()=>{
   setTimeout(initDb,800);
   setTimeout(initDb,2000);
 });
+
+function setCreateStatus(text, isError=false){
+  const el=document.getElementById("createStatus");
+  if(!el)return;
+  el.textContent=text;
+  el.style.color=isError?"#ff7b87":"#a5a9b5";
+}
+function setCreateBusy(busy){
+  const b=document.getElementById("createBtn");
+  if(!b)return;
+  b.disabled=busy;
+  b.style.opacity=busy?".55":"1";
+  b.textContent=busy?"STARTAR MATCH…":"STARTA MATCH";
+}
+async function withTimeout(promise, ms=12000){
+  let timer;
+  const timeout=new Promise((_,reject)=>{
+    timer=setTimeout(()=>reject(new Error("Tidsgränsen gick ut. Kontrollera internet och Supabase.")),ms);
+  });
+  try{return await Promise.race([promise,timeout])}
+  finally{clearTimeout(timer)}
+}
+
 const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -88,31 +114,123 @@ function joinSetup(){
 window.hostSetup=hostSetup;
 window.joinSetup=joinSetup;
 function renderNames(){$("names").innerHTML=localNames.map((n,i)=>`<div class="setupRow"><input class="input" value="${n}" onchange="localNames[${i}]=this.value"><button class="btn red" onclick="localNames.splice(${i},1);renderNames()">×</button></div>`).join("")}
-function addName(){localNames.push("Spelare "+(localNames.length+1));renderNames()} function enter(){$("home").classList.add("hidden");$("game").classList.remove("hidden")}
-async function createMatch(){if(!requireDb())return;localNames=localNames.map(x=>x.trim()).filter(Boolean);if(localNames.length<2)return alert("Lägg till minst två spelare.");role="host";code=gen();let deck=sh(TRACKS);let refs=[];for(let i=0;i<localNames.length;i++)refs.push(deck.pop());let r=await db.from("matches").insert({code,host_name:"Ledare",deck,target_cards:10,status:"waiting",phase:"handoff",timeline:[],current_player_id:null,current_song:null,last_result:null}).select().single();if(r.error)return alert("Kör först SUPABASE_V4.sql i Supabase SQL Editor.\\n\\n"+r.error.message);match=r.data;for(let i=0;i<localNames.length;i++){let pr=await db.from("players").insert({match_code:code,name:localNames[i],score:0,locked_timeline:[refs[i]],turn_cards:[],swap_cards:0,turn_order:i,active:true}).select().single();if(i===0)await db.from("matches").update({current_player_id:pr.data.id}).eq("code",code)}$("code").textContent=code;$("codeBox").classList.remove("hidden");$("hostView").classList.remove("hidden");enter();startPoll()}
-async function joinMatch(){if(!requireDb())return;role="player";code=$("joinCode").value.trim().toUpperCase();let r=await db.from("matches").select("*").eq("code",code).maybeSingle();if(!r.data)return alert("Matchen hittades inte.");match=r.data;$("playerView").classList.remove("hidden");enter();startPoll()}
-async function fetchState(){if(!requireDb())return;let [m,p]=await Promise.all([db.from("matches").select("*").eq("code",code).maybeSingle(),db.from("players").select("*").eq("match_code",code).eq("active",true).order("turn_order")]);if(m.data)match=m.data;players=p.data||[];render()}
+function addName(){
+  if(localNames.length>=8){alert("Max 8 spelare i den här versionen.");return}
+  localNames.push("Spelare "+(localNames.length+1));renderNames()
+} function enter(){$("home").classList.add("hidden");$("game").classList.remove("hidden")}
+async function createMatch(){
+  if(actionBusy)return;
+  if(!requireDb())return;
+
+  localNames=localNames.map(x=>x.trim()).filter(Boolean);
+  if(localNames.length<2){alert("Lägg till minst två spelare.");return}
+  if(localNames.length>8){alert("Max 8 spelare i den här versionen.");return}
+  if(new Set(localNames.map(n=>n.toLowerCase())).size!==localNames.length){
+    alert("Spelarna måste ha olika namn.");return;
+  }
+
+  actionBusy=true;
+  setCreateBusy(true);
+  setCreateStatus("Kontaktar Supabase…");
+  let createdCode=null;
+
+  try{
+    role="host";
+    let deck=sh(TRACKS);
+    if(deck.length<localNames.length+1)throw new Error("För få låtar i kortleken för så många spelare.");
+    const refs=[];
+    for(let i=0;i<localNames.length;i++)refs.push(deck.pop());
+
+    // Försök några gånger om en slumpkod mot förmodan redan finns.
+    let r=null;
+    for(let attempt=0;attempt<5;attempt++){
+      code=gen();
+      setCreateStatus("Skapar match "+code+"…");
+      const payload={code,host_name:"Ledare",deck,target_cards:10,status:"waiting",phase:"handoff",timeline:[],current_player_id:null,current_song:null,last_result:null};
+      r=await withTimeout(db.from("matches").insert(payload).select("*").single());
+      if(!r.error)break;
+      if(!String(r.error.message||"").toLowerCase().includes("duplicate"))break;
+    }
+    if(!r||r.error)throw new Error("Match: "+(r?.error?.message||"okänt databasfel"));
+    match=r.data; createdCode=code;
+
+    setCreateStatus("Lägger till "+localNames.length+" spelare…");
+    const playerPayloads=localNames.map((name,i)=>({match_code:code,name,score:0,locked_timeline:[refs[i]],turn_cards:[],swap_cards:0,turn_order:i,active:true}));
+    const pres=await withTimeout(db.from("players").insert(playerPayloads).select("*"));
+    if(pres.error)throw new Error("Spelare: "+pres.error.message);
+    const created=(pres.data||[]).sort((a,b)=>(a.turn_order||0)-(b.turn_order||0));
+    if(created.length!==localNames.length)throw new Error("Alla spelare skapades inte korrekt.");
+
+    setCreateStatus("Startar första rundan…");
+    const u=await withTimeout(db.from("matches").update({current_player_id:created[0].id,phase:"handoff",status:"waiting"}).eq("code",code).select("*").single());
+    if(u.error)throw new Error("Start: "+u.error.message);
+    match=u.data;
+
+    $("code").textContent=code;$("codeBox").classList.remove("hidden");$("hostView").classList.remove("hidden");enter();
+    setCreateStatus("");startPoll();
+  }catch(err){
+    console.error("createMatch failed:",err);
+    // Städa halvskapad match så samma test inte lämnar skräp.
+    if(createdCode&&db){
+      try{await db.from("players").delete().eq("match_code",createdCode);await db.from("matches").delete().eq("code",createdCode)}catch(_){}
+    }
+    setCreateStatus("Kunde inte starta match: "+err.message,true);
+    alert("Kunde inte starta match.\n\n"+err.message);
+  }finally{
+    actionBusy=false;setCreateBusy(false);
+  }
+}
+
+async function joinMatch(){
+  if(actionBusy)return;if(!requireDb())return;
+  code=$("joinCode").value.trim().toUpperCase();
+  if(code.length!==6){alert("Matchkoden ska vara 6 tecken.");return}
+  actionBusy=true;
+  try{
+    const r=await withTimeout(db.from("matches").select("*").eq("code",code).maybeSingle());
+    if(r.error)throw new Error(r.error.message);
+    if(!r.data)throw new Error("Matchen hittades inte. Kontrollera matchkoden.");
+    role="player";match=r.data;$("playerView").classList.remove("hidden");enter();startPoll();
+  }catch(e){alert("Kunde inte ansluta.\n\n"+e.message)}finally{actionBusy=false}
+}
+async function fetchState(){if(!requireDb())return;try{let [m,p]=await Promise.all([db.from("matches").select("*").eq("code",code).maybeSingle(),db.from("players").select("*").eq("match_code",code).eq("active",true).order("turn_order")]);if(m.data)match=m.data;players=p.data||[];render()}catch(e){console.error("fetchState",e);$("status").textContent="Synkfel: "+e.message}}
 function startPoll(){fetchState();clearInterval(poll);poll=setInterval(fetchState,700)}
 function cur(){return players.find(p=>p.id===match?.current_player_id)||players[0]}
 function renderPlayers(){let c=cur();$("players").innerHTML=players.map(p=>`<div class="prow ${c&&p.id===c.id?"active":""}"><div><div class="pname">${p.name}</div><div class="pmeta">${(p.locked_timeline||[]).length}/10 låsta · ${(p.turn_cards||[]).length} riskeras</div></div><div class="swaps">🔄 ${p.swap_cards||0}/3</div></div>`).join("")}
 function render(){if(!match)return;renderPlayers();let c=cur();$("turn").textContent=c?c.name:"–";$("sub").textContent=role==="host"?"Ledarmobil":"Spelarmobil";$("phaseBadge").textContent=({handoff:"Byter spelare",listen:"Lyssnar",result:"Resultat",decision:"Beslut",ended:"Match slut"})[match.phase]||"Väntar";if(role==="host")renderHost(c);else renderPlayer(c)}
 function stats(c,prefix){$(prefix+"Locked").textContent=(c.locked_timeline||[]).length;$(prefix+"Risk").textContent=(c.turn_cards||[]).length;$(prefix+"Swap").textContent=c.swap_cards||0}
-function renderHost(c){if(!c)return;stats(c,"host");if(match.current_song){$("song").textContent=match.current_song.title;$("artist").textContent=match.current_song.artist+" · "+match.current_song.year;$("spotify").innerHTML=`<div style="margin-top:10px"><iframe src="https://open.spotify.com/embed/track/${match.current_song.id}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div>`}else{$("song").textContent="Ingen aktiv låt";$("artist").textContent="";$("spotify").innerHTML=""}$("startSong").classList.toggle("hidden",match.phase!=="listen"||!!match.current_song);$("hostHelp").textContent=match.phase==="handoff"?`Lämna spelarmobilen till ${c.name}. När ${c.name} klickar att den är redo kan nästa låt startas.`:match.phase==="listen"?(match.current_song?`${c.name} lyssnar och väljer mellan att gissa artist/låtnamn eller placera kortet.`:`${c.name} är redo. Tryck STARTA NY LÅT.`):match.phase==="decision"?`${c.name} väljer FORTSÄTT eller LÅS IN.`:match.phase==="ended"?`Matchen är avslutad. Vinnare: ${c.name}`:"Resultatet visas på spelarmobilen."}
+function renderHost(c){if(!c)return;stats(c,"host");if(match.current_song){$("song").textContent=match.current_song.title;$("artist").textContent=match.current_song.artist+" · "+match.current_song.year;$("spotify").innerHTML=`<div style="margin-top:10px"><iframe src="https://open.spotify.com/embed/track/${match.current_song.id}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div>`}else{$("song").textContent="Ingen aktiv låt";$("artist").textContent="";$("spotify").innerHTML=""}$("startSong").classList.toggle("hidden",match.phase!=="listen"||!!match.current_song);$("hostHelp").textContent=match.phase==="handoff"?`Lämna spelarmobilen till ${c.name}. När ${c.name} klickar att den är redo kan nästa låt startas.`:match.phase==="listen"?(match.current_song?`${c.name} lyssnar och väljer mellan att gissa artist/låtnamn eller placera kortet.`:`${c.name} är redo. Tryck STARTA NY LÅT.`):match.phase==="decision"?`${c.name} väljer FORTSÄTT eller LÅS IN.`:match.phase==="ended"?`Matchen är avslutad. Vinnare: ${c.name}`:match.phase==="result"&&match.last_result?`${c.name}: ${match.last_result.placeOk?"Rätt placering":"Fel placering"} · ${match.last_result.artistOk?"Rätt artist":"Fel artist"} · ${match.last_result.titleOk?"Rätt låtnamn":"Fel låtnamn"}`:"Resultatet visas på spelarmobilen."}
 function hidePlayer(){["listenScreen","guessScreen","placeScreen","resultScreen","handoffScreen","waitScreen"].forEach(x=>$(x).classList.add("hidden"))}
 function renderPlayer(c){if(!c)return;stats(c,"p");$("swapBtn").textContent=`🔄 BYT LÅT · ${c.swap_cards||0} KVAR`;$("swapBtn").disabled=(c.swap_cards||0)<=0;$("swapBtn").style.opacity=(c.swap_cards||0)>0?1:.45;if(match.phase==="handoff"){hidePlayer();$("handoffScreen").classList.remove("hidden");$("readyName").textContent=c.name;$("readyBtn").textContent=`${c.name.toUpperCase()}, KLICKA HÄR OM DU ÄR REDO`;return}if(match.phase==="listen"&&!match.current_song){hidePlayer();$("waitScreen").classList.remove("hidden");$("waitScreen").textContent="Du är redo. Väntar på att ledarmobilen startar låten…";return}if(match.phase==="listen"&&match.current_song){if(!["guessScreen","placeScreen"].some(x=>!$(x).classList.contains("hidden"))){hidePlayer();$("listenScreen").classList.remove("hidden")}return}if(match.phase==="result"||match.phase==="decision"){showResult(c);return}if(match.phase==="ended"){hidePlayer();$("resultScreen").classList.remove("hidden");$("resultTitle").textContent=`🏆 ${c.name} VINNER!`;return}}
-async function readyNext(){guessSaved=false;$("guessArtist").value="";$("guessTitle").value="";selected=null;await db.from("matches").update({phase:"listen",status:"playing",current_song:null,last_result:null}).eq("code",code)}
-async function startSong(){let deck=match.deck||[];if(!deck.length)return alert("Kortleken är slut.");let song=deck.shift();await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code)}
+async function readyNext(){if(actionBusy)return;actionBusy=true;try{guessSaved=false;$("guessArtist").value="";$("guessTitle").value="";selected=null;let r=await db.from("matches").update({phase:"listen",status:"playing",current_song:null,last_result:null}).eq("code",code);if(r.error)throw new Error(r.error.message)}catch(e){alert("Kunde inte göra spelaren redo: "+e.message)}finally{actionBusy=false}}
+async function startSong(){if(startSongBusy)return;startSongBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let r=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(r.error)throw new Error(r.error.message)}catch(e){alert("Kunde inte starta låten: "+e.message)}finally{startSongBusy=false}}
 function showListen(){hidePlayer();$("listenScreen").classList.remove("hidden")} function showGuess(){hidePlayer();$("guessScreen").classList.remove("hidden")}
 function saveGuess(){guessSaved=true;showListen();$("status").textContent="Gissningen är sparad. Placera nu kortet när du är redo."}
 function showPlace(){hidePlayer();$("placeScreen").classList.remove("hidden");renderTimeline();$("confirm").classList.add("hidden")}
 function allTimeline(c){return [...(c.locked_timeline||[]),...(c.turn_cards||[])].sort((a,b)=>a.year-b.year)}
 function renderTimeline(){let c=cur(),t=allTimeline(c),el=$("timeline");el.innerHTML="";for(let i=0;i<=t.length;i++){let d=document.createElement("button");d.className="drop"+(selected===i?" sel":"");d.innerHTML="SLÄPP /<br>PLACERA HÄR";d.onclick=()=>{selected=i;renderTimeline();$("confirm").classList.remove("hidden")};el.appendChild(d);if(i<t.length){let x=document.createElement("div");x.className="card";x.innerHTML=`<div class="year">${t[i].year}</div><div class="ct">${t[i].title}</div>`;el.appendChild(x)}}}
 function clearPlace(){selected=null;renderTimeline();$("confirm").classList.add("hidden")}
-async function confirmPlace(){let c=cur(),song=match.current_song,t=allTimeline(c),left=selected>0?t[selected-1]:null,right=selected<t.length?t[selected]:null,placeOk=(!left||song.year>=left.year)&&(!right||song.year<=right.year),artistOk=guessSaved&&eq($("guessArtist").value,song.artist),titleOk=guessSaved&&eq($("guessTitle").value,song.title),swap=c.swap_cards||0;if(artistOk&&titleOk)swap=Math.min(3,swap+1);let turn=c.turn_cards||[];if(placeOk)turn=[...turn,song].sort((a,b)=>a.year-b.year);else turn=[];let result={song,placeOk,artistOk,titleOk,bonus:artistOk&&titleOk};await db.from("players").update({turn_cards:turn,swap_cards:swap}).eq("id",c.id);await db.from("matches").update({last_result:result,current_song:null,phase:placeOk?"decision":"result"}).eq("code",code);selected=null;guessSaved=false}
+async function confirmPlace(){
+  if(confirmBusy)return;
+  if(selected===null){alert("Välj först en plats på tidslinjen.");return}
+  let c=cur(),song=match.current_song;if(!c||!song){alert("Ingen aktiv låt hittades.");return}
+  confirmBusy=true;
+  try{
+    let t=allTimeline(c),left=selected>0?t[selected-1]:null,right=selected<t.length?t[selected]:null;
+    let placeOk=(!left||song.year>=left.year)&&(!right||song.year<=right.year);
+    let artistOk=guessSaved&&eq($("guessArtist").value,song.artist),titleOk=guessSaved&&eq($("guessTitle").value,song.title);
+    let swap=c.swap_cards||0;if(artistOk&&titleOk)swap=Math.min(3,swap+1);
+    let turn=c.turn_cards||[];turn=placeOk?[...turn,song].sort((a,b)=>a.year-b.year):[];
+    let result={song,placeOk,artistOk,titleOk,bonus:artistOk&&titleOk};
+    let pr=await db.from("players").update({turn_cards:turn,swap_cards:swap}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);
+    let mr=await db.from("matches").update({last_result:result,current_song:null,phase:placeOk?"decision":"result"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);
+    selected=null;guessSaved=false;
+  }catch(e){alert("Kunde inte bekräfta placeringen: "+e.message)}finally{confirmBusy=false}
+}
 function showResult(c){hidePlayer();$("resultScreen").classList.remove("hidden");let r=match.last_result;if(!r)return;$("resultTitle").className=r.placeOk?"ok":"bad";$("resultTitle").textContent=r.placeOk?"RÄTT PLACERING":"FEL PLACERING";$("reveal").textContent=`${r.song.title} – ${r.song.artist} (${r.song.year})`;$("checks").innerHTML=`<div class="check">${r.placeOk?"✅":"❌"} ${r.placeOk?"Rätt placering":"Fel placering"}</div><div class="check">${r.artistOk?"✅":"❌"} ${r.artistOk?"Rätt artist":"Fel artist"}</div><div class="check">${r.titleOk?"✅":"❌"} ${r.titleOk?"Rätt låtnamn":"Fel låtnamn"}</div>`;$("bonus").innerHTML=r.bonus?`<div class="check" style="border-color:#8a6427">🔄 Rätt artist och låtnamn – du fick ett Byta-låt-kort. Du har ${c.swap_cards||0}/3.</div>`:`<div class="mut">Byta-låt-kort: ${c.swap_cards||0}/3</div>`;let d=$("decision");if(match.phase==="decision"){let n=(c.turn_cards||[]).length;d.innerHTML=`<button class="btn purple" onclick="continueTurn()">▶ FORTSÄTT<br><small>Riskera ${n} olåsta kort</small></button><button class="btn green" onclick="lockIn()">🔒 LÅS IN ${n} KORT<br><small>Spara korten och lämna över mobilen</small></button>`}else{d.innerHTML=`<button class="btn green full" onclick="endFailedTurn()">LÄMNA ÖVER MOBILEN</button>`}}
-async function continueTurn(){await db.from("matches").update({phase:"listen",current_song:null,last_result:null}).eq("code",code)}
-async function nextPlayer(){let c=cur(),i=players.findIndex(p=>p.id===c.id),n=players[(i+1)%players.length];await db.from("matches").update({current_player_id:n.id,phase:"handoff",current_song:null,last_result:null}).eq("code",code)}
-async function lockIn(){let c=cur(),locked=[...(c.locked_timeline||[]),...(c.turn_cards||[])].sort((a,b)=>a.year-b.year);await db.from("players").update({locked_timeline:locked,turn_cards:[]}).eq("id",c.id);if(locked.length>=Number(match.target_cards||10)){await db.from("matches").update({phase:"ended",status:"ended",current_player_id:c.id}).eq("code",code)}else await nextPlayer()}
-async function endFailedTurn(){await nextPlayer()}
-async function swapSong(){let c=cur();if((c.swap_cards||0)<=0)return;let deck=match.deck||[];if(!deck.length)return;let song=deck.shift();await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);await db.from("matches").update({deck,current_song:song}).eq("code",code);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false}
+async function continueTurn(){if(actionBusy)return;actionBusy=true;try{let r=await db.from("matches").update({phase:"listen",current_song:null,last_result:null}).eq("code",code);if(r.error)throw new Error(r.error.message)}catch(e){alert("Kunde inte fortsätta: "+e.message)}finally{actionBusy=false}}
+async function nextPlayer(){let c=cur();if(!c||!players.length)throw new Error("Nästa spelare kunde inte hittas.");let i=players.findIndex(p=>p.id===c.id),n=players[(i+1)%players.length];let r=await db.from("matches").update({current_player_id:n.id,phase:"handoff",status:"waiting",current_song:null,last_result:null}).eq("code",code);if(r.error)throw new Error(r.error.message)}
+async function lockIn(){if(actionBusy)return;actionBusy=true;try{let c=cur();if(!c)throw new Error("Aktuell spelare saknas.");let locked=[...(c.locked_timeline||[]),...(c.turn_cards||[])].sort((a,b)=>a.year-b.year);let pr=await db.from("players").update({locked_timeline:locked,turn_cards:[]}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);if(locked.length>=Number(match.target_cards||10)){let mr=await db.from("matches").update({phase:"ended",status:"ended",current_player_id:c.id,current_song:null,last_result:null}).eq("code",code);if(mr.error)throw new Error(mr.error.message)}else await nextPlayer()}catch(e){alert("Kunde inte låsa in korten: "+e.message)}finally{actionBusy=false}}
+async function endFailedTurn(){if(actionBusy)return;actionBusy=true;try{await nextPlayer()}catch(e){alert("Kunde inte byta spelare: "+e.message)}finally{actionBusy=false}}
+async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 </script></body></html>

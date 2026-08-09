@@ -1,16 +1,20 @@
-DIGIHITS V4.1
+DIGIHITS V4.3 - HARDENED TEST VERSION
 
-Du behöver INTE köra SQL igen om SUPABASE_V4.sql redan är körd.
+SQL:
+- Har du redan kört SUPABASE_V4.sql behöver du INTE köra SQL igen.
 
-På GitHub:
-1. Ersätt index.html
-2. Ersätt sw.js
-3. Ersätt manifest.webmanifest
-4. Commit changes
-5. Vänta på GitHub Pages deployment
-6. Öppna sidan i privat flik första gången
+GitHub:
+- Ersätt index.html
+- Ersätt sw.js
+- manifest.webmanifest kan ligga kvar, men det är okej att ersätta den också.
 
 Kontroll:
-- Det ska stå V4.1 högst upp.
-- Tryck SKAPA MATCH.
-- Spelarlistan Anna/Viktor ska visas direkt, innan någon Supabase-anrop görs.
+- Startsidan ska visa V4.3.
+- Max 8 spelare.
+- SKAPA MATCH visar tydlig status och fel.
+- Matchskapande städar halvskapade poster vid fel.
+- Dubbeltryck skyddas på kritiska knappar.
+- Byta-låt-kort visas alltid 0/3 till 3/3.
+- Spelaren får separata besked: Rätt/Fel placering, Rätt/Fel artist, Rätt/Fel låtnamn.
+- Efter rätt placering: Fortsätt eller Lås in.
+- Vid fel placering förloras bara turens olåsta kort.
