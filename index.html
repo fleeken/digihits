@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.18</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.23</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -17,15 +17,26 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .playbackHint{text-align:center;color:var(--mut);font-size:11px;margin-top:7px}
 .bigChoice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.choice{min-height:170px;border:0;border-radius:20px;padding:20px;font-weight:950;font-size:22px;text-align:left}.choice small{display:block;font-size:12px;font-weight:500;margin-top:8px;opacity:.78}.guess{background:linear-gradient(145deg,#1b5470,#263c7d);color:#fff}.place{background:linear-gradient(145deg,#56358c,#773b85);color:#fff}
 .screenTitle{text-align:center;font-size:26px;font-weight:950;margin:5px 0 4px}.back{background:none;border:0;color:var(--c);font-weight:800;padding:8px 0}.guessFields{display:grid;gap:10px;max-width:520px;margin:20px auto}.timeline{display:flex;align-items:center;overflow-x:auto;padding:20px 10px;min-height:260px;border:2px solid var(--v);border-radius:18px;background:#0c0d12}.card{flex:0 0 130px;background:#1a1d25;border:1px solid #464b58;border-radius:14px;padding:10px;text-align:center}
-.pendingSlot{flex:0 0 145px;display:flex;flex-direction:column;gap:8px;margin:0 6px}
-.pendingCard{background:linear-gradient(180deg,#14232b,#151821);border:2px solid var(--c);border-radius:15px;padding:12px;text-align:center;box-shadow:0 0 26px #4ed3ff55;animation:snapIn .18s ease-out}
+.pendingSlot{flex:0 0 155px;display:flex;flex-direction:column;gap:8px;margin:0 6px}
+.pendingPocket{border:3px dashed #a66cff;border-radius:18px;padding:8px;background:#a66cff18;box-shadow:0 0 25px #a66cff44;animation:snapIn .18s ease-out}
+.pendingCard{width:100%;box-sizing:border-box;background:linear-gradient(180deg,#14232b,#151821);border:1px solid #5d6575;border-radius:13px;padding:12px;text-align:center;box-shadow:0 6px 18px #0006}
 .pendingCard .note{font-size:34px;margin-bottom:7px}
 .pendingCard .hiddenYear{font-size:20px;font-weight:950;color:var(--y);margin-top:6px}
 .pendingActions{display:grid;gap:7px}
 .pendingActions .btn{padding:10px 8px;font-size:11px}
 @keyframes snapIn{from{opacity:.35;transform:scale(.9)}to{opacity:1;transform:scale(1)}}.card .year{font-size:23px;font-weight:950;color:var(--y)}.card .ct{font-size:11px;margin-top:5px}.drop{flex:0 0 100px;min-height:205px;margin:0 6px;border:2px dashed #7b5ca8;border-radius:15px;display:grid;place-items:center;text-align:center;color:#d9c6ff;font-size:11px;font-weight:900;background:#a66cff12}.drop.sel,.drop.dragover{background:#a66cff45;border-color:#e2d1ff;box-shadow:0 0 28px #a66cff77;transform:scale(1.04)}.secret{max-width:220px;margin:16px auto;border:2px solid var(--c);border-radius:17px;padding:17px;text-align:center;background:#141820}.secret .note{font-size:42px}.dragSecret{touch-action:none;cursor:grab;transition:box-shadow .12s,transform .12s}.dragSecret.dragging{cursor:grabbing;box-shadow:0 0 34px #4ed3ff88}.dragHint{margin-top:10px;padding:8px;border-radius:10px;background:#4ed3ff15;color:#8fe5ff;font-size:10px;font-weight:900;letter-spacing:.8px}.confirmBox{max-width:420px;margin:12px auto;display:grid;gap:8px}
-.result{text-align:center;max-width:600px;margin:auto}.result h2{font-size:34px;margin:8px 0}.ok{color:var(--g)}.bad{color:var(--r)}.checklist{display:grid;gap:8px;margin:18px 0;text-align:left}.check{background:#171a22;border:1px solid #303440;border-radius:13px;padding:13px;font-weight:850}.decision{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.decision .btn{min-height:115px;font-size:19px}.handoff{text-align:center;padding:35px 10px}.handoff h2{font-size:30px}.ready{min-height:110px;font-size:20px}
+.result{text-align:center;max-width:600px;margin:auto}.result h2{font-size:34px;margin:8px 0}.ok{color:var(--g)}.bad{color:var(--r)}.checklist{display:grid;gap:8px;margin:18px 0;text-align:left}.check{background:#171a22;border:1px solid #303440;border-radius:13px;padding:13px;font-weight:850}.decision{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.decisionTimeline{display:flex;gap:8px;overflow-x:auto;padding:14px 8px;border:2px solid var(--v);border-radius:16px;background:#0d0f14}
+.decisionTimelineCard{flex:0 0 112px;background:#1b1e27;border:1px solid #424754;border-radius:12px;padding:10px;text-align:center}
+.decisionTimelineCard.risk{border:2px solid var(--c);box-shadow:0 0 18px #4ed3ff44}
+.decisionTimelineCard .year{font-size:22px;font-weight:950;color:var(--y)}
+.decisionTimelineCard .title{font-size:10px;margin-top:4px}
+.decisionTimelineCard .state{font-size:9px;margin-top:5px;color:var(--mut);font-weight:900;letter-spacing:.5px}.decision .btn{min-height:115px;font-size:19px}.handoff{text-align:center;padding:35px 10px}.handoff h2{font-size:30px}.ready{min-height:110px;font-size:20px}
 .wait{border:1px dashed #3b3f4b;border-radius:17px;padding:30px;text-align:center;color:var(--mut)}
+.modalBackdrop{position:fixed;inset:0;background:#000b;display:grid;place-items:center;padding:18px;z-index:99999}
+.modalBox{width:min(440px,100%);background:#14171f;border:1px solid #3b4050;border-radius:20px;padding:20px;box-shadow:0 24px 70px #000a;text-align:center}
+.modalBox h3{margin:0 0 8px;font-size:24px}
+.modalActions{display:grid;gap:9px;margin-top:16px}
 .hostTimelineGrid{display:grid;gap:14px}
 .hostTimelinePlayer{background:#151821;border:1px solid #303440;border-radius:16px;padding:14px}
 .hostTimelinePlayer.active{border-color:var(--c);box-shadow:0 0 24px #4ed3ff22}
@@ -40,7 +51,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .hostEmptyTimeline{color:var(--mut);font-size:12px;padding:12px 4px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.18</small></div><div class="badge" id="online">Redo · V4.18</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.23</small></div><div class="badge" id="online">Redo · V4.23</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
 
 <div id="resumeBox" class="hidden" style="margin-top:18px;background:#151821;border:1px solid #3a4050;border-radius:16px;padding:14px">
@@ -97,7 +108,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.18</strong>
+  Version <strong style="color:#fff">V4.23</strong>
 </div>
 
 </section>
@@ -120,12 +131,25 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
     </div>
 
 <div id="playerView" class="hidden">
-<div id="listenScreen"><div class="stats"><div class="stat"><b id="pLocked">0</b><small>Låsta kort</small></div><div class="stat"><b id="pRisk">0</b><small>Riskeras</small></div><div class="stat"><b id="pSwap">0</b><small>Byt-låt-kort</small></div></div><div class="screenTitle">Lyssna på låten</div><p class="mut" style="text-align:center">Vad vill du göra?</p><div class="bigChoice"><button class="choice guess" onclick="showGuess()">🎤 GISSA ARTIST & LÅTNAMN<small>Frivillig bonus. Båda måste vara rätt för ett Byta-låt-kort.</small></button><button class="choice place" onclick="showPlace()">🃏 PLACERA KORT<small>Placera låten före, efter eller mellan dina kort.</small></button></div><button id="swapBtn" class="btn orange full" style="margin-top:12px" onclick="swapSong()">🔄 BYT LÅT · 0 KVAR</button></div>
+<div id="listenScreen"><div class="screenTitle">Lyssna på låten</div><p class="mut" style="text-align:center">Vad vill du göra?</p><div class="bigChoice"><button class="choice guess" onclick="showGuess()">🎤 GISSA ARTIST & LÅTNAMN<small>Frivillig bonus. Båda måste vara rätt för ett Byta-låt-kort.</small></button><button class="choice place" onclick="requestPlace()">🃏 PLACERA KORT<small>Placera låten före, efter eller mellan dina kort.</small></button></div><button id="swapBtn" class="btn orange full" style="margin-top:12px" onclick="swapSong()">🔄 BYT LÅT · 0 KVAR</button></div>
 <div id="guessScreen" class="hidden"><button class="back" onclick="showListen()">← Tillbaka</button><div class="screenTitle">Gissa artist & låtnamn</div><div class="guessFields"><input id="guessArtist" class="input" placeholder="Artist"><input id="guessTitle" class="input" placeholder="Låtnamn"><button class="btn cyan full" onclick="saveGuess()">SPARA GISSNING</button></div></div>
 <div id="placeScreen" class="hidden"><button class="back" onclick="showListen()">← Tillbaka</button><div class="screenTitle">Placera kortet</div><p class="mut" style="text-align:center">Dra det hemliga kortet till en lila ficka. Du kan också trycka direkt på en ficka.</p><div id="timeline" class="timeline"></div><div id="dragSecret" class="secret dragSecret"><div class="note">♫</div><b>HEMLIGT KORT</b><div class="mut">År: ????</div><div class="dragHint">DRA MIG TILL TIDSLINJEN</div></div><div id="confirm" class="confirmBox hidden" aria-hidden="true"></div></div>
-<div id="resultScreen" class="hidden result"><h2 id="resultTitle"></h2><div id="reveal" class="song"></div><div id="checks" class="checklist"></div><div id="bonus"></div><div id="decision" class="decision"></div></div>
+<div id="resultScreen" class="hidden result"><h2 id="resultTitle"></h2><div id="reveal" class="song"></div><div id="checks" class="checklist"></div><div id="bonus"></div>
+<div id="decisionTimelineWrap" class="hidden" style="margin-top:16px">
+  <button id="decisionTimelineBtn" class="btn dark full" onclick="toggleDecisionTimeline()">VISA TIDSLINJE</button>
+  <div id="decisionTimelineBox" class="hidden" style="margin-top:12px"></div>
+</div>
+<div id="decision" class="decision"></div></div>
 <div id="handoffScreen" class="hidden handoff"><div class="mut">LÄMNA ÖVER MOBILEN</div><h2 id="readyName">–</h2><button id="readyBtn" class="btn green full ready" onclick="readyNext()">KLICKA HÄR OM DU ÄR REDO</button></div>
 <div id="waitScreen" class="hidden wait">Väntar på ledarmobilen…</div>
+
+<div id="playerBottomStatus" style="margin-top:14px;padding:12px 14px;background:#151821;border:1px solid #303440;border-radius:14px;text-align:center;font-weight:850">
+  <span id="bottomLocked">0/10 låsta</span>
+  <span style="color:#666b78"> · </span>
+  <span id="bottomRisk">0 olåsta</span>
+  <span style="color:#666b78"> · </span>
+  <span id="bottomSwap">0/3 Byta-låt-kort</span>
+</div>
 </div></main></div></section></div>
 <script>
 
@@ -746,7 +770,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.18";
+    if(badge)badge.textContent="Återansluten · V4.23";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -777,7 +801,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.18"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.23"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -806,7 +830,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.18":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.23":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -918,7 +942,24 @@ function leaveMatchSafely(){
 
 function renderPlayers(){let c=cur();$("players").innerHTML=players.map(p=>`<div class="prow ${c&&p.id===c.id?"active":""}"><div><div class="pname">${p.name}</div><div class="pmeta">${(p.locked_timeline||[]).length}/10 låsta · ${(p.turn_cards||[]).length} riskeras</div></div><div class="swaps">🔄 ${p.swap_cards||0}/3</div></div>`).join("")}
 function render(){if(!match)return;if(match.status==="ended"||match.phase==="ended")clearActiveSession();else saveActiveSession();renderPlayers();let c=cur();$("turn").textContent=c?c.name:"–";$("sub").textContent=role==="host"?"MATCHEN":"SPELET";$("phaseBadge").textContent=({handoff:"Byter spelare",listen:"Lyssnar",result:"Resultat",decision:"Beslut",ended:"Match slut"})[match.phase]||"Väntar";if(role==="host")renderHost(c);else renderPlayer(c)}
-function stats(c,prefix){$(prefix+"Locked").textContent=(c.locked_timeline||[]).length;$(prefix+"Risk").textContent=(c.turn_cards||[]).length;$(prefix+"Swap").textContent=c.swap_cards||0}
+function stats(c,prefix){
+  const locked=(c.locked_timeline||[]).length;
+  const risk=(c.turn_cards||[]).length;
+  const swap=c.swap_cards||0;
+
+  const l=$(prefix+"Locked");
+  const r=$(prefix+"Risk");
+  const s=$(prefix+"Swap");
+  if(l)l.textContent=locked;
+  if(r)r.textContent=risk;
+  if(s)s.textContent=swap;
+
+  if(prefix==="p"){
+    $("bottomLocked").textContent=`${locked}/${Number(match?.target_cards||10)} låsta`;
+    $("bottomRisk").textContent=`${risk} olåsta`;
+    $("bottomSwap").textContent=`${swap}/3 Byta-låt-kort`;
+  }
+}
 
 async function autoPlayPreparedSong(){
   if(role!=="host" || !match?.current_song)return;
@@ -1045,6 +1086,10 @@ function renderHostTimelines(){
 }
 
 function renderHost(c){if(!c)return;stats(c,"host");if(hostTimelinesOpen)renderHostTimelines();if(match.current_song){$("song").textContent=match.current_song.title;$("artist").textContent=match.current_song.artist+" · "+match.current_song.year;$("spotify").innerHTML=spotifyControlsHtml();}else{$("song").textContent="Ingen låt redo ännu";$("artist").textContent="";$("spotify").innerHTML="";lastAutoPlayedSongId=null;autoPlayInFlightSongId=null;clearTimeout(autoPlayRetryTimer)}if(match.phase==="listen"&&match.current_song){autoPlayPreparedSong();startPlaybackPolling()}else{updatePlaybackBar(null)}$("hostHelp").textContent=match.phase==="handoff"?`Lämna mobilen till ${c.name}. Nästa låt startar automatiskt när ${c.name} klickar att hen är redo.`:match.phase==="listen"?(match.current_song?`${c.name} spelar sin tur.`:`Väntar på att ${c.name} ska bli redo.`):match.phase==="decision"?`${c.name} väljer FORTSÄTT eller LÅS IN.`:match.phase==="ended"?`Matchen är avslutad. Vinnare: ${c.name}`:match.phase==="result"&&match.last_result?`${c.name}: ${match.last_result.placeOk?"Rätt placering":"Fel placering"} · ${match.last_result.artistOk?"Rätt artist":"Fel artist"} · ${match.last_result.titleOk?"Rätt låtnamn":"Fel låtnamn"}`:"Resultatet visas på spelarmobilen."}
+function hideGuessFirstModal(){
+  const m=$("guessFirstModal");
+  if(m)m.classList.add("hidden");
+}
 function clearGameStatus(){
   const s=$("status");
   if(s)s.textContent="";
@@ -1053,7 +1098,7 @@ function hidePlayer(){["listenScreen","guessScreen","placeScreen","resultScreen"
 function renderPlayer(c){
   if(!c)return;
   stats(c,"p");
-  $("swapBtn").textContent=`🔄 BYT LÅT · ${c.swap_cards||0} KVAR`;
+  $("swapBtn").textContent=(c.swap_cards||0)>0?"🔄 BYT LÅT":"🔄 BYT LÅT";
   $("swapBtn").disabled=(c.swap_cards||0)<=0;
   $("swapBtn").style.opacity=(c.swap_cards||0)>0?1:.45;
 
@@ -1115,6 +1160,7 @@ async function readyNext(){
   if(actionBusy)return;
   actionBusy=true;
   try{
+    hideGuessFirstModal();
     clearGameStatus();
     guessSaved=false;
     $("guessArtist").value="";
@@ -1133,6 +1179,21 @@ async function readyNext(){
 async function playCurrentSong(){if(startSongBusy)return;startSongBusy=true;try{if(!match.current_song)throw new Error("Ingen låt är redo ännu.");if(!spotifyAccessToken&&!spotifyRefreshToken)throw new Error("Spotify är inte anslutet.");$("status").textContent="Startar Spotify…";await spotifyPlayTrack(match.current_song.id);lastAutoPlayedSongId=match.current_song.id;autoPlayInFlightSongId=null;$("status").textContent="";const retry=$("playSongBtn");if(retry)retry.classList.add("hidden");startPlaybackPolling()}catch(e){$("status").textContent="Spotify kunde inte starta.";alert("Spotify: "+e.message)}finally{startSongBusy=false}}
 function showListen(){hidePlayer();$("listenScreen").classList.remove("hidden")} function showGuess(){hidePlayer();$("guessScreen").classList.remove("hidden")}
 function saveGuess(){guessSaved=true;showListen();$("status").textContent="Gissningen är sparad. Placera nu kortet när du är redo."}
+function requestPlace(){
+  if(!guessSaved){
+    $("guessFirstModal").classList.remove("hidden");
+    return;
+  }
+  showPlace();
+}
+function chooseGuessFirst(){
+  $("guessFirstModal").classList.add("hidden");
+  showGuess();
+}
+function choosePlaceAnyway(){
+  $("guessFirstModal").classList.add("hidden");
+  showPlace();
+}
 function showPlace(){
   hidePlayer();
   $("placeScreen").classList.remove("hidden");
@@ -1150,7 +1211,7 @@ function renderTimeline(){
     let d=document.createElement("button");
     d.type="button";
     d.dataset.index=String(i);
-    d.className="drop"+(selected===i?" sel":"");
+    d.className="drop"+(selected===i?" sel hidden":"");
     d.innerHTML="PLACERA<br>HÄR";
     d.onclick=()=>selectPlacement(i);
     el.appendChild(d);
@@ -1158,10 +1219,12 @@ function renderTimeline(){
     if(selected===i){
       let wrap=document.createElement("div");
       wrap.className="pendingSlot";
-      wrap.innerHTML=`<div class="pendingCard">
-        <div class="note">♫</div>
-        <b>HEMLIGT KORT</b>
-        <div class="hiddenYear">????</div>
+      wrap.innerHTML=`<div class="pendingPocket">
+        <div class="pendingCard">
+          <div class="note">♫</div>
+          <b>HEMLIGT KORT</b>
+          <div class="hiddenYear">????</div>
+        </div>
       </div>
       <div class="pendingActions">
         <button class="btn cyan full" onclick="confirmPlace()">BEKRÄFTA PLATS</button>
@@ -1272,13 +1335,98 @@ async function confirmPlace(){
     confirmBusy=false;
   }
 }
-function showResult(c){hidePlayer();$("resultScreen").classList.remove("hidden");let r=match.last_result;if(!r)return;$("resultTitle").className=r.placeOk?"ok":"bad";$("resultTitle").textContent=r.placeOk?"RÄTT PLACERING":"FEL PLACERING";$("reveal").textContent=`${r.song.title} – ${r.song.artist} (${r.song.year})`;$("checks").innerHTML=`<div class="check">${r.placeOk?"✅":"❌"} ${r.placeOk?"Rätt placering":"Fel placering"}</div><div class="check">${r.artistOk?"✅":"❌"} ${r.artistOk?"Rätt artist":"Fel artist"}</div><div class="check">${r.titleOk?"✅":"❌"} ${r.titleOk?"Rätt låtnamn":"Fel låtnamn"}</div>`;$("bonus").innerHTML=r.bonus?`<div class="check" style="border-color:#8a6427">🔄 Rätt artist och låtnamn – du fick ett Byta-låt-kort. Du har ${c.swap_cards||0}/3.</div>`:`<div class="mut">Byta-låt-kort: ${c.swap_cards||0}/3</div>`;let d=$("decision");if(match.phase==="decision"){let n=(c.turn_cards||[]).length;d.innerHTML=`<button class="btn purple" onclick="continueTurn()">▶ FORTSÄTT<br><small>Riskera ${n} olåsta kort</small></button><button class="btn green" onclick="lockIn()">🔒 LÅS IN ${n} KORT<br><small>Spara korten och lämna över mobilen</small></button>`}else{d.innerHTML=`<button class="btn green full" onclick="endFailedTurn()">LÄMNA ÖVER MOBILEN</button>`}}
+
+let decisionTimelineOpen=false;
+
+function toggleDecisionTimeline(){
+  decisionTimelineOpen=!decisionTimelineOpen;
+  const box=$("decisionTimelineBox");
+  const btn=$("decisionTimelineBtn");
+  if(!box||!btn)return;
+
+  box.classList.toggle("hidden",!decisionTimelineOpen);
+  btn.textContent=decisionTimelineOpen?"DÖLJ TIDSLINJE":"VISA TIDSLINJE";
+  if(decisionTimelineOpen)renderDecisionTimeline();
+}
+
+function renderDecisionTimeline(){
+  const box=$("decisionTimelineBox");
+  const c=cur();
+  if(!box||!c)return;
+
+  const locked=(c.locked_timeline||[]).map(x=>({...x,_risk:false}));
+  const risk=(c.turn_cards||[]).map(x=>({...x,_risk:true}));
+  const cards=[...locked,...risk].sort((a,b)=>a.year-b.year);
+
+  box.innerHTML=cards.length
+    ? `<div class="decisionTimeline">${
+        cards.map(card=>`
+          <div class="decisionTimelineCard ${card._risk?"risk":""}">
+            <div class="year">${card.year}</div>
+            <div class="title">${card.title}</div>
+            <div class="state">${card._risk?"OLÅST":"LÅST"}</div>
+          </div>`).join("")
+      }</div>`
+    : `<div class="wait">Inga kort på tidslinjen ännu.</div>`;
+}
+
+function showResult(c){
+  hidePlayer();
+  $("resultScreen").classList.remove("hidden");
+
+  let r=match.last_result;
+  if(!r)return;
+
+  $("resultTitle").className=r.placeOk?"ok":"bad";
+  $("resultTitle").textContent=r.placeOk?"RÄTT PLACERING":"FEL PLACERING";
+  $("reveal").textContent=`${r.song.title} – ${r.song.artist} (${r.song.year})`;
+
+  $("checks").innerHTML=
+    `<div class="check">${r.placeOk?"✅":"❌"} ${r.placeOk?"Rätt placering":"Fel placering"}</div>
+     <div class="check">${r.artistOk?"✅":"❌"} ${r.artistOk?"Rätt artist":"Fel artist"}</div>
+     <div class="check">${r.titleOk?"✅":"❌"} ${r.titleOk?"Rätt låtnamn":"Fel låtnamn"}</div>`;
+
+  $("bonus").innerHTML=r.bonus
+    ? `<div class="check" style="border-color:#8a6427">🔄 Rätt artist och låtnamn – du fick ett Byta-låt-kort. Du har ${c.swap_cards||0}/3.</div>`
+    : `<div class="mut">Byta-låt-kort: ${c.swap_cards||0}/3</div>`;
+
+  const wrap=$("decisionTimelineWrap");
+  const box=$("decisionTimelineBox");
+  const btn=$("decisionTimelineBtn");
+
+  if(match.phase==="decision"){
+    wrap.classList.remove("hidden");
+    decisionTimelineOpen=false;
+    box.classList.add("hidden");
+    btn.textContent="VISA TIDSLINJE";
+
+    let n=(c.turn_cards||[]).length;
+    $("decision").innerHTML=
+      `<button class="btn purple" onclick="continueTurn()">▶ FORTSÄTT<br><small>Riskera ${n} olåsta kort</small></button>
+       <button class="btn green" onclick="lockIn()">🔒 LÅS IN ${n} KORT<br><small>Spara korten och lämna över mobilen</small></button>`;
+  }else{
+    wrap.classList.add("hidden");
+    decisionTimelineOpen=false;
+    box.classList.add("hidden");
+    $("decision").innerHTML=`<button class="btn green full" onclick="endFailedTurn()">LÄMNA ÖVER MOBILEN</button>`;
+  }
+}
 async function continueTurn(){
   if(actionBusy)return;
   actionBusy=true;
   try{
+    hideGuessFirstModal();
     clearGameStatus();
+
+    // Ny låt = helt ny gissning.
+    $("guessArtist").value="";
+    $("guessTitle").value="";
+    guessSaved=false;
     selected=null;
+
+    const source=$("dragSecret");
+    if(source)source.classList.remove("hidden");
+
     await prepareNextSong();
   }catch(e){
     alert("Kunde inte fortsätta: "+e.message);
@@ -1302,4 +1450,15 @@ async function endFailedTurn(){
   }
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
-</script></body></html>
+</script>
+<div id="guessFirstModal" class="modalBackdrop hidden">
+  <div class="modalBox">
+    <h3>Vill du gissa artist och låtnamn först?</h3>
+    <p class="mut">Det är frivilligt, men rätt artist och rätt låtnamn ger ett Byta-låt-kort.</p>
+    <div class="modalActions">
+      <button class="btn cyan full" onclick="chooseGuessFirst()">JA, GISSA FÖRST</button>
+      <button class="btn dark full" onclick="choosePlaceAnyway()">NEJ, PLACERA KORT</button>
+    </div>
+  </div>
+</div>
+</body></html>
