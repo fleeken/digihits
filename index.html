@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.24</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.26</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -51,7 +51,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .hostEmptyTimeline{color:var(--mut);font-size:12px;padding:12px 4px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.24</small></div><div class="badge" id="online">Redo · V4.24</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.26</small></div><div class="badge" id="online">Redo · V4.26</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
 
 <div id="resumeBox" class="hidden" style="margin-top:18px;background:#151821;border:1px solid #3a4050;border-radius:16px;padding:14px">
@@ -108,7 +108,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.24</strong>
+  Version <strong style="color:#fff">V4.26</strong>
 </div>
 
 </section>
@@ -142,13 +142,6 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 <div id="handoffScreen" class="hidden handoff"><div class="mut">LÄMNA ÖVER MOBILEN</div><h2 id="readyName">–</h2><button id="readyBtn" class="btn green full ready" onclick="readyNext()">KLICKA HÄR OM DU ÄR REDO</button></div>
 <div id="waitScreen" class="hidden wait">Väntar på ledarmobilen…</div>
 
-<div id="playerBottomStatus" style="margin-top:14px;padding:12px 14px;background:#151821;border:1px solid #303440;border-radius:14px;text-align:center;font-weight:850">
-  <span id="bottomLocked">0/10 låsta</span>
-  <span style="color:#666b78"> · </span>
-  <span id="bottomRisk">0 olåsta</span>
-  <span style="color:#666b78"> · </span>
-  <span id="bottomSwap">0/3 Byta-låt-kort</span>
-</div>
 </div></main></div></section></div>
 <script>
 
@@ -787,7 +780,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.24";
+    if(badge)badge.textContent="Återansluten · V4.26";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -818,7 +811,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.24"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.26"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -847,7 +840,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.24":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.26":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -957,7 +950,26 @@ function leaveMatchSafely(){
   location.reload();
 }
 
-function renderPlayers(){let c=cur();$("players").innerHTML=players.map(p=>`<div class="prow ${c&&p.id===c.id?"active":""}"><div><div class="pname">${p.name}</div><div class="pmeta">${(p.locked_timeline||[]).length}/10 låsta · ${(p.turn_cards||[]).length} riskeras</div></div><div class="swaps">🔄 ${p.swap_cards||0}/3</div></div>`).join("")}
+function renderPlayers(){
+  let c=cur();
+  const target=Number(match?.target_cards||10);
+  $("players").innerHTML=players.map(p=>{
+    const isCurrent=!!(c&&p.id===c.id);
+    const locked=(p.locked_timeline||[]).length;
+    const unlocked=(p.turn_cards||[]).length;
+    const swap=p.swap_cards||0;
+    const meta=isCurrent
+      ? `${locked}/${target} låsta kort · ${unlocked} Olåsta kort · ${swap}/3 Byta-låt-kort`
+      : `${locked}/${target} låsta kort · ${swap}/3 Byta-låt-kort`;
+
+    return `<div class="prow ${isCurrent?"active":""}">
+      <div>
+        <div class="pname">${p.name}</div>
+        <div class="pmeta">${meta}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
 function render(){if(!match)return;if(match.status==="ended"||match.phase==="ended")clearActiveSession();else saveActiveSession();renderPlayers();let c=cur();$("turn").textContent=c?c.name:"–";$("sub").textContent=role==="host"?"MATCHEN":"SPELET";$("phaseBadge").textContent=({handoff:"Byter spelare",listen:"Lyssnar",result:"Resultat",decision:"Beslut",ended:"Match slut"})[match.phase]||"Väntar";if(role==="host")renderHost(c);else renderPlayer(c)}
 function stats(c,prefix){
   const locked=(c.locked_timeline||[]).length;
@@ -971,11 +983,6 @@ function stats(c,prefix){
   if(r)r.textContent=risk;
   if(s)s.textContent=swap;
 
-  if(prefix==="p"){
-    $("bottomLocked").textContent=`${locked}/${Number(match?.target_cards||10)} låsta`;
-    $("bottomRisk").textContent=`${risk} olåsta`;
-    $("bottomSwap").textContent=`${swap}/3 Byta-låt-kort`;
-  }
 }
 
 async function autoPlayPreparedSong(){
