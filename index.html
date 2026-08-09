@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.47</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.49</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -30,12 +30,12 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 @keyframes snapIn{from{opacity:.35;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 .onlineToolbar{display:grid;gap:10px;margin-top:14px}
 .onlineMatches{display:grid;gap:10px;margin-top:14px}
-.onlineMatchCard{width:100%;background:#171b24;border:1px solid #3e4655;border-radius:16px;padding:14px;text-align:left;color:#f7f9fc;box-shadow:0 8px 22px #0003;transition:border-color .15s,background .15s,transform .15s}
+.onlineMatchCard{width:100%;min-width:0;background:#171b24;border:1px solid #3e4655;border-radius:16px;padding:12px;text-align:left;color:#f7f9fc;box-shadow:0 8px 22px #0003;transition:border-color .15s,background .15s}
 .onlineMatchCard.yourTurn{border-color:#38b866;background:#122319;box-shadow:0 0 0 1px #38b86622,0 10px 28px #0004}
 .onlineMatchCard.waiting{border-color:#4a5261;background:#181c25}
-.onlineMatchTop{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.onlineMatchNames{font-weight:950;font-size:17px;color:#ffffff;line-height:1.25}
-.onlineMatchState{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:950;border-radius:999px;padding:7px 10px;white-space:nowrap;border:1px solid #4b5363;background:#202530;color:#eef2f8}
+.onlineMatchTop{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0}
+.onlineMatchNames{font-weight:950;font-size:15px;color:#fff;line-height:1.2;white-space:normal;overflow-wrap:anywhere}
+.onlineMatchState{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:950;border-radius:999px;padding:6px 8px;white-space:nowrap;border:1px solid #4b5363;background:#202530;color:#eef2f8}
 .onlineMatchState.turn{color:#9cf4b6;border-color:#38b866;background:#0f2a19}
 .onlineMatchState.wait{color:#ffe7a3;border-color:#c7972f;background:#2a210f}
 .playerRowActions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -119,7 +119,7 @@ input.input{color:#fff;background:#0f1218;border:1px solid #424a59}
 input.input::placeholder{color:#8f97a5}
 input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff22}
 
-.matchCardShell{position:relative}.onlineMatchCard{padding-right:54px}.leaveIconBtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:10px;border:1px solid #5a4350;background:#24171d;color:#ff9eaa;font-size:18px;display:grid;place-items:center;z-index:3}.leaveIconBtn:hover{background:#351c25}.leaveMatchBtn{margin-top:14px;background:#29171c;color:#ffabb4;border:1px solid #8e3e4a}.confirmLeaveName{color:#fff;font-weight:900}
+.matchCardShell{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:7px;align-items:stretch;width:100%;min-width:0}.onlineMatchCard{padding-right:54px}.leaveIconBtn{width:38px;min-width:38px;border-radius:12px;border:1px solid #5a3840;background:#26161a;color:#ff9ba7;font-size:16px;display:grid;place-items:center;padding:0}.leaveIconBtn:hover{background:#351c25}.leaveMatchBtn{margin-top:14px;background:#29171c;color:#ffabb4;border:1px solid #8e3e4a}.confirmLeaveName{color:#fff;font-weight:900}
 
 .historyList{display:grid;gap:9px;margin-top:12px}
 .historyCard{background:#141821;border:1px solid #394150;border-radius:14px;padding:13px}
@@ -172,7 +172,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .playerInlineTimeline{transform:translateZ(0);backface-visibility:hidden}
 
 .chatBtnWrap{margin-top:10px}
-.chatBtn{position:relative}
+.chatBtn{position:relative;display:flex;align-items:center;justify-content:center;gap:8px}
 .chatBadge{display:none;position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#ff6475;color:#fff;font-size:11px;font-weight:950;align-items:center;justify-content:center;border:2px solid #11131a}
 .chatBadge.show{display:flex}
 .chatPanel{margin-top:12px;border:1px solid #394150;border-radius:15px;background:#0f1218;padding:12px}
@@ -187,8 +187,19 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .chatComposer{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
 .chatComposer input{min-width:0}
 @media(max-width:650px){.chatMessages{height:210px}.chatComposer{grid-template-columns:1fr}.chatComposer button{width:100%}}
+
+@media(max-width:430px){
+  .home{padding:12px}
+  .onlineMatches{gap:8px}
+  .matchCardShell{grid-template-columns:minmax(0,1fr) 36px;gap:6px}
+  .leaveIconBtn{width:36px;min-width:36px}
+  .onlineMatchCard{padding:10px}
+  .onlineMatchTop{grid-template-columns:1fr;gap:7px}
+  .onlineMatchState{justify-self:start;max-width:100%;font-size:9px;padding:5px 7px}
+  .onlineMatchNames{font-size:14px}
+}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.47</small></div><div class="badge" id="online">Redo · V4.47</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.49</small></div><div class="badge" id="online">Redo · V4.49</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -256,7 +267,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.47</strong>
+    Version <strong style="color:#fff">V4.49</strong>
   </div>
 </section>
 
@@ -339,6 +350,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         <div class="guessFields">
           <input id="onlineGuessArtist" class="input" placeholder="Artist">
           <input id="onlineGuessTitle" class="input" placeholder="Låtnamn">
+          <div class="mut" style="font-size:11px">Små stavfel är okej.</div>
           <button class="btn cyan full" onclick="saveOnlineGuess()">SPARA GISSNING</button>
         </div>
       </div>
@@ -1018,7 +1030,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.47";
+    if(badge)badge.textContent="Återansluten · V4.49";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1026,7 +1038,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.47 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.49 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1037,7 +1049,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.47"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.49"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1062,8 +1074,89 @@ async function withTimeout(promise, ms=12000){
   finally{clearTimeout(timer)}
 }
 
-const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
-function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
+const $=x=>document.getElementById(x); 
+function norm(s){
+  return String(s||"")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/&/g," and ")
+    .replace(/['’´`]/g,"")
+    .replace(/[^a-z0-9]+/g," ")
+    .trim()
+    .replace(/\s+/g," ");
+}
+function compactNorm(s){return norm(s).replace(/\s+/g,"")}
+
+function levenshtein(a,b){
+  a=String(a||""); b=String(b||"");
+  const n=a.length,m=b.length;
+  if(!n)return m;if(!m)return n;
+  let prev=new Array(m+1),cur=new Array(m+1);
+  for(let j=0;j<=m;j++)prev[j]=j;
+  for(let i=1;i<=n;i++){
+    cur[0]=i;
+    for(let j=1;j<=m;j++){
+      const cost=a[i-1]===b[j-1]?0:1;
+      cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+cost);
+    }
+    [prev,cur]=[cur,prev];
+  }
+  return prev[m];
+}
+
+function fuzzyWordMatch(guess,target){
+  const g=norm(guess),t=norm(target);
+  if(!g||!t)return false;
+  if(g===t)return true;
+
+  const gc=compactNorm(g),tc=compactNorm(t);
+  if(gc===tc)return true;
+
+  const maxLen=Math.max(gc.length,tc.length);
+  if(maxLen<=3)return gc===tc;
+  if(maxLen===4)return levenshtein(gc,tc)<=1;
+
+  const dist=levenshtein(gc,tc);
+  let allowed=1;
+  if(maxLen>=5)allowed=2;
+  if(maxLen>=9)allowed=3;
+  if(maxLen>=14)allowed=4;
+  if(maxLen>=20)allowed=5;
+  if(dist<=allowed)return true;
+
+  const gw=g.split(" ").filter(Boolean),tw=t.split(" ").filter(Boolean);
+
+  if(gw.length===tw.length&&gw.length>1){
+    let totalDist=0,totalLen=0;
+    for(let i=0;i<gw.length;i++){
+      const a=gw[i],b=tw[i],d=levenshtein(a,b),ml=Math.max(a.length,b.length);
+      const perWordAllowed=ml<=3?1:ml<=6?2:3;
+      if(d>perWordAllowed)return false;
+      totalDist+=d;totalLen+=ml;
+    }
+    if(totalLen&&totalDist/totalLen<=0.34)return true;
+  }
+
+  // One short missing/extra word may still be okay in a longer title.
+  if(Math.abs(gw.length-tw.length)===1&&Math.max(gw.length,tw.length)>=3){
+    const longer=gw.length>tw.length?gw:tw;
+    const shorter=gw.length>tw.length?tw:gw;
+    let i=0,j=0,skipped=0,totalDist=0,totalLen=0;
+    while(i<longer.length&&j<shorter.length){
+      const d=levenshtein(longer[i],shorter[j]);
+      const ml=Math.max(longer[i].length,shorter[j].length);
+      const lim=ml<=3?1:ml<=6?2:3;
+      if(d<=lim){totalDist+=d;totalLen+=ml;i++;j++}
+      else{skipped++;i++;if(skipped>1)return false}
+    }
+    skipped+=longer.length-i;
+    if(skipped<=1&&totalLen&&totalDist/totalLen<=0.28)return true;
+  }
+
+  return false;
+}
+
+function eq(a,b){return fuzzyWordMatch(a,b)}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
 function showModeChooser(){showOnlineMode()}
@@ -1074,7 +1167,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.47":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.49":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1827,7 +1920,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.47
+// SPELA ONLINE – V4.49
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -1863,6 +1956,9 @@ let onlineChatMessages=[];
 let onlineChatUnread=0;
 let onlineChatChannel=null;
 let onlineChatLoading=false;
+let onlineChatPollTimer=null;
+let onlineChatKnownIds=new Set();
+let onlineChatInitialized=false;
 
 let onlineMatchesRenderedHtml="";
 let onlineMatchesLoading=false;
@@ -2025,13 +2121,19 @@ async function loadMatchChat(silent=false){
 
     if(r.error)throw new Error(r.error.message);
 
-    const oldIds=new Set(onlineChatMessages.map(m=>m.id));
     const incoming=r.data||[];
 
-    if(!onlineChatOpen){
+    // Första laddningen får aldrig skapa falska "nya meddelanden".
+    if(!onlineChatInitialized){
+      onlineChatKnownIds=new Set(incoming.map(m=>m.id));
+      onlineChatInitialized=true;
+    }else{
       let added=0;
       for(const m of incoming){
-        if(!oldIds.has(m.id) && m.user_id!==ensureOnlineUserId())added++;
+        if(!onlineChatKnownIds.has(m.id)){
+          onlineChatKnownIds.add(m.id);
+          if(m.user_id!==ensureOnlineUserId() && !onlineChatOpen)added++;
+        }
       }
       onlineChatUnread+=added;
     }
@@ -2043,9 +2145,22 @@ async function loadMatchChat(silent=false){
     updateChatBadge();
   }catch(e){
     if(!silent)setOnlineGameStatus("Chatten kunde inte laddas: "+e.message,true);
+    console.warn("Chat sync:",e);
   }finally{
     onlineChatLoading=false;
   }
+}
+
+function startMatchChatPolling(){
+  clearInterval(onlineChatPollTimer);
+  onlineChatPollTimer=setInterval(()=>{
+    if(onlineMatch?.id)loadMatchChat(true);
+  },900);
+}
+
+function stopMatchChatPolling(){
+  clearInterval(onlineChatPollTimer);
+  onlineChatPollTimer=null;
 }
 
 function teardownMatchChatRealtime(){
@@ -2073,9 +2188,13 @@ function setupMatchChatRealtime(matchId){
         const row=payload.new;
         if(!row)return;
 
-        if(!onlineChatMessages.some(m=>m.id===row.id)){
-          onlineChatMessages.push(row);
-          onlineChatMessages.sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
+        if(!onlineChatKnownIds.has(row.id)){
+          onlineChatKnownIds.add(row.id);
+
+          if(!onlineChatMessages.some(m=>m.id===row.id)){
+            onlineChatMessages.push(row);
+            onlineChatMessages.sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
+          }
 
           if(!onlineChatOpen && row.user_id!==ensureOnlineUserId()){
             onlineChatUnread++;
@@ -2135,9 +2254,14 @@ async function sendMatchChatMessage(){
 
     input.value="";
 
-    if(r.data && !onlineChatMessages.some(m=>m.id===r.data.id)){
-      onlineChatMessages.push(r.data);
+    if(r.data){
+      onlineChatKnownIds.add(r.data.id);
+      if(!onlineChatMessages.some(m=>m.id===r.data.id)){
+        onlineChatMessages.push(r.data);
+        onlineChatMessages.sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
+      }
       renderMatchChat();
+      updateChatBadge();
     }
   }catch(e){
     alert("Kunde inte skicka meddelandet.\n\n"+e.message);
@@ -2605,6 +2729,8 @@ async function openOnlineMatch(id){
   onlineChatOpen=false;
   onlineChatMessages=[];
   onlineChatUnread=0;
+  onlineChatKnownIds=new Set();
+  onlineChatInitialized=false;
   updateChatBadge();
   if($("matchChatPanel"))$("matchChatPanel").classList.add("hidden");
 
@@ -2612,6 +2738,7 @@ async function openOnlineMatch(id){
   setupOnlineMatchRealtime(id);
   setupMatchChatRealtime(id);
   loadMatchChat(true);
+  startMatchChatPolling();
 
   // Realtime är primärt. 700 ms polling är endast reserv om websocket
   // tappas eller en mobil lägger anslutningen i viloläge.
@@ -2676,9 +2803,12 @@ function closeOnlineGame(){
   clearInterval(onlineGameTimer);
   teardownOnlineMatchRealtime();
   teardownMatchChatRealtime();
+  stopMatchChatPolling();
   onlineChatOpen=false;
   onlineChatMessages=[];
   onlineChatUnread=0;
+  onlineChatKnownIds=new Set();
+  onlineChatInitialized=false;
   clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
   onlineMatch=null;onlinePlayers=[];onlineMyPlayer=null;onlinePlayerTimelineOpen={};onlinePlayersRenderKey="";
   onlineView="listen";onlineViewSongId=null;onlineLocalResultHold=null;onlineSelected=null;onlineGuessSaved=false;
@@ -3412,7 +3542,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.47.
+// Startsidan är alltid online i V4.49.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
