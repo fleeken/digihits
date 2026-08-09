@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.33</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.34</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -99,130 +99,46 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 #decisionTimeline .card.risk{transform:translateY(-16px)}
 #decisionTimeline .tlcard.risk{transform:translateY(-16px)}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.33</small></div><div class="badge" id="online">Redo · V4.33</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.34</small></div><div class="badge" id="online">Redo · V4.34</div></div>
 <section id="home" class="panel home">
-<div id="modeChooser">
-  <div class="hero"><h1>Hur vill du spela?</h1><p class="mut">Välj spelläge.</p></div>
-  <div class="roles">
-    <div class="role">
-      <h3>🏠 Spela lokalt</h3>
-      <p class="mut">Spela tillsammans på samma plats med en musikmobil och en spelmobil.</p>
-      <button class="btn green full" onclick="showLocalMode()">SPELA LOKALT</button>
+  <div id="onlineMode">
+    <div class="hero">
+      <h1>DIGIHITS</h1>
+      <p class="mut">Spela mot vänner när det passar. Din tur kan spelas direkt eller flera dagar senare.</p>
     </div>
-    <div class="role">
-      <h3>🌐 Spela online</h3>
-      <p class="mut">Spela mot vänner när det passar. Ha flera matcher igång samtidigt och vänta på varandras tur.</p>
-      <button class="btn cyan full" onclick="showOnlineMode()">SPELA ONLINE</button>
-    </div>
-  </div>
-</div>
 
-<div id="localMode" class="hidden">
-  <button class="btn dark" style="margin-bottom:14px" onclick="showModeChooser()">← TILLBAKA</button>
-  <div class="hero"><h1>Spela lokalt</h1><p class="mut">Musikmobilen ligger på bordet. Spelmobilen skickas runt mellan spelarna.</p></div>
-
-<div id="resumeBox" class="hidden" style="margin-top:18px;background:#151821;border:1px solid #3a4050;border-radius:16px;padding:14px">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-    <div>
-      <strong>Fortsätt senaste matchen?</strong>
-      <div id="resumeText" class="mut" style="font-size:12px;margin-top:4px"></div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn green" onclick="resumeSavedMatch()">FORTSÄTT MATCH</button>
-      <button class="btn dark" onclick="forgetSavedMatch()">GLÖM MATCHEN</button>
-    </div>
-  </div>
-</div>
-<div class="roles">
-  <div class="role">
-    <h3>🎵 Musikmobil</h3>
-    <p class="mut">Skapa match, lägg till spelare och styr låtarna.</p>
-    <button type="button" class="btn green full" onclick="hostSetup()">SKAPA MATCH</button>
-    <div id="spotifySetupBox" class="setup">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-        <strong>Spotify Premium</strong>
-        <span id="spotifyState" class="badge">Inte ansluten</span>
+    <div class="role" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <h3 style="margin:0">Din profil</h3>
+        <span id="onlineSpotifyBadge" class="badge">Spotify ej kontrollerat</span>
       </div>
-      <p class="mut" style="font-size:12px;margin:9px 0">
-        Anslut Spotify på musikmobilen. Digihits hittar sedan automatiskt var musiken ska spelas.
-      </p>
-      <button id="spotifyConnectBtn" class="btn green full" onclick="spotifyLogin()">ANSLUT SPOTIFY</button>
-      <div id="spotifySetupMsg" class="mut" style="font-size:11px;margin-top:8px"></div>
-    </div>
+      <input id="onlineName" class="input" maxlength="24" placeholder="Ditt namn" style="margin-top:12px">
 
-    <div id="hs" class="setup hidden">
-      <h3>Spelare i matchen</h3>
-      <div id="names"></div>
-      <button class="btn dark full" onclick="addName()">+ Lägg till spelare</button>
-      <div style="height:8px"></div>
-      <div id="spotifyPreflight" style="margin:10px 0;padding:12px;border:1px solid #3a4050;border-radius:13px;background:#11141b">
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
-          <strong>Spotify-kontroll</strong>
-          <span id="spotifyPreflightBadge" class="badge">Inte kontrollerad</span>
+      <div class="onlineToolbar">
+        <button id="onlineSpotifyBtn" class="btn dark full" onclick="onlineSpotifyCheck()">KONTROLLERA SPOTIFY</button>
+        <button class="btn green full" onclick="createOnlineMatch()">SKAPA MATCH</button>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
+          <input id="onlineJoinCode" class="input" maxlength="6" placeholder="MATCHKOD" style="text-transform:uppercase">
+          <button class="btn cyan" onclick="joinOnlineMatch()">GÅ MED</button>
         </div>
-        <div id="spotifyPreflightText" class="mut" style="font-size:12px;margin-top:8px">Kontrolleras automatiskt när du startar matchen.</div>
-        <button id="spotifyPreflightBtn" class="btn dark full" style="margin-top:9px" onclick="runSpotifyPreflight(true)">KONTROLLERA SPOTIFY</button>
       </div>
-      <button id="createBtn" class="btn green full" onclick="createMatch()">STARTA MATCH</button>
-      <div id="createStatus" class="mut" style="margin-top:10px;text-align:center;min-height:20px"></div>
+      <div id="onlineStatus" class="mut" style="font-size:12px;margin-top:10px"></div>
     </div>
-  </div>
 
-  <div class="role">
-    <h3>🎮 Spelmobil</h3>
-    <p class="mut">Anslut till matchen och skicka mobilen mellan spelarna.</p>
-    <button type="button" class="btn cyan full" onclick="joinSetup()">ANSLUT SPELMOBIL</button>
-
-    <div id="js" class="setup hidden">
-      <h3>Anslut spelmobil</h3>
-      <input id="joinCode" class="input" maxlength="6" placeholder="MATCHKOD" style="text-transform:uppercase">
-      <div style="height:8px"></div>
-      <button class="btn cyan full" onclick="joinMatch()">ANSLUT</button>
-    </div>
-  </div>
-</div>
-
-</div>
-
-<div id="onlineMode" class="hidden">
-  <button class="btn dark" style="margin-bottom:14px" onclick="showModeChooser()">← TILLBAKA</button>
-  <div class="hero">
-    <h1>Spela online</h1>
-    <p class="mut">Spela din tur när det passar och vänta på motspelaren.</p>
-  </div>
-
-  <div class="role" style="margin-top:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-      <h3 style="margin:0">Din profil</h3>
-      <span id="onlineSpotifyBadge" class="badge">Spotify ej kontrollerat</span>
-    </div>
-    <input id="onlineName" class="input" maxlength="24" placeholder="Ditt namn" style="margin-top:12px">
-    <div class="onlineToolbar">
-      <button id="onlineSpotifyBtn" class="btn dark full" onclick="onlineSpotifyCheck()">KONTROLLERA SPOTIFY</button>
-      <button class="btn green full" onclick="createOnlineMatch()">SKAPA ONLINE-MATCH</button>
-      <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
-        <input id="onlineJoinCode" class="input" maxlength="6" placeholder="MATCHKOD" style="text-transform:uppercase">
-        <button class="btn cyan" onclick="joinOnlineMatch()">GÅ MED</button>
+    <div class="role" style="margin-top:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <h3 style="margin:0">Mina matcher</h3>
+        <button class="btn dark" style="padding:8px 11px" onclick="loadOnlineMatches()">UPPDATERA</button>
+      </div>
+      <div id="onlineMatches" class="onlineMatches">
+        <div class="wait" style="padding:18px">Inga matcher ännu.</div>
       </div>
     </div>
-    <div id="onlineStatus" class="mut" style="font-size:12px;margin-top:10px"></div>
   </div>
 
-  <div class="role" style="margin-top:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-      <h3 style="margin:0">Mina matcher</h3>
-      <button class="btn dark" style="padding:8px 11px" onclick="loadOnlineMatches()">UPPDATERA</button>
-    </div>
-    <div id="onlineMatches" class="onlineMatches">
-      <div class="wait" style="padding:18px">Inga matcher ännu.</div>
-    </div>
+  <div style="margin-top:14px;text-align:center" class="mut">
+    Version <strong style="color:#fff">V4.34</strong>
   </div>
-</div>
-
-<div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.33</strong>
-</div>
-
 </section>
 
 
@@ -306,36 +222,8 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
   </div>
 </section>
 
-<section id="game" class="hidden"><div class="grid">
-<aside class="panel side"><div id="codeBox" class="hidden"><small class="mut">MATCHKOD</small><div id="code" class="code"></div></div><h3>Spelare</h3><div id="players" class="players"></div><button class="btn dark full" style="margin-top:14px" onclick="leaveMatchSafely()">Lämna match</button></aside>
-<main class="panel main"><div class="head"><div><div id="turn" class="turn">–</div><div id="sub" class="mut"></div></div><div id="phaseBadge" class="badge">Väntar</div></div><div id="status" class="status"></div>
-<div id="hostView" class="hidden"><div class="music"><div class="mut">AKTUELL LÅT – ENDAST LEDARMOBILEN</div><div id="song" class="song">Ingen låt startad</div><div id="artist" class="artist"></div><div id="spotify"></div><div id="playbackBox" class="playbackBox hidden">
-      <div class="playbackTimes"><span id="playbackPos">0:00</span><span id="playbackDur">0:00</span></div>
-      <div class="playbackTrack"><div id="playbackFill" class="playbackFill"></div></div>
-    </div>
-    <div class="hostButtons">
-      <button id="playPauseBtn" class="btn dark" onclick="toggleSpotifyPlayback()">❚❚ PAUSA</button>
-      <button class="btn dark" onclick="spotifyRestart()">↺ SPELA FRÅN BÖRJAN</button>
-      <button id="playSongBtn" class="btn green hidden" onclick="playCurrentSong()">▶ FÖRSÖK SPELA IGEN</button>
-    </div></div><div class="stats"><div class="stat"><b id="hostLocked">0</b><small>Låsta kort</small></div><div class="stat"><b id="hostRisk">0</b><small>Riskeras</small></div><div class="stat"><b id="hostSwap">0</b><small>Byt-låt-kort</small></div></div><div id="hostHelp" class="wait">När spelaren är redo visas nästa steg här.</div>
-    <button id="hostTimelineBtn" class="btn purple full" style="margin-top:12px" onclick="toggleHostTimelines()">VISA TIDSLINJER</button>
-    <div id="hostTimelines" class="hidden" style="margin-top:14px"></div>
-    </div>
-
-<div id="playerView" class="hidden">
-<div id="listenScreen"><div class="screenTitle">Lyssna på låten</div><p class="mut" style="text-align:center">Vad vill du göra?</p><div class="bigChoice"><button class="choice guess" onclick="showGuess()">🎤 GISSA ARTIST & LÅTNAMN<small>Frivillig bonus. Båda måste vara rätt för ett Byta-låt-kort.</small></button><button class="choice place" onclick="requestPlace()">🃏 PLACERA KORT<small>Placera låten före, efter eller mellan dina kort.</small></button></div><button id="swapBtn" class="btn orange full" style="margin-top:12px" onclick="swapSong()">🔄 BYT LÅT · 0 KVAR</button></div>
-<div id="guessScreen" class="hidden"><button class="back" onclick="showListen()">← Tillbaka</button><div class="screenTitle">Gissa artist & låtnamn</div><div class="guessFields"><input id="guessArtist" class="input" placeholder="Artist"><input id="guessTitle" class="input" placeholder="Låtnamn"><button class="btn cyan full" onclick="saveGuess()">SPARA GISSNING</button></div></div>
-<div id="placeScreen" class="hidden"><button class="back" onclick="showListen()">← Tillbaka</button><div class="screenTitle">Placera kortet</div><p class="mut" style="text-align:center">Dra det hemliga kortet till en lila ficka. Du kan också trycka direkt på en ficka.</p><div id="timeline" class="timeline"></div><div id="dragSecret" class="secret dragSecret"><div class="note">♫</div><b>HEMLIGT KORT</b><div class="mut">År: ????</div><div class="dragHint">DRA MIG TILL TIDSLINJEN</div></div><div id="confirm" class="confirmBox hidden" aria-hidden="true"></div></div>
-<div id="resultScreen" class="hidden result"><h2 id="resultTitle"></h2><div id="reveal" class="song"></div><div id="checks" class="checklist"></div><div id="bonus"></div>
-<div id="decisionTimelineWrap" class="hidden" style="margin-top:16px">
-  <button id="decisionTimelineBtn" class="btn dark full" onclick="toggleDecisionTimeline()">VISA TIDSLINJE</button>
-  <div id="decisionTimelineBox" class="hidden" style="margin-top:12px"></div>
 </div>
-<div id="decision" class="decision"></div></div>
-<div id="handoffScreen" class="hidden handoff"><div class="mut">LÄMNA ÖVER MOBILEN</div><h2 id="readyName">–</h2><button id="readyBtn" class="btn green full ready" onclick="readyNext()">KLICKA HÄR OM DU ÄR REDO</button></div>
-<div id="waitScreen" class="hidden wait">Väntar på musikmobilen…</div>
-
-</div></main></div></section></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 
 const SPOTIFY_CLIENT_ID = "096b8f046aba41759da21ada77d8f920";
@@ -757,6 +645,7 @@ window.addEventListener("load",async()=>{
   }
 
   await restoreActiveSession();
+  startOnlineHomeSync();
 });
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0", TRACKS=[{"title": "Take On Me", "artist": "a-ha", "year": 1985, "id": "2WfaOiMkCvy7F5fcp2zZ8L"}, {"title": "Like a Prayer", "artist": "Madonna", "year": 1989, "id": "1z3ugFmUKoCzGsI6jdY4Ci"}, {"title": "Smells Like Teen Spirit", "artist": "Nirvana", "year": 1991, "id": "4CeeEOM32jQcH3eN9Q2dGj"}, {"title": "Wannabe", "artist": "Spice Girls", "year": 1996, "id": "1Je1IMUlBXcx1Fz0WE7oPT"}, {"title": "...Baby One More Time", "artist": "Britney Spears", "year": 1998, "id": "3MjUtNVVq3C8Fn0MP3zhXa"}, {"title": "Freestyler", "artist": "Bomfunk MC's", "year": 1999, "id": "2AsJqU7Z3J7cBQrKHVNJcA"}, {"title": "Crazy in Love", "artist": "Beyoncé", "year": 2003, "id": "5IVuqXILoxVWvWEPm82Jxr"}, {"title": "Poker Face", "artist": "Lady Gaga", "year": 2008, "id": "5R8dQOPq8haW94K7mgERlO"}, {"title": "Rolling in the Deep", "artist": "Adele", "year": 2010, "id": "1c8gk2PeTE04A1pIDH9YMk"}, {"title": "Wake Me Up", "artist": "Avicii", "year": 2013, "id": "0nrRP2bk19rLc0orkWPQk2"}, {"title": "Shape of You", "artist": "Ed Sheeran", "year": 2017, "id": "7qiZfU4dY1lWllzX7mPBI3"}, {"title": "Blinding Lights", "artist": "The Weeknd", "year": 2019, "id": "0VjIjW4GlUZAMYd2vXMi3b"}, {"title": "As It Was", "artist": "Harry Styles", "year": 2022, "id": "4LRPiXqCikLlN15c3yImP7"}, {"title": "Flowers", "artist": "Miley Cyrus", "year": 2023, "id": "0yLdNVWF3Srea0uzk55zFn"}];
 let role="",code="",match=null,players=[],poll=null,selected=null,guessSaved=false,localNames=["Anna","Viktor"];
@@ -977,7 +866,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.33";
+    if(badge)badge.textContent="Återansluten · V4.34";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -985,21 +874,9 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // Vi återansluter automatiskt efter en vanlig refresh.
-  // På en helt ny öppning visas dessutom Fortsätt senaste matchen på startsidan.
-  const s=getActiveSession();
-  if(!s)return;
-
-  const nav=performance.getEntriesByType?.("navigation")?.[0];
-  const isReload=nav && nav.type==="reload";
-
-  if(isReload){
-    await resumeSavedMatch();
-  }else{
-    showResumeOffer();
-  }
+  // V4.34 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  clearActiveSession();
 }
-
 function requireDb(){
   if(!navigator.onLine){
     alert("Mobilen verkar sakna internetanslutning.");
@@ -1008,7 +885,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.33"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.34"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1037,22 +914,15 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function showModeChooser(){
-  $("modeChooser").classList.remove("hidden");
-  $("localMode").classList.add("hidden");
-  $("onlineMode").classList.add("hidden");
-}
-function showLocalMode(){
-  $("modeChooser").classList.add("hidden");
-  $("localMode").classList.remove("hidden");
-  $("onlineMode").classList.add("hidden");
-}
+function showModeChooser(){showOnlineMode()}
+function showLocalMode(){showOnlineMode()}
 function showOnlineMode(){
-  $("modeChooser").classList.add("hidden");
-  $("localMode").classList.add("hidden");
-  $("onlineMode").classList.remove("hidden");
+  const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
+  if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
+  loadOnlineMatches();
+  setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.33":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.34":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1807,7 +1677,7 @@ async function endFailedTurn(){
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
 // =======================
-// SPELA ONLINE – V4.33
+// SPELA ONLINE – V4.34
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -1828,6 +1698,108 @@ let onlinePlaybackTimer=null;
 let onlineDragZone=null;
 let onlineDragging=false;
 let onlineDragOffsetX=0, onlineDragOffsetY=0;
+
+let realtimeClient=null;
+let onlineListChannel=null;
+let onlineMatchChannel=null;
+let onlineRealtimeDebounce=null;
+let onlineRealtimeAvailable=false;
+
+
+function getRealtimeClient(){
+  if(realtimeClient)return realtimeClient;
+  try{
+    if(window.supabase?.createClient){
+      realtimeClient=window.supabase.createClient(URL,KEY,{
+        auth:{persistSession:false,autoRefreshToken:false},
+        realtime:{params:{eventsPerSecond:20}}
+      });
+      return realtimeClient;
+    }
+  }catch(e){
+    console.warn("Realtime init:",e);
+  }
+  return null;
+}
+
+function scheduleOnlineListRefresh(delay=40){
+  clearTimeout(onlineRealtimeDebounce);
+  onlineRealtimeDebounce=setTimeout(()=>{
+    if(!$("home").classList.contains("hidden"))loadOnlineMatches();
+  },delay);
+}
+
+function setupOnlineRealtimeList(){
+  const rt=getRealtimeClient();
+  if(!rt||onlineListChannel)return;
+
+  try{
+    onlineListChannel=rt.channel("digihits-online-list-"+ensureOnlineUserId())
+      .on("postgres_changes",{event:"*",schema:"public",table:"online_matches"},()=>{
+        onlineRealtimeAvailable=true;
+        scheduleOnlineListRefresh(25);
+      })
+      .on("postgres_changes",{event:"*",schema:"public",table:"online_players"},()=>{
+        onlineRealtimeAvailable=true;
+        scheduleOnlineListRefresh(25);
+      })
+      .subscribe(status=>{
+        if(status==="SUBSCRIBED"){
+          onlineRealtimeAvailable=true;
+          scheduleOnlineListRefresh(0);
+        }
+      });
+  }catch(e){
+    console.warn("List realtime:",e);
+  }
+}
+
+function teardownOnlineMatchRealtime(){
+  if(!onlineMatchChannel)return;
+  try{
+    const rt=getRealtimeClient();
+    if(rt)rt.removeChannel(onlineMatchChannel);
+  }catch(_){}
+  onlineMatchChannel=null;
+}
+
+function setupOnlineMatchRealtime(matchId){
+  teardownOnlineMatchRealtime();
+  const rt=getRealtimeClient();
+  if(!rt||!matchId)return;
+
+  try{
+    onlineMatchChannel=rt.channel("digihits-match-"+matchId+"-"+ensureOnlineUserId())
+      .on("postgres_changes",{
+        event:"*",
+        schema:"public",
+        table:"online_matches",
+        filter:"id=eq."+matchId
+      },()=>{
+        onlineRealtimeAvailable=true;
+        fetchOnlineGameState();
+        scheduleOnlineListRefresh(25);
+      })
+      .on("postgres_changes",{
+        event:"*",
+        schema:"public",
+        table:"online_players",
+        filter:"match_id=eq."+matchId
+      },()=>{
+        onlineRealtimeAvailable=true;
+        fetchOnlineGameState();
+        scheduleOnlineListRefresh(25);
+      })
+      .subscribe(status=>{
+        if(status==="SUBSCRIBED"){
+          onlineRealtimeAvailable=true;
+          fetchOnlineGameState();
+        }
+      });
+  }catch(e){
+    console.warn("Match realtime:",e);
+  }
+}
 
 function ensureOnlineUserId(){
   if(!onlineUserId){
@@ -1954,7 +1926,7 @@ async function createOnlineMatch(){
     if(pr.error)throw new Error(pr.error.message);
 
     setOnlineStatus("Match skapad. Dela koden "+created.code+" med din vän.");
-    await loadOnlineMatches();
+    scheduleOnlineListRefresh(0);
     await openOnlineMatch(created.id);
   }catch(e){
     setOnlineStatus(e.message,true);
@@ -2016,7 +1988,7 @@ async function joinOnlineMatch(){
 
     $("onlineJoinCode").value="";
     setOnlineStatus("Du gick med i match "+code+".");
-    await loadOnlineMatches();
+    scheduleOnlineListRefresh(0);
     await openOnlineMatch(m.id);
   }catch(e){
     setOnlineStatus(e.message,true);
@@ -2128,11 +2100,16 @@ async function openOnlineMatch(id){
   $("home").classList.add("hidden");
   $("onlineGame").classList.remove("hidden");
   renderOnlineGame();
-  onlineGameTimer=setInterval(fetchOnlineGameState,1200);
+  setupOnlineMatchRealtime(id);
+
+  // Realtime är primärt. 700 ms polling är endast reserv om websocket
+  // tappas eller en mobil lägger anslutningen i viloläge.
+  onlineGameTimer=setInterval(fetchOnlineGameState,700);
 }
 
 function closeOnlineGame(){
   clearInterval(onlineGameTimer);
+  teardownOnlineMatchRealtime();
   clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
   onlineMatch=null;onlinePlayers=[];onlineMyPlayer=null;onlinePlayerTimelineOpen={};
   onlineView="listen";onlineViewSongId=null;onlineLocalResultHold=null;onlineSelected=null;onlineGuessSaved=false;
@@ -2564,7 +2541,7 @@ async function confirmOnlinePlacement(){
       onlineLocalResultHold=result;
       onlineMatch={...onlineMatch,current_song:null,phase:"turn_ready",current_user_id:next.user_id,last_result:null};
       showOnlineLocalResult(result,false,true);
-      loadOnlineMatches();
+      scheduleOnlineListRefresh(0);
     }
   }catch(e){
     alert("Kunde inte bekräfta: "+e.message);
@@ -2661,8 +2638,10 @@ async function onlineLockIn(){
       if(mr.error)throw new Error(mr.error.message);
     }
     clearOnlineRoundLocal();
+
+    // Omedelbar lokal refresh. Motspelaren får samma ändring via Realtime.
     await fetchOnlineGameState();
-    loadOnlineMatches();
+    scheduleOnlineListRefresh(0);
   }catch(e){alert(e.message)}
   finally{actionBusy=false}
 }
@@ -2691,16 +2670,19 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Start online list whenever mode opens.
-const _showOnlineMode=showOnlineMode;
-showOnlineMode=function(){
-  _showOnlineMode();
+// Startsidan är alltid online i V4.34.
+function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
+  setupOnlineRealtimeList();
   loadOnlineMatches();
+
   clearInterval(onlineMatchesTimer);
-  onlineMatchesTimer=setInterval(()=>{if(!$("onlineMode").classList.contains("hidden"))loadOnlineMatches()},5000);
-};
+  // Realtime uppdaterar normalt direkt. Detta är reservsynk.
+  onlineMatchesTimer=setInterval(()=>{
+    if(!$("home").classList.contains("hidden"))loadOnlineMatches();
+  },2500);
+}
 
 </script>
 <div id="guessFirstModal" class="modalBackdrop hidden">
