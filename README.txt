@@ -1,18 +1,22 @@
-DIGIHITS – SUPABASE VERSION
+DIGIHITS V4
 
-Ladda upp dessa filer till ditt GitHub-repository och ersätt de gamla:
-- index.html
-- manifest.webmanifest
-- sw.js
-- icon-192.svg
-- icon-512.svg
+1. Öppna SUPABASE_V4.sql.
+2. Kopiera allt och kör det EN gång i Supabase SQL Editor.
+3. Ladda därefter upp index.html, manifest.webmanifest och sw.js till GitHub och ersätt de gamla filerna.
+4. Vänta på GitHub Pages deployment.
+5. Öppna samma GitHub Pages-länk på båda mobilerna.
+6. Mobil 1: SKAPA MATCH (ledarmobil).
+7. Mobil 2: ANSLUT SPELARMOBIL.
 
-Supabase Project URL och Publishable key är redan inbyggda i index.html.
-
-Efter uppladdning:
-1. Vänta tills GitHub Pages har deployat.
-2. Öppna https://fleeken.github.io/digihits/ på båda mobilerna.
-3. Mobil 1: Skapa match.
-4. Mobil 2: Gå med och skriv matchkoden.
-
-Om mobilen visar gammal version: stäng fliken helt och öppna länken igen, eller rensa webbplatsdata.
+V4:
+- flera spelare
+- en ledarmobil + en spelarmobil som skickas runt
+- ingen poäng
+- egen tidslinje per spelare
+- rätt/fel placering
+- separat Rätt artist / Rätt låtnamn
+- max 3 Byta-låt-kort och 0 visas tydligt
+- Fortsätt eller Lås in
+- fel placering förlorar turens olåsta kort
+- stor 'NAMN, KLICKA HÄR OM DU ÄR REDO'
+- spelarskärmar utan scrollbaserat arbetsflöde
