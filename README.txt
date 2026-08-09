@@ -1,20 +1,11 @@
-DIGIHITS V4.41
+DIGIHITS V4.42
 
-OFFLINEFUNKTION BORTTAGEN HELT
-- SPELA OFFLINE är borttaget från startsidan.
-- Offline-listor och URL-fält är borttagna.
-- Offline-ljudspelaren är borttagen.
-- Offline-specifik CSS och JavaScript är borttaget.
-- OFFLINE_LIST_EXAMPLE.json ingår inte.
-- Spotify-offlinelistor används inte och nämns inte som spelalternativ.
+MINA MATCHER:
+- DIN TUR visas med grön lampa.
+- VÄNTAR PÅ MOTSPELARE visas med gul lampa.
+- Lamporna har samma storlek och samma typ av statusruta.
+- Den gamla färgförklaringen under Mina matcher är borttagen.
+- Väntstatusen är tydligare och mer direkt.
 
-Kvar:
-- Onlinematcher
-- Spotify-kontroll
-- Mina matcher + realtime
-- Historik
-- Lämna match
-- Tidslinjer
-- Alla vanliga spelregler
-
+Alla tidigare funktioner från V4.41 är kvar.
 Ingen ny SQL krävs.
