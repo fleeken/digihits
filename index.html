@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Digihits</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Digihits">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#070707;--panel:#121212;--panel2:#1b1b1b;--line:#2d2d2d;--text:#fff;--muted:#9b9b9b;--cyan:#48c8ff;--purple:#9c5cff;--green:#1db954;--red:#ff6474;--gold:#ffd166}
+body{margin:0;background:radial-gradient(circle at top,#1a1a1a 0,#090909 42%,#000 100%);color:#fff;font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{width:min(1180px,96%);margin:auto;padding:18px 0 54px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.logo h1{margin:0;font-size:clamp(30px,6vw,52px)}
+.logo small,.small{color:var(--muted);font-size:12px}
+.badge{padding:9px 13px;border:1px solid var(--line);background:#171717;border-radius:999px;font-size:13px}
+.panel{background:rgba(18,18,18,.98);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 15px 40px rgba(0,0,0,.35)}
+.home{max-width:680px;margin:8vh auto 0;text-align:center}
+.home h2{font-size:30px;margin:4px 0 8px}
+.home p{color:#bbb;line-height:1.5}
+.home-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.btn{border:0;border-radius:12px;padding:13px 16px;font-weight:800}
+.btn-green{background:var(--green);color:#00190a}
+.btn-cyan{background:var(--cyan);color:#00151f}
+.btn-purple{background:var(--purple);color:#140020}
+.btn-dark{background:#292929;color:#fff}
+.btn-red{background:#55252b;color:#fff}
+.input{width:100%;padding:13px 14px;border-radius:11px;background:#0d0d0d;border:1px solid #373737;color:#fff;outline:none}
+.input:focus{border-color:var(--cyan)}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:290px 1fr;gap:18px}
+.sidebar h3{margin-top:0}
+.players{display:grid;gap:8px}
+.player{display:flex;justify-content:space-between;gap:10px;padding:11px 12px;background:#181818;border:1px solid #292929;border-radius:11px}
+.player.active{border-color:var(--cyan)}
+.score{color:var(--gold);font-weight:800}
+.code{font-size:30px;letter-spacing:5px;color:var(--cyan);font-weight:900}
+.host-player{background:#080808;border-radius:14px;overflow:hidden;border:1px solid #2f2f2f;margin:14px 0}
+.host-player iframe{display:block;width:100%;height:152px;border:0}
+.game-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.message{margin:12px 0;min-height:24px;font-weight:700;color:var(--cyan)}
+.guessbox{background:#151515;border:1px solid #303030;border-radius:14px;padding:14px;margin:12px 0}
+.guessgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.deckarea{min-height:245px;border:1px dashed #363636;border-radius:18px;position:relative;display:flex;align-items:center;justify-content:center;background:#090909;margin:14px 0}
+.card{width:185px;min-height:215px;background:linear-gradient(#1a1a1a,#101010);border:2px solid var(--cyan);border-radius:16px;padding:13px;box-shadow:0 12px 28px rgba(0,0,0,.45);user-select:none}
+.dragcard{position:absolute;touch-action:none;cursor:grab;z-index:20}
+.dragcard.dragging{cursor:grabbing;box-shadow:0 0 28px rgba(72,200,255,.45)}
+.cover{height:100px;border-radius:11px;display:grid;place-items:center;font-size:42px;margin-bottom:11px;background:radial-gradient(circle at 25% 28%,var(--cyan) 0 8%,transparent 9%),radial-gradient(circle at 72% 64%,var(--purple) 0 10%,transparent 11%),linear-gradient(135deg,#252525,#353535)}
+.card h3{font-size:15px;margin:7px 0}.card p{font-size:12px;color:#ddd;margin:5px 0}.year{font-size:19px!important;color:var(--gold)!important;font-weight:800}
+.timeline{min-height:285px;border:2px solid var(--purple);border-radius:18px;background:#141414;padding:24px 14px;display:flex;align-items:center;gap:0;overflow-x:auto}
+.placed{flex:0 0 145px;min-height:180px;background:#1c1c1c;border:1px solid #444;border-radius:14px;padding:10px;text-align:center}
+.placed .cover{height:72px;font-size:30px}.placed h3{font-size:12px;margin:5px 0}.placed p{font-size:10px;margin:4px 0}.placed .year{font-size:16px!important}
+.drop{flex:0 0 95px;align-self:stretch;min-height:205px;margin:0 6px;border-radius:16px;border:2px dashed #5b4572;background:rgba(156,92,255,.08);display:flex;align-items:center;justify-content:center;transition:.14s}
+.drop:before{content:"SLÄPP HÄR";width:64px;min-height:115px;border-radius:12px;border:1px solid #70578a;display:flex;align-items:center;justify-content:center;text-align:center;color:#c7addc;font-size:10px;font-weight:900;padding:6px}
+.drop.active{flex-basis:130px;background:rgba(156,92,255,.24);border-color:var(--purple);box-shadow:0 0 24px rgba(156,92,255,.3)}
+.drop.active:before{content:"SLÄPP KORTET HÄR";color:white;border:2px solid var(--purple)}
+.pendingwrap{flex:0 0 145px;display:flex;flex-direction:column;gap:8px}
+.pending{border:2px solid var(--cyan);box-shadow:0 0 24px rgba(72,200,255,.25);transform:translateY(-5px)}
+.confirm{display:grid;gap:7px}
+.confirm button{border:0;border-radius:9px;padding:9px;font-weight:800;font-size:11px}
+.confirm .ok{background:var(--cyan);color:#00151f}.confirm .move{background:#252525;color:#ddd}
+.result{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;place-items:center;padding:18px;z-index:80}
+.result.show{display:grid}.resultbox{width:min(500px,100%);background:#111;border:1px solid #333;border-radius:18px;padding:22px;text-align:center}.big{font-size:28px;font-weight:900;color:var(--gold)}
+.waiting{padding:26px;text-align:center;border:1px dashed #3a3a3a;border-radius:16px;color:#bbb}
+@media(max-width:840px){.grid{grid-template-columns:1fr}.sidebar{order:2}.main{order:1}}
+@media(max-width:620px){.home-actions,.guessgrid{grid-template-columns:1fr}.timeline{padding:20px 8px}.placed,.pendingwrap{flex-basis:122px}.drop{flex-basis:78px;margin:0 4px}.drop.active{flex-basis:100px}.card{width:170px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo"><h1>Digihits</h1><small>One File Multiplayer</small></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+      <button class="btn btn-dark hidden" id="installBtn" onclick="installApp()" style="padding:9px 12px">Installera app</button>
+      <div class="badge" id="netBadge">Ej ansluten</div>
+    </div>
+  </div>
+
+  <section class="panel home" id="home">
+    <h2>Musik + tidslinje</h2>
+    <p>En person är spelledare och spelar Spotify. Alla andra ansluter med samma matchkod och gissar låt, artist och tidsplacering på sina mobiler.</p>
+    <div class="home-actions">
+      <button class="btn btn-green" onclick="showHostSetup()">Skapa match</button>
+      <button class="btn btn-cyan" onclick="showJoinSetup()">Gå med</button>
+    </div>
+
+    <div id="hostSetup" class="hidden" style="margin-top:18px;text-align:left">
+      <label class="small">Ditt namn</label>
+      <input class="input" id="hostName" value="Spelledare">
+      <button class="btn btn-green" style="width:100%;margin-top:10px" onclick="createRoom()">Skapa gratis match</button>
+    </div>
+
+    <div id="joinSetup" class="hidden" style="margin-top:18px;text-align:left">
+      <label class="small">Ditt namn</label>
+      <input class="input" id="joinName" placeholder="Viktor">
+      <label class="small" style="display:block;margin-top:10px">Matchkod</label>
+      <input class="input" id="joinCode" placeholder="ABC123" maxlength="6" style="text-transform:uppercase">
+      <button class="btn btn-cyan" style="width:100%;margin-top:10px" onclick="joinRoom()">Anslut</button>
+    </div>
+
+    <p class="small" style="margin-top:18px">Kräver internet. Multiplayer använder PeerJS/WebRTC och Spotify spelas endast på spelledarens skärm.</p>
+  </section>
+
+  <section id="game" class="hidden">
+    <div class="grid">
+      <aside class="panel sidebar">
+        <div id="hostCodeBlock" class="hidden">
+          <h3>Matchkod</h3>
+          <div class="code" id="roomCode">------</div>
+          <div class="small">Dela koden med spelarna.</div>
+        </div>
+        <h3 style="margin-top:20px">Spelare</h3>
+        <div class="players" id="players"></div>
+        <button class="btn btn-dark" style="width:100%;margin-top:14px" onclick="location.reload()">Lämna match</button>
+      </aside>
+
+      <main class="panel main">
+        <div class="game-head">
+          <div><h2 style="margin:0">Tur: <span id="turnName">–</span></h2><div class="small" id="roleText"></div></div>
+          <div class="badge">Kort kvar: <strong id="cardsLeft">0</strong></div>
+        </div>
+
+        <div id="hostControls" class="hidden">
+          <div class="host-player" id="spotifyFrameWrap"></div>
+          <button class="btn btn-purple" onclick="hostNextRound()">Nästa runda</button>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div id="playerArea">
+          <div class="guessbox">
+            <strong>Gissa låten</strong>
+            <div class="guessgrid" style="margin-top:10px">
+              <input class="input" id="titleGuess" placeholder="Låtnamn">
+              <input class="input" id="artistGuess" placeholder="Artist">
+            </div>
+          </div>
+
+          <div class="deckarea" id="deckArea">
+            <div class="card dragcard" id="dragCard">
+              <div class="cover">♫</div>
+              <h3>Okänd låt</h3>
+              <p>Artist: ???</p>
+              <p class="year">År: ????</p>
+              <p class="small">Dra till tidslinjen.</p>
+            </div>
+          </div>
+
+          <h3>Tidslinje <span class="small">Äldst → Nyast</span></h3>
+          <div class="timeline" id="timeline"></div>
+        </div>
+
+        <div id="waitingArea" class="waiting hidden">Väntar på nästa runda från spelledaren…</div>
+      </main>
+    </div>
+  </section>
+</div>
+
+<div class="result" id="result">
+  <div class="resultbox">
+    <h2 id="resultHeading">Rundan är klar</h2>
+    <div class="big" id="resultScore">0 p</div>
+    <p id="resultDetails"></p>
+    <button class="btn btn-green" onclick="closeResult()">OK</button>
+  </div>
+</div>
+
+<script>
+const TRACKS=[
+ {title:"Take On Me",artist:"a-ha",year:1985,id:"2WfaOiMkCvy7F5fcp2zZ8L"},
+ {title:"Like a Prayer",artist:"Madonna",year:1989,id:"1z3ugFmUKoCzGsI6jdY4Ci"},
+ {title:"Smells Like Teen Spirit",artist:"Nirvana",year:1991,id:"4CeeEOM32jQcH3eN9Q2dGj"},
+ {title:"Wannabe",artist:"Spice Girls",year:1996,id:"1Je1IMUlBXcx1Fz0WE7oPT"},
+ {title:"...Baby One More Time",artist:"Britney Spears",year:1998,id:"3MjUtNVVq3C8Fn0MP3zhXa"},
+ {title:"Freestyler",artist:"Bomfunk MC's",year:1999,id:"2AsJqU7Z3J7cBQrKHVNJcA"},
+ {title:"Crazy in Love",artist:"Beyoncé",year:2003,id:"5IVuqXILoxVWvWEPm82Jxr"},
+ {title:"Poker Face",artist:"Lady Gaga",year:2008,id:"5R8dQOPq8haW94K7mgERlO"},
+ {title:"Rolling in the Deep",artist:"Adele",year:2010,id:"1c8gk2PeTE04A1pIDH9YMk"},
+ {title:"Wake Me Up",artist:"Avicii",year:2013,id:"0nrRP2bk19rLc0orkWPQk2"},
+ {title:"Shape of You",artist:"Ed Sheeran",year:2017,id:"7qiZfU4dY1lWllzX7mPBI3"},
+ {title:"Blinding Lights",artist:"The Weeknd",year:2019,id:"0VjIjW4GlUZAMYd2vXMi3b"},
+ {title:"As It Was",artist:"Harry Styles",year:2022,id:"4LRPiXqCikLlN15c3yImP7"},
+ {title:"Flowers",artist:"Miley Cyrus",year:2023,id:"0yLdNVWF3Srea0uzk55zFn"}
+];
+
+let role=null,peer=null,hostConn=null,connections=[],roomCode="";
+let players=[],deck=[],timelineCards=[],currentCard=null,currentTurnId=null,pendingIndex=null,roundOpen=false;
+let drag=false,offX=0,offY=0,activeDrop=null;
+
+const $=id=>document.getElementById(id);
+function code6(){const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function norm(s){return(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"")}
+function match(g,a){g=norm(g);a=norm(a);return !!g&&(g===a||(g.length>=5&&(a.includes(g)||g.includes(a))))}
+function showHostSetup(){$("hostSetup").classList.remove("hidden");$("joinSetup").classList.add("hidden")}
+function showJoinSetup(){$("joinSetup").classList.remove("hidden");$("hostSetup").classList.add("hidden")}
+function enterGame(){$("home").classList.add("hidden");$("game").classList.remove("hidden")}
+function renderPlayers(){let el=$("players");el.innerHTML="";players.forEach(p=>{let d=document.createElement("div");d.className="player"+(p.id===currentTurnId?" active":"");d.innerHTML=`<span>${p.name}</span><span class="score">${p.score||0} p</span>`;el.appendChild(d)});let cur=players.find(p=>p.id===currentTurnId);$("turnName").textContent=cur?cur.name:"–"}
+function renderTimeline(){let el=$("timeline");el.innerHTML="";for(let i=0;i<=timelineCards.length;i++){let z=document.createElement("div");z.className="drop";z.dataset.index=i;el.appendChild(z);if(pendingIndex===i&&role==="player"){let w=document.createElement("div");w.className="pendingwrap";let c=makePlaced({title:"Okänd låt",artist:"Placering vald",year:"????"});c.classList.add("pending");let a=document.createElement("div");a.className="confirm";a.innerHTML='<button class="ok" onclick="submitGuess()">Bekräfta plats</button><button class="move" onclick="cancelPlacement()">Flytta igen</button>';w.append(c,a);el.appendChild(w)}if(i<timelineCards.length)el.appendChild(makePlaced(timelineCards[i]))}}
+function makePlaced(c){let d=document.createElement("div");d.className="placed";d.innerHTML=`<div class="cover">♫</div><h3>${c.title}</h3><p>${c.artist}</p><p class="year">${c.year}</p>`;return d}
+function resetDrag(){$("dragCard").style.visibility="visible";$("dragCard").style.left="50%";$("dragCard").style.top="50%";$("dragCard").style.transform="translate(-50%,-50%)"}
+function broadcast(msg){connections.forEach(c=>{if(c.open)c.send(msg)})}
+function createRoom(){
+ role="host";roomCode=code6();let id="digihits-"+roomCode.toLowerCase()+"-host";
+ peer=new Peer(id);
+ peer.on("open",()=>{
+  $("netBadge").textContent="Spelledare online";$("roomCode").textContent=roomCode;$("hostCodeBlock").classList.remove("hidden");$("hostControls").classList.remove("hidden");$("playerArea").classList.add("hidden");$("roleText").textContent="Du är spelledare";enterGame();
+  players=[{id:"host",name:$("hostName").value.trim()||"Spelledare",score:0}];
+  deck=shuffle(TRACKS);timelineCards=[deck.pop()];$("cardsLeft").textContent=deck.length;renderPlayers();renderTimeline();$("message").textContent="Dela matchkoden. När spelare anslutit, tryck Nästa runda.";
+ });
+ peer.on("connection",conn=>{
+  connections.push(conn);
+  conn.on("open",()=>conn.send({type:"hello",roomCode}));
+  conn.on("data",msg=>hostHandle(conn,msg));
+  conn.on("close",()=>{connections=connections.filter(x=>x!==conn)});
+ });
+ peer.on("error",e=>$("message").textContent="Nätverksfel: "+e.type);
+}
+function hostHandle(conn,msg){
+ if(msg.type==="join"){
+  if(!players.find(p=>p.id===msg.id))players.push({id:msg.id,name:msg.name,score:0});
+  renderPlayers();broadcast({type:"state",players,timelineCards,currentTurnId,roundOpen:false,cardsLeft:deck.length});
+ }
+ if(msg.type==="answer"&&roundOpen&&msg.playerId===currentTurnId){
+  let p=players.find(x=>x.id===msg.playerId);if(!p)return;
+  let idx=msg.index;
+  let left=idx>0?timelineCards[idx-1]:null,right=idx<timelineCards.length?timelineCards[idx]:null;
+  let placeOk=(!left||currentCard.year>=left.year)&&(!right||currentCard.year<=right.year);
+  let titleOk=match(msg.title,currentCard.title),artistOk=match(msg.artist,currentCard.artist);
+  let pts=(placeOk?1:0)+(titleOk?2:0)+(artistOk?2:0)+(placeOk&&titleOk&&artistOk?1:0);
+  p.score+=pts;
+  let ci=timelineCards.findIndex(x=>currentCard.year<=x.year);if(ci<0)ci=timelineCards.length;
+  timelineCards.splice(ci,0,currentCard);
+  roundOpen=false;
+  conn.send({type:"result",pts,card:currentCard,placeOk,titleOk,artistOk});
+  broadcast({type:"state",players,timelineCards,currentTurnId:null,roundOpen:false,cardsLeft:deck.length});
+  currentTurnId=null;renderPlayers();renderTimeline();$("message").textContent=`${p.name} fick ${pts} poäng. Tryck Nästa runda.`;
+ }
+}
+function hostNextRound(){
+ if(roundOpen){$("message").textContent="En runda pågår.";return}
+ let available=players.filter(p=>p.id!=="host");
+ if(!available.length){$("message").textContent="Minst en spelare måste ansluta.";return}
+ if(!deck.length){$("message").textContent="Kortleken är slut.";return}
+ currentCard=deck.pop();$("cardsLeft").textContent=deck.length;
+ let lastIndex=players.findIndex(p=>p.id===currentTurnId);let ids=players.filter(p=>p.id!=="host");
+ let next=ids[(Date.now()+deck.length)%ids.length];currentTurnId=next.id;roundOpen=true;
+ $("spotifyFrameWrap").innerHTML=`<iframe src="https://open.spotify.com/embed/track/${currentCard.id}?utm_source=generator" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+ renderPlayers();$("message").textContent=`${next.name} spelar denna runda. Starta låten i Spotify-spelaren ovan.`;
+ broadcast({type:"round",playerId:currentTurnId,timelineCards,cardsLeft:deck.length});
+}
+function joinRoom(){
+ role="player";roomCode=$("joinCode").value.trim().toUpperCase();let name=$("joinName").value.trim()||"Spelare";if(roomCode.length!==6){alert("Skriv en 6-teckens matchkod.");return}
+ let myId="p-"+Math.random().toString(36).slice(2,10);peer=new Peer();
+ peer.on("open",id=>{hostConn=peer.connect("digihits-"+roomCode.toLowerCase()+"-host");hostConn.on("open",()=>{hostConn.send({type:"join",id:myId,name});$("netBadge").textContent="Ansluten";$("roleText").textContent="Du är spelare";enterGame();$("hostControls").classList.add("hidden");window.myPlayerId=myId});hostConn.on("data",playerHandle);hostConn.on("close",()=>{$("netBadge").textContent="Frånkopplad"});});
+ peer.on("error",e=>{alert("Kunde inte ansluta till matchen. Kontrollera koden.");console.error(e)});
+}
+function playerHandle(msg){
+ if(msg.type==="state"){players=msg.players;timelineCards=msg.timelineCards;currentTurnId=msg.currentTurnId;$("cardsLeft").textContent=msg.cardsLeft;renderPlayers();renderTimeline();if(!msg.roundOpen){$("playerArea").classList.add("hidden");$("waitingArea").classList.remove("hidden")}}
+ if(msg.type==="round"){timelineCards=msg.timelineCards;currentTurnId=msg.playerId;$("cardsLeft").textContent=msg.cardsLeft;renderPlayers();renderTimeline();pendingIndex=null;$("titleGuess").value="";$("artistGuess").value="";resetDrag();if(msg.playerId===window.myPlayerId){$("playerArea").classList.remove("hidden");$("waitingArea").classList.add("hidden");$("message").textContent="Din tur! Lyssna, gissa och placera kortet."}else{$("playerArea").classList.add("hidden");$("waitingArea").classList.remove("hidden");$("message").textContent="Väntar på spelaren som har tur."}}
+ if(msg.type==="result"){let c=msg.card;$("resultHeading").textContent="Rundan är klar";$("resultScore").textContent=msg.pts+" poäng";$("resultDetails").textContent=`${c.title} – ${c.artist} (${c.year}). Placering: ${msg.placeOk?"rätt":"fel"} · Låtnamn: ${msg.titleOk?"rätt":"fel"} · Artist: ${msg.artistOk?"rätt":"fel"}`;$("result").classList.add("show")}
+}
+function closeResult(){$("result").classList.remove("show");$("playerArea").classList.add("hidden");$("waitingArea").classList.remove("hidden")}
+function cancelPlacement(){pendingIndex=null;renderTimeline();resetDrag();$("message").textContent="Flytta kortet till en ny ficka."}
+function submitGuess(){if(pendingIndex===null||!hostConn)return;hostConn.send({type:"answer",playerId:window.myPlayerId,index:pendingIndex,title:$("titleGuess").value,artist:$("artistGuess").value});$("message").textContent="Svar skickat…";$("dragCard").style.visibility="hidden"}
+function zoneAt(x,y){return[...document.querySelectorAll(".drop")].find(z=>{let r=z.getBoundingClientRect();return x>=r.left-20&&x<=r.right+20&&y>=r.top-12&&y<=r.bottom+12})||null}
+$("dragCard").addEventListener("pointerdown",e=>{if(role!=="player"||currentTurnId!==window.myPlayerId||pendingIndex!==null)return;drag=true;$("dragCard").classList.add("dragging");$("dragCard").setPointerCapture(e.pointerId);let r=$("dragCard").getBoundingClientRect(),p=$("deckArea").getBoundingClientRect();offX=e.clientX-r.left;offY=e.clientY-r.top;$("dragCard").style.transform="none";$("dragCard").style.left=(r.left-p.left)+"px";$("dragCard").style.top=(r.top-p.top)+"px"});
+$("dragCard").addEventListener("pointermove",e=>{if(!drag)return;let p=$("deckArea").getBoundingClientRect();$("dragCard").style.left=(e.clientX-p.left-offX)+"px";$("dragCard").style.top=(e.clientY-p.top-offY)+"px";let z=zoneAt(e.clientX,e.clientY);if(activeDrop&&activeDrop!==z)activeDrop.classList.remove("active");activeDrop=z;if(z)z.classList.add("active")});
+$("dragCard").addEventListener("pointerup",()=>{if(!drag)return;drag=false;$("dragCard").classList.remove("dragging");if(activeDrop){pendingIndex=Number(activeDrop.dataset.index);activeDrop.classList.remove("active");activeDrop=null;$("dragCard").style.visibility="hidden";renderTimeline();$("message").textContent="Platsen är vald. Tryck Bekräfta plats eller Flytta igen."}else resetDrag()});
+$("dragCard").addEventListener("pointercancel",()=>{drag=false;resetDrag()});
+</script>
+
+<script>
+let deferredInstallPrompt=null;
+
+window.addEventListener("beforeinstallprompt",(e)=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  const b=document.getElementById("installBtn");
+  if(b)b.classList.remove("hidden");
+});
+
+async function installApp(){
+  if(!deferredInstallPrompt){
+    alert("På iPhone: tryck Dela och välj 'Lägg till på hemskärmen'. På Android: använd webbläsarens meny och välj Installera app.");
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  const b=document.getElementById("installBtn");
+  if(b)b.classList.add("hidden");
+}
+
+if("serviceWorker" in navigator && (location.protocol==="https:" || location.hostname==="localhost" || location.hostname==="127.0.0.1")){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js").catch(console.error);
+  });
+}
+</script>
+
+</body>
+</html>
