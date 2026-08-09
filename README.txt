@@ -1,21 +1,14 @@
-DIGIHITS V4.44
+DIGIHITS V4.45
 
-RESULTAT / FORTSÄTT-FLÖDE:
-- "Gissningen är sparad." tas bort direkt och ligger inte kvar när spelaren fortsätter.
-- Dubbel visning av Byta-låt-kort under Fel/Rätt låtnamn är borttagen.
-- Byta-låt-kort visas fortfarande under Spelare.
-- Om spelaren faktiskt får ett Byta-låt-kort visas bara bonusmeddelandet att ett kort erhölls.
-
-TIDSLINJE EFTER RÄTT PLACERING:
-- Tidslinjen visas automatiskt direkt under resultatet.
-- Ingen VISA/DÖLJ TIDSLINJE-knapp längre.
-- Låsta och olåsta kort visas direkt.
-- Olåsta kort ligger fortsatt högre än låsta kort.
-
-SCROLLFIX:
-- Placeringstidslinjens horisontella scrollposition sparas.
-- Realtime/polling får inte längre kasta tidslinjen tillbaka åt vänster.
-- Resultattidslinjens scrollposition sparas också.
-- Resultatvyn byggs inte om vid varje poll om inget faktiskt har förändrats.
+FIX – TIDSLINJE UNDER SPELARE:
+- Horisontell swipe/scroll fungerar på mobil.
+- touch-action: pan-x.
+- iOS momentumscroll aktiverad.
+- Tidslinjeraden använder width:max-content så korten faktiskt kan fortsätta åt höger.
+- Korten har fast minbredd och krymper inte ihop.
+- Scrollposition sparas separat för varje spelares tidslinje.
+- Realtime/polling återställer spelarens tidigare scrollposition efter omrendering.
+- Sidebar/spelarrader får min-width:0 så containern inte låser bredden.
+- Synlig tunn scrollbar finns som extra visuell hjälp.
 
 Ingen ny SQL krävs.
