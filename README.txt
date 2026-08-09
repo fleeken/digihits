@@ -1,19 +1,23 @@
-DIGIHITS V4.8
+DIGIHITS V4.10
 
-Spotify Client ID är nu inbyggt i appen.
-Vanliga användare behöver INTE:
-- känna till Client ID
-- skriva Redirect URI
-- öppna Spotify Developer Dashboard
+Spotify-flödet är förenklat:
 
-Första gången på ledarmobil:
-1. Tryck ANSLUT SPOTIFY.
+FÖRSTA GÅNGEN:
+1. ANSLUT SPOTIFY.
 2. Godkänn hos Spotify.
-3. Tillbaka i Digihits: tryck HITTA SPOTIFY-ENHET.
-4. Välj ledarmobilens Spotify-enhet.
-5. Skapa match.
+3. Digihits hittar automatiskt aktiv Spotify-enhet.
+4. Klart.
 
-Därefter ska Spotify-kopplingen normalt finnas kvar på samma mobil.
+VANLIG ANVÄNDARE SER INTE LÄNGRE:
+- Hitta Spotify-enhet
+- Spotify-enhetslista
+- Client ID
+- Redirect URI
+
+Om ingen enhet hittas visas bara instruktionen:
+Öppna Spotify-appen på ledarmobilen, starta valfri låt några sekunder, pausa och gå tillbaka.
+
+Vid Starta låt, Pausa och Fortsätt försöker Digihits automatiskt hitta enheten igen om det behövs.
 
 Ersätt på GitHub:
 - index.html

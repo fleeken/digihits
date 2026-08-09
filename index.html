@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.8</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.10</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -16,7 +16,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .wait{border:1px dashed #3b3f4b;border-radius:17px;padding:30px;text-align:center;color:var(--mut)}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.8</small></div><div class="badge" id="online">Redo · V4.8</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.10</small></div><div class="badge" id="online">Redo · V4.10</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
 
 <div class="roles">
@@ -30,14 +30,10 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
         <span id="spotifyState" class="badge">Inte ansluten</span>
       </div>
       <p class="mut" style="font-size:12px;margin:9px 0">
-        Anslut Spotify en gång på ledarmobilen. Därefter styr Digihits musiken i bakgrunden.
+        Anslut Spotify på ledarmobilen. Digihits hittar sedan automatiskt var musiken ska spelas.
       </p>
       <button id="spotifyConnectBtn" class="btn green full" onclick="spotifyLogin()">ANSLUT SPOTIFY</button>
-      <button id="spotifyDeviceBtn" class="btn dark full" style="margin-top:8px" onclick="loadSpotifyDevices()">HITTA SPOTIFY-ENHET</button>
-      <select id="spotifyDevice" class="input" style="margin-top:8px" onchange="saveSpotifyDevice()">
-        <option value="">Ingen enhet vald</option>
-      </select>
-      <div id="spotifySetupMsg" class="mut" style="font-size:11px;margin-top:7px"></div>
+      <div id="spotifySetupMsg" class="mut" style="font-size:11px;margin-top:8px"></div>
     </div>
 
     <div id="hs" class="setup hidden">
@@ -65,7 +61,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.8</strong>
+  Version <strong style="color:#fff">V4.10</strong>
 </div>
 
 </section>
@@ -169,9 +165,9 @@ async function handleSpotifyCallback(){
   if(!r.ok){alert("Spotify-tokenfel: "+(d.error_description||d.error||r.status));return}
   saveSpotifyTokens(d);
   history.replaceState({},document.title,location.pathname);
-  setSpotifySetupMessage("Spotify är anslutet. Välj din Spotify-enhet nedan.");
+  setSpotifySetupMessage("Spotify är anslutet. Kontrollerar enhet…");
   updateSpotifyUi();
-  await loadSpotifyDevices();
+  await ensureSpotifyDevice(true);
 }
 function saveSpotifyTokens(d){
   if(d.access_token){spotifyAccessToken=d.access_token;localStorage.setItem("digihits_spotify_access",spotifyAccessToken)}
@@ -217,67 +213,110 @@ async function spotifyApi(path,options={}){
   }
   return d;
 }
-async function loadSpotifyDevices(){
+async function ensureSpotifyDevice(showMessage=true){
   try{
-    setSpotifySetupMessage("Letar efter Spotify-enheter…");
-    const d=await spotifyApi("/me/player/devices");
-    const select=document.getElementById("spotifyDevice");
-    if(!select)return;
-    const devices=(d?.devices||[]).filter(x=>x.id&&!x.is_restricted);
-    select.innerHTML='<option value="">Välj Spotify-enhet</option>'+devices.map(x=>
-      `<option value="${x.id}" ${x.id===spotifyDeviceId?"selected":""}>${x.name} · ${x.type}${x.is_active?" · aktiv":""}</option>`
-    ).join("");
-    if(!spotifyDeviceId){
-      const active=devices.find(x=>x.is_active)||devices[0];
-      if(active){spotifyDeviceId=active.id;select.value=active.id;localStorage.setItem("digihits_spotify_device",active.id)}
+    if(!spotifyAccessToken && !spotifyRefreshToken){
+      if(showMessage)setSpotifySetupMessage("Anslut Spotify först.");
+      return false;
     }
-    setSpotifySetupMessage(devices.length?("Spotify-enhet hittad. Välj ledarmobilen om den inte redan är vald."):"Ingen Spotify-enhet hittades. Öppna Spotify-appen en gång och starta/pausa valfri låt, gå sedan tillbaka hit och tryck igen.");
-    updateSpotifyUi();
+
+    if(showMessage)setSpotifySetupMessage("Kontrollerar Spotify-enhet…");
+
+    const d=await spotifyApi("/me/player/devices");
+    const devices=(d?.devices||[]).filter(x=>x.id && !x.is_restricted);
+
+    if(!devices.length){
+      spotifyDeviceId="";
+      localStorage.removeItem("digihits_spotify_device");
+      if(showMessage){
+        setSpotifySetupMessage("Ingen Spotify-enhet hittades. Öppna Spotify-appen på ledarmobilen, starta valfri låt i några sekunder, pausa och gå sedan tillbaka till Digihits.");
+      }
+      return false;
+    }
+
+    let selected=null;
+
+    if(spotifyDeviceId){
+      selected=devices.find(x=>x.id===spotifyDeviceId) || null;
+    }
+
+    if(!selected){
+      selected=devices.find(x=>x.is_active) || devices[0];
+    }
+
+    spotifyDeviceId=selected.id;
+    localStorage.setItem("digihits_spotify_device",spotifyDeviceId);
+
+    if(showMessage){
+      setSpotifySetupMessage("Spotify redo ✓ · "+selected.name);
+    }
+    return true;
   }catch(e){
-    setSpotifySetupMessage("Spotify-fel: "+e.message);
+    if(showMessage)setSpotifySetupMessage("Spotify-fel: "+e.message);
+    return false;
   }
 }
-function saveSpotifyDevice(){
-  const s=document.getElementById("spotifyDevice");
-  spotifyDeviceId=s?.value||"";
-  if(spotifyDeviceId)localStorage.setItem("digihits_spotify_device",spotifyDeviceId);
+
+async function ensureSpotifyReady(){
+  if(!spotifyAccessToken && !spotifyRefreshToken){
+    throw new Error("Spotify är inte anslutet.");
+  }
+
+  const ok=await ensureSpotifyDevice(false);
+  if(!ok){
+    throw new Error("Ingen Spotify-enhet hittades. Öppna Spotify-appen på ledarmobilen och starta valfri låt en gång.");
+  }
+  return true;
 }
+
 function spotifyControlsHtml(){
   if(!spotifyAccessToken&&!spotifyRefreshToken){
-    return `<div class="mut" style="margin-top:10px">Spotify är inte anslutet. Gå tillbaka till startsidan och anslut Spotify.</div>`;
+    return `<div class="mut" style="margin-top:10px">Spotify är inte anslutet.</div>`;
   }
-  return `<div style="margin-top:10px" class="mut">Spotify Connect-enhet: ${spotifyDeviceId?"vald":"ingen vald"}. Musiken spelas i Spotify-appen i bakgrunden.</div>`;
+  return `<div style="margin-top:10px" class="mut">${spotifyDeviceId?"Spotify redo ✓":"Spotify anslutet · väntar på aktiv enhet"}</div>`;
 }
 async function spotifyPlayTrack(trackId){
-  if(!spotifyDeviceId)throw new Error("Ingen Spotify-enhet vald.");
-  // Transfer first, but do not start old content.
+  await ensureSpotifyReady();
+
   await spotifyApi("/me/player",{
     method:"PUT",
     body:JSON.stringify({device_ids:[spotifyDeviceId],play:false})
   });
-  await new Promise(r=>setTimeout(r,250));
+
+  await new Promise(r=>setTimeout(r,300));
+
   await spotifyApi("/me/player/play?device_id="+encodeURIComponent(spotifyDeviceId),{
     method:"PUT",
     body:JSON.stringify({uris:["spotify:track:"+trackId]})
   });
+
+  updateSpotifyUi();
 }
 async function spotifyPause(){
   try{
-    if(!spotifyDeviceId)throw new Error("Ingen Spotify-enhet vald.");
+    await ensureSpotifyReady();
     await spotifyApi("/me/player/pause?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
     $("status").textContent="Spotify pausad.";
   }catch(e){alert("Spotify: "+e.message)}
 }
 async function spotifyResume(){
   try{
-    if(!spotifyDeviceId)throw new Error("Ingen Spotify-enhet vald.");
+    await ensureSpotifyReady();
     await spotifyApi("/me/player/play?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
     $("status").textContent="Spotify spelar.";
   }catch(e){alert("Spotify: "+e.message)}
 }
-window.addEventListener("load",()=>{
+window.addEventListener("load",async()=>{
   updateSpotifyUi();
-  handleSpotifyCallback().catch(e=>console.error(e));
+  await handleSpotifyCallback().catch(e=>console.error(e));
+
+  if(spotifyAccessToken||spotifyRefreshToken){
+    await ensureSpotifyDevice(false);
+    updateSpotifyUi();
+    if(spotifyDeviceId)setSpotifySetupMessage("Spotify redo ✓");
+  }
+
+  await restoreActiveSession();
 });
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0", TRACKS=[{"title": "Take On Me", "artist": "a-ha", "year": 1985, "id": "2WfaOiMkCvy7F5fcp2zZ8L"}, {"title": "Like a Prayer", "artist": "Madonna", "year": 1989, "id": "1z3ugFmUKoCzGsI6jdY4Ci"}, {"title": "Smells Like Teen Spirit", "artist": "Nirvana", "year": 1991, "id": "4CeeEOM32jQcH3eN9Q2dGj"}, {"title": "Wannabe", "artist": "Spice Girls", "year": 1996, "id": "1Je1IMUlBXcx1Fz0WE7oPT"}, {"title": "...Baby One More Time", "artist": "Britney Spears", "year": 1998, "id": "3MjUtNVVq3C8Fn0MP3zhXa"}, {"title": "Freestyler", "artist": "Bomfunk MC's", "year": 1999, "id": "2AsJqU7Z3J7cBQrKHVNJcA"}, {"title": "Crazy in Love", "artist": "Beyoncé", "year": 2003, "id": "5IVuqXILoxVWvWEPm82Jxr"}, {"title": "Poker Face", "artist": "Lady Gaga", "year": 2008, "id": "5R8dQOPq8haW94K7mgERlO"}, {"title": "Rolling in the Deep", "artist": "Adele", "year": 2010, "id": "1c8gk2PeTE04A1pIDH9YMk"}, {"title": "Wake Me Up", "artist": "Avicii", "year": 2013, "id": "0nrRP2bk19rLc0orkWPQk2"}, {"title": "Shape of You", "artist": "Ed Sheeran", "year": 2017, "id": "7qiZfU4dY1lWllzX7mPBI3"}, {"title": "Blinding Lights", "artist": "The Weeknd", "year": 2019, "id": "0VjIjW4GlUZAMYd2vXMi3b"}, {"title": "As It Was", "artist": "Harry Styles", "year": 2022, "id": "4LRPiXqCikLlN15c3yImP7"}, {"title": "Flowers", "artist": "Miley Cyrus", "year": 2023, "id": "0yLdNVWF3Srea0uzk55zFn"}];
 let role="",code="",match=null,players=[],poll=null,selected=null,guessSaved=false,localNames=["Anna","Viktor"];
@@ -358,6 +397,77 @@ class RestQuery {
 }
 const db={from:(table)=>new RestQuery(table)};
 
+
+const SESSION_KEY="digihits_active_session_v1";
+
+function saveActiveSession(){
+  if(!code || !role)return;
+  localStorage.setItem(SESSION_KEY,JSON.stringify({
+    code:String(code).toUpperCase(),
+    role,
+    savedAt:Date.now()
+  }));
+}
+function clearActiveSession(){
+  localStorage.removeItem(SESSION_KEY);
+}
+function getActiveSession(){
+  try{
+    const x=JSON.parse(localStorage.getItem(SESSION_KEY)||"null");
+    if(!x||!x.code||!x.role)return null;
+    return x;
+  }catch(_){return null}
+}
+function hasActiveMatch(){
+  return !!(code && match && match.status!=="finished");
+}
+
+// Browser-native leave/reload protection.
+// Browsers choose the exact wording of the confirmation dialog.
+window.addEventListener("beforeunload",(e)=>{
+  if(!hasActiveMatch())return;
+  e.preventDefault();
+  e.returnValue="";
+});
+
+// Restore the previous active match after an accidental reload/close.
+async function restoreActiveSession(){
+  const s=getActiveSession();
+  if(!s)return;
+  try{
+    const m=await withTimeout(db.from("matches").select("*").eq("code",s.code).maybeSingle(),8000);
+    if(m.error || !m.data){
+      clearActiveSession();
+      return;
+    }
+    if(m.data.status==="finished"){
+      clearActiveSession();
+      return;
+    }
+
+    code=s.code;
+    role=s.role;
+    match=m.data;
+
+    const ps=await withTimeout(db.from("players").select("*").eq("match_code",code).order("seat"),8000);
+    if(ps.error)throw new Error(ps.error.message);
+    players=ps.data||[];
+
+    if(role==="host"){
+      show("host");
+    }else{
+      show("player");
+    }
+    saveActiveSession();
+    startPoll();
+    render();
+    const badge=document.getElementById("online");
+    if(badge)badge.textContent="Återansluten · V4.10";
+  }catch(err){
+    console.error("Kunde inte återansluta till match:",err);
+  }
+}
+
 function requireDb(){
   if(!navigator.onLine){
     alert("Mobilen verkar sakna internetanslutning.");
@@ -366,7 +476,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.8"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.10"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -395,7 +505,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.8":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.10":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
