@@ -1,27 +1,23 @@
-DIGIHITS V4.34 – ETT SPELLÄGE + SNABB REALTIME
+DIGIHITS V4.36
 
 STARTSIDAN:
-- Spela lokalt är borttaget.
-- Digihits har nu ett enda matchsystem:
-  SKAPA MATCH
-  GÅ MED
-  MINA MATCHER
-- Samma match kan spelas direkt bredvid varandra eller fortsätta timmar/dagar senare.
+- Ingen extra DIGIHITS-rubrik mitt på sidan.
+- Tydlig steg-för-steg-layout:
+  1. Ditt namn
+  2. Kontrollera Spotify
+  3. Starta ny match eller gå med i en match
+- Självförklarande knappar:
+  KONTROLLERA ATT SPOTIFY FUNGERAR
+  STARTA NY MATCH
+  GÅ MED I MATCHEN
+- Mina matcher förklarar att det är där man ser när det är ens tur.
 
-SNABB TURVÄXLING:
-- Supabase Realtime är nu primär synk för online_matches.
-- Supabase Realtime är nu primär synk för online_players.
-- När någon trycker LÅS IN skickas databasändringen direkt till motspelarens webbläsare via websocket.
-- Matchvyn hämtar nytt state direkt när realtime-eventet kommer.
-- Mina matcher uppdateras direkt när realtime-eventet kommer.
-- 700 ms matchpolling finns kvar endast som reserv.
-- 2,5 s Mina matcher-polling finns kvar endast som reserv.
-- Den egna mobilen uppdateras omedelbart efter LÅS IN utan att invänta nästa poll.
+MINA MATCHER:
+- Blinkningen är borttagen.
+- Laddningstext visas endast första gången listan hämtas.
+- Realtime- och pollinguppdateringar sker i bakgrunden.
+- Befintliga matchkort ligger kvar medan nya data hämtas.
+- DOM uppdateras endast när matchinformationen faktiskt ändrats.
+- Parallella listladdningar blockeras.
 
-TEKNISKT:
-- Supabase JS v2 laddas från jsDelivr för realtime-websocket.
-- Befintlig REST-klient används fortfarande för databasoperationer.
-- Ingen ny SQL krävs om ONLINE_V4_30.sql redan är körd.
-- Tabellen är redan tillagd i supabase_realtime av ONLINE_V4_30.sql.
-
-Alla onlineregler/funktioner från V4.33 finns kvar.
+Ingen ny SQL krävs.
