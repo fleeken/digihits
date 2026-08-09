@@ -1,10 +1,13 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.27</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.28</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
 .app{width:min(1150px,96%);margin:auto;padding:14px 0 50px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.brand{font-size:32px;font-weight:950}.brand span{color:var(--c)}.badge{background:#171922;border:1px solid var(--line);padding:8px 11px;border-radius:999px;font-size:12px}
+.badge.ok{border-color:#2d8a50;color:#72ee9e;background:#102318}
+.badge.bad{border-color:#8f3945;color:#ff8c99;background:#291217}
+.badge.checking{border-color:#8b6b2f;color:#ffd77a;background:#241d0e}
 .panel{background:rgba(17,19,26,.98);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 18px 50px #0006}.hidden{display:none!important}.home{max-width:720px;margin:5vh auto}.hero{text-align:center}.hero h1{font-size:40px;margin:8px 0}.mut{color:var(--mut);line-height:1.45}.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}.role{background:#171a22;border:1px solid #303440;border-radius:17px;padding:17px}.role h3{margin:0 0 5px}.btn{border:0;border-radius:14px;padding:14px 16px;font-weight:900}.full{width:100%}.green{background:var(--g);color:#00190b}.cyan{background:var(--c);color:#00151d}.purple{background:var(--v);color:#160025}.dark{background:#2a2d37;color:#fff}.orange{background:var(--o);color:#251300}.red{background:#55252c;color:#fff}select.input{appearance:auto}.input{width:100%;background:#0b0c11;color:#fff;border:1px solid #393d49;border-radius:12px;padding:13px;outline:none}.setup{margin-top:15px;padding-top:15px;border-top:1px solid var(--line)}.setupRow{display:grid;grid-template-columns:1fr auto;gap:8px;margin:7px 0}
 .grid{display:grid;grid-template-columns:300px 1fr;gap:16px}.code{font-size:30px;letter-spacing:5px;font-weight:950;color:var(--c)}.players{display:grid;gap:8px}.prow{display:grid;grid-template-columns:1fr auto;gap:8px;background:#181b23;border:1px solid #2e323d;border-radius:13px;padding:11px}.prow.active{border-color:var(--c)}.pname{font-weight:850}.pmeta{font-size:11px;color:var(--mut);margin-top:3px}.swaps{color:var(--o);font-weight:900}
 .head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.turn{font-size:26px;font-weight:950}.status{min-height:25px;margin:12px 0;color:var(--c);font-weight:800}
@@ -51,7 +54,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .hostEmptyTimeline{color:var(--mut);font-size:12px;padding:12px 4px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.27</small></div><div class="badge" id="online">Redo · V4.27</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.28</small></div><div class="badge" id="online">Redo · V4.28</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
 
 <div id="resumeBox" class="hidden" style="margin-top:18px;background:#151821;border:1px solid #3a4050;border-radius:16px;padding:14px">
@@ -88,6 +91,14 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
       <div id="names"></div>
       <button class="btn dark full" onclick="addName()">+ Lägg till spelare</button>
       <div style="height:8px"></div>
+      <div id="spotifyPreflight" style="margin:10px 0;padding:12px;border:1px solid #3a4050;border-radius:13px;background:#11141b">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+          <strong>Spotify-kontroll</strong>
+          <span id="spotifyPreflightBadge" class="badge">Inte kontrollerad</span>
+        </div>
+        <div id="spotifyPreflightText" class="mut" style="font-size:12px;margin-top:8px">Kontrolleras automatiskt när du startar matchen.</div>
+        <button id="spotifyPreflightBtn" class="btn dark full" style="margin-top:9px" onclick="runSpotifyPreflight(true)">KONTROLLERA SPOTIFY</button>
+      </div>
       <button id="createBtn" class="btn green full" onclick="createMatch()">STARTA MATCH</button>
       <div id="createStatus" class="mut" style="margin-top:10px;text-align:center;min-height:20px"></div>
     </div>
@@ -108,7 +119,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.27</strong>
+  Version <strong style="color:#fff">V4.28</strong>
 </div>
 
 </section>
@@ -177,7 +188,7 @@ function updateSpotifyUi(){
   const deviceBtn=document.getElementById("spotifyDeviceBtn");
   if(deviceBtn)deviceBtn.disabled=!connected;
 }
-async function spotifyLogin(){
+async function spotifyLogin(){spotifyPreflightOk=false;
   const clientId=SPOTIFY_CLIENT_ID;
   localStorage.setItem("digihits_spotify_client_id",clientId);
   const verifier=randomPkceString();
@@ -225,7 +236,7 @@ async function handleSpotifyCallback(){
   if(!r.ok){alert("Spotify-tokenfel: "+(d.error_description||d.error||r.status));return}
   saveSpotifyTokens(d);
   history.replaceState({},document.title,location.pathname);
-  setSpotifySetupMessage("Spotify är anslutet. Kontrollerar enhet…");
+  spotifyPreflightOk=false;setSpotifySetupMessage("Spotify är anslutet. Kontrollerar enhet…");
   updateSpotifyUi();
   await ensureSpotifyDevice(true);
 }
@@ -557,7 +568,10 @@ window.addEventListener("load",async()=>{
   if(spotifyAccessToken||spotifyRefreshToken){
     await ensureSpotifyDevice(false);
     updateSpotifyUi();
-    if(spotifyDeviceId)setSpotifySetupMessage("Spotify redo ✓");
+    if(spotifyDeviceId){
+      setSpotifySetupMessage("Spotify anslutet.");
+      await runSpotifyPreflight(false);
+    }
   }
 
   await restoreActiveSession();
@@ -780,7 +794,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.27";
+    if(badge)badge.textContent="Återansluten · V4.28";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -811,7 +825,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.27"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.28"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -840,7 +854,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.27":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.28":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -858,19 +872,108 @@ function addName(){
   if(localNames.length>=8){alert("Max 8 spelare i den här versionen.");return}
   localNames.push("Spelare "+(localNames.length+1));renderNames()
 } function enter(){$("home").classList.add("hidden");$("game").classList.remove("hidden")}
+
+let spotifyPreflightOk=false;
+let spotifyPreflightBusy=false;
+
+function setSpotifyPreflight(state,text){
+  const badge=$("spotifyPreflightBadge");
+  const msg=$("spotifyPreflightText");
+  if(!badge||!msg)return;
+
+  badge.classList.remove("ok","bad","checking");
+
+  if(state==="ok"){
+    badge.textContent="Redo ✓";
+    badge.classList.add("ok");
+    spotifyPreflightOk=true;
+  }else if(state==="checking"){
+    badge.textContent="Kontrollerar…";
+    badge.classList.add("checking");
+    spotifyPreflightOk=false;
+  }else{
+    badge.textContent="Inte redo";
+    badge.classList.add("bad");
+    spotifyPreflightOk=false;
+  }
+  msg.textContent=text||"";
+}
+
+async function runSpotifyPreflight(showSuccess=false){
+  if(spotifyPreflightBusy)return spotifyPreflightOk;
+  spotifyPreflightBusy=true;
+  const btn=$("spotifyPreflightBtn");
+  if(btn){btn.disabled=true;btn.style.opacity=".55"}
+  setSpotifyPreflight("checking","Kontrollerar Spotify-kopplingen…");
+
+  try{
+    if(!spotifyAccessToken&&!spotifyRefreshToken){
+      throw new Error("Spotify är inte anslutet. Tryck ANSLUT SPOTIFY först.");
+    }
+
+    await getSpotifyToken();
+
+    const me=await spotifyApi("/me");
+    if(!me||!me.id){
+      throw new Error("Spotify-inloggningen kunde inte verifieras.");
+    }
+
+    const deviceOk=await ensureSpotifyDevice(false);
+    if(!deviceOk){
+      throw new Error("Spotify-appen är inte aktiv på den här mobilen. Öppna Spotify, spela valfri låt några sekunder, pausa och gå tillbaka hit.");
+    }
+
+    let state=null;
+    try{
+      state=await spotifyApi("/me/player");
+    }catch(e){
+      throw new Error("Digihits får inte läsa Spotify-uppspelningen: "+e.message);
+    }
+
+    if(state&&state.item&&Number.isFinite(state.progress_ms)){
+      try{
+        await spotifyApi("/me/player/seek?position_ms="+Math.max(0,state.progress_ms)+"&device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
+      }catch(e){
+        throw new Error("Spotify är anslutet men kan inte styras: "+e.message);
+      }
+    }
+
+    setSpotifyPreflight("ok","Spotify är anslutet och Digihits kan styra uppspelningen.");
+    if(showSuccess)$("createStatus").textContent="Spotify-kontroll godkänd.";
+    return true;
+  }catch(e){
+    setSpotifyPreflight("bad",e.message);
+    if(showSuccess)$("createStatus").textContent="Spotify måste fungera innan matchen kan startas.";
+    return false;
+  }finally{
+    spotifyPreflightBusy=false;
+    if(btn){btn.disabled=false;btn.style.opacity="1"}
+  }
+}
+
 async function createMatch(){
   if(actionBusy)return;
   if(!requireDb())return;
 
-  localNames=localNames.map(x=>x.trim()).filter(Boolean);
-  if(localNames.length<2){alert("Lägg till minst två spelare.");return}
-  if(localNames.length>8){alert("Max 8 spelare i den här versionen.");return}
-  if(new Set(localNames.map(n=>n.toLowerCase())).size!==localNames.length){
-    alert("Spelarna måste ha olika namn.");return;
-  }
-
   actionBusy=true;
   setCreateBusy(true);
+  setCreateStatus("Kontrollerar Spotify…");
+
+  const spotifyOk=await runSpotifyPreflight(false);
+  if(!spotifyOk){
+    actionBusy=false;
+    setCreateBusy(false);
+    setCreateStatus("Spotify är inte redo. Se Spotify-kontrollen ovan.",true);
+    return;
+  }
+
+  localNames=localNames.map(x=>x.trim()).filter(Boolean);
+  if(localNames.length<2){actionBusy=false;setCreateBusy(false);alert("Lägg till minst två spelare.");return}
+  if(localNames.length>8){actionBusy=false;setCreateBusy(false);alert("Max 8 spelare i den här versionen.");return}
+  if(new Set(localNames.map(n=>n.toLowerCase())).size!==localNames.length){
+    actionBusy=false;setCreateBusy(false);alert("Spelarna måste ha olika namn.");return;
+  }
+
   setCreateStatus("Kontrollerar databasen…");
   let createdCode=null;
 
