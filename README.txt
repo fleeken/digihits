@@ -1,13 +1,16 @@
-DIGIHITS V4.46
+DIGIHITS V4.47 – MATCHCHATT
 
-IPHONE/SAFARI – TIDSLINJE UNDER SPELARE:
-- Den synliga Safari-scrollbaren är dold.
-- Swipe höger/vänster fungerar fortfarande.
-- Spelarlistan/tidslinjerna byggs inte längre om vid varje realtime/polling-tick.
-- DOM uppdateras bara om speldata, tur, kort eller öppet/stängt läge faktiskt ändras.
-- Scrollposition sparas per spelare.
-- Öppna tidslinjer ligger visuellt stabila under synkning.
-- GPU/compositing-stabilisering används för att minska Safari-flimmer.
-- Parent-layout hålls stabil med contain.
+NYTT:
+- CHATTA-knapp i varje match.
+- Chatten hör endast till aktuell match.
+- Max 30 tecken per meddelande.
+- Namn och datum/tid visas.
+- Realtime-uppdatering via Supabase.
+- OBLÄSTA meddelanden visas med röd räknare när chatten är stängd.
+- Enter skickar meddelandet på dator.
+- Chatten rensas från UI när matchen stängs.
 
-Ingen ny SQL krävs.
+VIKTIGT:
+Kör ONLINE_V4_47_CHAT.sql en gång i Supabase SQL Editor.
+
+Ingen annan SQL behöver köras igen.
