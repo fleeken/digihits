@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.17</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.18</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -40,9 +40,21 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .hostEmptyTimeline{color:var(--mut);font-size:12px;padding:12px 4px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.17</small></div><div class="badge" id="online">Redo · V4.17</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.18</small></div><div class="badge" id="online">Redo · V4.18</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
 
+<div id="resumeBox" class="hidden" style="margin-top:18px;background:#151821;border:1px solid #3a4050;border-radius:16px;padding:14px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <div>
+      <strong>Fortsätt senaste matchen?</strong>
+      <div id="resumeText" class="mut" style="font-size:12px;margin-top:4px"></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn green" onclick="resumeSavedMatch()">FORTSÄTT MATCH</button>
+      <button class="btn dark" onclick="forgetSavedMatch()">GLÖM MATCHEN</button>
+    </div>
+  </div>
+</div>
 <div class="roles">
   <div class="role">
     <h3>📺 Ledarmobil</h3>
@@ -85,13 +97,13 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.17</strong>
+  Version <strong style="color:#fff">V4.18</strong>
 </div>
 
 </section>
 
 <section id="game" class="hidden"><div class="grid">
-<aside class="panel side"><div id="codeBox" class="hidden"><small class="mut">MATCHKOD</small><div id="code" class="code"></div></div><h3>Spelare</h3><div id="players" class="players"></div><button class="btn dark full" style="margin-top:14px" onclick="location.reload()">Lämna match</button></aside>
+<aside class="panel side"><div id="codeBox" class="hidden"><small class="mut">MATCHKOD</small><div id="code" class="code"></div></div><h3>Spelare</h3><div id="players" class="players"></div><button class="btn dark full" style="margin-top:14px" onclick="leaveMatchSafely()">Lämna match</button></aside>
 <main class="panel main"><div class="head"><div><div id="turn" class="turn">–</div><div id="sub" class="mut"></div></div><div id="phaseBadge" class="badge">Väntar</div></div><div id="status" class="status"></div>
 <div id="hostView" class="hidden"><div class="music"><div class="mut">AKTUELL LÅT – ENDAST LEDARMOBILEN</div><div id="song" class="song">Ingen låt startad</div><div id="artist" class="artist"></div><div id="spotify"></div><div id="playbackBox" class="playbackBox hidden">
       <div class="playbackTimes"><span id="playbackPos">0:00</span><span id="playbackDur">0:00</span></div>
@@ -596,73 +608,164 @@ class RestQuery {
 const db={from:(table)=>new RestQuery(table)};
 
 
-const SESSION_KEY="digihits_active_session_v1";
+const SESSION_KEY="digihits_active_session_v2";
+const SESSION_TTL_MS=6*60*60*1000; // 6 timmar
+let intentionalLeave=false;
 
 function saveActiveSession(){
   if(!code || !role)return;
   localStorage.setItem(SESSION_KEY,JSON.stringify({
     code:String(code).toUpperCase(),
     role,
-    savedAt:Date.now()
+    savedAt:Date.now(),
+    expiresAt:Date.now()+SESSION_TTL_MS
   }));
 }
+
 function clearActiveSession(){
   localStorage.removeItem(SESSION_KEY);
 }
+
 function getActiveSession(){
   try{
     const x=JSON.parse(localStorage.getItem(SESSION_KEY)||"null");
     if(!x||!x.code||!x.role)return null;
+    if(!x.expiresAt || Date.now()>x.expiresAt){
+      clearActiveSession();
+      return null;
+    }
     return x;
-  }catch(_){return null}
-}
-function hasActiveMatch(){
-  return !!(code && match && match.status!=="finished");
+  }catch(_){
+    clearActiveSession();
+    return null;
+  }
 }
 
-// Browser-native leave/reload protection.
-// Browsers choose the exact wording of the confirmation dialog.
+function activeMatchNeedsProtection(){
+  return !!(
+    code &&
+    role &&
+    match &&
+    match.status!=="ended" &&
+    match.phase!=="ended" &&
+    !intentionalLeave
+  );
+}
+
+// Browser-native varning. Mobilwebbläsaren bestämmer själv exakt text
+// och kan i vissa situationer välja att inte visa dialogen.
 window.addEventListener("beforeunload",(e)=>{
-  if(!hasActiveMatch())return;
+  if(!activeMatchNeedsProtection())return;
+  saveActiveSession();
   e.preventDefault();
   e.returnValue="";
 });
 
-// Restore the previous active match after an accidental reload/close.
-async function restoreActiveSession(){
+// pagehide/visibilitychange kan inte visa dialog, men säkrar minnet
+// när mobilens OS stänger eller suspenderar fliken.
+window.addEventListener("pagehide",()=>{
+  if(activeMatchNeedsProtection())saveActiveSession();
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden" && activeMatchNeedsProtection()){
+    saveActiveSession();
+  }
+});
+
+function showResumeOffer(){
+  const s=getActiveSession();
+  const box=document.getElementById("resumeBox");
+  const text=document.getElementById("resumeText");
+  if(!box||!text)return;
+
+  if(!s){
+    box.classList.add("hidden");
+    return;
+  }
+
+  box.classList.remove("hidden");
+  const roleText=s.role==="host"?"matchmobilen":"spelmobilen";
+  text.textContent=`Match ${s.code} · sparad på ${roleText} · kan återupptas i upp till 6 timmar.`;
+}
+
+function forgetSavedMatch(){
+  clearActiveSession();
+  const box=document.getElementById("resumeBox");
+  if(box)box.classList.add("hidden");
+}
+
+async function resumeSavedMatch(){
   const s=getActiveSession();
   if(!s)return;
+
   try{
-    const m=await withTimeout(db.from("matches").select("*").eq("code",s.code).maybeSingle(),8000);
-    if(m.error || !m.data){
+    role=s.role;
+    code=s.code;
+
+    const m=await withTimeout(
+      db.from("matches").select("*").eq("code",code).maybeSingle(),
+      8000
+    );
+
+    if(m.error||!m.data){
       clearActiveSession();
-      return;
-    }
-    if(m.data.status==="finished"){
-      clearActiveSession();
+      alert("Den sparade matchen finns inte längre.");
+      showResumeOffer();
       return;
     }
 
-    code=s.code;
-    role=s.role;
     match=m.data;
 
-    const ps=await withTimeout(db.from("players").select("*").eq("match_code",code).order("seat"),8000);
+    const ps=await withTimeout(
+      db.from("players").select("*").eq("match_code",code).eq("active",true).order("turn_order"),
+      8000
+    );
+
     if(ps.error)throw new Error(ps.error.message);
     players=ps.data||[];
 
-    if(role==="host"){
-      show("host");
-    }else{
-      show("player");
+    if(match.status==="ended"||match.phase==="ended"){
+      clearActiveSession();
     }
+
+    $("home").classList.add("hidden");
+    $("game").classList.remove("hidden");
+
+    if(role==="host"){
+      $("code").textContent=code;
+      $("codeBox").classList.remove("hidden");
+      $("hostView").classList.remove("hidden");
+      $("playerView").classList.add("hidden");
+    }else{
+      $("hostView").classList.add("hidden");
+      $("playerView").classList.remove("hidden");
+    }
+
     saveActiveSession();
     startPoll();
     render();
-    const badge=document.getElementById("online");
-    if(badge)badge.textContent="Återansluten · V4.17";
+
+    const badge=$("online");
+    if(badge)badge.textContent="Återansluten · V4.18";
   }catch(err){
-    console.error("Kunde inte återansluta till match:",err);
+    console.error("Resume error",err);
+    alert("Kunde inte återansluta till matchen: "+err.message);
+  }
+}
+
+async function restoreActiveSession(){
+  // Vi återansluter automatiskt efter en vanlig refresh.
+  // På en helt ny öppning visas dessutom Fortsätt senaste matchen på startsidan.
+  const s=getActiveSession();
+  if(!s)return;
+
+  const nav=performance.getEntriesByType?.("navigation")?.[0];
+  const isReload=nav && nav.type==="reload";
+
+  if(isReload){
+    await resumeSavedMatch();
+  }else{
+    showResumeOffer();
   }
 }
 
@@ -674,7 +777,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.17"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.18"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -703,7 +806,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.17":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.18":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -773,7 +876,7 @@ async function createMatch(){
     if(u.error)throw new Error("Start: "+u.error.message);
     match=u.data;
 
-    $("code").textContent=code;$("codeBox").classList.remove("hidden");$("hostView").classList.remove("hidden");enter();
+    $("code").textContent=code;$("codeBox").classList.remove("hidden");$("hostView").classList.remove("hidden");enter();saveActiveSession();
     setCreateStatus("");startPoll();
   }catch(err){
     console.error("createMatch failed:",err);
@@ -794,14 +897,27 @@ async function joinMatch(){
     const r=await withTimeout(db.from("matches").select("*").eq("code",code).maybeSingle());
     if(r.error)throw new Error(r.error.message);
     if(!r.data)throw new Error("Matchen hittades inte. Kontrollera matchkoden.");
-    role="player";match=r.data;$("playerView").classList.remove("hidden");enter();startPoll();
+    role="player";match=r.data;$("playerView").classList.remove("hidden");enter();saveActiveSession();startPoll();
   }catch(e){alert("Kunde inte ansluta.\n\n"+e.message)}finally{actionBusy=false}
 }
 async function fetchState(){if(!requireDb())return;try{let [m,p]=await Promise.all([db.from("matches").select("*").eq("code",code).maybeSingle(),db.from("players").select("*").eq("match_code",code).eq("active",true).order("turn_order")]);if(m.data)match=m.data;players=p.data||[];render()}catch(e){console.error("fetchState",e);$("status").textContent="Synkfel: "+e.message}}
 function startPoll(){fetchState();clearInterval(poll);poll=setInterval(fetchState,role==="host"?350:650)}
 function cur(){return players.find(p=>p.id===match?.current_player_id)||players[0]}
+function leaveMatchSafely(){
+  const ok=confirm("Vill du lämna matchen? Du kan återansluta senare med matchkoden.");
+  if(!ok)return;
+  intentionalLeave=true;
+  clearInterval(poll);
+  clearActiveSession();
+  code="";
+  match=null;
+  players=[];
+  role="";
+  location.reload();
+}
+
 function renderPlayers(){let c=cur();$("players").innerHTML=players.map(p=>`<div class="prow ${c&&p.id===c.id?"active":""}"><div><div class="pname">${p.name}</div><div class="pmeta">${(p.locked_timeline||[]).length}/10 låsta · ${(p.turn_cards||[]).length} riskeras</div></div><div class="swaps">🔄 ${p.swap_cards||0}/3</div></div>`).join("")}
-function render(){if(!match)return;renderPlayers();let c=cur();$("turn").textContent=c?c.name:"–";$("sub").textContent=role==="host"?"MATCHEN":"SPELET";$("phaseBadge").textContent=({handoff:"Byter spelare",listen:"Lyssnar",result:"Resultat",decision:"Beslut",ended:"Match slut"})[match.phase]||"Väntar";if(role==="host")renderHost(c);else renderPlayer(c)}
+function render(){if(!match)return;if(match.status==="ended"||match.phase==="ended")clearActiveSession();else saveActiveSession();renderPlayers();let c=cur();$("turn").textContent=c?c.name:"–";$("sub").textContent=role==="host"?"MATCHEN":"SPELET";$("phaseBadge").textContent=({handoff:"Byter spelare",listen:"Lyssnar",result:"Resultat",decision:"Beslut",ended:"Match slut"})[match.phase]||"Väntar";if(role==="host")renderHost(c);else renderPlayer(c)}
 function stats(c,prefix){$(prefix+"Locked").textContent=(c.locked_timeline||[]).length;$(prefix+"Risk").textContent=(c.turn_cards||[]).length;$(prefix+"Swap").textContent=c.swap_cards||0}
 
 async function autoPlayPreparedSong(){

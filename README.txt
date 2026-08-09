@@ -1,13 +1,18 @@
-DIGIHITS V4.17
+DIGIHITS V4.18
 
-NYTT PÅ LEDARMOBILEN:
-- Knapp: VISA TIDSLINJER
-- Visar alla spelares tidslinjer.
-- Varje spelare får egen snygg horisontell tidslinje.
-- Låsta kort och riskkort visas tydligt.
-- Riskkort markeras separat.
-- Byta-låt-kort visas som 0/3–3/3.
-- Aktuell spelare markeras visuellt.
-- Den hemliga aktuella låten visas inte i tidslinjevyn.
-- Vyn uppdateras automatiskt live när matchdata ändras.
-- Knappen växlar till DÖLJ TIDSLINJER när vyn är öppen.
+MATCHSKYDD / MINNE:
+- Aktiv match sparas lokalt på båda mobilerna.
+- Minnet gäller i 6 timmar.
+- Vid vanlig omladdning försöker Digihits återansluta automatiskt.
+- Vid ny öppning visas "Fortsätt senaste matchen?" på startsidan.
+- Matchkod + roll (matchmobil/spelmobil) sparas lokalt.
+- Matchens riktiga data ligger fortfarande i Supabase, så spelstatus, tidslinjer och turordning återställs därifrån.
+- beforeunload-varning används under aktiv match.
+- pagehide + visibilitychange sparar session även när mobilen suspenderar/stänger fliken.
+- "Lämna match" har egen bekräftelseruta och rensar därefter lokalt matchminne.
+- Avslutad match rensar automatiskt lokalt matchminne.
+
+VIKTIGT:
+iOS Safari och andra mobilwebbläsare får själva bestämma om den inbyggda
+"Vill du lämna sidan?"-dialogen faktiskt visas. Det kan inte tvingas från JavaScript.
+Därför är återanslutningen den viktigaste säkerheten.
