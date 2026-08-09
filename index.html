@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.49</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.50</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -199,7 +199,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   .onlineMatchNames{font-size:14px}
 }
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.49</small></div><div class="badge" id="online">Redo · V4.49</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.50</small></div><div class="badge" id="online">Redo · V4.50</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -267,7 +267,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.49</strong>
+    Version <strong style="color:#fff">V4.50</strong>
   </div>
 </section>
 
@@ -302,6 +302,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
             <button id="matchChatSendBtn" class="btn green" onclick="sendMatchChatMessage()">SKICKA</button>
           </div>
           <div class="mut" style="font-size:10px;margin-top:6px">Max 30 tecken.</div>
+          <div id="matchChatStatus" class="mut" style="font-size:10px;margin-top:4px"></div>
         </div>
       </div>
 
@@ -1030,7 +1031,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.49";
+    if(badge)badge.textContent="Återansluten · V4.50";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1038,7 +1039,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.49 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.50 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1049,7 +1050,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.49"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.50"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1167,7 +1168,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.49":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.50":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1920,7 +1921,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.49
+// SPELA ONLINE – V4.50
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -1959,6 +1960,7 @@ let onlineChatLoading=false;
 let onlineChatPollTimer=null;
 let onlineChatKnownIds=new Set();
 let onlineChatInitialized=false;
+let onlineChatLastSuccess=0;
 
 let onlineMatchesRenderedHtml="";
 let onlineMatchesLoading=false;
@@ -2109,6 +2111,13 @@ function renderMatchChat(){
   requestAnimationFrame(()=>{box.scrollTop=box.scrollHeight});
 }
 
+function setMatchChatStatus(text,isError=false){
+  const el=$("matchChatStatus");
+  if(!el)return;
+  el.textContent=text||"";
+  el.style.color=isError?"#ff8c99":"";
+}
+
 async function loadMatchChat(silent=false){
   if(!onlineMatch||onlineChatLoading)return;
   onlineChatLoading=true;
@@ -2143,7 +2152,10 @@ async function loadMatchChat(silent=false){
 
     if(onlineChatOpen)onlineChatUnread=0;
     updateChatBadge();
+    onlineChatLastSuccess=Date.now();
+    if(onlineChatOpen)setMatchChatStatus("Chatten är synkad.");
   }catch(e){
+    setMatchChatStatus("Chatten kunde inte synkas. "+e.message,true);
     if(!silent)setOnlineGameStatus("Chatten kunde inte laddas: "+e.message,true);
     console.warn("Chat sync:",e);
   }finally{
@@ -2155,7 +2167,7 @@ function startMatchChatPolling(){
   clearInterval(onlineChatPollTimer);
   onlineChatPollTimer=setInterval(()=>{
     if(onlineMatch?.id)loadMatchChat(true);
-  },900);
+  },700);
 }
 
 function stopMatchChatPolling(){
@@ -2165,20 +2177,16 @@ function stopMatchChatPolling(){
 
 function teardownMatchChatRealtime(){
   if(!onlineChatChannel)return;
-  try{
-    const rt=getRealtimeClient();
-    if(rt)rt.removeChannel(onlineChatChannel);
-  }catch(_){}
+  try{db.removeChannel(onlineChatChannel)}catch(_){}
   onlineChatChannel=null;
 }
 
 function setupMatchChatRealtime(matchId){
   teardownMatchChatRealtime();
-  const rt=getRealtimeClient();
-  if(!rt||!matchId)return;
+  if(!db||!matchId)return;
 
   try{
-    onlineChatChannel=rt.channel("digihits-chat-"+matchId+"-"+ensureOnlineUserId())
+    onlineChatChannel=db.channel("digihits-chat-"+matchId+"-"+ensureOnlineUserId())
       .on("postgres_changes",{
         event:"INSERT",
         schema:"public",
@@ -2190,23 +2198,25 @@ function setupMatchChatRealtime(matchId){
 
         if(!onlineChatKnownIds.has(row.id)){
           onlineChatKnownIds.add(row.id);
-
           if(!onlineChatMessages.some(m=>m.id===row.id)){
             onlineChatMessages.push(row);
             onlineChatMessages.sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
           }
-
-          if(!onlineChatOpen && row.user_id!==ensureOnlineUserId()){
-            onlineChatUnread++;
-          }
-
+          if(!onlineChatOpen && row.user_id!==ensureOnlineUserId())onlineChatUnread++;
           renderMatchChat();
           updateChatBadge();
         }
       })
-      .subscribe();
+      .subscribe(status=>{
+        if(status==="SUBSCRIBED"){
+          if(onlineChatOpen)setMatchChatStatus("Chatten är ansluten.");
+        }else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){
+          if(onlineChatOpen)setMatchChatStatus("Realtime tappades – reservsynk används.",true);
+        }
+      });
   }catch(e){
     console.warn("Chat realtime:",e);
+    if(onlineChatOpen)setMatchChatStatus("Realtime tappades – reservsynk används.",true);
   }
 }
 
@@ -2220,7 +2230,8 @@ function toggleMatchChat(){
   if(onlineChatOpen){
     onlineChatUnread=0;
     updateChatBadge();
-    loadMatchChat(true);
+    setMatchChatStatus("Synkar chatten…");
+    loadMatchChat(false);
     requestAnimationFrame(()=>$("matchChatInput")?.focus());
   }else{
     updateChatBadge();
@@ -2228,7 +2239,10 @@ function toggleMatchChat(){
 }
 
 async function sendMatchChatMessage(){
-  if(!onlineMatch||!onlineMyPlayer)return;
+  if(!onlineMatch){
+    alert("Matchen är inte öppen.");
+    return;
+  }
 
   const input=$("matchChatInput");
   const btn=$("matchChatSendBtn");
@@ -2241,14 +2255,18 @@ async function sendMatchChatMessage(){
   }
 
   if(btn){btn.disabled=true;btn.textContent="SKICKAR…"}
+  setMatchChatStatus("Skickar…");
 
   try{
-    const r=await db.from("online_messages").insert({
-      match_id:onlineMatch.id,
+    const displayName=(onlineMyPlayer?.display_name||onlineName()||"Spelare").trim();
+    const payload={
+      match_id:Number(onlineMatch.id),
       user_id:ensureOnlineUserId(),
-      display_name:onlineMyPlayer.display_name,
+      display_name:displayName,
       message
-    }).select("*").single();
+    };
+
+    const r=await db.from("online_messages").insert(payload).select("*").single();
 
     if(r.error)throw new Error(r.error.message);
 
@@ -2263,7 +2281,11 @@ async function sendMatchChatMessage(){
       renderMatchChat();
       updateChatBadge();
     }
+    setMatchChatStatus("Skickat.");
+    // Verify against the database immediately. This catches RLS/schema problems.
+    await loadMatchChat(false);
   }catch(e){
+    setMatchChatStatus("Kunde inte skicka: "+e.message,true);
     alert("Kunde inte skicka meddelandet.\n\n"+e.message);
   }finally{
     if(btn){btn.disabled=false;btn.textContent="SKICKA"}
@@ -3542,7 +3564,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.49.
+// Startsidan är alltid online i V4.50.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
