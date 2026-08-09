@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.42</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.43</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -151,8 +151,12 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .onlineMatchState.turn .matchStatusLamp{background:#35db7b;box-shadow:0 0 9px #35db7b99}
 .onlineMatchState.wait .matchStatusLamp{background:#f0b93e;box-shadow:0 0 9px #f0b93e99}
 
+
+.matchesUpdated{display:inline-flex;align-items:center;gap:7px;margin-top:8px;padding:6px 9px;border-radius:10px;background:#111820;border:1px solid #35404d;color:#cbd4df;font-size:11px}
+.matchesUpdated::before{content:"";width:8px;height:8px;border-radius:50%;background:#35db7b;box-shadow:0 0 8px #35db7b88;flex:0 0 8px}
+.matchesUpdated.error::before{background:#ff6475;box-shadow:0 0 8px #ff647588}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.42</small></div><div class="badge" id="online">Redo · V4.42</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.43</small></div><div class="badge" id="online">Redo · V4.43</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -195,13 +199,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </div>
 
     <div class="role" style="margin-top:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-        <div>
-          <h3 style="margin:0">Mina matcher</h3>
-          <div class="mut" style="font-size:12px;margin-top:4px">Här ser du direkt vilka matcher som väntar på dig.</div>
-          
-        </div>
-        <button class="btn dark" style="padding:8px 11px" onclick="manualOnlineMatchesRefresh(this)">UPPDATERA</button>
+      <div>
+        <h3 style="margin:0">Mina matcher</h3>
+        <div class="mut" style="font-size:12px;margin-top:4px">Matcherna uppdateras automatiskt.</div>
+        <div id="onlineMatchesUpdated" class="matchesUpdated">Uppdaterades senast: väntar på första synkningen…</div>
       </div>
       <div id="onlineMatches" class="onlineMatches">
         <div class="wait" style="padding:18px">Hämtar dina matcher…</div>
@@ -223,7 +224,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.42</strong>
+    Version <strong style="color:#fff">V4.43</strong>
   </div>
 </section>
 
@@ -953,7 +954,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.42";
+    if(badge)badge.textContent="Återansluten · V4.43";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -961,7 +962,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.42 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.43 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -972,7 +973,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.42"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.43"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1009,7 +1010,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.42":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.43":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1762,7 +1763,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.42
+// SPELA ONLINE – V4.43
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -1783,6 +1784,7 @@ let onlinePlaybackTimer=null;
 let onlineDragZone=null;
 let onlineDragging=false;
 let onlineDragOffsetX=0, onlineDragOffsetY=0;
+let onlineTimelineRenderKey="";
 
 let realtimeClient=null;
 let onlineListChannel=null;
@@ -2096,13 +2098,18 @@ async function joinOnlineMatch(){
   }
 }
 
-async function manualOnlineMatchesRefresh(btn){
-  if(btn){btn.disabled=true;btn.textContent="UPPDATERAR…"}
-  try{
-    await loadOnlineMatches({silent:true});
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent="UPPDATERA"}
-  }
+
+
+function updateMatchesLastSynced(ok=true){
+  const el=$("onlineMatchesUpdated");
+  if(!el)return;
+  const now=new Date();
+  const date=now.toLocaleDateString("sv-SE",{year:"numeric",month:"2-digit",day:"2-digit"});
+  const time=now.toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  el.classList.toggle("error",!ok);
+  el.textContent=ok
+    ? `Uppdaterades senast: ${date} ${time}`
+    : `Senaste uppdateringen misslyckades: ${date} ${time}`;
 }
 
 async function loadOnlineMatches(options={}){
@@ -2171,6 +2178,8 @@ async function loadOnlineMatches(options={}){
       onlineMatchesRenderedHtml=nextHtml;
       box.innerHTML=nextHtml;
     }
+
+    updateMatchesLastSynced(true);
   }catch(e){
     if(firstLoad){
       const errHtml=`<div class="wait" style="padding:18px">Kunde inte hämta dina matcher. Tryck UPPDATERA och försök igen.</div>`;
@@ -2179,6 +2188,7 @@ async function loadOnlineMatches(options={}){
     }else{
       console.warn("Mina matcher kunde inte uppdateras:",e);
     }
+    updateMatchesLastSynced(false);
   }finally{
     onlineMatchesLoading=false;
   }
@@ -2567,6 +2577,7 @@ function renderOnlineGame(){
 }
 function clearOnlineRoundLocal(){
   if($("onlineGuessFirstModal"))$("onlineGuessFirstModal").classList.add("hidden");
+  onlineTimelineRenderKey="";
   onlineSelected=null;
   onlineGuessSaved=false;
   onlineView="listen";
@@ -2705,9 +2716,21 @@ function onlineCardMarkup(card,risk=false){
   </div>`;
 }
 
-function renderOnlineTimeline(){
+function onlineTimelineKey(){
+  if(!onlineMyPlayer)return "";
+  const locked=(onlineMyPlayer.locked_timeline||[]).map(x=>`${x.id||x.title}:${x.year}`).join("|");
+  const risk=(onlineMyPlayer.turn_cards||[]).map(x=>`${x.id||x.title}:${x.year}`).join("|");
+  return [onlineMatch?.current_song?.id||"",onlineSelected===null?"none":String(onlineSelected),locked,risk].join("::");
+}
+
+function renderOnlineTimeline(force=false){
   const el=$("onlineTimeline");
   if(!el||!onlineMyPlayer)return;
+
+  const key=onlineTimelineKey();
+  if(!force && key===onlineTimelineRenderKey && el.children.length)return;
+  onlineTimelineRenderKey=key;
+
   const cards=onlineAllTimeline(onlineMyPlayer);
   el.innerHTML="";
   for(let i=0;i<=cards.length;i++){
@@ -2715,14 +2738,20 @@ function renderOnlineTimeline(){
       const pocket=document.createElement("div");
       pocket.className="pendingSlot";
       pocket.innerHTML=`<div class="pendingPocket"><div class="pendingCard"><div class="note">♫</div><b>HEMLIGT KORT</b><div class="hiddenYear">????</div></div></div>
-      <div class="pendingActions"><button class="btn cyan full" onclick="confirmOnlinePlacement()">BEKRÄFTA PLATS</button><button class="btn dark full" onclick="clearOnlinePlacement()">FLYTTA IGEN</button></div>`;
+      <div class="pendingActions">
+        <button type="button" id="onlineConfirmPlacementBtn" class="btn cyan full">BEKRÄFTA PLATS</button>
+        <button type="button" id="onlineMoveAgainBtn" class="btn dark full">FLYTTA IGEN</button>
+      </div>`;
       el.appendChild(pocket);
+      pocket.querySelector("#onlineConfirmPlacementBtn").addEventListener("click",confirmOnlinePlacement,{once:true});
+      pocket.querySelector("#onlineMoveAgainBtn").addEventListener("click",clearOnlinePlacement);
     }else{
       const drop=document.createElement("button");
+      drop.type="button";
       drop.className="onlineDrop";
       drop.dataset.index=String(i);
       drop.innerHTML="PLACERA<br>HÄR";
-      drop.onclick=()=>selectOnlinePlacement(i);
+      drop.addEventListener("click",()=>selectOnlinePlacement(i));
       el.appendChild(drop);
     }
     if(i<cards.length){
@@ -2738,10 +2767,16 @@ function renderOnlineTimeline(){
 function selectOnlinePlacement(i){
   onlineSelected=Number(i);
   resetOnlineDrag();
-  renderOnlineTimeline();
+  onlineTimelineRenderKey="";
+  renderOnlineTimeline(true);
   requestAnimationFrame(()=>document.querySelector("#onlineTimeline .pendingSlot")?.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"}));
 }
-function clearOnlinePlacement(){onlineSelected=null;resetOnlineDrag();renderOnlineTimeline()}
+function clearOnlinePlacement(){
+  onlineSelected=null;
+  resetOnlineDrag();
+  onlineTimelineRenderKey="";
+  renderOnlineTimeline(true);
+}
 
 function findOnlineDrop(x,y){
   return [...document.querySelectorAll("#onlineTimeline .onlineDrop")].find(z=>{
@@ -2788,6 +2823,14 @@ function bindOnlineSecretDrag(){
 async function confirmOnlinePlacement(){
   if(actionBusy)return;
   if(onlineSelected===null){alert("Välj en plats.");return}
+
+  const confirmBtn=$("onlineConfirmPlacementBtn");
+  if(confirmBtn){
+    confirmBtn.disabled=true;
+    confirmBtn.textContent="BEKRÄFTAR…";
+    confirmBtn.style.opacity=".65";
+  }
+
   actionBusy=true;
   try{
     const song=onlineMatch.current_song;
@@ -2843,6 +2886,12 @@ async function confirmOnlinePlacement(){
     alert("Kunde inte bekräfta: "+e.message);
   }finally{
     actionBusy=false;
+    const btn=$("onlineConfirmPlacementBtn");
+    if(btn){
+      btn.disabled=false;
+      btn.textContent="BEKRÄFTA PLATS";
+      btn.style.opacity="1";
+    }
   }
 }
 
@@ -2966,7 +3015,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.42.
+// Startsidan är alltid online i V4.43.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
