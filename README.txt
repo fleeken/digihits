@@ -1,19 +1,13 @@
-DIGIHITS V4.13
+DIGIHITS V4.17
 
-V4.12 hade en konkret autoplay-bugg:
-låten markerades som autostartad innan Spotify hade verifierat playback.
-Om första försöket misslyckades gjordes därför inget nytt försök.
-
-V4.13:
-- markerar låten som startad först efter verifierad playback
-- kontrollerar att exakt rätt Spotify track faktiskt spelar
-- upp till 6 retry-försök i samma jobb
-- upptäcker Spotify-sessionen igen mellan försöken
-- extra automatisk retry om Spotify fortfarande inte svarar
-- skydd mot parallella autoplay-jobb
-- aktiv Spotify-session prioriteras före gammalt sparat device-id
-- ledarmobilen läser Supabase var 350 ms för snabbare respons efter REDO
-- FÖRSÖK SPELA IGEN visas bara som reserv efter att automatiken misslyckats
-
-Spotify Connect är en extern tjänst, så absolut 100% garanti kan ingen webbapp ge.
-Men appen förlitar sig nu inte längre på ett enda Spotify-anrop.
+NYTT PÅ LEDARMOBILEN:
+- Knapp: VISA TIDSLINJER
+- Visar alla spelares tidslinjer.
+- Varje spelare får egen snygg horisontell tidslinje.
+- Låsta kort och riskkort visas tydligt.
+- Riskkort markeras separat.
+- Byta-låt-kort visas som 0/3–3/3.
+- Aktuell spelare markeras visuellt.
+- Den hemliga aktuella låten visas inte i tidslinjevyn.
+- Vyn uppdateras automatiskt live när matchdata ändras.
+- Knappen växlar till DÖLJ TIDSLINJER när vyn är öppen.

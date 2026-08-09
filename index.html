@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.13</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.17</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -16,12 +16,31 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .playbackFill{height:100%;width:0%;background:linear-gradient(90deg,var(--g),var(--c));transition:width .35s linear}
 .playbackHint{text-align:center;color:var(--mut);font-size:11px;margin-top:7px}
 .bigChoice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.choice{min-height:170px;border:0;border-radius:20px;padding:20px;font-weight:950;font-size:22px;text-align:left}.choice small{display:block;font-size:12px;font-weight:500;margin-top:8px;opacity:.78}.guess{background:linear-gradient(145deg,#1b5470,#263c7d);color:#fff}.place{background:linear-gradient(145deg,#56358c,#773b85);color:#fff}
-.screenTitle{text-align:center;font-size:26px;font-weight:950;margin:5px 0 4px}.back{background:none;border:0;color:var(--c);font-weight:800;padding:8px 0}.guessFields{display:grid;gap:10px;max-width:520px;margin:20px auto}.timeline{display:flex;align-items:center;overflow-x:auto;padding:20px 10px;min-height:260px;border:2px solid var(--v);border-radius:18px;background:#0c0d12}.card{flex:0 0 130px;background:#1a1d25;border:1px solid #464b58;border-radius:14px;padding:10px;text-align:center}.card .year{font-size:23px;font-weight:950;color:var(--y)}.card .ct{font-size:11px;margin-top:5px}.drop{flex:0 0 100px;min-height:205px;margin:0 6px;border:2px dashed #7b5ca8;border-radius:15px;display:grid;place-items:center;text-align:center;color:#d9c6ff;font-size:11px;font-weight:900;background:#a66cff12}.drop.sel,.drop.dragover{background:#a66cff45;border-color:#e2d1ff;box-shadow:0 0 28px #a66cff77;transform:scale(1.04)}.secret{max-width:220px;margin:16px auto;border:2px solid var(--c);border-radius:17px;padding:17px;text-align:center;background:#141820}.secret .note{font-size:42px}.dragSecret{touch-action:none;cursor:grab;transition:box-shadow .12s,transform .12s}.dragSecret.dragging{cursor:grabbing;box-shadow:0 0 34px #4ed3ff88}.dragHint{margin-top:10px;padding:8px;border-radius:10px;background:#4ed3ff15;color:#8fe5ff;font-size:10px;font-weight:900;letter-spacing:.8px}.confirmBox{max-width:420px;margin:12px auto;display:grid;gap:8px}
+.screenTitle{text-align:center;font-size:26px;font-weight:950;margin:5px 0 4px}.back{background:none;border:0;color:var(--c);font-weight:800;padding:8px 0}.guessFields{display:grid;gap:10px;max-width:520px;margin:20px auto}.timeline{display:flex;align-items:center;overflow-x:auto;padding:20px 10px;min-height:260px;border:2px solid var(--v);border-radius:18px;background:#0c0d12}.card{flex:0 0 130px;background:#1a1d25;border:1px solid #464b58;border-radius:14px;padding:10px;text-align:center}
+.pendingSlot{flex:0 0 145px;display:flex;flex-direction:column;gap:8px;margin:0 6px}
+.pendingCard{background:linear-gradient(180deg,#14232b,#151821);border:2px solid var(--c);border-radius:15px;padding:12px;text-align:center;box-shadow:0 0 26px #4ed3ff55;animation:snapIn .18s ease-out}
+.pendingCard .note{font-size:34px;margin-bottom:7px}
+.pendingCard .hiddenYear{font-size:20px;font-weight:950;color:var(--y);margin-top:6px}
+.pendingActions{display:grid;gap:7px}
+.pendingActions .btn{padding:10px 8px;font-size:11px}
+@keyframes snapIn{from{opacity:.35;transform:scale(.9)}to{opacity:1;transform:scale(1)}}.card .year{font-size:23px;font-weight:950;color:var(--y)}.card .ct{font-size:11px;margin-top:5px}.drop{flex:0 0 100px;min-height:205px;margin:0 6px;border:2px dashed #7b5ca8;border-radius:15px;display:grid;place-items:center;text-align:center;color:#d9c6ff;font-size:11px;font-weight:900;background:#a66cff12}.drop.sel,.drop.dragover{background:#a66cff45;border-color:#e2d1ff;box-shadow:0 0 28px #a66cff77;transform:scale(1.04)}.secret{max-width:220px;margin:16px auto;border:2px solid var(--c);border-radius:17px;padding:17px;text-align:center;background:#141820}.secret .note{font-size:42px}.dragSecret{touch-action:none;cursor:grab;transition:box-shadow .12s,transform .12s}.dragSecret.dragging{cursor:grabbing;box-shadow:0 0 34px #4ed3ff88}.dragHint{margin-top:10px;padding:8px;border-radius:10px;background:#4ed3ff15;color:#8fe5ff;font-size:10px;font-weight:900;letter-spacing:.8px}.confirmBox{max-width:420px;margin:12px auto;display:grid;gap:8px}
 .result{text-align:center;max-width:600px;margin:auto}.result h2{font-size:34px;margin:8px 0}.ok{color:var(--g)}.bad{color:var(--r)}.checklist{display:grid;gap:8px;margin:18px 0;text-align:left}.check{background:#171a22;border:1px solid #303440;border-radius:13px;padding:13px;font-weight:850}.decision{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.decision .btn{min-height:115px;font-size:19px}.handoff{text-align:center;padding:35px 10px}.handoff h2{font-size:30px}.ready{min-height:110px;font-size:20px}
 .wait{border:1px dashed #3b3f4b;border-radius:17px;padding:30px;text-align:center;color:var(--mut)}
+.hostTimelineGrid{display:grid;gap:14px}
+.hostTimelinePlayer{background:#151821;border:1px solid #303440;border-radius:16px;padding:14px}
+.hostTimelinePlayer.active{border-color:var(--c);box-shadow:0 0 24px #4ed3ff22}
+.hostTimelineHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+.hostTimelineName{font-weight:950;font-size:17px}
+.hostTimelineMeta{font-size:11px;color:var(--mut)}
+.hostTimelineRail{display:flex;gap:8px;overflow-x:auto;padding:10px 2px}
+.hostMiniCard{flex:0 0 105px;background:#1b1e27;border:1px solid #424754;border-radius:12px;padding:9px;text-align:center}
+.hostMiniCard.risk{border:2px solid var(--c);box-shadow:0 0 16px #4ed3ff33}
+.hostMiniCard .year{font-size:20px;font-weight:950;color:var(--y)}
+.hostMiniCard .title{font-size:10px;margin-top:4px}
+.hostEmptyTimeline{color:var(--mut);font-size:12px;padding:12px 4px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.13</small></div><div class="badge" id="online">Redo · V4.13</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.17</small></div><div class="badge" id="online">Redo · V4.17</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
 
 <div class="roles">
@@ -66,7 +85,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.13</strong>
+  Version <strong style="color:#fff">V4.17</strong>
 </div>
 
 </section>
@@ -83,12 +102,15 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
       <button class="btn dark" onclick="spotifyResume()">▶ FORTSÄTT SPELA</button>
       <button class="btn dark" onclick="spotifyRestart()">↺ SPELA FRÅN BÖRJAN</button>
       <button id="playSongBtn" class="btn green hidden" onclick="playCurrentSong()">▶ FÖRSÖK SPELA IGEN</button>
-    </div></div><div class="stats"><div class="stat"><b id="hostLocked">0</b><small>Låsta kort</small></div><div class="stat"><b id="hostRisk">0</b><small>Riskeras</small></div><div class="stat"><b id="hostSwap">0</b><small>Byt-låt-kort</small></div></div><div id="hostHelp" class="wait">När spelaren är redo visas nästa steg här.</div></div>
+    </div></div><div class="stats"><div class="stat"><b id="hostLocked">0</b><small>Låsta kort</small></div><div class="stat"><b id="hostRisk">0</b><small>Riskeras</small></div><div class="stat"><b id="hostSwap">0</b><small>Byt-låt-kort</small></div></div><div id="hostHelp" class="wait">När spelaren är redo visas nästa steg här.</div>
+    <button id="hostTimelineBtn" class="btn purple full" style="margin-top:12px" onclick="toggleHostTimelines()">VISA TIDSLINJER</button>
+    <div id="hostTimelines" class="hidden" style="margin-top:14px"></div>
+    </div>
 
 <div id="playerView" class="hidden">
 <div id="listenScreen"><div class="stats"><div class="stat"><b id="pLocked">0</b><small>Låsta kort</small></div><div class="stat"><b id="pRisk">0</b><small>Riskeras</small></div><div class="stat"><b id="pSwap">0</b><small>Byt-låt-kort</small></div></div><div class="screenTitle">Lyssna på låten</div><p class="mut" style="text-align:center">Vad vill du göra?</p><div class="bigChoice"><button class="choice guess" onclick="showGuess()">🎤 GISSA ARTIST & LÅTNAMN<small>Frivillig bonus. Båda måste vara rätt för ett Byta-låt-kort.</small></button><button class="choice place" onclick="showPlace()">🃏 PLACERA KORT<small>Placera låten före, efter eller mellan dina kort.</small></button></div><button id="swapBtn" class="btn orange full" style="margin-top:12px" onclick="swapSong()">🔄 BYT LÅT · 0 KVAR</button></div>
 <div id="guessScreen" class="hidden"><button class="back" onclick="showListen()">← Tillbaka</button><div class="screenTitle">Gissa artist & låtnamn</div><div class="guessFields"><input id="guessArtist" class="input" placeholder="Artist"><input id="guessTitle" class="input" placeholder="Låtnamn"><button class="btn cyan full" onclick="saveGuess()">SPARA GISSNING</button></div></div>
-<div id="placeScreen" class="hidden"><button class="back" onclick="showListen()">← Tillbaka</button><div class="screenTitle">Placera kortet</div><p class="mut" style="text-align:center">Dra det hemliga kortet till en lila ficka. Du kan också trycka direkt på en ficka.</p><div id="timeline" class="timeline"></div><div id="dragSecret" class="secret dragSecret"><div class="note">♫</div><b>HEMLIGT KORT</b><div class="mut">År: ????</div><div class="dragHint">DRA MIG TILL TIDSLINJEN</div></div><div id="confirm" class="confirmBox hidden"><button class="btn cyan full" onclick="confirmPlace()">BEKRÄFTA PLATS</button><button class="btn dark full" onclick="clearPlace()">FLYTTA IGEN</button></div></div>
+<div id="placeScreen" class="hidden"><button class="back" onclick="showListen()">← Tillbaka</button><div class="screenTitle">Placera kortet</div><p class="mut" style="text-align:center">Dra det hemliga kortet till en lila ficka. Du kan också trycka direkt på en ficka.</p><div id="timeline" class="timeline"></div><div id="dragSecret" class="secret dragSecret"><div class="note">♫</div><b>HEMLIGT KORT</b><div class="mut">År: ????</div><div class="dragHint">DRA MIG TILL TIDSLINJEN</div></div><div id="confirm" class="confirmBox hidden" aria-hidden="true"></div></div>
 <div id="resultScreen" class="hidden result"><h2 id="resultTitle"></h2><div id="reveal" class="song"></div><div id="checks" class="checklist"></div><div id="bonus"></div><div id="decision" class="decision"></div></div>
 <div id="handoffScreen" class="hidden handoff"><div class="mut">LÄMNA ÖVER MOBILEN</div><h2 id="readyName">–</h2><button id="readyBtn" class="btn green full ready" onclick="readyNext()">KLICKA HÄR OM DU ÄR REDO</button></div>
 <div id="waitScreen" class="hidden wait">Väntar på ledarmobilen…</div>
@@ -301,11 +323,48 @@ async function verifySpotifyTrack(trackId){
 async function spotifyPlayTrack(trackId){
   let lastError=null;
 
+  // Om Spotify redan spelar rätt låt ska inget nytt API-anrop göras.
+  if(await verifySpotifyTrack(trackId)){
+    updateSpotifyUi();
+    return true;
+  }
+
   for(let attempt=1;attempt<=6;attempt++){
     try{
+      // Kontrollera igen före varje retry. Ett tidigare anrop kan ha lyckats
+      // även om Spotify svarade sent på ett efterföljande anrop.
+      if(await verifySpotifyTrack(trackId)){
+        updateSpotifyUi();
+        return true;
+      }
+
       const deviceOk=await ensureSpotifyDevice(false);
       if(!deviceOk)throw new Error("Spotify-appen svarar inte på startmobilen.");
 
+      // Försök först starta rätt låt direkt på aktiv playback.
+      try{
+        await spotifyApi("/me/player/play",{
+          method:"PUT",
+          body:JSON.stringify({
+            uris:["spotify:track:"+trackId],
+            position_ms:0
+          })
+        });
+        await sleep(700);
+        if(await verifySpotifyTrack(trackId)){
+          updateSpotifyUi();
+          return true;
+        }
+      }catch(directError){
+        lastError=directError;
+        // Om Spotify trots felet faktiskt började spela: betrakta det som lyckat.
+        if(await verifySpotifyTrack(trackId)){
+          updateSpotifyUi();
+          return true;
+        }
+      }
+
+      // Endast om direkt start inte fungerade: försök via den aktiva mobilen.
       await spotifyApi("/me/player",{
         method:"PUT",
         body:JSON.stringify({device_ids:[spotifyDeviceId],play:false})
@@ -328,29 +387,27 @@ async function spotifyPlayTrack(trackId){
         return true;
       }
 
-      await spotifyApi("/me/player/play",{
-        method:"PUT",
-        body:JSON.stringify({
-          uris:["spotify:track:"+trackId],
-          position_ms:0
-        })
-      });
+      lastError=new Error("Spotify bekräftade inte uppspelningen.");
+    }catch(e){
+      lastError=e;
 
-      await sleep(650);
-
+      // Viktigt: Spotify kan returnera ett sent fel trots att föregående
+      // playback-kommando faktiskt lyckades.
       if(await verifySpotifyTrack(trackId)){
         updateSpotifyUi();
         return true;
       }
-
-      lastError=new Error("Spotify bekräftade inte uppspelningen.");
-    }catch(e){
-      lastError=e;
     }
 
     spotifyDeviceId="";
     localStorage.removeItem("digihits_spotify_device");
     await sleep(450*attempt);
+  }
+
+  // Sista kontroll innan vi visar något fel för användaren.
+  if(await verifySpotifyTrack(trackId)){
+    updateSpotifyUi();
+    return true;
   }
 
   throw lastError||new Error("Spotify kunde inte starta låten.");
@@ -396,6 +453,20 @@ async function pollSpotifyPlayback(){
     const state=await spotifyApi("/me/player");
     playbackLastState=state;
     updatePlaybackBar(state);
+
+    if(
+      state &&
+      state.item &&
+      match?.current_song &&
+      state.item.id===match.current_song.id
+    ){
+      lastAutoPlayedSongId=match.current_song.id;
+      autoPlayInFlightSongId=null;
+      clearTimeout(autoPlayRetryTimer);
+      $("status").textContent="";
+      const retry=$("playSongBtn");
+      if(retry)retry.classList.add("hidden");
+    }
   }catch(e){
     console.warn("Playback poll:",e);
   }
@@ -412,7 +483,7 @@ async function spotifyRestart(){
     await ensureSpotifyReady();
     await spotifyApi("/me/player/seek?position_ms=0&device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
     await spotifyApi("/me/player/play?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
-    $("status").textContent="Låten startades om från början.";
+    $("status").textContent="";
     setTimeout(pollSpotifyPlayback,300);
   }catch(e){
     alert("Spotify: "+e.message);
@@ -423,14 +494,14 @@ async function spotifyPause(){
   try{
     await ensureSpotifyReady();
     await spotifyApi("/me/player/pause?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
-    $("status").textContent="Låten är pausad.";setTimeout(pollSpotifyPlayback,250);
+    $("status").textContent="";setTimeout(pollSpotifyPlayback,250);
   }catch(e){alert("Spotify: "+e.message)}
 }
 async function spotifyResume(){
   try{
     await ensureSpotifyReady();
     await spotifyApi("/me/player/play?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
-    $("status").textContent="Låten fortsätter.";setTimeout(pollSpotifyPlayback,250);
+    $("status").textContent="";setTimeout(pollSpotifyPlayback,250);
   }catch(e){alert("Spotify: "+e.message)}
 }
 window.addEventListener("load",async()=>{
@@ -589,7 +660,7 @@ async function restoreActiveSession(){
     startPoll();
     render();
     const badge=document.getElementById("online");
-    if(badge)badge.textContent="Återansluten · V4.13";
+    if(badge)badge.textContent="Återansluten · V4.17";
   }catch(err){
     console.error("Kunde inte återansluta till match:",err);
   }
@@ -603,7 +674,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.13"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.17"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -632,7 +703,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.13":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.17":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -730,7 +801,7 @@ async function fetchState(){if(!requireDb())return;try{let [m,p]=await Promise.a
 function startPoll(){fetchState();clearInterval(poll);poll=setInterval(fetchState,role==="host"?350:650)}
 function cur(){return players.find(p=>p.id===match?.current_player_id)||players[0]}
 function renderPlayers(){let c=cur();$("players").innerHTML=players.map(p=>`<div class="prow ${c&&p.id===c.id?"active":""}"><div><div class="pname">${p.name}</div><div class="pmeta">${(p.locked_timeline||[]).length}/10 låsta · ${(p.turn_cards||[]).length} riskeras</div></div><div class="swaps">🔄 ${p.swap_cards||0}/3</div></div>`).join("")}
-function render(){if(!match)return;renderPlayers();let c=cur();$("turn").textContent=c?c.name:"–";$("sub").textContent=role==="host"?"Ledarmobil":"Spelarmobil";$("phaseBadge").textContent=({handoff:"Byter spelare",listen:"Lyssnar",result:"Resultat",decision:"Beslut",ended:"Match slut"})[match.phase]||"Väntar";if(role==="host")renderHost(c);else renderPlayer(c)}
+function render(){if(!match)return;renderPlayers();let c=cur();$("turn").textContent=c?c.name:"–";$("sub").textContent=role==="host"?"MATCHEN":"SPELET";$("phaseBadge").textContent=({handoff:"Byter spelare",listen:"Lyssnar",result:"Resultat",decision:"Beslut",ended:"Match slut"})[match.phase]||"Väntar";if(role==="host")renderHost(c);else renderPlayer(c)}
 function stats(c,prefix){$(prefix+"Locked").textContent=(c.locked_timeline||[]).length;$(prefix+"Risk").textContent=(c.turn_cards||[]).length;$(prefix+"Swap").textContent=c.swap_cards||0}
 
 async function autoPlayPreparedSong(){
@@ -750,7 +821,10 @@ async function autoPlayPreparedSong(){
     // Markera först efter att Spotify har bekräftat att rätt låt spelar.
     lastAutoPlayedSongId=songId;
     autoPlayInFlightSongId=null;
+    clearTimeout(autoPlayRetryTimer);
+    autoPlayRetryTimer=null;
 
+    $("status").textContent="";
     const retry=$("playSongBtn");
     if(retry)retry.classList.add("hidden");
 
@@ -772,12 +846,23 @@ async function autoPlayPreparedSong(){
     },1800);
 
     // Visa reservknappen först när automatiken fått flera chanser.
-    setTimeout(()=>{
+    setTimeout(async()=>{
       if(
         match?.current_song?.id===songId &&
         lastAutoPlayedSongId!==songId
       ){
-        $("status").textContent="Spotify startade inte automatiskt.";
+        if(await verifySpotifyTrack(songId)){
+          lastAutoPlayedSongId=songId;
+          autoPlayInFlightSongId=null;
+          clearTimeout(autoPlayRetryTimer);
+          $("status").textContent="";
+          const retry=$("playSongBtn");
+          if(retry)retry.classList.add("hidden");
+          startPlaybackPolling();
+          return;
+        }
+
+        $("status").textContent="Spotify kunde inte starta låten automatiskt.";
         const retry=$("playSongBtn");
         if(retry)retry.classList.remove("hidden");
       }
@@ -785,9 +870,118 @@ async function autoPlayPreparedSong(){
   }
 }
 
-function renderHost(c){if(!c)return;stats(c,"host");if(match.current_song){$("song").textContent=match.current_song.title;$("artist").textContent=match.current_song.artist+" · "+match.current_song.year;$("spotify").innerHTML=spotifyControlsHtml();}else{$("song").textContent="Ingen låt redo ännu";$("artist").textContent="";$("spotify").innerHTML="";lastAutoPlayedSongId=null;autoPlayInFlightSongId=null;clearTimeout(autoPlayRetryTimer)}if(match.phase==="listen"&&match.current_song){autoPlayPreparedSong();startPlaybackPolling()}else{updatePlaybackBar(null)}$("hostHelp").textContent=match.phase==="handoff"?`Lämna spelarmobilen till ${c.name}. Nästa låt väljs automatiskt när ${c.name} klickar att hen är redo.`:match.phase==="listen"?(match.current_song?`${c.name} spelar sin tur.`:`Väntar på att ${c.name} ska bli redo.`):match.phase==="decision"?`${c.name} väljer FORTSÄTT eller LÅS IN.`:match.phase==="ended"?`Matchen är avslutad. Vinnare: ${c.name}`:match.phase==="result"&&match.last_result?`${c.name}: ${match.last_result.placeOk?"Rätt placering":"Fel placering"} · ${match.last_result.artistOk?"Rätt artist":"Fel artist"} · ${match.last_result.titleOk?"Rätt låtnamn":"Fel låtnamn"}`:"Resultatet visas på spelarmobilen."}
+
+let hostTimelinesOpen=false;
+
+function toggleHostTimelines(){
+  hostTimelinesOpen=!hostTimelinesOpen;
+  const box=$("hostTimelines");
+  const btn=$("hostTimelineBtn");
+  if(!box||!btn)return;
+
+  box.classList.toggle("hidden",!hostTimelinesOpen);
+  btn.textContent=hostTimelinesOpen?"DÖLJ TIDSLINJER":"VISA TIDSLINJER";
+  if(hostTimelinesOpen)renderHostTimelines();
+}
+
+function hostTimelineCardsForPlayer(p){
+  const locked=(p.locked_timeline||[]).map(x=>({...x,_risk:false}));
+  const risk=(p.turn_cards||[]).map(x=>({...x,_risk:true}));
+  return [...locked,...risk].sort((a,b)=>a.year-b.year);
+}
+
+function renderHostTimelines(){
+  const box=$("hostTimelines");
+  if(!box)return;
+
+  const current=cur();
+  const sorted=[...players].sort((a,b)=>(a.turn_order||0)-(b.turn_order||0));
+
+  box.innerHTML=`<div class="hostTimelineGrid">${
+    sorted.map(p=>{
+      const cards=hostTimelineCardsForPlayer(p);
+      const locked=(p.locked_timeline||[]).length;
+      const risk=(p.turn_cards||[]).length;
+      const swaps=p.swap_cards||0;
+
+      const rail=cards.length
+        ? cards.map(card=>`
+            <div class="hostMiniCard ${card._risk?"risk":""}">
+              <div class="year">${card.year}</div>
+              <div class="title">${card.title}</div>
+              <div class="hostTimelineMeta">${card._risk?"RISKERAS":"LÅST"}</div>
+            </div>`).join("")
+        : `<div class="hostEmptyTimeline">Inga kort ännu.</div>`;
+
+      return `
+        <div class="hostTimelinePlayer ${current&&current.id===p.id?"active":""}">
+          <div class="hostTimelineHead">
+            <div>
+              <div class="hostTimelineName">${p.name}</div>
+              <div class="hostTimelineMeta">${locked} låsta · ${risk} riskeras</div>
+            </div>
+            <div class="swaps">🔄 ${swaps}/3</div>
+          </div>
+          <div class="hostTimelineRail">${rail}</div>
+        </div>`;
+    }).join("")
+  }</div>`;
+}
+
+function renderHost(c){if(!c)return;stats(c,"host");if(hostTimelinesOpen)renderHostTimelines();if(match.current_song){$("song").textContent=match.current_song.title;$("artist").textContent=match.current_song.artist+" · "+match.current_song.year;$("spotify").innerHTML=spotifyControlsHtml();}else{$("song").textContent="Ingen låt redo ännu";$("artist").textContent="";$("spotify").innerHTML="";lastAutoPlayedSongId=null;autoPlayInFlightSongId=null;clearTimeout(autoPlayRetryTimer)}if(match.phase==="listen"&&match.current_song){autoPlayPreparedSong();startPlaybackPolling()}else{updatePlaybackBar(null)}$("hostHelp").textContent=match.phase==="handoff"?`Lämna mobilen till ${c.name}. Nästa låt startar automatiskt när ${c.name} klickar att hen är redo.`:match.phase==="listen"?(match.current_song?`${c.name} spelar sin tur.`:`Väntar på att ${c.name} ska bli redo.`):match.phase==="decision"?`${c.name} väljer FORTSÄTT eller LÅS IN.`:match.phase==="ended"?`Matchen är avslutad. Vinnare: ${c.name}`:match.phase==="result"&&match.last_result?`${c.name}: ${match.last_result.placeOk?"Rätt placering":"Fel placering"} · ${match.last_result.artistOk?"Rätt artist":"Fel artist"} · ${match.last_result.titleOk?"Rätt låtnamn":"Fel låtnamn"}`:"Resultatet visas på spelarmobilen."}
+function clearGameStatus(){
+  const s=$("status");
+  if(s)s.textContent="";
+}
 function hidePlayer(){["listenScreen","guessScreen","placeScreen","resultScreen","handoffScreen","waitScreen"].forEach(x=>$(x).classList.add("hidden"))}
-function renderPlayer(c){if(!c)return;stats(c,"p");$("swapBtn").textContent=`🔄 BYT LÅT · ${c.swap_cards||0} KVAR`;$("swapBtn").disabled=(c.swap_cards||0)<=0;$("swapBtn").style.opacity=(c.swap_cards||0)>0?1:.45;if(match.phase==="handoff"){hidePlayer();$("handoffScreen").classList.remove("hidden");$("readyName").textContent=c.name;$("readyBtn").textContent=`${c.name.toUpperCase()}, KLICKA HÄR OM DU ÄR REDO`;return}if(match.phase==="listen"&&!match.current_song){hidePlayer();$("waitScreen").classList.remove("hidden");$("waitScreen").textContent="Du är redo. Väntar på att ledarmobilen startar låten…";return}if(match.phase==="listen"&&match.current_song){if(!["guessScreen","placeScreen"].some(x=>!$(x).classList.contains("hidden"))){hidePlayer();$("listenScreen").classList.remove("hidden")}return}if(match.phase==="result"||match.phase==="decision"){showResult(c);return}if(match.phase==="ended"){hidePlayer();$("resultScreen").classList.remove("hidden");$("resultTitle").textContent=`🏆 ${c.name} VINNER!`;return}}
+function renderPlayer(c){
+  if(!c)return;
+  stats(c,"p");
+  $("swapBtn").textContent=`🔄 BYT LÅT · ${c.swap_cards||0} KVAR`;
+  $("swapBtn").disabled=(c.swap_cards||0)<=0;
+  $("swapBtn").style.opacity=(c.swap_cards||0)>0?1:.45;
+
+  if(match.phase==="handoff"){
+    clearGameStatus();
+    selected=null;
+    hidePlayer();
+    $("handoffScreen").classList.remove("hidden");
+    $("readyName").textContent=c.name;
+    $("readyBtn").textContent=`${c.name.toUpperCase()}, KLICKA HÄR OM DU ÄR REDO`;
+    return;
+  }
+
+  if(match.phase==="listen"&&!match.current_song){
+    clearGameStatus();
+    hidePlayer();
+    $("waitScreen").classList.remove("hidden");
+    $("waitScreen").textContent="Förbereder nästa låt…";
+    return;
+  }
+
+  if(match.phase==="listen"&&match.current_song){
+    if(!["guessScreen","placeScreen"].some(x=>!$(x).classList.contains("hidden"))){
+      clearGameStatus();
+      hidePlayer();
+      $("listenScreen").classList.remove("hidden");
+    }
+    return;
+  }
+
+  if(match.phase==="result"||match.phase==="decision"){
+    clearGameStatus();
+    showResult(c);
+    return;
+  }
+
+  if(match.phase==="ended"){
+    clearGameStatus();
+    hidePlayer();
+    $("resultScreen").classList.remove("hidden");
+    $("resultTitle").textContent=`🏆 ${c.name} VINNER!`;
+    return;
+  }
+}
 async function prepareNextSong(autoPlay=false){
   let deck=[...(match.deck||[])];
   if(!deck.length)throw new Error("Kortleken är slut.");
@@ -801,14 +995,88 @@ async function prepareNextSong(autoPlay=false){
   }
   return song;
 }
-async function readyNext(){if(actionBusy)return;actionBusy=true;try{guessSaved=false;$("guessArtist").value="";$("guessTitle").value="";selected=null;await prepareNextSong()}catch(e){alert("Kunde inte göra spelaren redo: "+e.message)}finally{actionBusy=false}}
+async function readyNext(){
+  if(actionBusy)return;
+  actionBusy=true;
+  try{
+    clearGameStatus();
+    guessSaved=false;
+    $("guessArtist").value="";
+    $("guessTitle").value="";
+    selected=null;
+    const source=$("dragSecret");
+    if(source)source.classList.remove("hidden");
+    await prepareNextSong();
+  }catch(e){
+    alert("Kunde inte göra spelaren redo: "+e.message);
+  }finally{
+    actionBusy=false;
+  }
+}
 
 async function playCurrentSong(){if(startSongBusy)return;startSongBusy=true;try{if(!match.current_song)throw new Error("Ingen låt är redo ännu.");if(!spotifyAccessToken&&!spotifyRefreshToken)throw new Error("Spotify är inte anslutet.");$("status").textContent="Startar Spotify…";await spotifyPlayTrack(match.current_song.id);lastAutoPlayedSongId=match.current_song.id;autoPlayInFlightSongId=null;$("status").textContent="";const retry=$("playSongBtn");if(retry)retry.classList.add("hidden");startPlaybackPolling()}catch(e){$("status").textContent="Spotify kunde inte starta.";alert("Spotify: "+e.message)}finally{startSongBusy=false}}
 function showListen(){hidePlayer();$("listenScreen").classList.remove("hidden")} function showGuess(){hidePlayer();$("guessScreen").classList.remove("hidden")}
 function saveGuess(){guessSaved=true;showListen();$("status").textContent="Gissningen är sparad. Placera nu kortet när du är redo."}
-function showPlace(){hidePlayer();$("placeScreen").classList.remove("hidden");renderTimeline();$("confirm").classList.add("hidden");requestAnimationFrame(bindSecretDrag)}
+function showPlace(){
+  hidePlayer();
+  $("placeScreen").classList.remove("hidden");
+  const source=$("dragSecret");
+  if(source)source.classList.toggle("hidden",selected!==null);
+  renderTimeline();
+  $("confirm").classList.add("hidden");
+  requestAnimationFrame(bindSecretDrag);
+}
 function allTimeline(c){return [...(c.locked_timeline||[]),...(c.turn_cards||[])].sort((a,b)=>a.year-b.year)}
-function renderTimeline(){let c=cur(),t=allTimeline(c),el=$("timeline");el.innerHTML="";for(let i=0;i<=t.length;i++){let d=document.createElement("button");d.type="button";d.dataset.index=String(i);d.className="drop"+(selected===i?" sel":"");d.innerHTML="PLACERA<br>HÄR";d.onclick=()=>{selected=i;renderTimeline();$("confirm").classList.remove("hidden")};el.appendChild(d);if(i<t.length){let x=document.createElement("div");x.className="card";x.innerHTML=`<div class="year">${t[i].year}</div><div class="ct">${t[i].title}</div>`;el.appendChild(x)}}}
+function renderTimeline(){
+  let c=cur(),t=allTimeline(c),el=$("timeline");
+  el.innerHTML="";
+  for(let i=0;i<=t.length;i++){
+    let d=document.createElement("button");
+    d.type="button";
+    d.dataset.index=String(i);
+    d.className="drop"+(selected===i?" sel":"");
+    d.innerHTML="PLACERA<br>HÄR";
+    d.onclick=()=>selectPlacement(i);
+    el.appendChild(d);
+
+    if(selected===i){
+      let wrap=document.createElement("div");
+      wrap.className="pendingSlot";
+      wrap.innerHTML=`<div class="pendingCard">
+        <div class="note">♫</div>
+        <b>HEMLIGT KORT</b>
+        <div class="hiddenYear">????</div>
+      </div>
+      <div class="pendingActions">
+        <button class="btn cyan full" onclick="confirmPlace()">BEKRÄFTA PLATS</button>
+        <button class="btn dark full" onclick="clearPlace()">FLYTTA IGEN</button>
+      </div>`;
+      el.appendChild(wrap);
+    }
+
+    if(i<t.length){
+      let x=document.createElement("div");
+      x.className="card";
+      x.innerHTML=`<div class="year">${t[i].year}</div><div class="ct">${t[i].title}</div>`;
+      el.appendChild(x);
+    }
+  }
+}
+function selectPlacement(index){
+  selected=Number(index);
+  resetDragSecret();
+  const source=$("dragSecret");
+  if(source)source.classList.add("hidden");
+  renderTimeline();
+  const legacy=$("confirm");
+  if(legacy)legacy.classList.add("hidden");
+  requestAnimationFrame(()=>{
+    const pending=document.querySelector(".pendingSlot");
+    if(pending)pending.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+  });
+  $("status").textContent="Kortet ligger på vald plats. Bekräfta eller flytta igen.";
+}
+
 let cardDragging=false,cardOffsetX=0,cardOffsetY=0,dragZone=null;
 function resetDragSecret(){
   let card=$("dragSecret");if(!card)return;
@@ -846,17 +1114,23 @@ function bindSecretDrag(){
     let z=dragZone||findDropZoneAt(e.clientX,e.clientY);
     resetDragSecret();
     if(z){
-      selected=Number(z.dataset.index);
-      renderTimeline();
-      $("confirm").classList.remove("hidden");
-      $("status").textContent="Platsen är vald. Bekräfta eller flytta igen.";
+      selectPlacement(Number(z.dataset.index));
     }else{
       $("status").textContent="Släpp kortet i en lila ficka.";
     }
   });
   card.addEventListener("pointercancel",resetDragSecret);
 }
-function clearPlace(){selected=null;resetDragSecret();renderTimeline();$("confirm").classList.add("hidden")}
+function clearPlace(){
+  selected=null;
+  resetDragSecret();
+  const source=$("dragSecret");
+  if(source)source.classList.remove("hidden");
+  renderTimeline();
+  const legacy=$("confirm");
+  if(legacy)legacy.classList.add("hidden");
+  $("status").textContent="Dra kortet till en ny plats.";
+}
 async function confirmPlace(){
   if(confirmBusy)return;
   if(selected===null){alert("Välj först en plats på tidslinjen.");return}
@@ -871,13 +1145,45 @@ async function confirmPlace(){
     let result={song,placeOk,artistOk,titleOk,bonus:artistOk&&titleOk};
     let pr=await db.from("players").update({turn_cards:turn,swap_cards:swap}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);
     let mr=await db.from("matches").update({last_result:result,current_song:null,phase:placeOk?"decision":"result"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);
-    selected=null;guessSaved=false;
-  }catch(e){alert("Kunde inte bekräfta placeringen: "+e.message)}finally{confirmBusy=false}
+    selected=null;
+    guessSaved=false;
+    clearGameStatus();
+    const source=$("dragSecret");
+    if(source)source.classList.remove("hidden");
+  }catch(e){
+    alert("Kunde inte bekräfta placeringen: "+e.message);
+  }finally{
+    confirmBusy=false;
+  }
 }
 function showResult(c){hidePlayer();$("resultScreen").classList.remove("hidden");let r=match.last_result;if(!r)return;$("resultTitle").className=r.placeOk?"ok":"bad";$("resultTitle").textContent=r.placeOk?"RÄTT PLACERING":"FEL PLACERING";$("reveal").textContent=`${r.song.title} – ${r.song.artist} (${r.song.year})`;$("checks").innerHTML=`<div class="check">${r.placeOk?"✅":"❌"} ${r.placeOk?"Rätt placering":"Fel placering"}</div><div class="check">${r.artistOk?"✅":"❌"} ${r.artistOk?"Rätt artist":"Fel artist"}</div><div class="check">${r.titleOk?"✅":"❌"} ${r.titleOk?"Rätt låtnamn":"Fel låtnamn"}</div>`;$("bonus").innerHTML=r.bonus?`<div class="check" style="border-color:#8a6427">🔄 Rätt artist och låtnamn – du fick ett Byta-låt-kort. Du har ${c.swap_cards||0}/3.</div>`:`<div class="mut">Byta-låt-kort: ${c.swap_cards||0}/3</div>`;let d=$("decision");if(match.phase==="decision"){let n=(c.turn_cards||[]).length;d.innerHTML=`<button class="btn purple" onclick="continueTurn()">▶ FORTSÄTT<br><small>Riskera ${n} olåsta kort</small></button><button class="btn green" onclick="lockIn()">🔒 LÅS IN ${n} KORT<br><small>Spara korten och lämna över mobilen</small></button>`}else{d.innerHTML=`<button class="btn green full" onclick="endFailedTurn()">LÄMNA ÖVER MOBILEN</button>`}}
-async function continueTurn(){if(actionBusy)return;actionBusy=true;try{await prepareNextSong()}catch(e){alert("Kunde inte fortsätta: "+e.message)}finally{actionBusy=false}}
+async function continueTurn(){
+  if(actionBusy)return;
+  actionBusy=true;
+  try{
+    clearGameStatus();
+    selected=null;
+    await prepareNextSong();
+  }catch(e){
+    alert("Kunde inte fortsätta: "+e.message);
+  }finally{
+    actionBusy=false;
+  }
+}
 async function nextPlayer(){let c=cur();if(!c||!players.length)throw new Error("Nästa spelare kunde inte hittas.");let i=players.findIndex(p=>p.id===c.id),n=players[(i+1)%players.length];let r=await db.from("matches").update({current_player_id:n.id,phase:"handoff",status:"waiting",current_song:null,last_result:null}).eq("code",code);if(r.error)throw new Error(r.error.message)}
-async function lockIn(){if(actionBusy)return;actionBusy=true;try{let c=cur();if(!c)throw new Error("Aktuell spelare saknas.");let locked=[...(c.locked_timeline||[]),...(c.turn_cards||[])].sort((a,b)=>a.year-b.year);let pr=await db.from("players").update({locked_timeline:locked,turn_cards:[]}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);if(locked.length>=Number(match.target_cards||10)){let mr=await db.from("matches").update({phase:"ended",status:"ended",current_player_id:c.id,current_song:null,last_result:null}).eq("code",code);if(mr.error)throw new Error(mr.error.message)}else await nextPlayer()}catch(e){alert("Kunde inte låsa in korten: "+e.message)}finally{actionBusy=false}}
-async function endFailedTurn(){if(actionBusy)return;actionBusy=true;try{await nextPlayer()}catch(e){alert("Kunde inte byta spelare: "+e.message)}finally{actionBusy=false}}
-async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;$("status").textContent="Låten är bytt. Ledarmobilen kan nu trycka SPELA LÅT."}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
+async function lockIn(){if(actionBusy)return;actionBusy=true;try{clearGameStatus();selected=null;let c=cur();if(!c)throw new Error("Aktuell spelare saknas.");let locked=[...(c.locked_timeline||[]),...(c.turn_cards||[])].sort((a,b)=>a.year-b.year);let pr=await db.from("players").update({locked_timeline:locked,turn_cards:[]}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);if(locked.length>=Number(match.target_cards||10)){let mr=await db.from("matches").update({phase:"ended",status:"ended",current_player_id:c.id,current_song:null,last_result:null}).eq("code",code);if(mr.error)throw new Error(mr.error.message)}else await nextPlayer()}catch(e){alert("Kunde inte låsa in korten: "+e.message)}finally{actionBusy=false}}
+async function endFailedTurn(){
+  if(actionBusy)return;
+  actionBusy=true;
+  try{
+    clearGameStatus();
+    selected=null;
+    await nextPlayer();
+  }catch(e){
+    alert("Kunde inte byta spelare: "+e.message);
+  }finally{
+    actionBusy=false;
+  }
+}
+async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 </script></body></html>
