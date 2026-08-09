@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.26</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.27</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -24,13 +24,13 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .pendingCard .hiddenYear{font-size:20px;font-weight:950;color:var(--y);margin-top:6px}
 .pendingActions{display:grid;gap:7px}
 .pendingActions .btn{padding:10px 8px;font-size:11px}
-@keyframes snapIn{from{opacity:.35;transform:scale(.9)}to{opacity:1;transform:scale(1)}}.card .year{font-size:23px;font-weight:950;color:var(--y)}.card .ct{font-size:11px;margin-top:5px}.drop{flex:0 0 100px;min-height:205px;margin:0 6px;border:2px dashed #7b5ca8;border-radius:15px;display:grid;place-items:center;text-align:center;color:#d9c6ff;font-size:11px;font-weight:900;background:#a66cff12}.drop.sel,.drop.dragover{background:#a66cff45;border-color:#e2d1ff;box-shadow:0 0 28px #a66cff77;transform:scale(1.04)}.secret{max-width:220px;margin:16px auto;border:2px solid var(--c);border-radius:17px;padding:17px;text-align:center;background:#141820}.secret .note{font-size:42px}.dragSecret{touch-action:none;cursor:grab;transition:box-shadow .12s,transform .12s}.dragSecret.dragging{cursor:grabbing;box-shadow:0 0 34px #4ed3ff88}.dragHint{margin-top:10px;padding:8px;border-radius:10px;background:#4ed3ff15;color:#8fe5ff;font-size:10px;font-weight:900;letter-spacing:.8px}.confirmBox{max-width:420px;margin:12px auto;display:grid;gap:8px}
+@keyframes snapIn{from{opacity:.35;transform:scale(.9)}to{opacity:1;transform:scale(1)}}.card .year{font-size:23px;font-weight:950;color:var(--y)}.card .ct{font-size:11px;margin-top:5px;line-height:1.3}.drop{flex:0 0 100px;min-height:205px;margin:0 6px;border:2px dashed #7b5ca8;border-radius:15px;display:grid;place-items:center;text-align:center;color:#d9c6ff;font-size:11px;font-weight:900;background:#a66cff12}.drop.sel,.drop.dragover{background:#a66cff45;border-color:#e2d1ff;box-shadow:0 0 28px #a66cff77;transform:scale(1.04)}.secret{max-width:220px;margin:16px auto;border:2px solid var(--c);border-radius:17px;padding:17px;text-align:center;background:#141820}.secret .note{font-size:42px}.dragSecret{touch-action:none;cursor:grab;transition:box-shadow .12s,transform .12s}.dragSecret.dragging{cursor:grabbing;box-shadow:0 0 34px #4ed3ff88}.dragHint{margin-top:10px;padding:8px;border-radius:10px;background:#4ed3ff15;color:#8fe5ff;font-size:10px;font-weight:900;letter-spacing:.8px}.confirmBox{max-width:420px;margin:12px auto;display:grid;gap:8px}
 .result{text-align:center;max-width:600px;margin:auto}.result h2{font-size:34px;margin:8px 0}.ok{color:var(--g)}.bad{color:var(--r)}.checklist{display:grid;gap:8px;margin:18px 0;text-align:left}.check{background:#171a22;border:1px solid #303440;border-radius:13px;padding:13px;font-weight:850}.decision{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
 .decisionTimeline{display:flex;gap:8px;overflow-x:auto;padding:14px 8px;border:2px solid var(--v);border-radius:16px;background:#0d0f14}
 .decisionTimelineCard{flex:0 0 112px;background:#1b1e27;border:1px solid #424754;border-radius:12px;padding:10px;text-align:center}
 .decisionTimelineCard.risk{border:2px solid var(--c);box-shadow:0 0 18px #4ed3ff44}
 .decisionTimelineCard .year{font-size:22px;font-weight:950;color:var(--y)}
-.decisionTimelineCard .title{font-size:10px;margin-top:4px}
+.decisionTimelineCard .title{font-size:10px;margin-top:4px;line-height:1.25}
 .decisionTimelineCard .state{font-size:9px;margin-top:5px;color:var(--mut);font-weight:900;letter-spacing:.5px}.decision .btn{min-height:115px;font-size:19px}.handoff{text-align:center;padding:35px 10px}.handoff h2{font-size:30px}.ready{min-height:110px;font-size:20px}
 .wait{border:1px dashed #3b3f4b;border-radius:17px;padding:30px;text-align:center;color:var(--mut)}
 .modalBackdrop{position:fixed;inset:0;background:#000b;display:grid;place-items:center;padding:18px;z-index:99999}
@@ -47,11 +47,11 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .hostMiniCard{flex:0 0 105px;background:#1b1e27;border:1px solid #424754;border-radius:12px;padding:9px;text-align:center}
 .hostMiniCard.risk{border:2px solid var(--c);box-shadow:0 0 16px #4ed3ff33}
 .hostMiniCard .year{font-size:20px;font-weight:950;color:var(--y)}
-.hostMiniCard .title{font-size:10px;margin-top:4px}
+.hostMiniCard .title{font-size:10px;margin-top:4px;line-height:1.25}
 .hostEmptyTimeline{color:var(--mut);font-size:12px;padding:12px 4px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.26</small></div><div class="badge" id="online">Redo · V4.26</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.27</small></div><div class="badge" id="online">Redo · V4.27</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
 
 <div id="resumeBox" class="hidden" style="margin-top:18px;background:#151821;border:1px solid #3a4050;border-radius:16px;padding:14px">
@@ -108,7 +108,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.26</strong>
+  Version <strong style="color:#fff">V4.27</strong>
 </div>
 
 </section>
@@ -780,7 +780,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.26";
+    if(badge)badge.textContent="Återansluten · V4.27";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -811,7 +811,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.26"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.27"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -840,7 +840,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.26":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.27":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1089,7 +1089,8 @@ function renderHostTimelines(){
         ? cards.map(card=>`
             <div class="hostMiniCard ${card._risk?"risk":""}">
               <div class="year">${card.year}</div>
-              <div class="title">${card.title}</div>
+              <div class="title"><strong>${card.title}</strong></div>
+              <div class="title">${card.artist||""}</div>
               <div class="hostTimelineMeta">${card._risk?"RISKERAS":"LÅST"}</div>
             </div>`).join("")
         : `<div class="hostEmptyTimeline">Inga kort ännu.</div>`;
@@ -1260,7 +1261,7 @@ function renderTimeline(){
     if(i<t.length){
       let x=document.createElement("div");
       x.className="card";
-      x.innerHTML=`<div class="year">${t[i].year}</div><div class="ct">${t[i].title}</div>`;
+      x.innerHTML=`<div class="year">${t[i].year}</div><div class="ct"><strong>${t[i].title}</strong><br><span class="mut">${t[i].artist||""}</span></div>`;
       el.appendChild(x);
     }
   }
@@ -1387,7 +1388,8 @@ function renderDecisionTimeline(){
         cards.map(card=>`
           <div class="decisionTimelineCard ${card._risk?"risk":""}">
             <div class="year">${card.year}</div>
-            <div class="title">${card.title}</div>
+            <div class="title"><strong>${card.title}</strong></div>
+            <div class="title">${card.artist||""}</div>
             <div class="state">${card._risk?"OLÅST":"LÅST"}</div>
           </div>`).join("")
       }</div>`
