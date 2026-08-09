@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.23</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.24</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -51,7 +51,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .hostEmptyTimeline{color:var(--mut);font-size:12px;padding:12px 4px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.23</small></div><div class="badge" id="online">Redo · V4.23</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.24</small></div><div class="badge" id="online">Redo · V4.24</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
 
 <div id="resumeBox" class="hidden" style="margin-top:18px;background:#151821;border:1px solid #3a4050;border-radius:16px;padding:14px">
@@ -108,7 +108,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div>
 
 <div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.23</strong>
+  Version <strong style="color:#fff">V4.24</strong>
 </div>
 
 </section>
@@ -121,8 +121,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
       <div class="playbackTrack"><div id="playbackFill" class="playbackFill"></div></div>
     </div>
     <div class="hostButtons">
-      <button class="btn dark" onclick="spotifyPause()">❚❚ PAUSA</button>
-      <button class="btn dark" onclick="spotifyResume()">▶ FORTSÄTT SPELA</button>
+      <button id="playPauseBtn" class="btn dark" onclick="toggleSpotifyPlayback()">❚❚ PAUSA</button>
       <button class="btn dark" onclick="spotifyRestart()">↺ SPELA FRÅN BÖRJAN</button>
       <button id="playSongBtn" class="btn green hidden" onclick="playCurrentSong()">▶ FÖRSÖK SPELA IGEN</button>
     </div></div><div class="stats"><div class="stat"><b id="hostLocked">0</b><small>Låsta kort</small></div><div class="stat"><b id="hostRisk">0</b><small>Riskeras</small></div><div class="stat"><b id="hostSwap">0</b><small>Byt-låt-kort</small></div></div><div id="hostHelp" class="wait">När spelaren är redo visas nästa steg här.</div>
@@ -465,19 +464,24 @@ function fmtMs(ms){
 
 function updatePlaybackBar(state){
   const box=$("playbackBox");
-  if(!box)return;
+  const toggle=$("playPauseBtn");
 
   if(!state || !state.item){
-    box.classList.add("hidden");
+    if(box)box.classList.add("hidden");
+    if(toggle)toggle.textContent="▶ FORTSÄTT SPELA";
     return;
   }
 
-  box.classList.remove("hidden");
+  if(box)box.classList.remove("hidden");
   const duration=state.item.duration_ms||0;
   const progress=state.progress_ms||0;
   $("playbackPos").textContent=fmtMs(progress);
   $("playbackDur").textContent=fmtMs(duration);
   $("playbackFill").style.width=duration?Math.min(100,(progress/duration)*100)+"%":"0%";
+
+  if(toggle){
+    toggle.textContent=state.is_playing?"❚❚ PAUSA":"▶ FORTSÄTT SPELA";
+  }
 }
 
 async function pollSpotifyPlayback(){
@@ -526,18 +530,31 @@ async function spotifyRestart(){
   }
 }
 
+async function toggleSpotifyPlayback(){
+  try{
+    const state=await spotifyApi("/me/player");
+    if(state && state.is_playing){
+      await spotifyPause();
+    }else{
+      await spotifyResume();
+    }
+  }catch(e){
+    alert("Spotify: "+e.message);
+  }
+}
+
 async function spotifyPause(){
   try{
     await ensureSpotifyReady();
     await spotifyApi("/me/player/pause?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
-    $("status").textContent="";setTimeout(pollSpotifyPlayback,250);
+    $("status").textContent="";setTimeout(pollSpotifyPlayback,180);
   }catch(e){alert("Spotify: "+e.message)}
 }
 async function spotifyResume(){
   try{
     await ensureSpotifyReady();
     await spotifyApi("/me/player/play?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
-    $("status").textContent="";setTimeout(pollSpotifyPlayback,250);
+    $("status").textContent="";setTimeout(pollSpotifyPlayback,180);
   }catch(e){alert("Spotify: "+e.message)}
 }
 window.addEventListener("load",async()=>{
@@ -770,7 +787,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.23";
+    if(badge)badge.textContent="Återansluten · V4.24";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -801,7 +818,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.23"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.24"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -830,7 +847,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.23":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.24":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
