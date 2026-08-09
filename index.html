@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.43</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.44</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -156,7 +156,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .matchesUpdated::before{content:"";width:8px;height:8px;border-radius:50%;background:#35db7b;box-shadow:0 0 8px #35db7b88;flex:0 0 8px}
 .matchesUpdated.error::before{background:#ff6475;box-shadow:0 0 8px #ff647588}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.43</small></div><div class="badge" id="online">Redo · V4.43</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.44</small></div><div class="badge" id="online">Redo · V4.44</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -224,7 +224,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.43</strong>
+    Version <strong style="color:#fff">V4.44</strong>
   </div>
 </section>
 
@@ -303,7 +303,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         <div id="onlineReveal" class="song"></div>
         <div id="onlineChecks" class="checklist"></div>
         <div id="onlineBonus"></div>
-        <button id="onlineTimelineToggle" class="btn dark full hidden" style="margin-top:14px" onclick="toggleOnlineDecisionTimeline()">VISA TIDSLINJE</button>
+        
         <div id="onlineDecisionTimeline" class="onlineTimelinePanel hidden"></div>
         <div id="onlineDecisionButtons" class="onlineDecision"></div>
       </div>
@@ -954,7 +954,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.43";
+    if(badge)badge.textContent="Återansluten · V4.44";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -962,7 +962,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.43 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.44 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -973,7 +973,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.43"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.44"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1010,7 +1010,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.43":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.44":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1489,7 +1489,7 @@ async function readyNext(){
 
 async function playCurrentSong(){if(startSongBusy)return;startSongBusy=true;try{if(!match.current_song)throw new Error("Ingen låt är redo ännu.");if(!spotifyAccessToken&&!spotifyRefreshToken)throw new Error("Spotify är inte anslutet.");$("status").textContent="Startar Spotify…";await spotifyPlayTrack(match.current_song.id);lastAutoPlayedSongId=match.current_song.id;autoPlayInFlightSongId=null;$("status").textContent="";const retry=$("playSongBtn");if(retry)retry.classList.add("hidden");startPlaybackPolling()}catch(e){$("status").textContent="Spotify kunde inte starta.";alert("Spotify: "+e.message)}finally{startSongBusy=false}}
 function showListen(){hidePlayer();$("listenScreen").classList.remove("hidden")} function showGuess(){hidePlayer();$("guessScreen").classList.remove("hidden")}
-function saveGuess(){guessSaved=true;showListen();$("status").textContent="Gissningen är sparad. Placera nu kortet när du är redo."}
+function saveGuess(){guessSaved=true;showListen();$("status").textContent=""}
 function requestPlace(){
   if(!guessSaved){
     $("guessFirstModal").classList.remove("hidden");
@@ -1763,7 +1763,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.43
+// SPELA ONLINE – V4.44
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -1785,6 +1785,9 @@ let onlineDragZone=null;
 let onlineDragging=false;
 let onlineDragOffsetX=0, onlineDragOffsetY=0;
 let onlineTimelineRenderKey="";
+let onlineTimelineScrollLeft=0;
+let onlineDecisionScrollLeft=0;
+let onlineResultRenderKey="";
 
 let realtimeClient=null;
 let onlineListChannel=null;
@@ -2315,6 +2318,7 @@ async function fetchOnlineGameState(){
       onlineView="listen";
       onlineViewSongId=newSongId;
       onlineSelected=null;
+      onlineTimelineScrollLeft=0;
       onlineGuessSaved=false;
       if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
       if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
@@ -2518,7 +2522,6 @@ function renderOnlineGame(){
     $("onlineChecks").innerHTML="";
     $("onlineBonus").innerHTML="";
     $("onlineDecisionButtons").innerHTML="";
-    $("onlineTimelineToggle").classList.add("hidden");
     return;
   }
 
@@ -2578,6 +2581,7 @@ function renderOnlineGame(){
 function clearOnlineRoundLocal(){
   if($("onlineGuessFirstModal"))$("onlineGuessFirstModal").classList.add("hidden");
   onlineTimelineRenderKey="";
+  onlineResultRenderKey="";
   onlineSelected=null;
   onlineGuessSaved=false;
   onlineView="listen";
@@ -2585,6 +2589,7 @@ function clearOnlineRoundLocal(){
   if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
   if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
   onlineDecisionOpen=false;
+  onlineDecisionScrollLeft=0;
 }
 
 async function startOnlineTurn(){
@@ -2680,8 +2685,8 @@ function showOnlineGuess(){
 function saveOnlineGuess(){
   onlineGuessSaved=true;
   onlineView="listen";
+  setOnlineGameStatus("");
   showOnlineListen();
-  setOnlineGameStatus("Gissningen är sparad.");
 }
 
 function requestOnlinePlace(){
@@ -2716,6 +2721,26 @@ function onlineCardMarkup(card,risk=false){
   </div>`;
 }
 
+function rememberOnlineTimelineScroll(){
+  const el=$("onlineTimeline");
+  if(el)onlineTimelineScrollLeft=el.scrollLeft;
+}
+function restoreOnlineTimelineScroll(){
+  const el=$("onlineTimeline");
+  if(!el)return;
+  requestAnimationFrame(()=>{
+    el.scrollLeft=onlineTimelineScrollLeft;
+  });
+}
+function bindOnlineTimelineScroll(){
+  const el=$("onlineTimeline");
+  if(!el||el.dataset.scrollBound==="1")return;
+  el.dataset.scrollBound="1";
+  el.addEventListener("scroll",()=>{
+    onlineTimelineScrollLeft=el.scrollLeft;
+  },{passive:true});
+}
+
 function onlineTimelineKey(){
   if(!onlineMyPlayer)return "";
   const locked=(onlineMyPlayer.locked_timeline||[]).map(x=>`${x.id||x.title}:${x.year}`).join("|");
@@ -2728,7 +2753,12 @@ function renderOnlineTimeline(force=false){
   if(!el||!onlineMyPlayer)return;
 
   const key=onlineTimelineKey();
-  if(!force && key===onlineTimelineRenderKey && el.children.length)return;
+  if(!force && key===onlineTimelineRenderKey && el.children.length){
+    bindOnlineTimelineScroll();
+    return;
+  }
+
+  rememberOnlineTimelineScroll();
   onlineTimelineRenderKey=key;
 
   const cards=onlineAllTimeline(onlineMyPlayer);
@@ -2763,13 +2793,21 @@ function renderOnlineTimeline(force=false){
     }
   }
   $("onlineSecretCard").classList.toggle("hidden",onlineSelected!==null);
+  bindOnlineTimelineScroll();
+  restoreOnlineTimelineScroll();
 }
 function selectOnlinePlacement(i){
   onlineSelected=Number(i);
   resetOnlineDrag();
   onlineTimelineRenderKey="";
   renderOnlineTimeline(true);
-  requestAnimationFrame(()=>document.querySelector("#onlineTimeline .pendingSlot")?.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"}));
+  requestAnimationFrame(()=>{
+    const pending=document.querySelector("#onlineTimeline .pendingSlot");
+    if(pending){
+      pending.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"});
+      setTimeout(rememberOnlineTimelineScroll,350);
+    }
+  });
 }
 function clearOnlinePlacement(){
   onlineSelected=null;
@@ -2895,20 +2933,45 @@ async function confirmOnlinePlacement(){
   }
 }
 
+function onlineResultKey(r,decision){
+  if(!r)return "";
+  const timeline=onlineAllTimeline(onlineMyPlayer).map(c=>`${c.id||c.title}:${c.year}`).join("|");
+  return [
+    r.song?.id||r.song?.title||"",
+    r.placeOk?"1":"0",
+    r.artistOk?"1":"0",
+    r.titleOk?"1":"0",
+    decision?"1":"0",
+    onlineMyPlayer?.swap_cards||0,
+    timeline
+  ].join("::");
+}
+
 function showOnlineLocalResult(r,decision,held=false){
   onlineHideScreens();
   $("onlineResultScreen").classList.remove("hidden");
+
+  const resultKey=onlineResultKey(r,decision);
+  if(resultKey===onlineResultRenderKey){
+    if(decision && !$("onlineDecisionTimeline").classList.contains("hidden")){
+      const rail=$("onlineDecisionTimeline").querySelector(".onlineTimeline");
+      if(rail)onlineDecisionScrollLeft=rail.scrollLeft;
+    }
+    return;
+  }
+  onlineResultRenderKey=resultKey;
   $("onlineResultTitle").textContent=r.placeOk?"RÄTT PLACERING":"FEL PLACERING";
   $("onlineReveal").textContent=`${r.song.title} – ${r.song.artist} (${r.song.year})`;
   $("onlineChecks").innerHTML=`<div class="check">${r.placeOk?"✅ Rätt placering":"❌ Fel placering"}</div>
     <div class="check">${r.artistOk?"✅ Rätt artist":"❌ Fel artist"}</div>
     <div class="check">${r.titleOk?"✅ Rätt låtnamn":"❌ Fel låtnamn"}</div>`;
-  $("onlineBonus").innerHTML=r.bonus?`<div class="check">🔄 Rätt artist och låtnamn – Byta-låt-kort: ${onlineMyPlayer.swap_cards||0}/3</div>`:`<div class="mut">Byta-låt-kort: ${onlineMyPlayer.swap_cards||0}/3</div>`;
-  $("onlineTimelineToggle").classList.toggle("hidden",!decision);
+  $("onlineBonus").innerHTML=r.bonus
+    ? `<div class="check">🔄 Rätt artist och låtnamn – du fick ett Byta-låt-kort.</div>`
+    : "";
   if(decision){
-    $("onlineTimelineToggle").textContent=onlineDecisionOpen?"DÖLJ TIDSLINJE":"VISA TIDSLINJE";
-    $("onlineDecisionTimeline").classList.toggle("hidden",!onlineDecisionOpen);
-    if(onlineDecisionOpen)renderOnlineDecisionTimeline();
+    onlineDecisionOpen=true;
+    $("onlineDecisionTimeline").classList.remove("hidden");
+    renderOnlineDecisionTimeline();
   }else{
     onlineDecisionOpen=false;
     $("onlineDecisionTimeline").classList.add("hidden");
@@ -2920,6 +2983,7 @@ function showOnlineLocalResult(r,decision,held=false){
 }
 function dismissOnlineLocalResult(){
   onlineLocalResultHold=null;
+  onlineResultRenderKey="";
   closeOnlineGame();
 }
 function showOnlineResult(decision=true){
@@ -2928,22 +2992,32 @@ function showOnlineResult(decision=true){
   showOnlineLocalResult(r,decision);
 }
 function renderOnlineDecisionTimeline(){
+  const panel=$("onlineDecisionTimeline");
+  if(!panel)return;
+
+  const existingRail=panel.querySelector(".onlineTimeline");
+  if(existingRail)onlineDecisionScrollLeft=existingRail.scrollLeft;
+
   const cards=onlineAllTimeline(onlineMyPlayer);
-  $("onlineDecisionTimeline").innerHTML=`<div class="onlineTimeline">${cards.map(c=>{
+  panel.innerHTML=`<div class="onlineTimeline">${cards.map(c=>{
     const risk=(onlineMyPlayer.turn_cards||[]).some(x=>x.id===c.id);
     return onlineCardMarkup(c,risk);
   }).join("")}</div>`;
+
+  const rail=panel.querySelector(".onlineTimeline");
+  if(rail){
+    requestAnimationFrame(()=>{rail.scrollLeft=onlineDecisionScrollLeft});
+    rail.addEventListener("scroll",()=>{
+      onlineDecisionScrollLeft=rail.scrollLeft;
+    },{passive:true});
+  }
 }
-function toggleOnlineDecisionTimeline(){
-  onlineDecisionOpen=!onlineDecisionOpen;
-  $("onlineDecisionTimeline").classList.toggle("hidden",!onlineDecisionOpen);
-  $("onlineTimelineToggle").textContent=onlineDecisionOpen?"DÖLJ TIDSLINJE":"VISA TIDSLINJE";
-  if(onlineDecisionOpen)renderOnlineDecisionTimeline();
-}
+
 async function onlineContinue(){
   if(actionBusy)return;
   actionBusy=true;
   try{
+    setOnlineGameStatus("");
     clearOnlineRoundLocal();
     let deck=[...(onlineMatch.deck||[])];
     if(!deck.length)throw new Error("Kortleken är slut.");
@@ -3015,7 +3089,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.43.
+// Startsidan är alltid online i V4.44.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
