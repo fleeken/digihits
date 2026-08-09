@@ -1,20 +1,32 @@
-DIGIHITS V4.28 – SPOTIFY SUPERKONTROLL
+DIGIHITS V4.30 – SPELA ONLINE
 
-Innan match får starta verifierar Digihits:
-1. Spotify är anslutet.
-2. Token är giltig/kan förnyas.
-3. Spotify-kontot svarar.
-4. En styrbar playback-session finns.
-5. Digihits kan läsa aktuell playback.
-6. Digihits kan skicka ett kontrollkommando utan att byta låt.
+VIKTIGT:
+Kör ONLINE_V4_30.sql en gång i Supabase SQL Editor innan du använder onlineläget.
 
-STARTA MATCH blockeras om kontrollen inte godkänns.
+SPELA ONLINE:
+- Anonymt användar-ID sparas i webbläsaren.
+- Namnet sparas lokalt.
+- Max 10 aktiva online-matcher per spelare.
+- Skapa match -> dela matchkod.
+- Gå med via matchkod.
+- Mina matcher visar DIN TUR / Väntar.
+- Matchen kan fortsätta timmar eller dagar senare.
+- Varje spelare använder Spotify Premium på sin egen mobil när det är dennes tur.
+- Samma regler:
+  artist + låtnamn
+  tidslinje
+  låsta/olåsta kort
+  Fortsätt / Lås in
+  max 3 Byta-låt-kort
+  fel placering -> olåsta kort försvinner och turen går vidare
+  10 låsta kort -> vinst
+- Drag/drop + tryckplacering finns även online.
+- Tidslinjekort visar år, artist och låtnamn.
+- Motspelaren ser inte dina olåsta kort i spelarlistan under din tur.
 
-Visar tydligt:
-- Kontrollerar…
-- Redo ✓
-- Inte redo
+LOKALT:
+Alla funktioner från V4.29/V4.28 är kvar.
 
-KONTROLLERA SPOTIFY kan köras manuellt.
-STARTA MATCH kör alltid kontrollen igen.
-Alla tidigare funktioner från V4.27 är kvar.
+SÄKERHET:
+Online-läget använder ett anonymt lokalt userID och öppna Supabase RLS-policies för prototypen.
+Det är lämpligt för test men bör ersättas med Supabase Auth innan en större publik lansering.
