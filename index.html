@@ -1,7 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.3</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>Digihits V4.5</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -17,17 +16,43 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .wait{border:1px dashed #3b3f4b;border-radius:17px;padding:30px;text-align:center;color:var(--mut)}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.3</small></div><div class="badge" id="online">Startar…</div></div>
-<section id="home" class="panel home"><div class="hero"><h1>Musik. Tidslinje. Våga fortsätta.</h1><p class="mut">En ledarmobil ligger på bordet. En spelarmobil skickas runt mellan spelarna.</p></div>
-<div class="roles"><div class="role"><h3>📺 Ledarmobil</h3><p class="mut">Skapa match, lägg till spelare och styr låtarna.</p><button type="button" class="btn green full" onclick="hostSetup()">SKAPA MATCH</button></div>
-<div class="role"><h3>🎮 Spelarmobil</h3><p class="mut">Anslut till matchen och skicka mobilen mellan spelarna.</p><button type="button" class="btn cyan full" onclick="joinSetup()">ANSLUT SPELARMOBIL</button></div></div>
-<div id="hs" class="setup hidden"><h3>Skapa match</h3><div id="names"></div><button class="btn dark full" onclick="addName()">+ Lägg till spelare</button><div style="height:8px"></div><button id="createBtn" class="btn green full" onclick="createMatch()">STARTA MATCH</button>
-    <div id="createStatus" class="mut" style="margin-top:10px;text-align:center;min-height:20px"></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.5</small></div><div class="badge" id="online">Redo · V4.5</div></div>
+<section id="home" class="panel home"><div class="hero"><h1>Välj enhet</h1><p class="mut">Ledarmobilen ligger på bordet. Spelarmobilen skickas runt mellan spelarna.</p></div>
+
+<div class="roles">
+  <div class="role">
+    <h3>📺 Ledarmobil</h3>
+    <p class="mut">Skapa match, lägg till spelare och styr låtarna.</p>
+    <button type="button" class="btn green full" onclick="hostSetup()">SKAPA MATCH</button>
+
+    <div id="hs" class="setup hidden">
+      <h3>Spelare i matchen</h3>
+      <div id="names"></div>
+      <button class="btn dark full" onclick="addName()">+ Lägg till spelare</button>
+      <div style="height:8px"></div>
+      <button id="createBtn" class="btn green full" onclick="createMatch()">STARTA MATCH</button>
+      <div id="createStatus" class="mut" style="margin-top:10px;text-align:center;min-height:20px"></div>
     </div>
-<div id="js" class="setup hidden"><h3>Anslut spelarmobil</h3><input id="joinCode" class="input" maxlength="6" placeholder="MATCHKOD" style="text-transform:uppercase"><div style="height:8px"></div><button class="btn cyan full" onclick="joinMatch()">ANSLUT</button></div>
-<div style="margin-top:14px;text-align:center" class="mut">
-  Version <strong style="color:#fff">V4.3</strong> · Om knapparna fungerar ska "Skapa match" direkt visa spelarlistan.
+  </div>
+
+  <div class="role">
+    <h3>🎮 Spelarmobil</h3>
+    <p class="mut">Anslut till matchen och skicka mobilen mellan spelarna.</p>
+    <button type="button" class="btn cyan full" onclick="joinSetup()">ANSLUT SPELARMOBIL</button>
+
+    <div id="js" class="setup hidden">
+      <h3>Anslut spelarmobil</h3>
+      <input id="joinCode" class="input" maxlength="6" placeholder="MATCHKOD" style="text-transform:uppercase">
+      <div style="height:8px"></div>
+      <button class="btn cyan full" onclick="joinMatch()">ANSLUT</button>
+    </div>
+  </div>
 </div>
+
+<div style="margin-top:14px;text-align:center" class="mut">
+  Version <strong style="color:#fff">V4.5</strong>
+</div>
+
 </section>
 
 <section id="game" class="hidden"><div class="grid">
@@ -45,34 +70,94 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div></main></div></section></div>
 <script>
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0", TRACKS=[{"title": "Take On Me", "artist": "a-ha", "year": 1985, "id": "2WfaOiMkCvy7F5fcp2zZ8L"}, {"title": "Like a Prayer", "artist": "Madonna", "year": 1989, "id": "1z3ugFmUKoCzGsI6jdY4Ci"}, {"title": "Smells Like Teen Spirit", "artist": "Nirvana", "year": 1991, "id": "4CeeEOM32jQcH3eN9Q2dGj"}, {"title": "Wannabe", "artist": "Spice Girls", "year": 1996, "id": "1Je1IMUlBXcx1Fz0WE7oPT"}, {"title": "...Baby One More Time", "artist": "Britney Spears", "year": 1998, "id": "3MjUtNVVq3C8Fn0MP3zhXa"}, {"title": "Freestyler", "artist": "Bomfunk MC's", "year": 1999, "id": "2AsJqU7Z3J7cBQrKHVNJcA"}, {"title": "Crazy in Love", "artist": "Beyoncé", "year": 2003, "id": "5IVuqXILoxVWvWEPm82Jxr"}, {"title": "Poker Face", "artist": "Lady Gaga", "year": 2008, "id": "5R8dQOPq8haW94K7mgERlO"}, {"title": "Rolling in the Deep", "artist": "Adele", "year": 2010, "id": "1c8gk2PeTE04A1pIDH9YMk"}, {"title": "Wake Me Up", "artist": "Avicii", "year": 2013, "id": "0nrRP2bk19rLc0orkWPQk2"}, {"title": "Shape of You", "artist": "Ed Sheeran", "year": 2017, "id": "7qiZfU4dY1lWllzX7mPBI3"}, {"title": "Blinding Lights", "artist": "The Weeknd", "year": 2019, "id": "0VjIjW4GlUZAMYd2vXMi3b"}, {"title": "As It Was", "artist": "Harry Styles", "year": 2022, "id": "4LRPiXqCikLlN15c3yImP7"}, {"title": "Flowers", "artist": "Miley Cyrus", "year": 2023, "id": "0yLdNVWF3Srea0uzk55zFn"}];
-let db=null;
 let role="",code="",match=null,players=[],poll=null,selected=null,guessSaved=false,localNames=["Anna","Viktor"];
 let actionBusy=false, startSongBusy=false, confirmBusy=false;
 
-function initDb(){
-  if(db) return true;
-  if(window.supabase && window.supabase.createClient){
-    db=window.supabase.createClient(URL,KEY);
-    const badge=document.getElementById("online");
-    if(badge) badge.textContent="Supabase online · V4.3";
-    return true;
+class RestQuery {
+  constructor(table){
+    this.table=table;
+    this.method="GET";
+    this.body=null;
+    this.params=new URLSearchParams();
+    this.mode="many";
+    this.returnRows=false;
   }
-  const badge=document.getElementById("online");
-  if(badge) badge.textContent="Supabase laddas…";
-  return false;
+  select(cols="*"){
+    this.params.set("select",cols);
+    if(this.method!=="GET") this.returnRows=true;
+    return this;
+  }
+  insert(payload){this.method="POST";this.body=payload;return this;}
+  update(payload){this.method="PATCH";this.body=payload;return this;}
+  delete(){this.method="DELETE";return this;}
+  eq(column,value){
+    this.params.append(column,"eq."+String(value));
+    return this;
+  }
+  order(column,opts={}){
+    this.params.set("order",column+"."+(opts.ascending===false?"desc":"asc"));
+    return this;
+  }
+  single(){this.mode="single";return this;}
+  maybeSingle(){this.mode="maybeSingle";return this;}
+  then(resolve,reject){this.execute().then(resolve,reject);}
+  async execute(){
+    const url=URL+"/rest/v1/"+encodeURIComponent(this.table)+(this.params.toString()?"?"+this.params.toString():"");
+    const headers={
+      "apikey":KEY,
+      "Authorization":"Bearer "+KEY,
+      "Content-Type":"application/json"
+    };
+    if(this.method!=="GET"){
+      headers["Prefer"]=this.returnRows?"return=representation":"return=minimal";
+    }
+    let response;
+    try{
+      response=await fetch(url,{
+        method:this.method,
+        headers,
+        body:this.body===null?undefined:JSON.stringify(this.body),
+        cache:"no-store"
+      });
+    }catch(err){
+      return {data:null,error:{message:"Kunde inte nå Supabase: "+err.message}};
+    }
+
+    let data=null;
+    const text=await response.text();
+    if(text){
+      try{data=JSON.parse(text)}catch(_){data=text}
+    }
+
+    if(!response.ok){
+      let msg="HTTP "+response.status;
+      if(data&&typeof data==="object")msg=data.message||data.error_description||data.hint||msg;
+      return {data:null,error:{message:msg,status:response.status,details:data}};
+    }
+
+    if(this.mode==="single"){
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)return {data:null,error:{message:"Ingen rad returnerades från databasen."}};
+      return {data:row,error:null};
+    }
+    if(this.mode==="maybeSingle"){
+      return {data:Array.isArray(data)?(data[0]||null):data,error:null};
+    }
+    return {data:data??[],error:null};
+  }
 }
+const db={from:(table)=>new RestQuery(table)};
 
 function requireDb(){
-  if(initDb()) return true;
-  alert("Supabase-biblioteket har inte laddats ännu. Kontrollera internetanslutningen och ladda om sidan.");
-  return false;
+  if(!navigator.onLine){
+    alert("Mobilen verkar sakna internetanslutning.");
+    return false;
+  }
+  return true;
 }
 
-window.addEventListener("load",()=>{
-  initDb();
-  setTimeout(initDb,800);
-  setTimeout(initDb,2000);
-});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.5"});
+window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
   const el=document.getElementById("createStatus");
@@ -100,7 +185,7 @@ const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().norma
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.5":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -131,10 +216,14 @@ async function createMatch(){
 
   actionBusy=true;
   setCreateBusy(true);
-  setCreateStatus("Kontaktar Supabase…");
+  setCreateStatus("Kontrollerar databasen…");
   let createdCode=null;
 
   try{
+    setCreateStatus("Kontrollerar anslutningen till Supabase…");
+    const health=await withTimeout(db.from("matches").select("id").order("id",{ascending:false}),8000);
+    if(health.error)throw new Error("Databasanslutning: "+health.error.message);
+
     role="host";
     let deck=sh(TRACKS);
     if(deck.length<localNames.length+1)throw new Error("För få låtar i kortleken för så många spelare.");
@@ -171,9 +260,6 @@ async function createMatch(){
   }catch(err){
     console.error("createMatch failed:",err);
     // Städa halvskapad match så samma test inte lämnar skräp.
-    if(createdCode&&db){
-      try{await db.from("players").delete().eq("match_code",createdCode);await db.from("matches").delete().eq("code",createdCode)}catch(_){}
-    }
     setCreateStatus("Kunde inte starta match: "+err.message,true);
     alert("Kunde inte starta match.\n\n"+err.message);
   }finally{

@@ -1,20 +1,11 @@
-DIGIHITS V4.3 - HARDENED TEST VERSION
+DIGIHITS V4.5
 
-SQL:
-- Har du redan kört SUPABASE_V4.sql behöver du INTE köra SQL igen.
+Ändring:
+- Namnfälten visas direkt under kortet "Ledarmobil / Skapa match".
+- Spelarmobilens matchkod visas endast under kortet "Spelarmobil".
+- Startsidans två flöden är visuellt separerade.
 
-GitHub:
-- Ersätt index.html
-- Ersätt sw.js
-- manifest.webmanifest kan ligga kvar, men det är okej att ersätta den också.
-
-Kontroll:
-- Startsidan ska visa V4.3.
-- Max 8 spelare.
-- SKAPA MATCH visar tydlig status och fel.
-- Matchskapande städar halvskapade poster vid fel.
-- Dubbeltryck skyddas på kritiska knappar.
-- Byta-låt-kort visas alltid 0/3 till 3/3.
-- Spelaren får separata besked: Rätt/Fel placering, Rätt/Fel artist, Rätt/Fel låtnamn.
-- Efter rätt placering: Fortsätt eller Lås in.
-- Vid fel placering förloras bara turens olåsta kort.
+Ersätt på GitHub:
+- index.html
+- sw.js
+- manifest.webmanifest
