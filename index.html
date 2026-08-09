@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.1</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#fff;--mut:#a5a9b5;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166}
@@ -17,12 +17,16 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .wait{border:1px dashed #3b3f4b;border-radius:17px;padding:30px;text-align:center;color:var(--mut)}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.side{order:2}.main{order:1}}@media(max-width:600px){.roles,.bigChoice,.decision{grid-template-columns:1fr}.choice{min-height:135px}.stats{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}.timeline{min-height:230px}.card{flex-basis:115px}.drop{flex-basis:86px}.hero h1{font-size:34px}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span></div><div class="badge" id="online">Supabase online</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.1</small></div><div class="badge" id="online">Startar…</div></div>
 <section id="home" class="panel home"><div class="hero"><h1>Musik. Tidslinje. Våga fortsätta.</h1><p class="mut">En ledarmobil ligger på bordet. En spelarmobil skickas runt mellan spelarna.</p></div>
-<div class="roles"><div class="role"><h3>📺 Ledarmobil</h3><p class="mut">Skapa match, lägg till spelare och styr låtarna.</p><button class="btn green full" onclick="hostSetup()">SKAPA MATCH</button></div>
-<div class="role"><h3>🎮 Spelarmobil</h3><p class="mut">Anslut till matchen och skicka mobilen mellan spelarna.</p><button class="btn cyan full" onclick="joinSetup()">ANSLUT SPELARMOBIL</button></div></div>
+<div class="roles"><div class="role"><h3>📺 Ledarmobil</h3><p class="mut">Skapa match, lägg till spelare och styr låtarna.</p><button type="button" class="btn green full" onclick="hostSetup()">SKAPA MATCH</button></div>
+<div class="role"><h3>🎮 Spelarmobil</h3><p class="mut">Anslut till matchen och skicka mobilen mellan spelarna.</p><button type="button" class="btn cyan full" onclick="joinSetup()">ANSLUT SPELARMOBIL</button></div></div>
 <div id="hs" class="setup hidden"><h3>Skapa match</h3><div id="names"></div><button class="btn dark full" onclick="addName()">+ Lägg till spelare</button><div style="height:8px"></div><button class="btn green full" onclick="createMatch()">STARTA MATCH</button></div>
-<div id="js" class="setup hidden"><h3>Anslut spelarmobil</h3><input id="joinCode" class="input" maxlength="6" placeholder="MATCHKOD" style="text-transform:uppercase"><div style="height:8px"></div><button class="btn cyan full" onclick="joinMatch()">ANSLUT</button></div></section>
+<div id="js" class="setup hidden"><h3>Anslut spelarmobil</h3><input id="joinCode" class="input" maxlength="6" placeholder="MATCHKOD" style="text-transform:uppercase"><div style="height:8px"></div><button class="btn cyan full" onclick="joinMatch()">ANSLUT</button></div>
+<div style="margin-top:14px;text-align:center" class="mut">
+  Version <strong style="color:#fff">V4.1</strong> · Om knapparna fungerar ska "Skapa match" direkt visa spelarlistan.
+</div>
+</section>
 
 <section id="game" class="hidden"><div class="grid">
 <aside class="panel side"><div id="codeBox" class="hidden"><small class="mut">MATCHKOD</small><div id="code" class="code"></div></div><h3>Spelare</h3><div id="players" class="players"></div><button class="btn dark full" style="margin-top:14px" onclick="location.reload()">Lämna match</button></aside>
@@ -39,17 +43,55 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 </div></main></div></section></div>
 <script>
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0", TRACKS=[{"title": "Take On Me", "artist": "a-ha", "year": 1985, "id": "2WfaOiMkCvy7F5fcp2zZ8L"}, {"title": "Like a Prayer", "artist": "Madonna", "year": 1989, "id": "1z3ugFmUKoCzGsI6jdY4Ci"}, {"title": "Smells Like Teen Spirit", "artist": "Nirvana", "year": 1991, "id": "4CeeEOM32jQcH3eN9Q2dGj"}, {"title": "Wannabe", "artist": "Spice Girls", "year": 1996, "id": "1Je1IMUlBXcx1Fz0WE7oPT"}, {"title": "...Baby One More Time", "artist": "Britney Spears", "year": 1998, "id": "3MjUtNVVq3C8Fn0MP3zhXa"}, {"title": "Freestyler", "artist": "Bomfunk MC's", "year": 1999, "id": "2AsJqU7Z3J7cBQrKHVNJcA"}, {"title": "Crazy in Love", "artist": "Beyoncé", "year": 2003, "id": "5IVuqXILoxVWvWEPm82Jxr"}, {"title": "Poker Face", "artist": "Lady Gaga", "year": 2008, "id": "5R8dQOPq8haW94K7mgERlO"}, {"title": "Rolling in the Deep", "artist": "Adele", "year": 2010, "id": "1c8gk2PeTE04A1pIDH9YMk"}, {"title": "Wake Me Up", "artist": "Avicii", "year": 2013, "id": "0nrRP2bk19rLc0orkWPQk2"}, {"title": "Shape of You", "artist": "Ed Sheeran", "year": 2017, "id": "7qiZfU4dY1lWllzX7mPBI3"}, {"title": "Blinding Lights", "artist": "The Weeknd", "year": 2019, "id": "0VjIjW4GlUZAMYd2vXMi3b"}, {"title": "As It Was", "artist": "Harry Styles", "year": 2022, "id": "4LRPiXqCikLlN15c3yImP7"}, {"title": "Flowers", "artist": "Miley Cyrus", "year": 2023, "id": "0yLdNVWF3Srea0uzk55zFn"}];
-const db=supabase.createClient(URL,KEY); let role="",code="",match=null,players=[],poll=null,selected=null,guessSaved=false,localNames=["Anna","Viktor"];
+let db=null;
+let role="",code="",match=null,players=[],poll=null,selected=null,guessSaved=false,localNames=["Anna","Viktor"];
+
+function initDb(){
+  if(db) return true;
+  if(window.supabase && window.supabase.createClient){
+    db=window.supabase.createClient(URL,KEY);
+    const badge=document.getElementById("online");
+    if(badge) badge.textContent="Supabase online · V4.1";
+    return true;
+  }
+  const badge=document.getElementById("online");
+  if(badge) badge.textContent="Supabase laddas…";
+  return false;
+}
+
+function requireDb(){
+  if(initDb()) return true;
+  alert("Supabase-biblioteket har inte laddats ännu. Kontrollera internetanslutningen och ladda om sidan.");
+  return false;
+}
+
+window.addEventListener("load",()=>{
+  initDb();
+  setTimeout(initDb,800);
+  setTimeout(initDb,2000);
+});
 const $=x=>document.getElementById(x); const norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
 function eq(a,b){a=norm(a);b=norm(b);return !!a&&(a===b||(a.length>4&&(b.includes(a)||a.includes(b))))}
 function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function hostSetup(){$("hs").classList.remove("hidden");$("js").classList.add("hidden");renderNames()} function joinSetup(){$("js").classList.remove("hidden");$("hs").classList.add("hidden")}
+function hostSetup(){
+  $("hs").classList.remove("hidden");
+  $("js").classList.add("hidden");
+  renderNames();
+  $("hs").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function joinSetup(){
+  $("js").classList.remove("hidden");
+  $("hs").classList.add("hidden");
+  $("js").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+window.hostSetup=hostSetup;
+window.joinSetup=joinSetup;
 function renderNames(){$("names").innerHTML=localNames.map((n,i)=>`<div class="setupRow"><input class="input" value="${n}" onchange="localNames[${i}]=this.value"><button class="btn red" onclick="localNames.splice(${i},1);renderNames()">×</button></div>`).join("")}
 function addName(){localNames.push("Spelare "+(localNames.length+1));renderNames()} function enter(){$("home").classList.add("hidden");$("game").classList.remove("hidden")}
-async function createMatch(){localNames=localNames.map(x=>x.trim()).filter(Boolean);if(localNames.length<2)return alert("Lägg till minst två spelare.");role="host";code=gen();let deck=sh(TRACKS);let refs=[];for(let i=0;i<localNames.length;i++)refs.push(deck.pop());let r=await db.from("matches").insert({code,host_name:"Ledare",deck,target_cards:10,status:"waiting",phase:"handoff",timeline:[],current_player_id:null,current_song:null,last_result:null}).select().single();if(r.error)return alert("Kör först SUPABASE_V4.sql i Supabase SQL Editor.\\n\\n"+r.error.message);match=r.data;for(let i=0;i<localNames.length;i++){let pr=await db.from("players").insert({match_code:code,name:localNames[i],score:0,locked_timeline:[refs[i]],turn_cards:[],swap_cards:0,turn_order:i,active:true}).select().single();if(i===0)await db.from("matches").update({current_player_id:pr.data.id}).eq("code",code)}$("code").textContent=code;$("codeBox").classList.remove("hidden");$("hostView").classList.remove("hidden");enter();startPoll()}
-async function joinMatch(){role="player";code=$("joinCode").value.trim().toUpperCase();let r=await db.from("matches").select("*").eq("code",code).maybeSingle();if(!r.data)return alert("Matchen hittades inte.");match=r.data;$("playerView").classList.remove("hidden");enter();startPoll()}
-async function fetchState(){let [m,p]=await Promise.all([db.from("matches").select("*").eq("code",code).maybeSingle(),db.from("players").select("*").eq("match_code",code).eq("active",true).order("turn_order")]);if(m.data)match=m.data;players=p.data||[];render()}
+async function createMatch(){if(!requireDb())return;localNames=localNames.map(x=>x.trim()).filter(Boolean);if(localNames.length<2)return alert("Lägg till minst två spelare.");role="host";code=gen();let deck=sh(TRACKS);let refs=[];for(let i=0;i<localNames.length;i++)refs.push(deck.pop());let r=await db.from("matches").insert({code,host_name:"Ledare",deck,target_cards:10,status:"waiting",phase:"handoff",timeline:[],current_player_id:null,current_song:null,last_result:null}).select().single();if(r.error)return alert("Kör först SUPABASE_V4.sql i Supabase SQL Editor.\\n\\n"+r.error.message);match=r.data;for(let i=0;i<localNames.length;i++){let pr=await db.from("players").insert({match_code:code,name:localNames[i],score:0,locked_timeline:[refs[i]],turn_cards:[],swap_cards:0,turn_order:i,active:true}).select().single();if(i===0)await db.from("matches").update({current_player_id:pr.data.id}).eq("code",code)}$("code").textContent=code;$("codeBox").classList.remove("hidden");$("hostView").classList.remove("hidden");enter();startPoll()}
+async function joinMatch(){if(!requireDb())return;role="player";code=$("joinCode").value.trim().toUpperCase();let r=await db.from("matches").select("*").eq("code",code).maybeSingle();if(!r.data)return alert("Matchen hittades inte.");match=r.data;$("playerView").classList.remove("hidden");enter();startPoll()}
+async function fetchState(){if(!requireDb())return;let [m,p]=await Promise.all([db.from("matches").select("*").eq("code",code).maybeSingle(),db.from("players").select("*").eq("match_code",code).eq("active",true).order("turn_order")]);if(m.data)match=m.data;players=p.data||[];render()}
 function startPoll(){fetchState();clearInterval(poll);poll=setInterval(fetchState,700)}
 function cur(){return players.find(p=>p.id===match?.current_player_id)||players[0]}
 function renderPlayers(){let c=cur();$("players").innerHTML=players.map(p=>`<div class="prow ${c&&p.id===c.id?"active":""}"><div><div class="pname">${p.name}</div><div class="pmeta">${(p.locked_timeline||[]).length}/10 låsta · ${(p.turn_cards||[]).length} riskeras</div></div><div class="swaps">🔄 ${p.swap_cards||0}/3</div></div>`).join("")}

@@ -1,22 +1,16 @@
-DIGIHITS V4
+DIGIHITS V4.1
 
-1. Öppna SUPABASE_V4.sql.
-2. Kopiera allt och kör det EN gång i Supabase SQL Editor.
-3. Ladda därefter upp index.html, manifest.webmanifest och sw.js till GitHub och ersätt de gamla filerna.
-4. Vänta på GitHub Pages deployment.
-5. Öppna samma GitHub Pages-länk på båda mobilerna.
-6. Mobil 1: SKAPA MATCH (ledarmobil).
-7. Mobil 2: ANSLUT SPELARMOBIL.
+Du behöver INTE köra SQL igen om SUPABASE_V4.sql redan är körd.
 
-V4:
-- flera spelare
-- en ledarmobil + en spelarmobil som skickas runt
-- ingen poäng
-- egen tidslinje per spelare
-- rätt/fel placering
-- separat Rätt artist / Rätt låtnamn
-- max 3 Byta-låt-kort och 0 visas tydligt
-- Fortsätt eller Lås in
-- fel placering förlorar turens olåsta kort
-- stor 'NAMN, KLICKA HÄR OM DU ÄR REDO'
-- spelarskärmar utan scrollbaserat arbetsflöde
+På GitHub:
+1. Ersätt index.html
+2. Ersätt sw.js
+3. Ersätt manifest.webmanifest
+4. Commit changes
+5. Vänta på GitHub Pages deployment
+6. Öppna sidan i privat flik första gången
+
+Kontroll:
+- Det ska stå V4.1 högst upp.
+- Tryck SKAPA MATCH.
+- Spelarlistan Anna/Viktor ska visas direkt, innan någon Supabase-anrop görs.
