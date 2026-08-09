@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.45</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.46</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -40,7 +40,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .onlineMatchState.wait{color:#ffe7a3;border-color:#c7972f;background:#2a210f}
 .playerRowActions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .playerTimelineBtn{padding:6px 9px;font-size:10px;border-radius:9px}
-.playerInlineTimeline{margin-top:9px;padding:10px;border:1px solid #343945;border-radius:12px;background:#0d0f14;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:thin;max-width:100%;width:100%}
+.playerInlineTimeline{margin-top:9px;padding:10px;border:1px solid #343945;border-radius:12px;background:#0d0f14;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:none;max-width:100%;width:100%}
 .playerInlineTimeline .rail{display:flex;flex-wrap:nowrap;gap:7px;align-items:flex-end;min-height:112px;width:max-content;min-width:100%;padding:12px 4px 4px}
 .playerInlineTimeline .mini{flex:0 0 110px;min-width:110px;background:#1b1e27;border:1px solid #444a57;border-radius:11px;padding:8px;text-align:center}
 .playerInlineTimeline .mini.risk{border:2px solid var(--c);transform:translateY(-12px);box-shadow:0 7px 18px #4ed3ff33}
@@ -156,17 +156,22 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .matchesUpdated::before{content:"";width:8px;height:8px;border-radius:50%;background:#35db7b;box-shadow:0 0 8px #35db7b88;flex:0 0 8px}
 .matchesUpdated.error::before{background:#ff6475;box-shadow:0 0 8px #ff647588}
 
-.playerInlineTimeline::-webkit-scrollbar{height:8px}
-.playerInlineTimeline::-webkit-scrollbar-track{background:#11151c;border-radius:999px}
-.playerInlineTimeline::-webkit-scrollbar-thumb{background:#596274;border-radius:999px}
+
+
+
 .playerInlineTimeline .mini,.playerInlineTimeline .rail{touch-action:pan-x}
 
 .players{min-width:0;width:100%}
 .side{min-width:0}
 .prow{min-width:0}
 .playerRowActions{min-width:0}
+
+.playerInlineTimeline::-webkit-scrollbar{display:none;width:0;height:0}
+
+#onlineGamePlayers{contain:layout paint;min-width:0}
+.playerInlineTimeline{transform:translateZ(0);backface-visibility:hidden}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.45</small></div><div class="badge" id="online">Redo · V4.45</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.46</small></div><div class="badge" id="online">Redo · V4.46</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -234,7 +239,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.45</strong>
+    Version <strong style="color:#fff">V4.46</strong>
   </div>
 </section>
 
@@ -964,7 +969,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.45";
+    if(badge)badge.textContent="Återansluten · V4.46";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -972,7 +977,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.45 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.46 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -983,7 +988,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.45"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.46"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1020,7 +1025,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.45":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.46":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1773,7 +1778,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.45
+// SPELA ONLINE – V4.46
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -2353,6 +2358,7 @@ async function openOnlineMatch(id){
   if(mr.error||!mr.data){alert("Matchen kunde inte öppnas.");return}
   onlineMatch=mr.data;
   onlinePlayerTimelineOpen={};
+  onlinePlayersRenderKey="";
   onlineView="listen";
   onlineViewSongId=onlineMatch?.current_song?.id||null;
   onlineLocalResultHold=null;
@@ -2431,7 +2437,7 @@ function closeOnlineGame(){
   clearInterval(onlineGameTimer);
   teardownOnlineMatchRealtime();
   clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
-  onlineMatch=null;onlinePlayers=[];onlineMyPlayer=null;onlinePlayerTimelineOpen={};
+  onlineMatch=null;onlinePlayers=[];onlineMyPlayer=null;onlinePlayerTimelineOpen={};onlinePlayersRenderKey="";
   onlineView="listen";onlineViewSongId=null;onlineLocalResultHold=null;onlineSelected=null;onlineGuessSaved=false;
   $("onlineGame").classList.add("hidden");
   $("home").classList.remove("hidden");
@@ -2447,6 +2453,7 @@ function onlineAllTimeline(p){
 }
 let onlinePlayerTimelineOpen={};
 let onlinePlayerTimelineScroll={};
+let onlinePlayersRenderKey="";
 
 function onlinePlayerTimelineHtml(p,currentMark,isMe){
   const locked=(p.locked_timeline||[]).map(x=>({...x,_risk:false}));
@@ -2488,16 +2495,44 @@ function bindOnlinePlayerTimelineScroll(playerId){
 }
 
 function toggleOnlinePlayerTimeline(playerId){
+  rememberOnlinePlayerTimelineScroll(playerId);
   onlinePlayerTimelineOpen[playerId]=!onlinePlayerTimelineOpen[playerId];
-  renderOnlinePlayers();
+  onlinePlayersRenderKey="";
+  renderOnlinePlayers(true);
 }
 
-function renderOnlinePlayers(){
+function onlinePlayersKey(){
+  const current=onlineMatch?.current_user_id||"";
+  const target=onlineMatch?.target_cards||10;
+  const rows=onlinePlayers.map(p=>({
+    id:p.id,
+    user_id:p.user_id,
+    name:p.display_name,
+    current:p.user_id===current,
+    locked:(p.locked_timeline||[]).map(x=>[x.id||x.title,x.year,x.title,x.artist]),
+    risk:(p.turn_cards||[]).map(x=>[x.id||x.title,x.year,x.title,x.artist]),
+    swaps:p.swap_cards||0,
+    open:!!onlinePlayerTimelineOpen[p.id]
+  }));
+  return JSON.stringify({current,target,rows});
+}
+
+function renderOnlinePlayers(force=false){
+  const current=onlineMatch?.current_user_id;
+
+  // Save scroll positions before any potential DOM change.
   Object.keys(onlinePlayerTimelineOpen).forEach(id=>{
     if(onlinePlayerTimelineOpen[id])rememberOnlinePlayerTimelineScroll(id);
   });
 
-  const current=onlineMatch?.current_user_id;
+  const key=onlinePlayersKey();
+
+  // Critical iPhone/Safari fix:
+  // Don't rebuild the player/timeline DOM during every realtime/poll tick.
+  if(!force && key===onlinePlayersRenderKey){
+    return;
+  }
+  onlinePlayersRenderKey=key;
 
   $("onlineGamePlayers").innerHTML=onlinePlayers.map(p=>{
     const currentMark=p.user_id===current;
@@ -3134,7 +3169,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.45.
+// Startsidan är alltid online i V4.46.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
