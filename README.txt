@@ -1,11 +1,10 @@
-DIGIHITS V4.52 – CHATTNOTISER
+DIGIHITS V4.53 – OLÄST CHATT FIX
 
-- På startsidan under Mina matcher visas en liten brevsymbol med ! på den match som har olästa chattmeddelanden.
-- På CHATTA-knappen inne i matchen visas också ett litet ! när det finns olästa meddelanden.
-- Egna meddelanden räknas inte som olästa.
-- När chatten öppnas markeras meddelandena som lästa på den aktuella enheten.
-- Notisen försvinner då både från chatten och från matchens oläst-status.
-- Chatten behåller Realtime + 800 ms reservsynk från V4.51.
-- Max 30 tecken per meddelande.
-
-Ingen ny SQL krävs om ONLINE_V4_50_CHAT_FIX.sql redan har körts.
+- Oläst-status baseras nu på senaste lästa meddelande-ID per match, inte tidssträngar.
+- Startsidan visar INGEN symbol om det inte finns ett faktiskt oläst meddelande från motspelaren.
+- CHATTA-knappen visar symbol när matchen har olästa meddelanden.
+- När chatten öppnas markeras befintliga meddelanden som lästa.
+- Egna meddelanden räknas aldrig som olästa.
+- Symbolen är endast ett litet kuvert med ett utropstecken.
+- Samma lässtatus används av startsidan och chatten inne i matchen.
+- Ingen ny SQL krävs om ONLINE_V4_50_CHAT_FIX.sql redan körts.
