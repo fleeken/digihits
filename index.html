@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.78</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.79</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.78 – kompaktare spelvy */
+/* V4.79 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.78</small></div><div class="badge" id="online">Redo · V4.78</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.79</small></div><div class="badge" id="online">Redo · V4.79</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -552,7 +552,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.78</strong>
+    Version <strong style="color:#fff">V4.79</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1394,7 +1394,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.78";
+    if(badge)badge.textContent="Återansluten · V4.79";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1402,7 +1402,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.78 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.79 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1413,7 +1413,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.78"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.79"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1531,7 +1531,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.78":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.79":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2284,7 +2284,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.78
+// SPELA ONLINE – V4.79
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -2323,11 +2323,12 @@ class RestQuery {
   then(resolve,reject){this.execute().then(resolve,reject);}
   async execute(){
     const url=URL+"/rest/v1/"+encodeURIComponent(this.table)+(this.params.toString()?"?"+this.params.toString():"");
-    const session=digihitsAuthSession||loadAuthSession();
-    const bearer=session?.access_token||KEY;
+    // Game data keeps the same database access model that the existing
+    // Digihits policies were built for. Account UUID is stored as user_id,
+    // but Auth JWT is NOT substituted for the database role here.
     const headers={
       "apikey":KEY,
-      "Authorization":"Bearer "+bearer,
+      "Authorization":"Bearer "+KEY,
       "Content-Type":"application/json"
     };
     if(this.method!=="GET"){
@@ -2430,8 +2431,6 @@ function getRealtimeClient(){
         auth:{persistSession:false,autoRefreshToken:false},
         realtime:{params:{eventsPerSecond:20}}
       });
-      const s=digihitsAuthSession||loadAuthSession();
-      if(s?.access_token && realtimeClient.realtime?.setAuth)realtimeClient.realtime.setAuth(s.access_token);
       return realtimeClient;
     }
   }catch(e){
@@ -2909,9 +2908,7 @@ function renderAccountUi(){
 
   if(loggedIn){
     if($("accountEmailShown"))$("accountEmailShown").textContent=digihitsAccountUser.email||"Konto";
-    renderProfileName();
     const metaName=String(digihitsAccountUser.user_metadata?.display_name||"").trim();
-    const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
     if(metaName)localStorage.setItem(ONLINE_NAME_KEY,metaName);
     renderProfileName();
   }
@@ -2969,11 +2966,6 @@ async function applyAccountSession(user,{migrate=true}={}){
 
   renderAccountUi();
   renderProfileName();
-  try{
-    const rt=getRealtimeClient();
-    const s=digihitsAuthSession||loadAuthSession();
-    if(rt?.realtime?.setAuth && s?.access_token)rt.realtime.setAuth(s.access_token);
-  }catch(e){console.warn("Realtime auth sync:",e)}
   scheduleOnlineListRefresh(0);
 }
 
@@ -3365,6 +3357,46 @@ async function onlineSpotifyCheck(){
   }
 }
 
+async function onlineDatabasePreflight(){
+  const checks=[
+    ["online_matches",()=>db.from("online_matches").select("id").limit(1)],
+    ["online_players",()=>db.from("online_players").select("id").limit(1)]
+  ];
+  for(const [name,run] of checks){
+    const r=await run();
+    if(r.error){
+      const status=Number(r.error.status||0);
+      if(status===401||status===403){
+        throw new Error("Supabase nekade spelets databasåtkomst. Kontrollera RLS/policies för "+name+".");
+      }
+      throw new Error("Databaskontrollen misslyckades för "+name+": "+r.error.message);
+    }
+  }
+  return true;
+}
+
+function focusSpotifySetup(){
+  const btn=$("onlineSpotifyBtn");
+  btn?.scrollIntoView({behavior:"smooth",block:"center"});
+  if(btn){
+    btn.classList.add("profileNeedsAttention");
+    setTimeout(()=>btn.classList.remove("profileNeedsAttention"),1800);
+  }
+}
+
+function friendlyMatchCreateError(e,stage=""){
+  const msg=String(e?.message||e||"");
+  const low=msg.toLowerCase();
+  if(low.includes("spotify")||stage==="spotify")return msg||"Spotify kunde inte förberedas.";
+  if(low.includes("rls")||low.includes("policy")||low.includes("permission")||low.includes("denied")){
+    return "Spelets databasinställningar tillåter inte matchskapande just nu.";
+  }
+  if(low.includes("network")||low.includes("fetch")||low.includes("kunder inte nå supabase")){
+    return "Kunde inte nå servern. Kontrollera internetanslutningen och försök igen.";
+  }
+  return msg||"Matchen kunde inte skapas.";
+}
+
 async function onlineCountActiveMatches(){
   const u=ensureOnlineUserId();
   const r=await db.from("online_players").select("*").eq("user_id",u).eq("active",true);
@@ -3544,19 +3576,47 @@ async function createOnlineMatch(){
   if(!requireDigihitsAccount())return;
   const name=requireProfileName();
   if(!name)return;
-  actionBusy=true;
-  try{
-    setOnlineStatus("Kontrollerar dina matcher…");
-    if(await onlineCountActiveMatches()>=10)throw new Error("Du kan ha max 10 aktiva online-matcher.");
 
+  actionBusy=true;
+  let stage="start";
+  let created=null;
+  try{
+    stage="session";
+    const session=await refreshAuthSessionIfNeeded();
+    if(!session?.access_token||!digihitsAccountUser?.id){
+      throw new Error("Din inloggning har gått ut. Logga ut och logga in igen.");
+    }
+
+    stage="database";
+    setOnlineStatus("Kontrollerar serveranslutningen…");
+    await onlineDatabasePreflight();
+
+    stage="matches";
+    setOnlineStatus("Kontrollerar dina matcher…");
+    if(await onlineCountActiveMatches()>=10){
+      throw new Error("Du kan ha max 10 aktiva online-matcher.");
+    }
+
+    stage="spotify";
+    setOnlineStatus("Kontrollerar Spotify…");
+    const spotifyOk=await onlineSpotifyCheck();
+    if(!spotifyOk){
+      focusSpotifySetup();
+      setOnlineStatus("Spotify måste fungera innan en match kan startas.",true);
+      return;
+    }
+
+    stage="songs";
     setOnlineStatus("Hämtar låtar från Spotify…");
-    await getSpotifyToken();
     let deck=await fetchSpotifyTrackBatch(new Set(),18);
-    if(deck.length<4)throw new Error("Spotify kunde inte hämta tillräckligt många låtar. Försök igen.");
+    if(deck.length<4){
+      throw new Error("Spotify kunde inte hämta tillräckligt många låtar. Försök igen.");
+    }
     const firstCard=deck.pop();
     const usedTrackIds=[String(firstCard.id)];
 
-    let created=null;
+    stage="match";
+    setOnlineStatus("Skapar matchen…");
     for(let i=0;i<5;i++){
       const code=onlineCode();
       const mr=await db.from("online_matches").insert({
@@ -3565,7 +3625,7 @@ async function createOnlineMatch(){
         deck,
         used_track_ids:usedTrackIds,
         target_cards:10,
-        current_user_id:ensureOnlineUserId(),
+        current_user_id:digihitsAccountUser.id,
         current_song:null,
         phase:"waiting",
         winner_user_id:null,
@@ -3573,13 +3633,17 @@ async function createOnlineMatch(){
         updated_at:new Date().toISOString()
       }).select("*").single();
       if(!mr.error){created=mr.data;break}
-      if(!String(mr.error.message||"").toLowerCase().includes("duplicate"))throw new Error(mr.error.message);
+      if(!String(mr.error.message||"").toLowerCase().includes("duplicate")){
+        throw new Error(mr.error.message);
+      }
     }
     if(!created)throw new Error("Kunde inte skapa en unik matchkod.");
 
+    stage="player";
+    setOnlineStatus("Kopplar din profil till matchen…");
     const pr=await db.from("online_players").insert({
       match_id:created.id,
-      user_id:ensureOnlineUserId(),
+      user_id:digihitsAccountUser.id,
       display_name:name,
       turn_order:0,
       locked_timeline:[firstCard],
@@ -3593,12 +3657,20 @@ async function createOnlineMatch(){
     }).select("*").single();
     if(pr.error)throw new Error(pr.error.message);
 
+    stage="open";
     setOnlineStatus("Match skapad. Dela koden "+created.code+" med din vän.");
     scheduleOnlineListRefresh(0);
     await openOnlineMatch(created.id);
   }catch(e){
-    setOnlineStatus(e.message,true);
-    alert("Kunde inte skapa online-match.\n\n"+e.message);
+    // If the match row was created but player creation/opening failed,
+    // remove the orphaned waiting match so it does not pollute Mina matcher.
+    if(created && stage==="player"){
+      try{await db.from("online_matches").delete().eq("id",created.id)}catch(_){}
+    }
+    console.error("Create match failed at stage",stage,e);
+    const friendly=friendlyMatchCreateError(e,stage);
+    setOnlineStatus(friendly,true);
+    alert("Kunde inte skapa matchen.\n\n"+friendly);
   }finally{
     actionBusy=false;
   }
@@ -3613,6 +3685,10 @@ async function joinOnlineMatch(){
   if(!code){alert("Skriv matchkoden.");return}
   actionBusy=true;
   try{
+    const session=await refreshAuthSessionIfNeeded();
+    if(!session?.access_token||!digihitsAccountUser?.id)throw new Error("Din inloggning har gått ut. Logga ut och logga in igen.");
+    setOnlineStatus("Kontrollerar serveranslutningen…");
+    await onlineDatabasePreflight();
     if(await onlineCountActiveMatches()>=10)throw new Error("Du kan ha max 10 aktiva online-matcher.");
 
     const mr=await db.from("online_matches").select("*").eq("code",code).maybeSingle();
@@ -5214,7 +5290,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.78.
+// Startsidan är alltid online i V4.79.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();

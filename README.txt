@@ -1,26 +1,31 @@
-DIGIHITS V4.78 – FULL AUDIT + PROFILNAMN
+DIGIHITS V4.79 – MATCHSKAPANDE REPARERAT + FULL AUDIT
 
-PROFILNAMN
-- Spelarnamnet är en fast profilinställning.
-- Visas som text med liten pennsymbol för redigering.
-- Sparas i Supabase Auth user_metadata.
-- Samma profilnamn används i alla matcher.
-- Om profilnamn saknas och användaren trycker STARTA NY MATCH eller GÅ MED I MATCHEN,
-  stoppas åtgärden och användaren förs direkt till profilnamnsfältet.
+KRITISK FIX
+- V4.78 skickade Auth-JWT till spelets REST-tabeller. Det kan bryta befintliga RLS-policyer som spelet tidigare fungerade med.
+- Spelets databasåtkomst använder därför åter publishable-key-rollen som tidigare fungerade.
+- Kontots UUID används fortfarande som user_id, så matcher/historik följer rätt konto mellan enheter.
+- Konto/Auth och spel-databas är separerade.
 
-KRITISK MATCHFIX
-- Spelets REST-anrop använder nu den inloggade användarens Supabase access token.
-- Realtime får också användarens access token.
-- Detta är nödvändigt när Supabase RLS/policies baseras på auth.uid() och var en möjlig
-  orsak till att inloggad användare inte kunde skapa match.
+NY MATCH – STAGAD KONTROLL
+1. Verifierar giltig kontosession.
+2. Kontrollerar online_matches och online_players mot Supabase.
+3. Kontrollerar antal aktiva matcher.
+4. Kontrollerar Spotify automatiskt.
+5. Hämtar Spotify-låtar.
+6. Skapar matchraden.
+7. Skapar spelarraden med profilnamnet.
+8. Öppnar matchen.
 
-FULL STATISK AUDIT
-- JavaScript syntax: PASS.
-- Alla inline-knappar har definierade funktioner: PASS.
-- Dubbla funktionsdefinitioner: 0.
-- Dubbla statiska HTML-ID:n: 0.
-- Kritiska konto-, profil-, match-, Spotify-, placerings-, chatt- och lämna-match-funktioner finns.
-- Alla button-element har type=button.
-- Dubbla onlineSwapBtnCount-id:t är borttaget.
+- Om spelarraden misslyckas tas den halvskapade matchraden bort automatiskt.
+- Fel loggas med exakt steg internt och spelaren får begriplig text.
+- Gå med i match får samma databas/session-preflight.
+- Saknas profilnamn förs spelaren till profilnamnsredigeringen.
+
+AUDIT
+- JavaScript syntax PASS.
+- Alla onclick-knappar matchar definierade funktioner.
+- 0 dubbla funktioner.
+- 0 dubbla statiska HTML-ID:n.
+- Kritiska konto-, profil-, match-, Spotify-, tur-, placering-, chatt- och leave-funktioner verifierade.
 
 Ingen ny SQL krävs.
