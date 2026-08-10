@@ -1,31 +1,21 @@
-DIGIHITS V4.79 – MATCHSKAPANDE REPARERAT + FULL AUDIT
+DIGIHITS V4.80 – KRITISK RUNTIME-FIX
 
-KRITISK FIX
-- V4.78 skickade Auth-JWT till spelets REST-tabeller. Det kan bryta befintliga RLS-policyer som spelet tidigare fungerade med.
-- Spelets databasåtkomst använder därför åter publishable-key-rollen som tidigare fungerade.
-- Kontots UUID används fortfarande som user_id, så matcher/historik följer rätt konto mellan enheter.
-- Konto/Auth och spel-databas är separerade.
+EXAKT FEL HITTAT
+- actionBusy lästes av Starta ny match och Gå med i match innan variabeln någonsin hade deklarerats.
+- Det ger ReferenceError direkt vid knapptrycket, innan funktionernas try/catch.
+- actionBusy deklareras nu globalt som false innan någon knappfunktion kan använda den.
 
-NY MATCH – STAGAD KONTROLL
-1. Verifierar giltig kontosession.
-2. Kontrollerar online_matches och online_players mot Supabase.
-3. Kontrollerar antal aktiva matcher.
-4. Kontrollerar Spotify automatiskt.
-5. Hämtar Spotify-låtar.
-6. Skapar matchraden.
-7. Skapar spelarraden med profilnamnet.
-8. Öppnar matchen.
-
-- Om spelarraden misslyckas tas den halvskapade matchraden bort automatiskt.
-- Fel loggas med exakt steg internt och spelaren får begriplig text.
-- Gå med i match får samma databas/session-preflight.
-- Saknas profilnamn förs spelaren till profilnamnsredigeringen.
+EXTRA SKYDD
+- STARTA NY MATCH går via safeCreateOnlineMatch().
+- GÅ MED I MATCHEN går via safeJoinOnlineMatch().
+- Om ett oväntat synkront runtime-fel ändå uppstår återställs actionBusy och användaren får ett begripligt fel.
 
 AUDIT
-- JavaScript syntax PASS.
-- Alla onclick-knappar matchar definierade funktioner.
-- 0 dubbla funktioner.
-- 0 dubbla statiska HTML-ID:n.
-- Kritiska konto-, profil-, match-, Spotify-, tur-, placering-, chatt- och leave-funktioner verifierade.
+- JavaScript syntax: PASS.
+- Alla onclick-handlers har definierade funktioner: PASS.
+- Dubbla funktionsdefinitioner: 0.
+- Dubbla HTML-ID:n: 0.
+- Kritiska state-variabler verifierade som deklarerade.
+- Profilnamn krävs fortfarande och användaren förs till profilredigeringen om det saknas.
 
 Ingen ny SQL krävs.
