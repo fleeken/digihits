@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.81</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.83</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.81 – kompaktare spelvy */
+/* V4.83 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V4.81 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V4.83 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -515,8 +515,11 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   }
 }
 
+
+/* V4.83 – equal years are a continuous timeline block */
+#onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.81</small></div><div class="badge" id="online">Redo · V4.81</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.83</small></div><div class="badge" id="online">Redo · V4.83</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -629,7 +632,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.81</strong>
+    Version <strong style="color:#fff">V4.83</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1471,7 +1474,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.81";
+    if(badge)badge.textContent="Återansluten · V4.83";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1479,7 +1482,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.81 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.83 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1490,7 +1493,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.81"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.83"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1609,7 +1612,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.81":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.83":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2362,7 +2365,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.81
+// SPELA ONLINE – V4.83
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3630,79 +3633,49 @@ async function fetchPlaylistMusicCards(playlistId,excludeIds,maxItems=40){
   return out;
 }
 
-async function fetchSwedenMainstreamCandidates(excludeIds,wanted=60){
+async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
   const out=[];
   const seen=new Set(excludeIds||[]);
-  const add=card=>{
-    if(!card?.id||seen.has(String(card.id)))return;
-    seen.add(String(card.id));
-    out.push(card);
-  };
+  const add=card=>{if(!card?.id||seen.has(String(card.id)))return;seen.add(String(card.id));out.push(card);};
 
-  // Swedish chart/editorial-style playlist discovery. We do not assume fixed
-  // playlist IDs; Spotify search resolves current public playlists dynamically.
+  // Hitster-liknande princip: igenkanning forst. Stora svenska/internationella
+  // hits fran flera decennier far mycket storre vikt an obskyra/nya spar.
   const playlistQueries=[
-    "Top 50 Sweden",
-    "Topplistan Sverige",
-    "Hits Sverige",
-    "Svenska Hits",
-    "Hot Hits Sweden",
-    "Viral Sweden",
-    "Sommarhits Sverige",
-    "Ny musik Sverige"
+    "All Out 60s","All Out 70s","All Out 80s","All Out 90s","All Out 2000s","All Out 2010s",
+    "Top Hits 2020s","Classic Hits","Greatest Hits","Party Hits","Sing Along Hits",
+    "Svenska Klassiker","Svenska Hits","Hits Sverige","Top 50 Sweden","Hot Hits Sweden"
   ];
-
   for(const q of playlistQueries.sort(()=>Math.random()-.5)){
     if(out.length>=wanted)break;
     const d=await spotifySearchPlaylistsSweden(q);
-    const playlists=d?.playlists?.items||[];
-    for(const pl of playlists.slice(0,2)){
+    for(const pl of (d?.playlists?.items||[]).slice(0,2)){
       if(!pl?.id)continue;
-      const cards=await fetchPlaylistMusicCards(pl.id,seen,24);
-      cards.forEach(add);
+      (await fetchPlaylistMusicCards(pl.id,seen,28)).forEach(add);
       if(out.length>=wanted)break;
     }
   }
 
-  // Current releases + globally recognizable mainstream queries, restricted
-  // to tracks available in the Swedish market.
-  const now=new Date().getFullYear();
   const trackQueries=[
-    `year:${now}`,
-    `year:${now-1}`,
-    "svenska hits",
-    "swedish hits",
-    "radio hits",
-    "pop hits",
-    "dance hits",
-    "rock hits",
-    "90s hits",
-    "00s hits",
-    "10s hits",
-    "20s hits",
-    "classic hits",
-    "summer hits"
+    "60s greatest hits","70s greatest hits","80s greatest hits","90s greatest hits",
+    "00s greatest hits","10s greatest hits","20s greatest hits","swedish classics",
+    "svenska hits","radio hits","party classics","sing along hits","pop classics",
+    "rock classics","dance classics","summer hits"
   ];
-
   for(const q of trackQueries.sort(()=>Math.random()-.5)){
     if(out.length>=wanted)break;
-    for(const offset of [0,10,20]){
-      let d=null;
-      try{d=await spotifySearchTracksSweden(q,offset)}
-      catch(e){console.warn("Spotify Sweden search failed:",q,e);break}
-      for(const track of (d?.tracks?.items||[])){
-        const card=spotifyTrackToCard(track);
-        if(card)add(card);
-        if(out.length>=wanted)break;
-      }
+    for(const offset of [0,10]){
+      let d=null;try{d=await spotifySearchTracksSweden(q,offset)}catch(e){break}
+      for(const track of (d?.tracks?.items||[])){const card=spotifyTrackToCard(track);if(card)add(card);if(out.length>=wanted)break}
       if(out.length>=wanted)break;
     }
   }
 
-  // Popularity is only used when Spotify returns it; otherwise playlist/search
-  // relevance still drives selection.
-  out.sort((a,b)=>Number(b.popularity||0)-Number(a.popularity||0));
-  return out;
+  // Popularitet ar en stark signal, men inte enda signalen eftersom aldre
+  // klassiker annars missgynnas. Behall i huvudsak etablerade hits.
+  const strong=out.filter(c=>Number(c.popularity||0)>=45);
+  const pool=strong.length>=Math.min(30,wanted/2)?strong:out;
+  pool.sort((a,b)=>Number(b.popularity||0)-Number(a.popularity||0));
+  return pool.slice(0,Math.max(wanted,60));
 }
 
 async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
@@ -3724,12 +3697,25 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
     .filter(c=>c?.id&&!exclude.has(String(c.id)))
     .sort((a,b)=>Number(b.popularity||0)-Number(a.popularity||0));
 
-  // Don't always take only the exact top entries: randomize within strong bands
-  // so matches stay varied while still remaining recognizable.
-  for(let i=0;i<cached.length && picked.length<wanted;i+=40){
-    const band=cached.slice(i,i+40).sort(()=>Math.random()-.5);
-    for(const c of band){
+  // Favor recognizable songs, but spread them across decades so the game does
+  // not become a current-chart quiz. Rough target: 85% established hits, 15% variety.
+  const decadeBuckets=new Map();
+  for(const c of cached){
+    const decade=Math.floor(Number(c.year||0)/10)*10;
+    if(!decadeBuckets.has(decade))decadeBuckets.set(decade,[]);
+    decadeBuckets.get(decade).push(c);
+  }
+  const decades=[1960,1970,1980,1990,2000,2010,2020].filter(d=>decadeBuckets.has(d));
+  while(picked.length<wanted && decades.some(d=>(decadeBuckets.get(d)||[]).length)){
+    for(const d of decades.sort(()=>Math.random()-.5)){
+      const bucket=decadeBuckets.get(d)||[];
+      if(!bucket.length)continue;
+      const topBand=bucket.splice(0,Math.min(20,bucket.length));
+      const c=topBand[Math.floor(Math.random()*topBand.length)];
       add(c);
+      // Put unused top-band songs back so popular songs remain eligible later.
+      for(const x of topBand)if(x!==c)bucket.push(x);
+      bucket.sort((a,b)=>Number(b.popularity||0)-Number(a.popularity||0));
       if(picked.length>=wanted)break;
     }
   }
@@ -3781,12 +3767,61 @@ async function refillOnlineDeckIfNeeded(minAvailable=12,targetSize=35){
   return deck;
 }
 
+function recentOnlineSongYears(){
+  const years=[];
+
+  // During "continue with another card", current_song is the immediately
+  // preceding song and is the most important year to avoid.
+  if(Number.isFinite(Number(onlineMatch?.current_song?.year))){
+    years.push(Number(onlineMatch.current_song.year));
+  }
+
+  // Also consider the newest unlocked card from this turn. This covers
+  // transitions where current_song has already been cleared.
+  const turn=[...(onlineMyPlayer?.turn_cards||[])];
+  if(turn.length){
+    const y=Number(turn[turn.length-1]?.year);
+    if(Number.isFinite(y))years.push(y);
+  }
+
+  return years.slice(0,2);
+}
+
+function chooseVariedYearSong(deck){
+  if(!deck?.length)return {song:null,deck:[]};
+
+  const recent=recentOnlineSongYears();
+  const immediate=recent[0];
+
+  // First priority: different from the immediately previous song.
+  let idx=Number.isFinite(immediate)
+    ? deck.findIndex(c=>Number(c?.year)!==immediate)
+    : 0;
+
+  // If possible, also avoid both of the two latest relevant years.
+  if(recent.length>1){
+    const stronger=deck.findIndex(c=>!recent.includes(Number(c?.year)));
+    if(stronger>=0)idx=stronger;
+  }
+
+  // Only repeat a year when the available deck genuinely offers no alternative.
+  if(idx<0)idx=0;
+
+  const next=[...deck];
+  const [song]=next.splice(idx,1);
+  return {song,deck:next};
+}
+
 async function drawOnlineSpotifySong(){
   let deck=await refillOnlineDeckIfNeeded(6,18);
   if(!deck.length)deck=sh(await fetchSpotifyTrackBatch(onlineKnownTrackIds(),12));
   if(!deck.length)throw new Error("Spotify kunde inte hämta en ny låt just nu. Kontrollera Spotify och försök igen.");
 
-  const song=deck.shift();
+  const picked=chooseVariedYearSong(deck);
+  const song=picked.song;
+  deck=picked.deck;
+  if(!song)throw new Error("Ingen ny låt kunde väljas.");
+
   const used=[...new Set([...(onlineMatch.used_track_ids||[]).map(String),String(song.id)])];
   return {song,deck,used};
 }
@@ -3858,6 +3893,15 @@ async function createOnlineMatch(){
       throw new Error("Spotify kunde inte hämta tillräckligt många låtar. Försök igen.");
     }
     const firstCard=deck.pop();
+
+    // Keep the very first playable song from immediately matching the
+    // starting timeline card's year when another year is available.
+    const differentYearIdx=deck.findIndex(c=>Number(c?.year)!==Number(firstCard?.year));
+    if(differentYearIdx>0){
+      const [different]=deck.splice(differentYearIdx,1);
+      deck.unshift(different);
+    }
+
     const usedTrackIds=[String(firstCard.id)];
 
     stage="match";
@@ -5152,13 +5196,23 @@ function renderOnlineTimeline(force=false){
       bindInstantAction(pocket.querySelector("#onlineConfirmPlacementBtn"),confirmOnlinePlacement);
       bindInstantAction(pocket.querySelector("#onlineMoveAgainBtn"),clearOnlinePlacement);
     }else{
-      const drop=document.createElement("button");
-      drop.type="button";
-      drop.className="onlineDrop";
-      drop.dataset.index=String(i);
-      drop.innerHTML="PLACERA<br>HÄR";
-      drop.addEventListener("click",()=>selectOnlinePlacement(i));
-      el.appendChild(drop);
+      // Identical years are one continuous block. Never let a player insert
+      // a new card between two cards that already have the same year.
+      const insideSameYearBlock=(
+        i>0 &&
+        i<cards.length &&
+        Number(cards[i-1]?.year)===Number(cards[i]?.year)
+      );
+
+      if(!insideSameYearBlock){
+        const drop=document.createElement("button");
+        drop.type="button";
+        drop.className="onlineDrop";
+        drop.dataset.index=String(i);
+        drop.innerHTML="PLACERA<br>HÄR";
+        drop.addEventListener("click",()=>selectOnlinePlacement(i));
+        el.appendChild(drop);
+      }
     }
     if(i<cards.length){
       const c=cards[i];
@@ -5175,8 +5229,20 @@ function renderOnlineTimeline(force=false){
   bindOnlineTimelineScroll();
   restoreOnlineTimelineScroll();
 }
+function normalizeOnlinePlacementIndex(i){
+  const cards=onlineAllTimeline(onlineMyPlayer);
+  let idx=Math.max(0,Math.min(cards.length,Number(i)||0));
+
+  // A stale DOM/drag coordinate must never create a slot inside equal years.
+  if(idx>0 && idx<cards.length && Number(cards[idx-1]?.year)===Number(cards[idx]?.year)){
+    const year=Number(cards[idx]?.year);
+    while(idx<cards.length && Number(cards[idx]?.year)===year)idx++;
+  }
+  return idx;
+}
+
 function selectOnlinePlacement(i){
-  onlineSelected=Number(i);
+  onlineSelected=normalizeOnlinePlacementIndex(i);
   resetOnlineDrag();
   const source=$("onlineSecretCard");
   if(source)source.classList.add("hidden");
@@ -5262,6 +5328,7 @@ async function confirmOnlinePlacement(){
     setPlacementMode(false);
     const song=onlineMatch.current_song;
     const t=onlineAllTimeline(onlineMyPlayer);
+    onlineSelected=normalizeOnlinePlacementIndex(onlineSelected);
     const left=onlineSelected>0?t[onlineSelected-1]:null;
     const right=onlineSelected<t.length?t[onlineSelected]:null;
     const placeOk=(!left||song.year>=left.year)&&(!right||song.year<=right.year);
@@ -5551,7 +5618,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.81.
+// Startsidan är alltid online i V4.83.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();

@@ -1,28 +1,21 @@
-DIGIHITS V4.81
+DIGIHITS V4.82 – ÅRSVARIATION + SAMMA ÅR SOM BLOCK
 
-IPHONE – PLACERA KORT
-- Aktivt inputfält blur:as innan placeringsläget öppnas.
-- Alla input/select/textarea är minst 16 px på mobil för att undvika Safari auto-zoom.
-- Placeringsläget använder riktig 100% visual viewport/safe-area.
-- 100vw-problematik är borttagen i placeringsläget.
-- Ingen transform/zoom får ligga kvar på spelcontainern.
-- Tidslinjen behåller horisontell swipe.
+LÅTDRAGNING
+- Digihits undviker nu samma år som föregående låt när det finns ett annat år i kortleken.
+- Om möjligt undviks även de två senaste relevanta årtalen.
+- Samma år kan fortfarande förekomma, men bara när urvalet inte har ett bättre alternativ.
+- Första spelbara låten försöker också skilja sig från startkortets år.
 
-LÅTURVAL – SVERIGE
-- Spotify Search begränsas med market=SE.
-- Digihits söker dynamiskt efter Sverige-relevanta topplistor/hitlistor och aktuella hits.
-- Exempel på källsökningar: Top 50 Sweden, Topplistan Sverige, Hits Sverige,
-  Svenska Hits, Hot Hits Sweden, Viral Sweden, Ny musik Sverige.
-- Playlistlåtar kombineras med aktuella år, radiohits och välkända decenniehits.
-- Poddar/sagor/spoken word-filtreringen är kvar.
-- En lokal rullande cache byggs successivt upp till max 1000 unika låtar.
-- Om Spotify returnerar popularity används den för prioritering.
-- Urvalet slumpas inom starka popularitetsband så samma topplåtar inte återkommer hela tiden.
+TIDSLINJE
+- Kort med samma årtal bildar ett sammanhängande block.
+- Ingen PLACERA HÄR-lucka visas mellan exempelvis två 2025-kort.
+- Drag/drop och gamla/stale placeringsindex normaliseras också så ett kort inte kan hamna mitt i ett block med samma år.
+- Ett nytt kort med samma år kan placeras före eller efter hela blocket, aldrig mitt i blocket.
 
-VIKTIGT
-Spotify Web API erbjuder inte längre ett enkelt officiellt endpoint som returnerar
-'exakt Sveriges 1000 mest spelade låtar'. V4.81 bygger därför en Sverige-mainstream-pool
-dynamiskt från Spotify-sökning, relevanta publika playlists och aktuella låtar.
+KONTROLL
+- JavaScript syntax: PASS.
+- Alla onclick-funktioner: PASS.
+- Dubbla funktioner: 0.
+- Dubbla HTML-ID:n: 0.
 
-JavaScript syntax: PASS.
 Ingen ny SQL krävs.
