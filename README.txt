@@ -1,19 +1,17 @@
-DIGIHITS V4.64
+DIGIHITS V4.67
 
-NAVIGATION
-- Efter avslutad/felaktig placering finns inte längre en extra TILL MINA MATCHER-knapp.
-- Endast den ordinarie ← MINA MATCHER används.
+SPELSTATUS
+- Den statiska texten "Starta när det passar dig." är borttagen.
+- När matchen är igång visas relevant status i stället:
+  Din tur – lyssna på låten.
+  Din tur – placera kortet på tidslinjen.
+  Din tur – se resultatet.
+  Väntar på [spelarens namn].
+- Före faktisk matchstart visas Väntar på att matchen ska starta.
 
-MOBIL – PLACERA KORT
-- Placeringsläget blir ett fokuserat helskärmsläge på mobil.
-- Motståndar/sidebar döljs tillfälligt under själva placeringen.
-- Hela mobilens bredd används av tidslinjen.
-- Tidslinjen swipeas horisontellt med touch.
-- Ingen manuell zoom ska behövas.
-- Browserns oavsiktliga zoom begränsas under spelet.
-- Hemliga kortet hålls kompakt och tydligt över tidslinjen.
-- Kort och placeringsfickor har mobilanpassade bredder.
-- ÅNGRA PLACERING stannar kvar i placeringsläget.
-- När placeringen bekräftas lämnas helskärmsläget automatiskt.
+LAYOUT
+- Onödigt vertikalt tomrum mellan matchrubriken och själva spelinnehållet har minskats.
+- Rubrik, status och aktuell spelvy ligger tätare ihop.
+- Mobilvyn är också komprimerad utan att minska tryckytorna.
 
 Ingen ny SQL krävs.

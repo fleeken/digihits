@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.64</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.67</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -367,8 +367,37 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     font-size:11px;
   }
 }
+
+.yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
+
+/* V4.67 – kompaktare spelvy */
+#onlineGame .main{padding-top:18px}
+#onlineGame .main > .onlineGameTop{margin-bottom:8px}
+#onlineGameTitle{margin:0 0 2px;line-height:1.08}
+#onlineGameSub{margin:0;line-height:1.2}
+#onlineGame .main .screen:not(.hidden),
+#onlineGame .main > div:not(.hidden){scroll-margin-top:0}
+#onlineListenScreen:not(.hidden),
+#onlinePlaceScreen:not(.hidden),
+#onlineResultScreen:not(.hidden){
+  margin-top:8px !important;
+  padding-top:0 !important;
+}
+#onlineListenScreen .screenTitle,
+#onlinePlaceScreen .screenTitle,
+#onlineResultScreen .screenTitle{
+  margin-top:4px;
+}
+@media(max-width:800px){
+  #onlineGame .main{padding-top:10px}
+  #onlineGameTitle{font-size:24px}
+  #onlineGameSub{font-size:13px}
+  #onlineListenScreen:not(.hidden),
+  #onlinePlaceScreen:not(.hidden),
+  #onlineResultScreen:not(.hidden){margin-top:4px !important}
+}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.64</small></div><div class="badge" id="online">Redo · V4.64</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.67</small></div><div class="badge" id="online">Redo · V4.67</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -436,7 +465,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.64</strong>
+    Version <strong style="color:#fff">V4.67</strong>
   </div>
 </section>
 
@@ -1208,7 +1237,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.64";
+    if(badge)badge.textContent="Återansluten · V4.67";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1216,7 +1245,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.64 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.67 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1227,7 +1256,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.64"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.67"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1345,7 +1374,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.64":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.67":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2098,7 +2127,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.64
+// SPELA ONLINE – V4.67
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -2110,6 +2139,7 @@ let onlinePlayers=[];
 let onlineMyPlayer=null;
 let onlineSelected=null;
 let onlineGuessSaved=false;
+let onlineSavedGuess={artist:"",title:""};
 let onlineDecisionOpen=false;
 let onlineView="listen";
 let onlineViewSongId=null;
@@ -2564,12 +2594,54 @@ async function onlineCountActiveMatches(){
 }
 
 function onlineCode(){return gen()}
+function spotifyLooksLikeMusic(track){
+  if(!track?.id||!track?.name||!track?.artists?.length)return false;
+
+  const title=String(track.name||"").toLowerCase();
+  const album=String(track.album?.name||"").toLowerCase();
+  const artists=(track.artists||[]).map(a=>String(a.name||"").toLowerCase()).join(" ");
+  const hay=`${title} ${album} ${artists}`;
+
+  // Spoken-word / story / podcast / audiobook indicators in Swedish + English.
+  const blocked=[
+    "podcast","podden","podd ","episode ","episode:","episod ","avsnitt ",
+    "audiobook","audio book","ljudbok","ljudböcker",
+    "saga","sagor","fairy tale","fairytale","bedtime story","godnattsaga",
+    "storytime","short story","berättelse","berättelser",
+    "chapter ","chapter:","kapitel ","part 1 of","part 2 of",
+    "spoken word","spoken-word","speech","tal av","interview","intervju",
+    "meditation","guided meditation","sleep story","sleep stories",
+    "mindfulness","hypnosis","hypnos","affirmations",
+    "radio drama","radioteater","documentary","dokumentär"
+  ];
+  if(blocked.some(word=>hay.includes(word)))return false;
+
+  // Very long catalog tracks are commonly spoken content. Normal extended
+  // songs remain allowed up to 15 minutes.
+  const duration=Number(track.duration_ms||0);
+  if(duration>15*60*1000)return false;
+
+  // Reject extremely short non-song fragments/intros.
+  if(duration>0 && duration<45*1000)return false;
+
+  return true;
+}
+
 function spotifyTrackToCard(track){
+  if(!spotifyLooksLikeMusic(track))return null;
   if(!track?.id||!track?.name||!track?.artists?.length)return null;
   const release=track.album?.release_date||"";
   const year=Number(String(release).slice(0,4));
   if(!Number.isFinite(year)||year<1900)return null;
-  return {id:track.id,title:track.name,artist:track.artists.map(a=>a.name).join(", "),year};
+  return {
+    id:track.id,
+    title:track.name,
+    artist:track.artists.map(a=>a.name).join(", "),
+    artists:track.artists.map(a=>a.name),
+    year,
+    duration_ms:Number(track.duration_ms||0),
+    explicit:!!track.explicit
+  };
 }
 
 function onlineKnownTrackIds(){
@@ -2631,7 +2703,7 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
   }
 
   if(out.length<Math.min(wanted,12)){
-    const seeds=["love","night","dance","you","baby","heart","time","dream","fire","home","life","world"];
+    const seeds=["love song","dance music","pop song","rock song","hit song","summer song","night music","heart song","radio hit","classic song","party song","music"];
     for(const seed of seeds.sort(()=>Math.random()-.5)){
       let d=null;
       try{
@@ -3100,6 +3172,7 @@ async function fetchOnlineGameState(){
       onlineSelected=null;
       onlineTimelineScrollLeft=0;
       onlineGuessSaved=false;
+      onlineSavedGuess={artist:"",title:""};
       if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
       if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
     }
@@ -3131,6 +3204,7 @@ async function openOnlineMatch(id){
   onlineLocalResultHold=null;
   onlineSelected=null;
   onlineGuessSaved=false;
+      onlineSavedGuess={artist:"",title:""};
   const ps=await db.from("online_players").select("*").eq("match_id",id).eq("active",true).order("turn_order");
   onlinePlayers=ps.data||[];
   onlineMyPlayer=onlinePlayers.find(p=>p.user_id===ensureOnlineUserId())||null;
@@ -3227,6 +3301,7 @@ function closeOnlineGame(){
   clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
   onlineMatch=null;onlinePlayers=[];onlineMyPlayer=null;onlinePlayerTimelineOpen={};onlineLastRoundOpen={};onlineLastRoundScroll={};onlinePlayersRenderKey="";
   onlineView="listen";onlineViewSongId=null;onlineLocalResultHold=null;onlineSelected=null;onlineGuessSaved=false;
+      onlineSavedGuess={artist:"",title:""};
   $("onlineGame").classList.add("hidden");
   $("home").classList.remove("hidden");
   showOnlineMode();
@@ -3479,8 +3554,33 @@ function setPlacementMode(active){
   }
 }
 
+function updateOnlineGameSubtitle(){
+  const el=$("onlineGameSub");
+  if(!el)return;
+  if(!onlineMatch||!onlineMyPlayer){el.textContent="";return;}
+
+  const myTurn=Number(onlineMatch.current_player_id)===Number(onlineMyPlayer.id);
+  const active=onlineMatch.status==="active";
+
+  if(!active){
+    el.textContent="Väntar på att matchen ska starta.";
+    return;
+  }
+
+  if(myTurn){
+    if(onlineMatch.phase==="listen")el.textContent="Din tur – lyssna på låten.";
+    else if(onlineMatch.phase==="place")el.textContent="Din tur – placera kortet på tidslinjen.";
+    else if(onlineMatch.phase==="result")el.textContent="Din tur – se resultatet.";
+    else el.textContent="Din tur.";
+  }else{
+    const current=(onlinePlayers||[]).find(p=>Number(p.id)===Number(onlineMatch.current_player_id));
+    el.textContent=current?.name?`Väntar på ${current.name}.`:"Väntar på motspelaren.";
+  }
+}
+
 function renderOnlineGame(){
   updateOnlineSwapButton();
+  updateOnlineGameSubtitle();
   if(!onlineMatch||!onlineMyPlayer)return;
   renderOnlinePlayers();
   $("onlineGameCode").textContent=onlineMatch.code;
@@ -3533,11 +3633,12 @@ function renderOnlineGame(){
     onlineHideScreens();
     clearOnlineRoundLocal();
     $("onlineReadyScreen").classList.remove("hidden");
-    $("onlineGameSub").textContent="Starta när det passar dig.";
+    $("onlineGameSub").textContent="Din tur – tryck när du är redo.";
     return;
   }
 
   if(onlineMatch.phase==="listen"&&onlineMatch.current_song){
+    $("onlineGameSub").textContent="Din tur – lyssna på låten.";
     const locked=(onlineMyPlayer.locked_timeline||[]).length;
     const risk=(onlineMyPlayer.turn_cards||[]).length;
     $("onlineTurnStats").textContent=`${locked}/${onlineMatch.target_cards||10} låsta kort · ${risk} Olåsta kort · ${onlineMyPlayer.swap_cards||0}/3 Byta-låt-kort`;
@@ -3578,6 +3679,7 @@ function clearOnlineRoundLocal(){
   onlineResultRenderKey="";
   onlineSelected=null;
   onlineGuessSaved=false;
+      onlineSavedGuess={artist:"",title:""};
   onlineView="listen";
   onlineViewSongId=onlineMatch?.current_song?.id||null;
   if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
@@ -3680,6 +3782,10 @@ function showOnlineGuess(){
   $("onlineGuessScreen").classList.remove("hidden");
 }
 function saveOnlineGuess(){
+  onlineSavedGuess={
+    artist:($("onlineGuessArtist")?.value||"").trim(),
+    title:($("onlineGuessTitle")?.value||"").trim()
+  };
   onlineGuessSaved=true;
   onlineView="listen";
   setOnlineGameStatus("");
@@ -3882,9 +3988,11 @@ async function confirmOnlinePlacement(){
     const left=onlineSelected>0?t[onlineSelected-1]:null;
     const right=onlineSelected<t.length?t[onlineSelected]:null;
     const placeOk=(!left||song.year>=left.year)&&(!right||song.year<=right.year);
-    const guessedArtist=onlineGuessSaved?$("onlineGuessArtist").value.trim():"";
-    const guessedTitle=onlineGuessSaved?$("onlineGuessTitle").value.trim():"";
-    const artistOk=onlineGuessSaved&&onlineEq(guessedArtist,song.artist);
+    const guessedArtist=onlineGuessSaved?String(onlineSavedGuess.artist||"").trim():"";
+    const guessedTitle=onlineGuessSaved?String(onlineSavedGuess.title||"").trim():"";
+    const artistNames=(song.artists&&song.artists.length?song.artists:String(song.artist||"").split(/,|&| feat\.? | ft\.? /i))
+      .map(x=>String(x).trim()).filter(Boolean);
+    const artistOk=onlineGuessSaved&&artistNames.some(name=>onlineEq(guessedArtist,name));
     const titleOk=onlineGuessSaved&&onlineEq(guessedTitle,song.title);
     const roundGuess={
       guessed:!!onlineGuessSaved,
@@ -4015,9 +4123,10 @@ function showOnlineLocalResult(r,decision,held=false){
   onlineResultRenderKey=resultKey;
   $("onlineResultTitle").textContent=r.placeOk?"RÄTT PLACERING":"FEL PLACERING";
   $("onlineReveal").textContent=`${r.song.title} – ${r.song.artist} (${r.song.year})`;
+  const shownGuess=r.guess||{};
   $("onlineChecks").innerHTML=`<div class="check">${r.placeOk?"✅ Rätt placering":"❌ Fel placering"}</div>
-    <div class="check">${r.artistOk?"✅ Rätt artist":"❌ Fel artist"}</div>
-    <div class="check">${r.titleOk?"✅ Rätt låtnamn":"❌ Fel låtnamn"}</div>
+    <div class="check">${r.artistOk?"✅ Rätt artist":"❌ Fel artist"}${shownGuess.guessed?`<div class="yourGuess">Du skrev: ${esc(shownGuess.artist||"–")}</div>`:""}</div>
+    <div class="check">${r.titleOk?"✅ Rätt låtnamn":"❌ Fel låtnamn"}${shownGuess.guessed?`<div class="yourGuess">Du skrev: ${esc(shownGuess.title||"–")}</div>`:""}</div>
     ${r.artistOk&&r.titleOk?`<div class="swapWinMessage">Grattis, du vann ett byt-låt-kort</div>`:""}`;
   $("onlineBonus").innerHTML=r.bonus
     ? `<div class="check">🔄 Rätt artist och låtnamn – du fick ett Byta-låt-kort.</div>`
@@ -4164,7 +4273,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.64.
+// Startsidan är alltid online i V4.67.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
