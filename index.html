@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.62</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<title>Digihits V4.64</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -255,8 +255,120 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 #onlineSwapBtnCount{font-weight:1000;white-space:nowrap}
 
 .swapWinMessage{margin-top:9px;padding:9px 12px;border-radius:11px;background:#173522;border:1px solid #35db7b;color:#9af4b8;font-size:12px;font-weight:950;text-align:center}
+
+@media(max-width:800px){
+  body.placementMode{
+    overflow:hidden;
+    overscroll-behavior:none;
+    touch-action:manipulation;
+  }
+  body.placementMode #onlineGame{
+    position:fixed;
+    inset:0;
+    z-index:9998;
+    width:100vw;
+    height:100dvh;
+    overflow:hidden;
+    background:#0f1117;
+  }
+  body.placementMode #onlineGame .grid{
+    display:block;
+    width:100%;
+    height:100%;
+  }
+  body.placementMode #onlineGame .side{
+    display:none !important;
+  }
+  body.placementMode #onlineGame .main{
+    width:100%;
+    height:100%;
+    max-width:none;
+    border-radius:0;
+    padding:10px 10px 12px;
+    overflow:hidden;
+    box-sizing:border-box;
+  }
+  body.placementMode .onlineGameTop,
+  body.placementMode #onlineGameStatus{
+    display:none !important;
+  }
+  body.placementMode #onlinePlaceScreen{
+    display:flex !important;
+    flex-direction:column;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+  }
+  body.placementMode #onlinePlaceScreen .screenTitle{
+    margin:2px 0 4px;
+    font-size:24px;
+  }
+  body.placementMode #onlinePlaceScreen > .mut{
+    margin:0 0 6px !important;
+    font-size:11px;
+    line-height:1.25;
+  }
+  body.placementMode .onlineSecretDock{
+    position:relative;
+    top:auto;
+    flex:0 0 auto;
+    padding:2px 0 6px;
+    background:none;
+  }
+  body.placementMode .onlineSecretDock .onlineSecret{
+    width:min(150px,42vw);
+    margin:0 auto;
+    padding:9px 10px;
+  }
+  body.placementMode .onlineSecretDock .onlineSecret .note{
+    font-size:26px !important;
+  }
+  body.placementMode .timelineLabel{
+    flex:0 0 auto;
+    margin:4px 0 2px;
+    font-size:9px;
+  }
+  body.placementMode #onlineTimeline{
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:22px 8px 10px;
+    scroll-snap-type:x proximity;
+    touch-action:pan-x;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+  body.placementMode #onlineTimeline > *{
+    scroll-snap-align:center;
+  }
+  body.placementMode .onlinePlaced,
+  body.placementMode .pendingSlot{
+    flex-shrink:0;
+  }
+  body.placementMode .onlineDrop{
+    flex:0 0 92px;
+    min-width:92px;
+    min-height:150px;
+  }
+  body.placementMode .onlinePlaced{
+    flex:0 0 108px;
+    width:108px;
+    height:162px;
+    min-height:162px;
+    max-height:162px;
+  }
+  body.placementMode .pendingSlot{
+    flex:0 0 128px;
+  }
+  body.placementMode .pendingActions .btn{
+    min-height:44px;
+    font-size:11px;
+  }
+}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.62</small></div><div class="badge" id="online">Redo · V4.62</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.64</small></div><div class="badge" id="online">Redo · V4.64</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -324,7 +436,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.62</strong>
+    Version <strong style="color:#fff">V4.64</strong>
   </div>
 </section>
 
@@ -413,7 +525,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         </div>
       </div>
 
-      <div id="onlinePlaceScreen" class="hidden">
+      <div id="onlinePlaceScreen" class="hidden placementScreen">
         <button class="back" onclick="showOnlineListen()">← Tillbaka</button>
         <div class="screenTitle">Placera kortet</div>
         <p class="mut" style="text-align:center">Scrolla tidslinjen åt höger eller vänster och välj var kortet ska placeras.</p>
@@ -1096,7 +1208,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.62";
+    if(badge)badge.textContent="Återansluten · V4.64";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1104,7 +1216,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.62 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.64 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1115,7 +1227,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.62"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.64"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1233,7 +1345,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.62":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.64":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1762,7 +1874,7 @@ function renderTimeline(){
       </div>
       <div class="pendingActions">
         <button class="btn cyan full" onclick="confirmPlace()">BEKRÄFTA PLATS</button>
-        <button class="btn dark full" onclick="clearPlace()">FLYTTA IGEN</button>
+        <button class="btn dark full" onclick="clearPlace()">ÅNGRA PLACERING</button>
       </div>`;
       el.appendChild(wrap);
     }
@@ -1986,7 +2098,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.62
+// SPELA ONLINE – V4.64
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -2405,6 +2517,7 @@ function setOnlineGameStatus(t,isError=false){
   el.style.color=isError?"#ff8c99":"";
 }
 function onlineHideScreens(){
+  setPlacementMode(false);
   ["onlineWaitingScreen","onlineReadyScreen","onlineListenScreen","onlineGuessScreen","onlinePlaceScreen","onlineResultScreen"].forEach(id=>{
     const el=$(id);if(el)el.classList.add("hidden");
   });
@@ -3101,6 +3214,7 @@ async function confirmLeaveMatch(){
 }
 
 function closeOnlineGame(){
+  setPlacementMode(false);
   clearInterval(onlineGameTimer);
   teardownOnlineMatchRealtime();
   teardownMatchChatRealtime();
@@ -3350,6 +3464,21 @@ function updateOnlineSwapButton(){
   }
 }
 
+function setPlacementMode(active){
+  document.body.classList.toggle("placementMode",!!active);
+  if(active){
+    // Reset accidental browser horizontal position/zoomed layout context.
+    window.scrollTo(0,0);
+    requestAnimationFrame(()=>{
+      const rail=$("onlineTimeline");
+      if(rail && onlineSelected===null){
+        rail.scrollLeft=Math.max(0,(rail.scrollWidth-rail.clientWidth)/2);
+        onlineTimelineScrollLeft=rail.scrollLeft;
+      }
+    });
+  }
+}
+
 function renderOnlineGame(){
   updateOnlineSwapButton();
   if(!onlineMatch||!onlineMyPlayer)return;
@@ -3558,6 +3687,7 @@ function saveOnlineGuess(){
 }
 
 function requestOnlinePlace(){
+  setPlacementMode(true);
   if(!onlineGuessSaved){
     $("onlineGuessFirstModal").classList.remove("hidden");
     return;
@@ -3638,7 +3768,7 @@ function renderOnlineTimeline(force=false){
       pocket.innerHTML=`<div class="pendingPocket"><div class="pendingCard"><div class="note">♫</div><b>HEMLIGT KORT</b><div class="hiddenYear">????</div></div></div>
       <div class="pendingActions">
         <button type="button" id="onlineConfirmPlacementBtn" class="btn cyan full">BEKRÄFTA PLATS</button>
-        <button type="button" id="onlineMoveAgainBtn" class="btn dark full">FLYTTA IGEN</button>
+        <button type="button" id="onlineMoveAgainBtn" class="btn dark full">ÅNGRA PLACERING</button>
       </div>`;
       el.appendChild(pocket);
       pocket.querySelector("#onlineConfirmPlacementBtn").addEventListener("click",confirmOnlinePlacement,{once:true});
@@ -3746,6 +3876,7 @@ async function confirmOnlinePlacement(){
 
   actionBusy=true;
   try{
+    setPlacementMode(false);
     const song=onlineMatch.current_song;
     const t=onlineAllTimeline(onlineMyPlayer);
     const left=onlineSelected>0?t[onlineSelected-1]:null;
@@ -3905,7 +4036,7 @@ function showOnlineLocalResult(r,decision,held=false){
   $("onlineDecisionButtons").innerHTML=decision
     ? `<button class="btn purple" onclick="onlineContinue()">▶ FORTSÄTT<br><small>Riskera ${(onlineMyPlayer.turn_cards||[]).length} olåsta kort</small></button>
        <button class="btn green" onclick="onlineLockIn()">🔒 LÅS IN ${(onlineMyPlayer.turn_cards||[]).length} KORT</button>`
-    : `<button class="btn green full" onclick="dismissOnlineLocalResult()">TILL MINA MATCHER</button>`;
+    : ``;
 }
 function dismissOnlineLocalResult(){
   onlineLocalResultHold=null;
@@ -4033,7 +4164,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.62.
+// Startsidan är alltid online i V4.64.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
