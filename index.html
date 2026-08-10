@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.84</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.85</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.84 – kompaktare spelvy */
+/* V4.85 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V4.84 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V4.85 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -516,10 +516,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V4.84 – equal years are a continuous timeline block */
+/* V4.85 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.84</small></div><div class="badge" id="online">Redo · V4.84</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.85</small></div><div class="badge" id="online">Redo · V4.85</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -632,7 +632,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.84</strong>
+    Version <strong style="color:#fff">V4.85</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1474,7 +1474,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.84";
+    if(badge)badge.textContent="Återansluten · V4.85";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1482,7 +1482,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.84 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.85 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1493,7 +1493,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.84"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.85"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1612,7 +1612,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.84":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.85":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2365,7 +2365,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.84
+// SPELA ONLINE – V4.85
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3499,8 +3499,7 @@ function spotifyLooksLikeMusic(track){
   const artists=(track.artists||[]).map(a=>String(a.name||"").toLowerCase()).join(" ");
   const hay=`${title} ${album} ${artists}`;
 
-  // Spoken-word / story / podcast / audiobook indicators in Swedish + English.
-  const blocked=[
+  const blockedSpoken=[
     "podcast","podden","podd ","episode ","episode:","episod ","avsnitt ",
     "audiobook","audio book","ljudbok","ljudböcker",
     "saga","sagor","fairy tale","fairytale","bedtime story","godnattsaga",
@@ -3511,17 +3510,68 @@ function spotifyLooksLikeMusic(track){
     "mindfulness","hypnosis","hypnos","affirmations",
     "radio drama","radioteater","documentary","dokumentär"
   ];
-  if(blocked.some(word=>hay.includes(word)))return false;
+  if(blockedSpoken.some(word=>hay.includes(word)))return false;
 
-  // Very long catalog tracks are commonly spoken content. Normal extended
-  // songs remain allowed up to 15 minutes.
+  // Keep only the kind of recording people are likely to know from radio,
+  // playlists or the original hit release.
+  const blockedVersions=[
+    "instrumental","karaoke","backing track","tribute to","tribute version",
+    "in the style of","soundalike","sound alike","made famous by",
+    "demo version","demo ","live at ","live from ","live version","concert version",
+    "unplugged","remix","re-mix","club mix","dance mix","extended mix",
+    "sped up","speed up","slowed","slow + reverb","slowed + reverb","reverb",
+    "nightcore","8d audio","piano version","piano cover","orchestral version",
+    "orchestra version","string version","lofi","lo-fi","chill version",
+    "sleep version","workout version"
+  ];
+  if(blockedVersions.some(word=>hay.includes(word)))return false;
+
   const duration=Number(track.duration_ms||0);
   if(duration>15*60*1000)return false;
-
-  // Reject extremely short non-song fragments/intros.
   if(duration>0 && duration<45*1000)return false;
 
+  // Radio edits/remasters may still be the well-known hit version.
+  const weakAlternate=[
+    "radio edit","radio version","single edit","edit version",
+    "remastered","remaster ","anniversary edition","deluxe edition"
+  ];
+  const hasWeakAlternate=weakAlternate.some(word=>title.includes(word)||album.includes(word));
+  if(hasWeakAlternate && Number(track.popularity||0)>0 && Number(track.popularity||0)<55)return false;
+
   return true;
+}
+
+function canonicalSongTitle(title){
+  return String(title||"")
+    .toLowerCase()
+    .replace(/\([^)]*(remaster|remastered|radio edit|radio version|single edit|live|acoustic|version)[^)]*\)/gi,"")
+    .replace(/\[[^\]]*(remaster|remastered|radio edit|radio version|single edit|live|acoustic|version)[^\]]*\]/gi,"")
+    .replace(/\s*-\s*(remaster(?:ed)?|radio edit|radio version|single edit|live|acoustic|version).*$/gi,"")
+    .replace(/[^a-z0-9åäö]+/gi," ")
+    .trim();
+}
+
+function recognizabilityScore(card){
+  if(!card)return -9999;
+  let score=Number(card.popularity||0);
+  const title=String(card.title||"").toLowerCase();
+  if(!/(remix|instrumental|karaoke|live|acoustic|sped up|slowed|reverb|demo|tribute)/i.test(title))score+=18;
+  if(title.length<=50)score+=4;
+  if(String(card.artist||"").length<=60)score+=3;
+  return score;
+}
+
+function dedupeRecognizableVersions(cards){
+  const best=new Map();
+  for(const card of cards||[]){
+    if(!card?.id)continue;
+    const key=`${canonicalSongTitle(card.title)}::${String(card.artist||"").toLowerCase().trim()}`;
+    const prev=best.get(key);
+    if(!prev || recognizabilityScore(card)>recognizabilityScore(prev)){
+      best.set(key,card);
+    }
+  }
+  return [...best.values()];
 }
 
 function spotifyTrackToCard(track){
@@ -3578,8 +3628,8 @@ function saveSwedenMusicPool(cards){
 }
 function mergeSwedenMusicPool(cards){
   const current=loadSwedenMusicPool();
-  const merged=[...(cards||[]),...current];
-  merged.sort((a,b)=>Number(b.popularity||0)-Number(a.popularity||0));
+  const merged=dedupeRecognizableVersions([...(cards||[]),...current]);
+  merged.sort((a,b)=>recognizabilityScore(b)-recognizabilityScore(a));
   saveSwedenMusicPool(merged);
 }
 
@@ -3640,6 +3690,7 @@ async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
 
   // Hitster-liknande princip: igenkanning forst. Stora svenska/internationella
   // hits fran flera decennier far mycket storre vikt an obskyra/nya spar.
+  // En officiell cover ar helt okej om den ar den version flest faktiskt känner igen.
   const playlistQueries=[
     "All Out 60s","All Out 70s","All Out 80s","All Out 90s","All Out 2000s","All Out 2010s",
     "Top Hits 2020s","Classic Hits","Greatest Hits","Party Hits","Sing Along Hits",
@@ -3672,9 +3723,10 @@ async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
 
   // Popularitet ar en stark signal, men inte enda signalen eftersom aldre
   // klassiker annars missgynnas. Behall i huvudsak etablerade hits.
-  const strong=out.filter(c=>Number(c.popularity||0)>=45);
-  const pool=strong.length>=Math.min(30,wanted/2)?strong:out;
-  pool.sort((a,b)=>Number(b.popularity||0)-Number(a.popularity||0));
+  const deduped=dedupeRecognizableVersions(out);
+  const strong=deduped.filter(c=>Number(c.popularity||0)>=45);
+  const pool=strong.length>=Math.min(30,wanted/2)?strong:deduped;
+  pool.sort((a,b)=>recognizabilityScore(b)-recognizabilityScore(a));
   return pool.slice(0,Math.max(wanted,60));
 }
 
@@ -3695,7 +3747,7 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
   // is capped at 1000 unique mainstream/current tracks.
   const cached=loadSwedenMusicPool()
     .filter(c=>c?.id&&!exclude.has(String(c.id)))
-    .sort((a,b)=>Number(b.popularity||0)-Number(a.popularity||0));
+    .sort((a,b)=>recognizabilityScore(b)-recognizabilityScore(a));
 
   // Favor recognizable songs, but spread them across decades so the game does
   // not become a current-chart quiz. Rough target: 85% established hits, 15% variety.
@@ -3715,7 +3767,7 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
       add(c);
       // Put unused top-band songs back so popular songs remain eligible later.
       for(const x of topBand)if(x!==c)bucket.push(x);
-      bucket.sort((a,b)=>Number(b.popularity||0)-Number(a.popularity||0));
+      bucket.sort((a,b)=>recognizabilityScore(b)-recognizabilityScore(a));
       if(picked.length>=wanted)break;
     }
   }
@@ -5664,7 +5716,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.84.
+// Startsidan är alltid online i V4.85.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
