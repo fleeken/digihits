@@ -1,17 +1,23 @@
-DIGIHITS V4.67
+DIGIHITS V4.68 – GÅ MED I MATCH / FLERA MOTSTÅNDARE
 
-SPELSTATUS
-- Den statiska texten "Starta när det passar dig." är borttagen.
-- När matchen är igång visas relevant status i stället:
-  Din tur – lyssna på låten.
-  Din tur – placera kortet på tidslinjen.
-  Din tur – se resultatet.
-  Väntar på [spelarens namn].
-- Före faktisk matchstart visas Väntar på att matchen ska starta.
+REGEL
+- En ny deltagare får gå med medan matchen väntar eller under första varvet.
+- Så fort NÅGON spelare har startat sin andra omgång låses matchen för nya deltagare.
+- Exakt feltext:
+  Andra omgången har tyvärr redan påbörjats.
 
-LAYOUT
-- Onödigt vertikalt tomrum mellan matchrubriken och själva spelinnehållet har minskats.
-- Rubrik, status och aktuell spelvy ligger tätare ihop.
-- Mobilvyn är också komprimerad utan att minska tryckytorna.
+FLERA SPELARE
+- Matchlogiken är inte längre låst till exakt två spelare.
+- Upp till 8 deltagare kan vara med i samma match.
+- Den som går med under första varvet läggs sist i turordningen.
+- En pågående tur nollställs inte när en ny deltagare ansluter.
+- Nästa tur går till nästa aktiva spelare i turn_order och loopar sedan tillbaka till första.
+- Matchrubriken kan visa flera motståndare.
 
-Ingen ny SQL krävs.
+TEKNIK
+- rounds_started sparas per spelare.
+- Räknaren ökar när spelaren faktiskt startar sin tur.
+- Misslyckad turstart före listen-läget rullar tillbaka räknaren.
+
+VIKTIGT
+Kör ONLINE_V4_68_ROUNDS.sql en gång i Supabase SQL Editor.
