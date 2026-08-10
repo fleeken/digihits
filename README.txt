@@ -1,10 +1,11 @@
-DIGIHITS V4.74
+DIGIHITS V4.75 – KONTOFIX
 
-- Utloggad spelare ser endast kontorutan.
-- Resten av huvudmenyn låses upp efter lyckad inloggning.
-- Utloggning låser menyn igen.
-- Lösenordsåterställning visar bara återställningsflödet.
-- "db is not defined" är rättat: spelets databaslager och Supabase Auth-klient initieras separat.
-- Tekniska fel visas inte längre för spelaren.
-- JavaScript syntax: PASS.
-- Ingen ny SQL krävs.
+- Spelets REST/Supabase-databasklient är återställd.
+- Supabase Auth och spelets databasanrop fungerar sida vid sida.
+- Skapa konto använder e-postverifiering och redirect tillbaka till Digihits.
+- Logga in använder email + password.
+- Glömt lösenord använder Supabase reset-länk.
+- Konto-initiering vid sidstart är tyst; ingen röd varning visas innan användaren gjort något.
+- Tekniska Auth-fel översätts till begriplig svensk text.
+- JavaScript syntax och alla inline-knappar kontrollerade: PASS.
+- Ingen ny SQL krävs utöver V4.72-konto-SQL om den inte redan körts.

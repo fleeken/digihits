@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.74</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.75</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.74 – kompaktare spelvy */
+/* V4.75 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -426,8 +426,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .accountLinkBtn:hover{color:#b5efff}
 .accountResetTitle{font-size:19px;font-weight:950;color:#fff}
 #passwordResetPanel{margin-top:2px}
+
+#accountStatus:empty,#passwordResetStatus:empty{display:none}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.74</small></div><div class="badge" id="online">Redo · V4.74</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.75</small></div><div class="badge" id="online">Redo · V4.75</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -529,7 +531,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.74</strong>
+    Version <strong style="color:#fff">V4.75</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1371,7 +1373,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.74";
+    if(badge)badge.textContent="Återansluten · V4.75";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1379,7 +1381,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.74 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.75 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1390,7 +1392,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.74"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.75"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1508,7 +1510,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.74":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.75":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2261,10 +2263,91 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.74
+// SPELA ONLINE – V4.75
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 const authClient=window.supabase.createClient(URL,KEY);
+
+class RestQuery {
+  constructor(table){
+    this.table=table;
+    this.method="GET";
+    this.body=null;
+    this.params=new URLSearchParams();
+    this.mode="many";
+    this.returnRows=false;
+  }
+  select(cols="*"){
+    this.params.set("select",cols);
+    if(this.method!=="GET") this.returnRows=true;
+    return this;
+  }
+  insert(payload){this.method="POST";this.body=payload;return this;}
+  update(payload){this.method="PATCH";this.body=payload;return this;}
+  delete(){this.method="DELETE";return this;}
+  eq(column,value){
+    this.params.append(column,"eq."+String(value));
+    return this;
+  }
+  order(column,opts={}){
+    this.params.set("order",column+"."+(opts.ascending===false?"desc":"asc"));
+    return this;
+  }
+  limit(count){
+    const n=Math.max(1,Math.floor(Number(count)||1));
+    this.params.set("limit",String(n));
+    return this;
+  }
+  single(){this.mode="single";return this;}
+  maybeSingle(){this.mode="maybeSingle";return this;}
+  then(resolve,reject){this.execute().then(resolve,reject);}
+  async execute(){
+    const url=URL+"/rest/v1/"+encodeURIComponent(this.table)+(this.params.toString()?"?"+this.params.toString():"");
+    const headers={
+      "apikey":KEY,
+      "Authorization":"Bearer "+KEY,
+      "Content-Type":"application/json"
+    };
+    if(this.method!=="GET"){
+      headers["Prefer"]=this.returnRows?"return=representation":"return=minimal";
+    }
+    let response;
+    try{
+      response=await fetch(url,{
+        method:this.method,
+        headers,
+        body:this.body===null?undefined:JSON.stringify(this.body),
+        cache:"no-store"
+      });
+    }catch(err){
+      return {data:null,error:{message:"Kunde inte nå Supabase: "+err.message}};
+    }
+
+    let data=null;
+    const text=await response.text();
+    if(text){
+      try{data=JSON.parse(text)}catch(_){data=text}
+    }
+
+    if(!response.ok){
+      let msg="HTTP "+response.status;
+      if(data&&typeof data==="object")msg=data.message||data.error_description||data.hint||msg;
+      return {data:null,error:{message:msg,status:response.status,details:data}};
+    }
+
+    if(this.mode==="single"){
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)return {data:null,error:{message:"Ingen rad returnerades från databasen."}};
+      return {data:row,error:null};
+    }
+    if(this.mode==="maybeSingle"){
+      return {data:Array.isArray(data)?(data[0]||null):data,error:null};
+    }
+    return {data:data??[],error:null};
+  }
+}
+const db={from:(table)=>new RestQuery(table)};
+
 
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -2661,6 +2744,19 @@ function setAccountStatus(text,isError=false){
   el.style.color=isError?"#ff8c99":"";
 }
 
+function friendlyAuthError(e,action="login"){
+  const msg=String(e?.message||e||"").toLowerCase();
+  if(msg.includes("email not confirmed"))return "Verifiera din e-postadress först och försök sedan logga in igen.";
+  if(msg.includes("invalid login credentials"))return "Fel e-postadress eller lösenord.";
+  if(msg.includes("user already registered")||msg.includes("already registered"))return "Det finns redan ett konto med den e-postadressen. Logga in eller välj Glömt lösenord.";
+  if(msg.includes("password")&&msg.includes("6"))return "Lösenordet måste vara minst 6 tecken.";
+  if(msg.includes("rate limit")||msg.includes("too many"))return "För många försök på kort tid. Vänta en stund och försök igen.";
+  if(msg.includes("fetch")||msg.includes("network")||msg.includes("failed to fetch"))return "Kunde inte nå kontotjänsten. Kontrollera internetanslutningen och försök igen.";
+  if(action==="create")return "Kontot kunde inte skapas. Kontrollera e-postadressen och lösenordet och försök igen.";
+  if(action==="reset")return "Återställningslänken kunde inte skickas just nu. Försök igen.";
+  return "Inloggningen misslyckades. Kontrollera uppgifterna och försök igen.";
+}
+
 function setAccountBusy(busy){
   ["accountLoginBtn","accountCreateBtn"].forEach(id=>{
     const b=$(id);
@@ -2748,7 +2844,11 @@ async function applyAccountSession(user,{migrate=true}={}){
 
 async function initDigihitsAccount(){
   try{
-    if(!authClient?.auth)throw new Error("Kontoinloggningen kunde inte startas.");
+    if(!authClient?.auth){
+      console.warn("Account init: Supabase Auth unavailable.");
+      setAccountStatus("");
+      return;
+    }
     const {data,error}=await authClient.auth.getSession();
     if(error)throw error;
     await applyAccountSession(data?.session?.user||null,{migrate:true});
@@ -2769,7 +2869,7 @@ async function initDigihitsAccount(){
     });
   }catch(e){
     console.warn("Account init:",e);
-    console.warn("Account init:",e); setAccountStatus("Kontot kunde inte ansluta just nu. Försök igen.",true);
+    setAccountStatus("");
   }finally{
     digihitsAuthReady=true;
     renderAccountUi();
@@ -2790,7 +2890,7 @@ function passwordResetRedirectUrl(){
 }
 
 async function sendPasswordReset(){
-  if(!authClient?.auth)return alert("Kontofunktionen är inte tillgänglig.");
+  if(!authClient?.auth){setAccountStatus("Kontotjänsten kunde inte starta. Ladda om sidan och försök igen.",true);return;}
   const email=($("accountEmail")?.value||"").trim().toLowerCase();
   if(!email){
     setAccountStatus("Skriv din e-postadress först.",true);
@@ -2811,7 +2911,8 @@ async function sendPasswordReset(){
     // Neutral wording also avoids revealing whether an account exists.
     setAccountStatus("Om e-postadressen finns registrerad har en återställningslänk skickats.");
   }catch(e){
-    console.warn("Password reset:",e); setAccountStatus("Återställningslänken kunde inte skickas just nu. Försök igen.",true);
+    console.warn("Password reset:",e);
+    setAccountStatus(friendlyAuthError(e,"reset"),true);
   }finally{
     if(btn){btn.disabled=false;btn.textContent="GLÖMT LÖSENORD?"}
   }
@@ -2833,7 +2934,7 @@ function hidePasswordResetPanel(){
 }
 
 async function saveNewPassword(){
-  if(!authClient?.auth)return alert("Kontofunktionen är inte tillgänglig.");
+  if(!authClient?.auth){setPasswordResetStatus("Kontotjänsten kunde inte starta. Ladda om sidan och försök igen.",true);return;}
   const p1=$("newPassword")?.value||"";
   const p2=$("newPasswordRepeat")?.value||"";
 
@@ -2869,7 +2970,7 @@ async function saveNewPassword(){
 }
 
 async function createDigihitsAccount(){
-  if(!authClient?.auth)return alert("Kontofunktionen är inte tillgänglig.");
+  if(!authClient?.auth){setAccountStatus("Kontotjänsten kunde inte starta. Ladda om sidan och försök igen.",true);return;}
   $("passwordResetPanel")?.classList.add("hidden");
   const email=($("accountEmail")?.value||"").trim().toLowerCase();
   const password=$("accountPassword")?.value||"";
@@ -2882,7 +2983,10 @@ async function createDigihitsAccount(){
     const displayName=(localStorage.getItem(ONLINE_NAME_KEY)||"").trim();
     const {data,error}=await authClient.auth.signUp({
       email,password,
-      options:{data:{display_name:displayName}}
+      options:{
+        emailRedirectTo:passwordResetRedirectUrl(),
+        data:{display_name:displayName}
+      }
     });
     if(error)throw error;
 
@@ -2894,14 +2998,15 @@ async function createDigihitsAccount(){
       setAccountStatus("Kontot är skapat. Bekräfta e-postmeddelandet och logga sedan in.");
     }
   }catch(e){
-    console.warn("Create account:",e); setAccountStatus("Kontot kunde inte skapas. Kontrollera uppgifterna och försök igen.",true);
+    console.warn("Create account:",e);
+    setAccountStatus(friendlyAuthError(e,"create"),true);
   }finally{
     setAccountBusy(false);
   }
 }
 
 async function loginDigihitsAccount(){
-  if(!authClient?.auth)return alert("Kontofunktionen är inte tillgänglig.");
+  if(!authClient?.auth){setAccountStatus("Kontotjänsten kunde inte starta. Ladda om sidan och försök igen.",true);return;}
   $("passwordResetPanel")?.classList.add("hidden");
   const email=($("accountEmail")?.value||"").trim().toLowerCase();
   const password=$("accountPassword")?.value||"";
@@ -2916,7 +3021,8 @@ async function loginDigihitsAccount(){
     setAccountStatus("");
     startOnlineHomeSync();
   }catch(e){
-    setAccountStatus("Inloggningen misslyckades. Kontrollera e-post och lösenord.",true);
+    console.warn("Login:",e);
+    setAccountStatus(friendlyAuthError(e,"login"),true);
   }finally{
     setAccountBusy(false);
   }
@@ -4879,7 +4985,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.74.
+// Startsidan är alltid online i V4.75.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
