@@ -1,38 +1,23 @@
-DIGIHITS V4.70 – STABILITETSAUDIT
+DIGIHITS V4.73 – GLÖMT LÖSENORD
 
-KRITISK BUGG
-- "Can't find variable: esc" är fixat.
-- Resultatvyn har nu en definierad HTML-escape-funktion.
+NYTT
+- GLÖMT LÖSENORD? finns under inloggningsknapparna.
+- Spelaren skriver sin e-post och trycker GLÖMT LÖSENORD?.
+- Supabase skickar en återställningslänk.
+- När länken öppnas visas Välj nytt lösenord i Digihits.
+- Spelaren skriver nytt lösenord två gånger och sparar.
+- Efter ändringen är spelaren inloggad igen.
+- Digihits lagrar aldrig lösenordet.
 
-IPHONE / BEKRÄFTA PLATS
-- Smooth-scroll körs inte längre när BEKRÄFTA PLATS blir tryckbar.
-- Den valda fickan centreras direkt.
-- Touch på BEKRÄFTA PLATS hanteras direkt via touchend.
-- Syntetiskt efterföljande click ignoreras så funktionen inte körs dubbelt.
-- Samma touch-säkra hantering används för ÅNGRA PLACERING.
-- Målet är ett tryck, en åtgärd.
+SÄKERHET
+- Meddelandet efter återställningsbegäran avslöjar inte om e-postadressen finns registrerad.
+- Minst 6 tecken krävs.
+- Båda lösenordsfälten måste matcha.
 
-SPOTIFY – SPELKRITISKT
-- PAUSA skickar kommandot och verifierar därefter att Spotify verkligen är pausat.
-- FORTSÄTT SPELA skickar kommandot och verifierar att uppspelningen faktiskt startat.
-- Vid tappad/stale Spotify-enhet försöker Digihits hitta enheten igen.
-- Kommandon har retry och efterkontroll.
-- SPela från början har fått en EGEN funktion.
-- SPela från början skickar alltid position_ms=0 även om rätt låt redan spelar.
-- Funktionen verifierar både rätt låt, playing=true och att positionen ligger nära 0.
-- Playback-knappar låses medan ett Spotify-kommando körs så dubbeltryck inte skapar konkurrerande kommandon.
-- Status visas under Spotify-kommando och fel visas tydligt.
-- Legacy pause/resume använder samma robusta lager.
+SUPABASE – VIKTIGT
+Authentication -> URL Configuration -> Redirect URLs
+måste innehålla din Digihits-adress, exempel:
+https://fleeken.github.io/digihits/
 
-ÖVRIG KONTROLL
-- JavaScript syntax kontrollerad med Node.
-- Inline onclick-funktioner kontrollerade mot definierade funktioner.
-- Saknade funktionsanrop skannade.
-- Dubblerad "ingen nästa spelare"-kontroll städad.
-
-Ingen ny SQL krävs.
-
-SLUTKONTROLL
-- 34 inline-knappkopplingar kontrollerade: PASS
-- Kritiska Spotify-/spel-/placeringsfunktioner verifierade som definierade.
-- Slutlig Node syntaxkontroll: PASS.
+Ingen ny databasändring krävs.
+ONLINE_V4_73_PASSWORD_RESET.sql innehåller endast instruktionen ovan.
