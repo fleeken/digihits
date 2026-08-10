@@ -1,29 +1,14 @@
-DIGIHITS V4.85 – IGENKÄNNBAR VERSION FÖRST
+DIGIHITS V4.87 – MATCHLÅS
 
-PRINCIP
-- Målet är alltid att så många spelare som möjligt ska känna igen låten.
-- Normalt används originalartistens vanliga hitversion.
-- Om en officiell cover är klart mer känd än originalet är covern helt okej.
-
-FILTRERAS BORT
-- remixes
-- instrumentals
-- karaoke
-- tribute/soundalike
-- liveversioner
-- demo
-- sped up/slowed/reverb/nightcore
-- piano/orchestral/chill/lofi-varianter
-- andra tydliga alternativversioner
-
-TILLÅTS NÄR DE ÄR DEN KÄNDA VERSIONEN
-- officiella covers
-- radio edits/remasters om det är den välkända hitversionen
-
-URVAL
-- recognizabilityScore prioriterar populära och canonical-looking versioner.
-- liknande versioner av samma titel/artist dedupliceras och den mest igenkännbara behålls.
-- Sverige-/Hitster-inriktningen och decenniespridningen är kvar.
+- Matchkoden visar nu låsstatus.
+- Före andra omgången:
+  🔓 Match ej låst
+- När någon spelare har påbörjat sin andra omgång:
+  🔒 Match är låst
+- När matchen är låst stryks matchkoden över.
+- Samma låsregel används som i Gå med i match:
+  rounds_started >= 2 för någon deltagare.
+- Låsstatus visas både inne i matchen och i Mina matcher.
 
 JavaScript syntax: PASS.
 Alla onclick-funktioner: PASS.

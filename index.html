@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.85</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.87</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.85 – kompaktare spelvy */
+/* V4.87 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V4.85 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V4.87 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -516,10 +516,39 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V4.85 – equal years are a continuous timeline block */
+/* V4.87 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
+
+.matchCodeBox{min-width:0}
+.matchLockStatus{
+  display:inline-flex;align-items:center;gap:6px;margin-top:6px;
+  padding:5px 8px;border-radius:9px;font-size:10px;font-weight:900
+}
+.matchLockStatus.unlocked{
+  color:#a9efbd;background:#102719;border:1px solid #318752
+}
+.matchLockStatus.locked{
+  color:#ffc1c8;background:#2a151a;border:1px solid #8e3e4a
+}
+.matchLockIcon{font-size:13px;line-height:1}
+#onlineGameCode.lockedCode{
+  text-decoration:line-through;
+  text-decoration-thickness:3px;
+  text-decoration-color:#ff6577;
+  opacity:.62
+}
+
+.homeMatchLock{font-size:10px;font-weight:900;white-space:nowrap}
+.homeMatchLock.locked{color:#ff9aa6}
+.homeMatchLock.unlocked{color:#8de6a8}
+.lockedHomeCode{
+  text-decoration:line-through;
+  text-decoration-thickness:2px;
+  text-decoration-color:#ff6577;
+  opacity:.65
+}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.85</small></div><div class="badge" id="online">Redo · V4.85</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.87</small></div><div class="badge" id="online">Redo · V4.87</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -632,7 +661,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.85</strong>
+    Version <strong style="color:#fff">V4.87</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -642,8 +671,15 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 <section id="onlineGame" class="hidden">
   <div class="grid">
     <aside class="panel side">
-      <button type="button" class="btn dark full" onclick="closeOnlineGame()">← MINA MATCHER</button>
-      <div style="margin-top:16px"><small class="mut">MATCHKOD</small><div id="onlineGameCode" class="code">–</div></div>
+      <button type="button" id="onlineBackToMatchesBtn" class="btn dark full" onclick="closeOnlineGame()">← TILL MINA MATCHER</button>
+      <div class="matchCodeBox" style="margin-top:16px">
+        <small class="mut">MATCHKOD</small>
+        <div id="onlineGameCode" class="code">–</div>
+        <div id="onlineMatchLockStatus" class="matchLockStatus unlocked">
+          <span id="onlineMatchLockIcon" class="matchLockIcon">🔓</span>
+          <span id="onlineMatchLockText">Match ej låst</span>
+        </div>
+      </div>
       <h3>Motståndare</h3>
       <div id="onlineGamePlayers" class="players"></div>
 
@@ -1474,7 +1510,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.85";
+    if(badge)badge.textContent="Återansluten · V4.87";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1482,7 +1518,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.85 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.87 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1493,7 +1529,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.85"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.87"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1612,7 +1648,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.85":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.87":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2365,7 +2401,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.85
+// SPELA ONLINE – V4.87
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -4229,6 +4265,10 @@ async function loadOnlineMatches(options={}){
           const opponent=opp?.display_name||"Väntar på motspelare";
           const yourTurn=m.status==="active"&&String(m.current_user_id||"")===String(ensureOnlineUserId());
           const ended=m.status==="ended";
+          const matchLocked=row.players.some(p=>Number(p.rounds_started||0)>=2);
+          const lockHtml=matchLocked
+            ? `<span class="homeMatchLock locked">🔒 Match är låst</span>`
+            : `<span class="homeMatchLock unlocked">🔓 Match ej låst</span>`;
           const unreadChat=Number(homeUnreadChatByMatch[m.id]||0);
           const chatUnreadHtml=unreadChat>0
             ? `<span class="homeChatUnread" aria-label="Olästa chattmeddelanden" title="Olästa chattmeddelanden">✉<span>!</span></span>`
@@ -4784,10 +4824,10 @@ function renderOnlinePlayers(force=false){
         </div>
       </div>
       <div class="playerRoundRow">
-        <button type="button" class="btn dark roundHistoryBtn" onclick="toggleOnlineLastRound(${p.id})">${roundOpen?"DÖLJ SENASTE OMGÅNG":"VISA SENASTE OMGÅNG"}</button>
+        <button type="button" class="btn dark roundHistoryBtn" onclick="toggleOnlineLastRound(${p.id})">${roundOpen?"DÖLJ SENAST SPELAD OMGÅNG":"VISA SENAST SPELAD OMGÅNG"}</button>
       </div>
       ${roundOpen?`<div class="lastRoundPanel">
-        <div class="lastRoundTitle">SENASTE OMGÅNG – GISSNINGAR OCH TIDSLINJE</div>
+        <div class="lastRoundTitle">SENAST SPELAD OMGÅNG – GISSNINGAR OCH TIDSLINJE</div>
         <div class="lastRoundScroll" data-last-round="${p.id}">${lastRoundTimelineHtml(p.last_round)}</div>
       </div>`:""}
     </div>`;
@@ -4890,12 +4930,49 @@ function updateOnlineGameSubtitle(){
   }
 }
 
+function onlineMatchIsLocked(){
+  // Same rule as joining: once ANY active participant has started round 2,
+  // no more players may join this match.
+  return (onlinePlayers||[]).some(p=>Number(p.rounds_started||0)>=2);
+}
+
+function updateOnlineMatchLockStatus(){
+  const codeEl=$("onlineGameCode");
+  const status=$("onlineMatchLockStatus");
+  const icon=$("onlineMatchLockIcon");
+  const text=$("onlineMatchLockText");
+  if(!codeEl||!status||!icon||!text)return;
+
+  const locked=onlineMatchIsLocked();
+  codeEl.classList.toggle("lockedCode",locked);
+  status.classList.toggle("locked",locked);
+  status.classList.toggle("unlocked",!locked);
+  icon.textContent=locked?"🔒":"🔓";
+  text.textContent=locked?"Match är låst":"Match ej låst";
+}
+
+function updateOnlineBackButton(){
+  const btn=$("onlineBackToMatchesBtn");
+  if(!btn)return;
+  btn.textContent="← TILL MINA MATCHER";
+  const waitingForOpponent=!!(
+    onlineMatch &&
+    onlineMyPlayer &&
+    onlineMatch.status==="active" &&
+    !onlineIsMyTurn()
+  );
+  btn.classList.toggle("green",waitingForOpponent);
+  btn.classList.toggle("dark",!waitingForOpponent);
+}
+
 function renderOnlineGame(){
   updateOnlineSwapButton();
   updateOnlineGameSubtitle();
+  updateOnlineBackButton();
   if(!onlineMatch||!onlineMyPlayer)return;
   renderOnlinePlayers();
   $("onlineGameCode").textContent=onlineMatch.code;
+  updateOnlineMatchLockStatus();
 
   const opp=onlineOpponent();
   const opponents=onlineOpponents();
@@ -5570,9 +5647,9 @@ function showOnlineLocalResult(r,decision,held=false){
     <div class="check">${r.artistOk?"✅ Rätt artist":"❌ Fel artist"}${shownGuess.guessed?`<div class="yourGuess">Du skrev: ${esc(shownGuess.artist||"–")}</div>`:""}</div>
     <div class="check">${r.titleOk?"✅ Rätt låtnamn":"❌ Fel låtnamn"}${shownGuess.guessed?`<div class="yourGuess">Du skrev: ${esc(shownGuess.title||"–")}</div>`:""}</div>
     ${r.artistOk&&r.titleOk?`<div class="swapWinMessage">Grattis, du vann ett byt-låt-kort</div>`:""}`;
-  $("onlineBonus").innerHTML=r.bonus
-    ? `<div class="check">🔄 Rätt artist och låtnamn – du fick ett Byta-låt-kort.</div>`
-    : "";
+  // Bonusen visas redan i den gröna gratulationsraden ovan.
+  // Ingen andra informationsrad behövs.
+  $("onlineBonus").innerHTML="";
   if(!r.placeOk){
     onlineDecisionOpen=true;
     renderWrongPlacementTimeline(r);
@@ -5716,7 +5793,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.85.
+// Startsidan är alltid online i V4.87.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
