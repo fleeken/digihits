@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.73</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.74</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.73 – kompaktare spelvy */
+/* V4.74 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -427,12 +427,12 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .accountResetTitle{font-size:19px;font-weight:950;color:#fff}
 #passwordResetPanel{margin-top:2px}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.73</small></div><div class="badge" id="online">Redo · V4.73</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.74</small></div><div class="badge" id="online">Redo · V4.74</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
     <div class="hero">
-      <h1 style="font-size:30px;margin-bottom:6px">Vilket år släpptes låten?</h1>
+      <h1 id="homeGameTitle" class="hidden">Vilket år släpptes låten?</h1>
     </div>
 
     <div id="accountCard" class="role accountCard" style="margin-top:18px">
@@ -479,6 +479,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
       </div>
     </div>
 
+    <div id="authenticatedHomeContent" class="hidden">
     <div class="role" style="margin-top:12px">
       <button id="onlineSpotifyBtn" class="btn dark full startPrimaryAction" onclick="onlineSpotifyCheck()">KLICKA HÄR FÖR ATT KONTROLLERA SPOTIFY</button>
       <div style="display:flex;justify-content:center;margin-top:10px"><span id="onlineSpotifyBadge" class="badge">SPOTIFY EJ KONTROLLERAT</span></div>
@@ -528,8 +529,9 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.73</strong>
+    Version <strong style="color:#fff">V4.74</strong>
   </div>
+  </div><!-- authenticatedHomeContent -->
 </section>
 
 </div>
@@ -1369,7 +1371,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.73";
+    if(badge)badge.textContent="Återansluten · V4.74";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1377,7 +1379,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.73 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.74 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1388,7 +1390,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.73"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.74"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1506,7 +1508,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.73":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.74":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2259,8 +2261,11 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.73
+// SPELA ONLINE – V4.74
 // =======================
+const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
+const authClient=window.supabase.createClient(URL,KEY);
+
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
 let onlineUserId=localStorage.getItem(ONLINE_USER_KEY)||"";
@@ -2311,12 +2316,10 @@ let onlineHistoryRenderedHtml="";
 let onlineHistoryLoading=false;
 
 function getRealtimeClient(){
-  // Use the same Supabase client as database/auth so Realtime carries
-  // the logged-in user's access token on every device.
   if(realtimeClient)return realtimeClient;
   try{
-    if(db){
-      realtimeClient=db;
+    if(authClient){
+      realtimeClient=authClient;
       return realtimeClient;
     }
   }catch(e){
@@ -2674,6 +2677,8 @@ function renderAccountUi(){
   const loggedIn=!!digihitsAccountUser;
   $("accountLoggedOut")?.classList.toggle("hidden",loggedIn);
   $("accountLoggedIn")?.classList.toggle("hidden",!loggedIn);
+  $("authenticatedHomeContent")?.classList.toggle("hidden",!loggedIn);
+  $("homeGameTitle")?.classList.toggle("hidden",!loggedIn);
 
   if(loggedIn){
     if($("accountEmailShown"))$("accountEmailShown").textContent=digihitsAccountUser.email||"Konto";
@@ -2743,12 +2748,12 @@ async function applyAccountSession(user,{migrate=true}={}){
 
 async function initDigihitsAccount(){
   try{
-    if(!db?.auth)throw new Error("Kontoinloggningen kunde inte startas.");
-    const {data,error}=await db.auth.getSession();
+    if(!authClient?.auth)throw new Error("Kontoinloggningen kunde inte startas.");
+    const {data,error}=await authClient.auth.getSession();
     if(error)throw error;
     await applyAccountSession(data?.session?.user||null,{migrate:true});
 
-    db.auth.onAuthStateChange((event,session)=>{
+    authClient.auth.onAuthStateChange((event,session)=>{
       // PASSWORD_RECOVERY is emitted after the user opens the email reset link.
       if(event==="PASSWORD_RECOVERY"){
         setTimeout(()=>{
@@ -2764,7 +2769,7 @@ async function initDigihitsAccount(){
     });
   }catch(e){
     console.warn("Account init:",e);
-    setAccountStatus("Kontot kunde inte läsas in: "+e.message,true);
+    console.warn("Account init:",e); setAccountStatus("Kontot kunde inte ansluta just nu. Försök igen.",true);
   }finally{
     digihitsAuthReady=true;
     renderAccountUi();
@@ -2785,7 +2790,7 @@ function passwordResetRedirectUrl(){
 }
 
 async function sendPasswordReset(){
-  if(!db?.auth)return alert("Kontofunktionen är inte tillgänglig.");
+  if(!authClient?.auth)return alert("Kontofunktionen är inte tillgänglig.");
   const email=($("accountEmail")?.value||"").trim().toLowerCase();
   if(!email){
     setAccountStatus("Skriv din e-postadress först.",true);
@@ -2798,7 +2803,7 @@ async function sendPasswordReset(){
 
   setAccountStatus("Skickar återställningslänk…");
   try{
-    const {error}=await db.auth.resetPasswordForEmail(email,{
+    const {error}=await authClient.auth.resetPasswordForEmail(email,{
       redirectTo:passwordResetRedirectUrl()
     });
     if(error)throw error;
@@ -2806,13 +2811,15 @@ async function sendPasswordReset(){
     // Neutral wording also avoids revealing whether an account exists.
     setAccountStatus("Om e-postadressen finns registrerad har en återställningslänk skickats.");
   }catch(e){
-    setAccountStatus("Kunde inte skicka återställningslänken: "+e.message,true);
+    console.warn("Password reset:",e); setAccountStatus("Återställningslänken kunde inte skickas just nu. Försök igen.",true);
   }finally{
     if(btn){btn.disabled=false;btn.textContent="GLÖMT LÖSENORD?"}
   }
 }
 
 function showPasswordResetPanel(){
+  $("authenticatedHomeContent")?.classList.add("hidden");
+  $("homeGameTitle")?.classList.add("hidden");
   $("accountLoggedOut")?.classList.add("hidden");
   $("accountLoggedIn")?.classList.add("hidden");
   $("passwordResetPanel")?.classList.remove("hidden");
@@ -2826,7 +2833,7 @@ function hidePasswordResetPanel(){
 }
 
 async function saveNewPassword(){
-  if(!db?.auth)return alert("Kontofunktionen är inte tillgänglig.");
+  if(!authClient?.auth)return alert("Kontofunktionen är inte tillgänglig.");
   const p1=$("newPassword")?.value||"";
   const p2=$("newPasswordRepeat")?.value||"";
 
@@ -2843,7 +2850,7 @@ async function saveNewPassword(){
   if(btn){btn.disabled=true;btn.textContent="SPARAR…"}
 
   try{
-    const {error}=await db.auth.updateUser({password:p1});
+    const {error}=await authClient.auth.updateUser({password:p1});
     if(error)throw error;
 
     setPasswordResetStatus("Lösenordet är ändrat.");
@@ -2855,14 +2862,14 @@ async function saveNewPassword(){
       setAccountStatus("Lösenordet är ändrat. Du är inloggad.");
     },700);
   }catch(e){
-    setPasswordResetStatus("Kunde inte ändra lösenordet: "+e.message,true);
+    console.warn("Password update:",e); setPasswordResetStatus("Lösenordet kunde inte ändras just nu. Försök igen.",true);
   }finally{
     if(btn){btn.disabled=false;btn.textContent="SPARA NYTT LÖSENORD"}
   }
 }
 
 async function createDigihitsAccount(){
-  if(!db?.auth)return alert("Kontofunktionen är inte tillgänglig.");
+  if(!authClient?.auth)return alert("Kontofunktionen är inte tillgänglig.");
   $("passwordResetPanel")?.classList.add("hidden");
   const email=($("accountEmail")?.value||"").trim().toLowerCase();
   const password=$("accountPassword")?.value||"";
@@ -2873,7 +2880,7 @@ async function createDigihitsAccount(){
   setAccountStatus("Skapar konto…");
   try{
     const displayName=(localStorage.getItem(ONLINE_NAME_KEY)||"").trim();
-    const {data,error}=await db.auth.signUp({
+    const {data,error}=await authClient.auth.signUp({
       email,password,
       options:{data:{display_name:displayName}}
     });
@@ -2887,14 +2894,14 @@ async function createDigihitsAccount(){
       setAccountStatus("Kontot är skapat. Bekräfta e-postmeddelandet och logga sedan in.");
     }
   }catch(e){
-    setAccountStatus("Kunde inte skapa konto: "+e.message,true);
+    console.warn("Create account:",e); setAccountStatus("Kontot kunde inte skapas. Kontrollera uppgifterna och försök igen.",true);
   }finally{
     setAccountBusy(false);
   }
 }
 
 async function loginDigihitsAccount(){
-  if(!db?.auth)return alert("Kontofunktionen är inte tillgänglig.");
+  if(!authClient?.auth)return alert("Kontofunktionen är inte tillgänglig.");
   $("passwordResetPanel")?.classList.add("hidden");
   const email=($("accountEmail")?.value||"").trim().toLowerCase();
   const password=$("accountPassword")?.value||"";
@@ -2903,7 +2910,7 @@ async function loginDigihitsAccount(){
   setAccountBusy(true);
   setAccountStatus("Loggar in…");
   try{
-    const {data,error}=await db.auth.signInWithPassword({email,password});
+    const {data,error}=await authClient.auth.signInWithPassword({email,password});
     if(error)throw error;
     await applyAccountSession(data.user,{migrate:true});
     setAccountStatus("");
@@ -2916,10 +2923,10 @@ async function loginDigihitsAccount(){
 }
 
 async function logoutDigihitsAccount(){
-  if(!db?.auth)return;
+  if(!authClient?.auth)return;
   $("passwordResetPanel")?.classList.add("hidden");
   try{
-    await db.auth.signOut();
+    await authClient.auth.signOut();
   }catch(e){
     console.warn("Logout:",e);
   }
@@ -2929,6 +2936,8 @@ async function logoutDigihitsAccount(){
   }catch(_){}
   onlineListChannel=null;
   digihitsAccountUser=null;
+  $("authenticatedHomeContent")?.classList.add("hidden");
+  $("homeGameTitle")?.classList.add("hidden");
   onlineMatch=null;
   onlinePlayers=[];
   onlineMyPlayer=null;
@@ -2964,8 +2973,8 @@ function saveOnlineName(){
   const n=onlineName();
   if(n){
     localStorage.setItem(ONLINE_NAME_KEY,n);
-    if(digihitsAccountUser&&db?.auth){
-      db.auth.updateUser({data:{display_name:n}}).catch(e=>console.warn("Name sync:",e));
+    if(digihitsAccountUser&&authClient?.auth){
+      authClient.auth.updateUser({data:{display_name:n}}).catch(e=>console.warn("Name sync:",e));
       digihitsAccountUser={
         ...digihitsAccountUser,
         user_metadata:{...(digihitsAccountUser.user_metadata||{}),display_name:n}
@@ -4870,7 +4879,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.73.
+// Startsidan är alltid online i V4.74.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
