@@ -1,11 +1,19 @@
-DIGIHITS V4.75 – KONTOFIX
+DIGIHITS V4.76 – AUTH OMBYGGT
 
-- Spelets REST/Supabase-databasklient är återställd.
-- Supabase Auth och spelets databasanrop fungerar sida vid sida.
-- Skapa konto använder e-postverifiering och redirect tillbaka till Digihits.
-- Logga in använder email + password.
-- Glömt lösenord använder Supabase reset-länk.
-- Konto-initiering vid sidstart är tyst; ingen röd varning visas innan användaren gjort något.
-- Tekniska Auth-fel översätts till begriplig svensk text.
-- JavaScript syntax och alla inline-knappar kontrollerade: PASS.
-- Ingen ny SQL krävs utöver V4.72-konto-SQL om den inte redan körts.
+Kontosystemet använder nu Supabase Auth REST direkt i stället för att vara beroende av
+Supabase JS Auth-klienten för de kritiska kontoknapparna.
+
+Kontrollerat:
+- SKAPA KONTO -> /auth/v1/signup
+- LOGGA IN -> /auth/v1/token?grant_type=password
+- GLÖMT LÖSENORD -> /auth/v1/recover
+- NYTT LÖSENORD -> /auth/v1/user
+- Session sparas lokalt och refreshas med refresh token.
+- Verifierings-/återställningscallback läses från URL.
+- Alla kontoknappar är kopplade till definierade funktioner.
+- JavaScript syntax: PASS.
+- Inga authClient-referenser finns kvar i kritiska konto-flödet.
+
+Ingen ny SQL krävs.
+Supabase Site URL / Redirect URL ska vara:
+https://fleeken.github.io/digihits/
