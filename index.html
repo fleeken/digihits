@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.60</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.61</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -256,7 +256,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .swapWinMessage{margin-top:9px;padding:9px 12px;border-radius:11px;background:#173522;border:1px solid #35db7b;color:#9af4b8;font-size:12px;font-weight:950;text-align:center}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.60</small></div><div class="badge" id="online">Redo · V4.60</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.61</small></div><div class="badge" id="online">Redo · V4.61</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -324,7 +324,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.60</strong>
+    Version <strong style="color:#fff">V4.61</strong>
   </div>
 </section>
 
@@ -1096,7 +1096,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.60";
+    if(badge)badge.textContent="Återansluten · V4.61";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1104,7 +1104,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.60 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.61 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1115,7 +1115,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.60"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.61"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1233,7 +1233,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.60":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.61":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1986,7 +1986,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.60
+// SPELA ONLINE – V4.61
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -2476,13 +2476,38 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
   const seen=new Set(excludeIds||[]);
   const currentYear=new Date().getFullYear();
 
-  for(let attempt=0;attempt<12 && out.length<wanted;attempt++){
+  async function searchSpotifyTracks(query,offset=0){
+    // Spotify changed Search in Feb 2026: max limit is now 10.
+    // Keep offset conservative and retry without offset if Spotify rejects it.
+    const safeOffset=Math.max(0,Math.min(990,Math.floor(Number(offset)||0)));
+    const base=`/search?q=${encodeURIComponent(query)}&type=track&limit=10`;
+    try{
+      return await spotifyApi(base+`&offset=${safeOffset}`);
+    }catch(e){
+      const msg=String(e?.message||"").toLowerCase();
+      if(msg.includes("invalid limit")||msg.includes("invalid offset")||msg.includes("invalid")){
+        return await spotifyApi(base);
+      }
+      throw e;
+    }
+  }
+
+  // We page in small, Spotify-valid batches. This is slower than the old
+  // limit=50 approach but robust against the 2026 API change.
+  for(let attempt=0;attempt<18 && out.length<wanted;attempt++){
     const span=Math.max(1,currentYear-1959);
     const year=1960+Math.floor(Math.random()*span);
-    const offsets=[0,20,40,60,80,100,150,200];
+    const offsets=[0,10,20,30,40,50,60,70,80,90];
     const offset=offsets[Math.floor(Math.random()*offsets.length)];
-    const q=encodeURIComponent(`year:${year}`);
-    const d=await spotifyApi(`/search?q=${q}&type=track&limit=50&offset=${offset}`);
+
+    let d=null;
+    try{
+      d=await searchSpotifyTracks(`year:${year}`,offset);
+    }catch(e){
+      console.warn("Spotify search year failed:",e);
+      continue;
+    }
+
     for(const track of (d?.tracks?.items||[])){
       const card=spotifyTrackToCard(track);
       if(!card||seen.has(String(card.id)))continue;
@@ -2492,10 +2517,16 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
     }
   }
 
-  if(out.length<Math.min(wanted,10)){
-    const seeds=["a","e","i","o","s","m","t","love","night","dance","you"];
+  if(out.length<Math.min(wanted,12)){
+    const seeds=["love","night","dance","you","baby","heart","time","dream","fire","home","life","world"];
     for(const seed of seeds.sort(()=>Math.random()-.5)){
-      const d=await spotifyApi(`/search?q=${encodeURIComponent(seed)}&type=track&limit=50`);
+      let d=null;
+      try{
+        d=await searchSpotifyTracks(seed,0);
+      }catch(e){
+        console.warn("Spotify fallback search failed:",e);
+        continue;
+      }
       for(const track of (d?.tracks?.items||[])){
         const card=spotifyTrackToCard(track);
         if(!card||seen.has(String(card.id)))continue;
@@ -2506,6 +2537,7 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
       if(out.length>=wanted)break;
     }
   }
+
   return sh(out);
 }
 
@@ -2528,9 +2560,9 @@ async function refillOnlineDeckIfNeeded(minAvailable=12,targetSize=35){
 }
 
 async function drawOnlineSpotifySong(){
-  let deck=await refillOnlineDeckIfNeeded(8,35);
-  if(!deck.length)deck=sh(await fetchSpotifyTrackBatch(onlineKnownTrackIds(),25));
-  if(!deck.length)throw new Error("Spotify kunde inte hämta en ny låt just nu. Försök igen.");
+  let deck=await refillOnlineDeckIfNeeded(6,18);
+  if(!deck.length)deck=sh(await fetchSpotifyTrackBatch(onlineKnownTrackIds(),12));
+  if(!deck.length)throw new Error("Spotify kunde inte hämta en ny låt just nu. Kontrollera Spotify och försök igen.");
 
   const song=deck.shift();
   const used=[...new Set([...(onlineMatch.used_track_ids||[]).map(String),String(song.id)])];
@@ -2549,7 +2581,7 @@ async function createOnlineMatch(){
 
     setOnlineStatus("Hämtar låtar från Spotify…");
     await getSpotifyToken();
-    let deck=await fetchSpotifyTrackBatch(new Set(),35);
+    let deck=await fetchSpotifyTrackBatch(new Set(),18);
     if(deck.length<4)throw new Error("Spotify kunde inte hämta tillräckligt många låtar. Försök igen.");
     const firstCard=deck.pop();
     const usedTrackIds=[String(firstCard.id)];
@@ -2625,7 +2657,7 @@ async function joinOnlineMatch(){
 
     onlineMatch=m;
     onlinePlayers=list;
-    let deck=await refillOnlineDeckIfNeeded(4,35);
+    let deck=await refillOnlineDeckIfNeeded(4,18);
     if(!deck.length)throw new Error("Spotify kunde inte hämta en startlåt just nu.");
     const firstCard=deck.pop();
     const usedTrackIds=[...new Set([...(m.used_track_ids||[]).map(String),String(firstCard.id)])];
@@ -3433,6 +3465,7 @@ async function startOnlineTurn(){
     const ok=await onlineSpotifyCheck();
     if(!ok)throw new Error("Spotify måste vara redo innan turen kan startas.");
 
+    setOnlineGameStatus("Hämtar nästa låt från Spotify…");
     const draw=await drawOnlineSpotifySong();
     const song=draw.song;
     const deck=draw.deck;
@@ -3451,6 +3484,7 @@ async function startOnlineTurn(){
     setOnlineGameStatus("");
     renderOnlineGame();
     await onlinePlaySong(song.id);
+    setOnlineGameStatus("");
   }catch(e){
     setOnlineGameStatus(e.message,true);
     alert(e.message);
@@ -3904,6 +3938,7 @@ async function onlineContinue(){
   try{
     setOnlineGameStatus("");
     clearOnlineRoundLocal();
+    setOnlineGameStatus("Hämtar nästa låt från Spotify…");
     const draw=await drawOnlineSpotifySong();
     const song=draw.song;
     const deck=draw.deck;
@@ -3916,6 +3951,7 @@ async function onlineContinue(){
     clearOnlineRoundLocal();
     renderOnlineGame();
     await onlinePlaySong(song.id);
+    setOnlineGameStatus("");
   }catch(e){alert(e.message)}
   finally{actionBusy=false}
 }
@@ -3966,6 +4002,7 @@ async function onlineSwapSong(){
   if(actionBusy||!onlineMyPlayer||(onlineMyPlayer.swap_cards||0)<=0)return;
   actionBusy=true;
   try{
+    setOnlineGameStatus("Hämtar nästa låt från Spotify…");
     const draw=await drawOnlineSpotifySong();
     const song=draw.song;
     const deck=draw.deck;
@@ -3984,11 +4021,12 @@ async function onlineSwapSong(){
     updateOnlineSwapButton();
     renderOnlineGame();
     await onlinePlaySong(song.id);
+    setOnlineGameStatus("");
   }catch(e){alert(e.message)}
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.60.
+// Startsidan är alltid online i V4.61.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
