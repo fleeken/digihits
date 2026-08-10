@@ -1,23 +1,38 @@
-DIGIHITS V4.68 – GÅ MED I MATCH / FLERA MOTSTÅNDARE
+DIGIHITS V4.70 – STABILITETSAUDIT
 
-REGEL
-- En ny deltagare får gå med medan matchen väntar eller under första varvet.
-- Så fort NÅGON spelare har startat sin andra omgång låses matchen för nya deltagare.
-- Exakt feltext:
-  Andra omgången har tyvärr redan påbörjats.
+KRITISK BUGG
+- "Can't find variable: esc" är fixat.
+- Resultatvyn har nu en definierad HTML-escape-funktion.
 
-FLERA SPELARE
-- Matchlogiken är inte längre låst till exakt två spelare.
-- Upp till 8 deltagare kan vara med i samma match.
-- Den som går med under första varvet läggs sist i turordningen.
-- En pågående tur nollställs inte när en ny deltagare ansluter.
-- Nästa tur går till nästa aktiva spelare i turn_order och loopar sedan tillbaka till första.
-- Matchrubriken kan visa flera motståndare.
+IPHONE / BEKRÄFTA PLATS
+- Smooth-scroll körs inte längre när BEKRÄFTA PLATS blir tryckbar.
+- Den valda fickan centreras direkt.
+- Touch på BEKRÄFTA PLATS hanteras direkt via touchend.
+- Syntetiskt efterföljande click ignoreras så funktionen inte körs dubbelt.
+- Samma touch-säkra hantering används för ÅNGRA PLACERING.
+- Målet är ett tryck, en åtgärd.
 
-TEKNIK
-- rounds_started sparas per spelare.
-- Räknaren ökar när spelaren faktiskt startar sin tur.
-- Misslyckad turstart före listen-läget rullar tillbaka räknaren.
+SPOTIFY – SPELKRITISKT
+- PAUSA skickar kommandot och verifierar därefter att Spotify verkligen är pausat.
+- FORTSÄTT SPELA skickar kommandot och verifierar att uppspelningen faktiskt startat.
+- Vid tappad/stale Spotify-enhet försöker Digihits hitta enheten igen.
+- Kommandon har retry och efterkontroll.
+- SPela från början har fått en EGEN funktion.
+- SPela från början skickar alltid position_ms=0 även om rätt låt redan spelar.
+- Funktionen verifierar både rätt låt, playing=true och att positionen ligger nära 0.
+- Playback-knappar låses medan ett Spotify-kommando körs så dubbeltryck inte skapar konkurrerande kommandon.
+- Status visas under Spotify-kommando och fel visas tydligt.
+- Legacy pause/resume använder samma robusta lager.
 
-VIKTIGT
-Kör ONLINE_V4_68_ROUNDS.sql en gång i Supabase SQL Editor.
+ÖVRIG KONTROLL
+- JavaScript syntax kontrollerad med Node.
+- Inline onclick-funktioner kontrollerade mot definierade funktioner.
+- Saknade funktionsanrop skannade.
+- Dubblerad "ingen nästa spelare"-kontroll städad.
+
+Ingen ny SQL krävs.
+
+SLUTKONTROLL
+- 34 inline-knappkopplingar kontrollerade: PASS
+- Kritiska Spotify-/spel-/placeringsfunktioner verifierade som definierade.
+- Slutlig Node syntaxkontroll: PASS.

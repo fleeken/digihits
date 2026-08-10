@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.68</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.70</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.68 – kompaktare spelvy */
+/* V4.70 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -396,8 +396,17 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   #onlinePlaceScreen:not(.hidden),
   #onlineResultScreen:not(.hidden){margin-top:4px !important}
 }
+
+.waitingForOpponentNote{margin-top:4px;font-size:11px;color:#b7beca}
+
+#onlineConfirmPlacementBtn,#onlineMoveAgainBtn{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  -webkit-user-select:none;
+}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.68</small></div><div class="badge" id="online">Redo · V4.68</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.70</small></div><div class="badge" id="online">Redo · V4.70</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -465,7 +474,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.68</strong>
+    Version <strong style="color:#fff">V4.70</strong>
   </div>
 </section>
 
@@ -592,6 +601,8 @@ let spotifyAccessToken = localStorage.getItem("digihits_spotify_access") || "";
 let spotifyRefreshToken = localStorage.getItem("digihits_spotify_refresh") || "";
 let spotifyExpiresAt = Number(localStorage.getItem("digihits_spotify_expires") || 0);
 let spotifyDeviceId = localStorage.getItem("digihits_spotify_device") || "";
+let spotifyCommandBusy=false;
+let spotifyLastCommandAt=0;
 
 function bytesBase64Url(bytes){
   let s="";
@@ -789,6 +800,136 @@ async function verifySpotifyTrack(trackId){
   }
 }
 
+async function spotifyPlaybackState(){
+  try{return await spotifyApi("/me/player")}
+  catch(_){return null}
+}
+
+async function waitForSpotifyState(predicate,{attempts=8,delay=300}={}){
+  for(let i=0;i<attempts;i++){
+    const state=await spotifyPlaybackState();
+    if(state && predicate(state))return state;
+    await sleep(delay+(i*60));
+  }
+  return null;
+}
+
+async function ensureSpotifyCommandDevice(){
+  if(!spotifyAccessToken&&!spotifyRefreshToken)throw new Error("Spotify är inte anslutet.");
+  let ok=await ensureSpotifyDevice(false);
+  if(!ok){
+    // One recovery pass after forgetting a stale cached device.
+    spotifyDeviceId="";
+    localStorage.removeItem("digihits_spotify_device");
+    await sleep(250);
+    ok=await ensureSpotifyDevice(false);
+  }
+  if(!ok||!spotifyDeviceId)throw new Error("Ingen aktiv Spotify-enhet hittades.");
+  return spotifyDeviceId;
+}
+
+async function spotifyPauseRobust(){
+  if(spotifyCommandBusy)return false;
+  spotifyCommandBusy=true;
+  try{
+    const deviceId=await ensureSpotifyCommandDevice();
+
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        await spotifyApi("/me/player/pause?device_id="+encodeURIComponent(deviceId),{method:"PUT"});
+      }catch(e){
+        // Spotify may report a late error even when command succeeded.
+        const state=await spotifyPlaybackState();
+        if(state && state.is_playing===false)return true;
+        if(attempt===2)throw e;
+      }
+
+      const confirmed=await waitForSpotifyState(s=>s.is_playing===false,{attempts:5,delay:220});
+      if(confirmed)return true;
+      await sleep(250);
+    }
+    throw new Error("Spotify bekräftade inte paus.");
+  }finally{
+    spotifyCommandBusy=false;
+  }
+}
+
+async function spotifyResumeRobust(expectedTrackId=null){
+  if(spotifyCommandBusy)return false;
+  spotifyCommandBusy=true;
+  try{
+    const deviceId=await ensureSpotifyCommandDevice();
+
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        await spotifyApi("/me/player/play?device_id="+encodeURIComponent(deviceId),{method:"PUT"});
+      }catch(e){
+        const state=await spotifyPlaybackState();
+        const right=!expectedTrackId||state?.item?.id===expectedTrackId;
+        if(state?.is_playing && right)return true;
+        if(attempt===2)throw e;
+      }
+
+      const confirmed=await waitForSpotifyState(s=>{
+        const right=!expectedTrackId||s?.item?.id===expectedTrackId;
+        return !!s?.is_playing && right;
+      },{attempts:5,delay:220});
+      if(confirmed)return true;
+      await sleep(250);
+    }
+    throw new Error("Spotify bekräftade inte fortsatt uppspelning.");
+  }finally{
+    spotifyCommandBusy=false;
+  }
+}
+
+async function spotifyRestartTrack(trackId){
+  if(!trackId)throw new Error("Ingen låt att spela.");
+  if(spotifyCommandBusy)return false;
+  spotifyCommandBusy=true;
+
+  try{
+    const deviceId=await ensureSpotifyCommandDevice();
+    let lastError=null;
+
+    for(let attempt=1;attempt<=4;attempt++){
+      try{
+        // This command is intentionally sent even when the correct song
+        // is already playing. "Spela från början" must ALWAYS seek to 0.
+        await spotifyApi("/me/player/play?device_id="+encodeURIComponent(deviceId),{
+          method:"PUT",
+          body:JSON.stringify({
+            uris:["spotify:track:"+trackId],
+            position_ms:0
+          })
+        });
+      }catch(e){
+        lastError=e;
+      }
+
+      const confirmed=await waitForSpotifyState(s=>{
+        const pos=Number(s?.progress_ms||0);
+        return s?.item?.id===trackId && !!s?.is_playing && pos<5000;
+      },{attempts:7,delay:240});
+
+      if(confirmed){
+        spotifyLastCommandAt=Date.now();
+        return true;
+      }
+
+      // Re-resolve device before next retry.
+      spotifyDeviceId="";
+      localStorage.removeItem("digihits_spotify_device");
+      await ensureSpotifyDevice(false);
+      await sleep(300*attempt);
+    }
+
+    throw lastError||new Error("Spotify kunde inte starta om låten från början.");
+  }finally{
+    spotifyCommandBusy=false;
+  }
+}
+
 async function spotifyPlayTrack(trackId){
   let lastError=null;
 
@@ -979,128 +1120,27 @@ async function toggleSpotifyPlayback(){
 
 async function spotifyPause(){
   try{
-    await ensureSpotifyReady();
-    await spotifyApi("/me/player/pause?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
-    $("status").textContent="";setTimeout(pollSpotifyPlayback,180);
-  }catch(e){alert("Spotify: "+e.message)}
+    await spotifyPauseRobust();
+    const status=$("status");if(status)status.textContent="";
+    setTimeout(pollSpotifyPlayback,180);
+    return true;
+  }catch(e){
+    alert("Spotify: "+e.message);
+    throw e;
+  }
 }
+
 async function spotifyResume(){
   try{
-    await ensureSpotifyReady();
-    await spotifyApi("/me/player/play?device_id="+encodeURIComponent(spotifyDeviceId),{method:"PUT"});
-    $("status").textContent="";setTimeout(pollSpotifyPlayback,180);
-  }catch(e){alert("Spotify: "+e.message)}
-}
-document.addEventListener("keydown",e=>{
-  if(e.key==="Enter" && document.activeElement?.id==="matchChatInput"){
-    e.preventDefault();
-    sendMatchChatMessage();
-  }
-});
-
-window.addEventListener("load",async()=>{
-  updateSpotifyUi();
-  await handleSpotifyCallback().catch(e=>console.error(e));
-
-  if(spotifyAccessToken||spotifyRefreshToken){
-    await ensureSpotifyDevice(false);
-    updateSpotifyUi();
-    if(spotifyDeviceId){
-      setSpotifySetupMessage("Spotify anslutet.");
-      await runSpotifyPreflight(false);
-    }
-  }
-
-  await restoreActiveSession();
-  startOnlineHomeSync();
-});
-const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0", TRACKS=[{"title": "Take On Me", "artist": "a-ha", "year": 1985, "id": "2WfaOiMkCvy7F5fcp2zZ8L"}, {"title": "Like a Prayer", "artist": "Madonna", "year": 1989, "id": "1z3ugFmUKoCzGsI6jdY4Ci"}, {"title": "Smells Like Teen Spirit", "artist": "Nirvana", "year": 1991, "id": "4CeeEOM32jQcH3eN9Q2dGj"}, {"title": "Wannabe", "artist": "Spice Girls", "year": 1996, "id": "1Je1IMUlBXcx1Fz0WE7oPT"}, {"title": "...Baby One More Time", "artist": "Britney Spears", "year": 1998, "id": "3MjUtNVVq3C8Fn0MP3zhXa"}, {"title": "Freestyler", "artist": "Bomfunk MC's", "year": 1999, "id": "2AsJqU7Z3J7cBQrKHVNJcA"}, {"title": "Crazy in Love", "artist": "Beyoncé", "year": 2003, "id": "5IVuqXILoxVWvWEPm82Jxr"}, {"title": "Poker Face", "artist": "Lady Gaga", "year": 2008, "id": "5R8dQOPq8haW94K7mgERlO"}, {"title": "Rolling in the Deep", "artist": "Adele", "year": 2010, "id": "1c8gk2PeTE04A1pIDH9YMk"}, {"title": "Wake Me Up", "artist": "Avicii", "year": 2013, "id": "0nrRP2bk19rLc0orkWPQk2"}, {"title": "Shape of You", "artist": "Ed Sheeran", "year": 2017, "id": "7qiZfU4dY1lWllzX7mPBI3"}, {"title": "Blinding Lights", "artist": "The Weeknd", "year": 2019, "id": "0VjIjW4GlUZAMYd2vXMi3b"}, {"title": "As It Was", "artist": "Harry Styles", "year": 2022, "id": "4LRPiXqCikLlN15c3yImP7"}, {"title": "Flowers", "artist": "Miley Cyrus", "year": 2023, "id": "0yLdNVWF3Srea0uzk55zFn"}];
-let role="",code="",match=null,players=[],poll=null,selected=null,guessSaved=false,localNames=["Anna","Viktor"];
-let actionBusy=false, startSongBusy=false, confirmBusy=false;
-
-class RestQuery {
-  constructor(table){
-    this.table=table;
-    this.method="GET";
-    this.body=null;
-    this.params=new URLSearchParams();
-    this.mode="many";
-    this.returnRows=false;
-  }
-  select(cols="*"){
-    this.params.set("select",cols);
-    if(this.method!=="GET") this.returnRows=true;
-    return this;
-  }
-  insert(payload){this.method="POST";this.body=payload;return this;}
-  update(payload){this.method="PATCH";this.body=payload;return this;}
-  delete(){this.method="DELETE";return this;}
-  eq(column,value){
-    this.params.append(column,"eq."+String(value));
-    return this;
-  }
-  order(column,opts={}){
-    this.params.set("order",column+"."+(opts.ascending===false?"desc":"asc"));
-    return this;
-  }
-  limit(count){
-    const n=Math.max(1,Math.floor(Number(count)||1));
-    this.params.set("limit",String(n));
-    return this;
-  }
-  single(){this.mode="single";return this;}
-  maybeSingle(){this.mode="maybeSingle";return this;}
-  then(resolve,reject){this.execute().then(resolve,reject);}
-  async execute(){
-    const url=URL+"/rest/v1/"+encodeURIComponent(this.table)+(this.params.toString()?"?"+this.params.toString():"");
-    const headers={
-      "apikey":KEY,
-      "Authorization":"Bearer "+KEY,
-      "Content-Type":"application/json"
-    };
-    if(this.method!=="GET"){
-      headers["Prefer"]=this.returnRows?"return=representation":"return=minimal";
-    }
-    let response;
-    try{
-      response=await fetch(url,{
-        method:this.method,
-        headers,
-        body:this.body===null?undefined:JSON.stringify(this.body),
-        cache:"no-store"
-      });
-    }catch(err){
-      return {data:null,error:{message:"Kunde inte nå Supabase: "+err.message}};
-    }
-
-    let data=null;
-    const text=await response.text();
-    if(text){
-      try{data=JSON.parse(text)}catch(_){data=text}
-    }
-
-    if(!response.ok){
-      let msg="HTTP "+response.status;
-      if(data&&typeof data==="object")msg=data.message||data.error_description||data.hint||msg;
-      return {data:null,error:{message:msg,status:response.status,details:data}};
-    }
-
-    if(this.mode==="single"){
-      const row=Array.isArray(data)?data[0]:data;
-      if(!row)return {data:null,error:{message:"Ingen rad returnerades från databasen."}};
-      return {data:row,error:null};
-    }
-    if(this.mode==="maybeSingle"){
-      return {data:Array.isArray(data)?(data[0]||null):data,error:null};
-    }
-    return {data:data??[],error:null};
+    await spotifyResumeRobust(null);
+    const status=$("status");if(status)status.textContent="";
+    setTimeout(pollSpotifyPlayback,180);
+    return true;
+  }catch(e){
+    alert("Spotify: "+e.message);
+    throw e;
   }
 }
-const db={from:(table)=>new RestQuery(table)};
-
-const SESSION_KEY="digihits_active_session_v2";
-const SESSION_TTL_MS=6*60*60*1000; // 6 timmar
-let intentionalLeave=false;
 
 function saveActiveSession(){
   if(!code || !role)return;
@@ -1237,7 +1277,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.68";
+    if(badge)badge.textContent="Återansluten · V4.70";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1245,7 +1285,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.68 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.70 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1256,7 +1296,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.68"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.70"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1374,7 +1414,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.68":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.70":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2127,7 +2167,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.68
+// SPELA ONLINE – V4.70
 // =======================
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -2283,6 +2323,8 @@ function escapeHtml(v){
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[ch]));
 }
+
+function esc(v){return escapeHtml(v)}
 
 function fmtChatTime(ts){
   try{
@@ -3809,24 +3851,80 @@ function startOnlinePlaybackPolling(){
       $("onlinePlaybackPos").textContent=fmtMs(pos);
       $("onlinePlaybackDur").textContent=fmtMs(dur);
       $("onlinePlaybackFill").style.width=dur?Math.min(100,pos/dur*100)+"%":"0%";
-      $("onlinePlayPauseBtn").textContent=state.is_playing?"❚❚ PAUSA":"▶ FORTSÄTT SPELA";
+      if(!$("onlinePlayPauseBtn").disabled){
+        $("onlinePlayPauseBtn").textContent=state.is_playing?"❚❚ PAUSA":"▶ FORTSÄTT SPELA";
+      }
     }catch(_){}
   };
   run();onlinePlaybackTimer=setInterval(run,1600);
 }
 async function onlineTogglePlayback(){
+  const btn=$("onlinePlayPauseBtn");
+  if(btn?.disabled)return;
+
   try{
-    const s=await spotifyApi("/me/player");
-    if(s?.is_playing)await spotifyPause();else await spotifyResume();
-    setTimeout(startOnlinePlaybackPolling,180);
-  }catch(e){alert("Spotify: "+e.message)}
+    if(btn){
+      btn.disabled=true;
+      btn.style.opacity=".65";
+    }
+    setOnlineGameStatus("Kontrollerar Spotify…");
+
+    const s=await spotifyPlaybackState();
+    if(!s)throw new Error("Spotify svarar inte just nu.");
+
+    if(s.is_playing){
+      if(btn)btn.textContent="PAUSAR…";
+      await spotifyPauseRobust();
+      if(btn)btn.textContent="▶ FORTSÄTT SPELA";
+      setOnlineGameStatus("");
+    }else{
+      if(btn)btn.textContent="STARTAR…";
+      await spotifyResumeRobust(onlineMatch?.current_song?.id||null);
+      if(btn)btn.textContent="❚❚ PAUSA";
+      setOnlineGameStatus("");
+    }
+
+    startOnlinePlaybackPolling();
+  }catch(e){
+    setOnlineGameStatus("Spotify: "+e.message,true);
+    alert("Spotify: "+e.message);
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.style.opacity="1";
+    }
+  }
 }
+
 async function onlineRestartPlayback(){
+  const btn=[...document.querySelectorAll("button")].find(b=>b.getAttribute("onclick")==="onlineRestartPlayback()");
+  if(btn?.disabled)return;
+
   try{
     if(!onlineMatch?.current_song)throw new Error("Ingen aktiv låt.");
-    await spotifyPlayTrack(onlineMatch.current_song.id);
+    if(btn){
+      btn.disabled=true;
+      btn.style.opacity=".65";
+      btn.textContent="STARTAR OM…";
+    }
+    setOnlineGameStatus("Startar låten från början…");
+
+    await spotifyRestartTrack(onlineMatch.current_song.id);
     onlineLastPlayedSongId=onlineMatch.current_song.id;
-  }catch(e){alert("Spotify: "+e.message)}
+
+    if(btn)btn.textContent="↺ SPELA FRÅN BÖRJAN";
+    setOnlineGameStatus("");
+    startOnlinePlaybackPolling();
+  }catch(e){
+    setOnlineGameStatus("Spotify: "+e.message,true);
+    alert("Spotify: "+e.message);
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.style.opacity="1";
+      if(btn.textContent==="STARTAR OM…")btn.textContent="↺ SPELA FRÅN BÖRJAN";
+    }
+  }
 }
 
 function showOnlineListen(){
@@ -3911,6 +4009,30 @@ function onlineTimelineKey(){
   return [onlineMatch?.current_song?.id||"",onlineSelected===null?"none":String(onlineSelected),locked,risk].join("::");
 }
 
+function bindInstantAction(button,handler){
+  if(!button)return;
+  let lastTouch=0;
+
+  button.addEventListener("touchend",e=>{
+    // Direct touch activation avoids iOS delayed/cancelled click after horizontal scrolling.
+    if(button.disabled)return;
+    lastTouch=Date.now();
+    e.preventDefault();
+    e.stopPropagation();
+    handler(e);
+  },{passive:false});
+
+  button.addEventListener("click",e=>{
+    // Ignore the synthetic click generated immediately after touchend.
+    if(Date.now()-lastTouch<700){
+      e.preventDefault();
+      return;
+    }
+    if(button.disabled)return;
+    handler(e);
+  });
+}
+
 function renderOnlineTimeline(force=false){
   const el=$("onlineTimeline");
   if(!el||!onlineMyPlayer)return;
@@ -3936,8 +4058,8 @@ function renderOnlineTimeline(force=false){
         <button type="button" id="onlineMoveAgainBtn" class="btn dark full">ÅNGRA PLACERING</button>
       </div>`;
       el.appendChild(pocket);
-      pocket.querySelector("#onlineConfirmPlacementBtn").addEventListener("click",confirmOnlinePlacement,{once:true});
-      pocket.querySelector("#onlineMoveAgainBtn").addEventListener("click",clearOnlinePlacement);
+      bindInstantAction(pocket.querySelector("#onlineConfirmPlacementBtn"),confirmOnlinePlacement);
+      bindInstantAction(pocket.querySelector("#onlineMoveAgainBtn"),clearOnlinePlacement);
     }else{
       const drop=document.createElement("button");
       drop.type="button";
@@ -3971,9 +4093,14 @@ function selectOnlinePlacement(i){
   renderOnlineTimeline(true);
   requestAnimationFrame(()=>{
     const pending=document.querySelector("#onlineTimeline .pendingSlot");
-    if(pending){
-      pending.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"});
-      setTimeout(rememberOnlineTimelineScroll,350);
+    const rail=$("onlineTimeline");
+    if(pending&&rail){
+      // iPhone/Safari: do NOT animate the rail while the confirm button is tappable.
+      // A running smooth-scroll can consume the first tap merely to stop scrolling.
+      const target=pending.offsetLeft-(rail.clientWidth-pending.offsetWidth)/2;
+      rail.scrollLeft=Math.max(0,target);
+      onlineTimelineScrollLeft=rail.scrollLeft;
+      rememberOnlineTimelineScroll();
     }
   });
 }
@@ -4112,7 +4239,6 @@ async function confirmOnlinePlacement(){
     }else{
       const next=nextOnlinePlayerAfter(ensureOnlineUserId());
       if(!next)throw new Error("Ingen nästa spelare hittades.");
-      if(!next)throw new Error("Motspelaren saknas.");
       const mr=await db.from("online_matches").update({
         current_song:null,
         phase:"turn_ready",
@@ -4334,7 +4460,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.68.
+// Startsidan är alltid online i V4.70.
 function startOnlineHomeSync(){
   const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
   if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
