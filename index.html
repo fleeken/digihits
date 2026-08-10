@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.76</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.78</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -252,7 +252,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .onlineTimeline{min-height:208px;align-items:flex-end}
 
 #onlineSwapBtn{display:flex;align-items:center;justify-content:center;gap:9px}
-#onlineSwapBtnCount{font-weight:1000;white-space:nowrap}
+#onlineSwapBtn .onlineSwapBtnCount{font-weight:1000;white-space:nowrap}
 
 .swapWinMessage{margin-top:9px;padding:9px 12px;border-radius:11px;background:#173522;border:1px solid #35db7b;color:#9af4b8;font-size:12px;font-weight:950;text-align:center}
 
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.76 – kompaktare spelvy */
+/* V4.78 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -428,8 +428,18 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 #passwordResetPanel{margin-top:2px}
 
 #accountStatus:empty,#passwordResetStatus:empty{display:none}
+
+.profileNameBox{margin-top:12px;padding-top:10px;border-top:1px solid #313744}
+.profileNameLabel{font-size:11px;font-weight:900;color:#aeb8c8;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.profileNameView{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:9px 11px;background:#10131a;border:1px solid #3a4250;border-radius:12px}
+.profileNameView strong{font-size:16px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profileEditBtn{flex:0 0 38px;width:38px;height:38px;border-radius:10px;border:1px solid #505968;background:#272c36;color:#fff;font-size:21px;font-weight:900;cursor:pointer}
+.profileEditActions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.profileNameStatus{font-size:11px;margin-top:6px;min-height:15px}
+.profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
+@media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.76</small></div><div class="badge" id="online">Redo · V4.76</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.78</small></div><div class="badge" id="online">Redo · V4.78</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -449,10 +459,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         <input id="accountEmail" class="input" type="email" maxlength="120" placeholder="E-post" autocomplete="email" style="margin-top:12px">
         <input id="accountPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Lösenord" autocomplete="current-password" style="margin-top:8px">
         <div class="accountActions">
-          <button id="accountLoginBtn" class="btn cyan" onclick="loginDigihitsAccount()">LOGGA IN</button>
-          <button id="accountCreateBtn" class="btn dark" onclick="createDigihitsAccount()">SKAPA KONTO</button>
+          <button type="button" id="accountLoginBtn" class="btn cyan" onclick="loginDigihitsAccount()">LOGGA IN</button>
+          <button type="button" id="accountCreateBtn" class="btn dark" onclick="createDigihitsAccount()">SKAPA KONTO</button>
         </div>
-        <button id="forgotPasswordBtn" class="accountLinkBtn" onclick="sendPasswordReset()">GLÖMT LÖSENORD?</button>
+        <button type="button" id="forgotPasswordBtn" class="accountLinkBtn" onclick="sendPasswordReset()">GLÖMT LÖSENORD?</button>
         <div id="accountStatus" class="mut accountStatus"></div>
       </div>
 
@@ -463,11 +473,22 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
             <strong id="accountEmailShown"></strong>
             <div class="mut" style="font-size:12px;margin-top:3px">Dina matcher och din historik följer kontot.</div>
           </div>
-          <button class="btn dark accountLogoutBtn" onclick="logoutDigihitsAccount()">LOGGA UT</button>
+          <button type="button" class="btn dark accountLogoutBtn" onclick="logoutDigihitsAccount()">LOGGA UT</button>
         </div>
-        <div style="margin-top:12px">
-          <label class="accountLabel" for="onlineName">Ditt spelarnamn</label>
-          <input id="onlineName" class="input" maxlength="24" placeholder="Skriv ditt namn" style="margin-top:6px" autocomplete="name">
+        <div class="profileNameBox">
+          <div class="profileNameLabel">Spelarnamn</div>
+          <div id="profileNameView" class="profileNameView">
+            <strong id="profileNameText">Inte angivet</strong>
+            <button id="editProfileNameBtn" class="profileEditBtn" type="button" onclick="editProfileName()" aria-label="Ändra spelarnamn" title="Ändra spelarnamn">✎</button>
+          </div>
+          <div id="profileNameEdit" class="hidden">
+            <input id="onlineName" class="input" maxlength="24" placeholder="Ange spelarnamn" autocomplete="nickname">
+            <div class="profileEditActions">
+              <button id="saveProfileNameBtn" class="btn green" type="button" onclick="saveProfileName()">SPARA</button>
+              <button class="btn dark" type="button" onclick="cancelProfileNameEdit()">AVBRYT</button>
+            </div>
+            <div id="profileNameStatus" class="mut profileNameStatus"></div>
+          </div>
         </div>
       </div>
 
@@ -476,14 +497,14 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         <div class="mut" style="font-size:12px;margin-top:4px">Skriv ett nytt lösenord för ditt Digihits-konto.</div>
         <input id="newPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Nytt lösenord" autocomplete="new-password" style="margin-top:10px">
         <input id="newPasswordRepeat" class="input" type="password" minlength="6" maxlength="72" placeholder="Upprepa nytt lösenord" autocomplete="new-password" style="margin-top:8px">
-        <button id="saveNewPasswordBtn" class="btn green full" style="margin-top:10px" onclick="saveNewPassword()">SPARA NYTT LÖSENORD</button>
+        <button type="button" id="saveNewPasswordBtn" class="btn green full" style="margin-top:10px" onclick="saveNewPassword()">SPARA NYTT LÖSENORD</button>
         <div id="passwordResetStatus" class="mut accountStatus"></div>
       </div>
     </div>
 
     <div id="authenticatedHomeContent" class="hidden">
     <div class="role" style="margin-top:12px">
-      <button id="onlineSpotifyBtn" class="btn dark full startPrimaryAction" onclick="onlineSpotifyCheck()">KLICKA HÄR FÖR ATT KONTROLLERA SPOTIFY</button>
+      <button type="button" id="onlineSpotifyBtn" class="btn dark full startPrimaryAction" onclick="onlineSpotifyCheck()">KLICKA HÄR FÖR ATT KONTROLLERA SPOTIFY</button>
       <div style="display:flex;justify-content:center;margin-top:10px"><span id="onlineSpotifyBadge" class="badge">SPOTIFY EJ KONTROLLERAT</span></div>
       <div id="onlineStatus" class="mut" style="font-size:12px;margin-top:9px"></div>
     </div>
@@ -493,14 +514,14 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         <div class="startChoice">
           <strong style="color:#fff">Starta en ny match</strong>
           <div class="mut">Du får en matchkod som du skickar till personen du vill spela mot.</div>
-          <button class="btn green full" onclick="createOnlineMatch()">STARTA NY MATCH</button>
+          <button type="button" class="btn green full" onclick="createOnlineMatch()">STARTA NY MATCH</button>
         </div>
 
         <div class="startChoice">
           <strong style="color:#fff">Har du fått en matchkod?</strong>
           <div class="mut">Skriv koden du fått av din vän.</div>
           <input id="onlineJoinCode" class="input" maxlength="6" placeholder="Skriv matchkod" style="text-transform:uppercase">
-          <button class="btn cyan full" onclick="joinOnlineMatch()">GÅ MED I MATCHEN</button>
+          <button type="button" class="btn cyan full" onclick="joinOnlineMatch()">GÅ MED I MATCHEN</button>
         </div>
       </div>
     </div>
@@ -522,7 +543,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
           <h3 style="margin:0">Historik</h3>
           <div class="mut" style="font-size:12px;margin-top:4px">Slutförda och lämnade matcher.</div>
         </div>
-        <button id="clearHistoryBtn" class="btn historyDanger" style="padding:8px 11px" onclick="askClearHistory()">NOLLSTÄLL HISTORIK</button>
+        <button type="button" id="clearHistoryBtn" class="btn historyDanger" style="padding:8px 11px" onclick="askClearHistory()">NOLLSTÄLL HISTORIK</button>
       </div>
       <div id="onlineHistory" class="historyList">
         <div class="wait" style="padding:18px">Hämtar historik…</div>
@@ -531,7 +552,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.76</strong>
+    Version <strong style="color:#fff">V4.78</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -541,13 +562,13 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 <section id="onlineGame" class="hidden">
   <div class="grid">
     <aside class="panel side">
-      <button class="btn dark full" onclick="closeOnlineGame()">← MINA MATCHER</button>
+      <button type="button" class="btn dark full" onclick="closeOnlineGame()">← MINA MATCHER</button>
       <div style="margin-top:16px"><small class="mut">MATCHKOD</small><div id="onlineGameCode" class="code">–</div></div>
       <h3>Motståndare</h3>
       <div id="onlineGamePlayers" class="players"></div>
 
       <div class="chatBtnWrap">
-        <button id="matchChatBtn" class="btn cyan full chatBtn" onclick="toggleMatchChat()">
+        <button type="button" id="matchChatBtn" class="btn cyan full chatBtn" onclick="toggleMatchChat()">
           <span id="matchChatBtnText">VISA CHATT</span>
           <span id="matchChatBadge" class="chatBadge" aria-label="Nytt chattmeddelande" title="Nytt chattmeddelande">✉<span>!</span></span>
         </button>
@@ -555,7 +576,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         <div id="matchChatPanel" class="chatPanel hidden">
           <div class="chatHeader">
             <strong>Matchchatt</strong>
-            <button class="btn dark" style="padding:7px 10px" onclick="toggleMatchChat()">STÄNG</button>
+            <button type="button" class="btn dark" style="padding:7px 10px" onclick="toggleMatchChat()">STÄNG</button>
           </div>
 
           <div id="matchChatMessages" class="chatMessages">
@@ -564,14 +585,14 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
           <div class="chatComposer">
             <input id="matchChatInput" class="input" maxlength="30" placeholder="Skriv ett meddelande…" autocomplete="off">
-            <button id="matchChatSendBtn" class="btn green" onclick="sendMatchChatMessage()">SKICKA</button>
+            <button type="button" id="matchChatSendBtn" class="btn green" onclick="sendMatchChatMessage()">SKICKA</button>
           </div>
           <div class="mut" style="font-size:10px;margin-top:6px">Max 30 tecken.</div>
           <div id="matchChatStatus" class="mut" style="font-size:10px;margin-top:4px"></div>
         </div>
       </div>
 
-      <button class="btn full leaveMatchBtn" onclick="askLeaveCurrentMatch()">LÄMNA MATCHEN</button>
+      <button type="button" class="btn full leaveMatchBtn" onclick="askLeaveCurrentMatch()">LÄMNA MATCHEN</button>
     </aside>
 
     <main class="panel main">
@@ -589,40 +610,40 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
       <div id="onlineReadyScreen" class="hidden">
         <div class="screenTitle">Din tur</div>
         <p class="mut" style="text-align:center">Spotify måste fungera på den här mobilen innan turen startar.</p>
-        <button class="btn green full ready" onclick="startOnlineTurn()">KLICKA HÄR OM DU ÄR REDO</button>
+        <button type="button" class="btn green full ready" onclick="startOnlineTurn()">KLICKA HÄR OM DU ÄR REDO</button>
       </div>
 
       <div id="onlineListenScreen" class="hidden">
         <div id="onlineTurnStats" class="onlinePlayerStats"></div>
         <div class="screenTitle">Vad vill du göra?</div>
         <div class="onlineChoice">
-          <button class="choice guess" onclick="showOnlineGuess()">🎤 GISSA ARTIST & LÅTNAMN<small>Frivilligt. Båda rätt ger ett Byta-låt-kort.</small></button>
-          <button class="choice place" onclick="requestOnlinePlace()">🃏 PLACERA KORT<small>Placera låten på din tidslinje.</small></button>
+          <button type="button" class="choice guess" onclick="showOnlineGuess()">🎤 GISSA ARTIST & LÅTNAMN<small>Frivilligt. Båda rätt ger ett Byta-låt-kort.</small></button>
+          <button type="button" class="choice place" onclick="requestOnlinePlace()">🃏 PLACERA KORT<small>Placera låten på din tidslinje.</small></button>
         </div>
-        <button id="onlineSwapBtn" class="btn orange full" style="margin-top:12px" onclick="onlineSwapSong()">ANVÄND BYT-LÅT-KORT <span id="onlineSwapBtnCount">0/3</span></button>
+        <button type="button" id="onlineSwapBtn" class="btn orange full" style="margin-top:12px" onclick="onlineSwapSong()">ANVÄND BYT-LÅT-KORT <span class="onlineSwapBtnCount">0/3</span></button>
         <div id="onlinePlaybackMini" class="playbackBox hidden">
           <div class="playbackTimes"><span id="onlinePlaybackPos">0:00</span><span id="onlinePlaybackDur">0:00</span></div>
           <div class="playbackTrack"><div id="onlinePlaybackFill" class="playbackFill"></div></div>
         </div>
         <div class="hostButtons">
-          <button id="onlinePlayPauseBtn" class="btn dark" onclick="onlineTogglePlayback()">❚❚ PAUSA</button>
-          <button class="btn dark" onclick="onlineRestartPlayback()">↺ SPELA FRÅN BÖRJAN</button>
+          <button type="button" id="onlinePlayPauseBtn" class="btn dark" onclick="onlineTogglePlayback()">❚❚ PAUSA</button>
+          <button type="button" class="btn dark" onclick="onlineRestartPlayback()">↺ SPELA FRÅN BÖRJAN</button>
         </div>
       </div>
 
       <div id="onlineGuessScreen" class="hidden">
-        <button class="back" onclick="showOnlineListen()">← Tillbaka</button>
+        <button type="button" class="back" onclick="showOnlineListen()">← Tillbaka</button>
         <div class="screenTitle">Gissa artist & låtnamn</div>
         <div class="guessFields">
           <input id="onlineGuessArtist" class="input" placeholder="Artist">
           <input id="onlineGuessTitle" class="input" placeholder="Låtnamn">
           <div class="mut" style="font-size:11px">Små stavfel är okej.</div>
-          <button class="btn cyan full" onclick="saveOnlineGuess()">SPARA GISSNING</button>
+          <button type="button" class="btn cyan full" onclick="saveOnlineGuess()">SPARA GISSNING</button>
         </div>
       </div>
 
       <div id="onlinePlaceScreen" class="hidden placementScreen">
-        <button class="back" onclick="showOnlineListen()">← Tillbaka</button>
+        <button type="button" class="back" onclick="showOnlineListen()">← Tillbaka</button>
         <div class="screenTitle">Placera kortet</div>
         <p class="mut" style="text-align:center">Scrolla tidslinjen åt höger eller vänster och välj var kortet ska placeras.</p>
         <div class="onlineSecretDock">
@@ -1373,7 +1394,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.76";
+    if(badge)badge.textContent="Återansluten · V4.78";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1381,7 +1402,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.76 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.78 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1392,7 +1413,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.76"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.78"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1510,7 +1531,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.76":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.78":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -1523,7 +1544,7 @@ function joinSetup(){
 }
 window.hostSetup=hostSetup;
 window.joinSetup=joinSetup;
-function renderNames(){$("names").innerHTML=localNames.map((n,i)=>`<div class="setupRow"><input class="input" value="${n}" onchange="localNames[${i}]=this.value"><button class="btn red" onclick="localNames.splice(${i},1);renderNames()">×</button></div>`).join("")}
+function renderNames(){$("names").innerHTML=localNames.map((n,i)=>`<div class="setupRow"><input class="input" value="${n}" onchange="localNames[${i}]=this.value"><button type="button" class="btn red" onclick="localNames.splice(${i},1);renderNames()">×</button></div>`).join("")}
 function addName(){
   if(localNames.length>=8){alert("Max 8 spelare i den här versionen.");return}
   localNames.push("Spelare "+(localNames.length+1));renderNames()
@@ -1751,7 +1772,7 @@ function renderPlayers(){
           <div class="pname">${p.name}</div>
           <div class="pmeta">${meta}</div>
         </div>
-        <button class="btn dark playerTimelineBtn" onclick="toggleLocalPlayerTimeline(${p.id})">${open?"DÖLJ TIDSLINJE":"VISA TIDSLINJE"}</button>
+        <button type="button" class="btn dark playerTimelineBtn" onclick="toggleLocalPlayerTimeline(${p.id})">${open?"DÖLJ TIDSLINJE":"VISA TIDSLINJE"}</button>
       </div>
       ${open?`<div class="playerInlineTimeline">${localPlayerTimelineHtml(p,isCurrent)}</div>`:""}
     </div>`;
@@ -2038,8 +2059,8 @@ function renderTimeline(){
         </div>
       </div>
       <div class="pendingActions">
-        <button class="btn cyan full" onclick="confirmPlace()">BEKRÄFTA PLATS</button>
-        <button class="btn dark full" onclick="clearPlace()">ÅNGRA PLACERING</button>
+        <button type="button" class="btn cyan full" onclick="confirmPlace()">BEKRÄFTA PLATS</button>
+        <button type="button" class="btn dark full" onclick="clearPlace()">ÅNGRA PLACERING</button>
       </div>`;
       el.appendChild(wrap);
     }
@@ -2214,13 +2235,13 @@ function showResult(c){
 
     let n=(c.turn_cards||[]).length;
     $("decision").innerHTML=
-      `<button class="btn purple" onclick="continueTurn()">▶ FORTSÄTT<br><small>Riskera ${n} olåsta kort</small></button>
-       <button class="btn green" onclick="lockIn()">🔒 LÅS IN ${n} KORT<br><small>Spara korten och lämna över mobilen</small></button>`;
+      `<button type="button" class="btn purple" onclick="continueTurn()">▶ FORTSÄTT<br><small>Riskera ${n} olåsta kort</small></button>
+       <button type="button" class="btn green" onclick="lockIn()">🔒 LÅS IN ${n} KORT<br><small>Spara korten och lämna över mobilen</small></button>`;
   }else{
     wrap.classList.add("hidden");
     decisionTimelineOpen=false;
     box.classList.add("hidden");
-    $("decision").innerHTML=`<button class="btn green full" onclick="endFailedTurn()">LÄMNA ÖVER MOBILEN</button>`;
+    $("decision").innerHTML=`<button type="button" class="btn green full" onclick="endFailedTurn()">LÄMNA ÖVER MOBILEN</button>`;
   }
 }
 async function continueTurn(){
@@ -2263,7 +2284,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.76
+// SPELA ONLINE – V4.78
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -2302,9 +2323,11 @@ class RestQuery {
   then(resolve,reject){this.execute().then(resolve,reject);}
   async execute(){
     const url=URL+"/rest/v1/"+encodeURIComponent(this.table)+(this.params.toString()?"?"+this.params.toString():"");
+    const session=digihitsAuthSession||loadAuthSession();
+    const bearer=session?.access_token||KEY;
     const headers={
       "apikey":KEY,
-      "Authorization":"Bearer "+KEY,
+      "Authorization":"Bearer "+bearer,
       "Content-Type":"application/json"
     };
     if(this.method!=="GET"){
@@ -2407,6 +2430,8 @@ function getRealtimeClient(){
         auth:{persistSession:false,autoRefreshToken:false},
         realtime:{params:{eventsPerSecond:20}}
       });
+      const s=digihitsAuthSession||loadAuthSession();
+      if(s?.access_token && realtimeClient.realtime?.setAuth)realtimeClient.realtime.setAuth(s.access_token);
       return realtimeClient;
     }
   }catch(e){
@@ -2878,11 +2903,17 @@ function renderAccountUi(){
   $("authenticatedHomeContent")?.classList.toggle("hidden",!loggedIn);
   $("homeGameTitle")?.classList.toggle("hidden",!loggedIn);
 
+  if(!loggedIn && $("onlineName")){
+    $("onlineName").value="";
+  }
+
   if(loggedIn){
     if($("accountEmailShown"))$("accountEmailShown").textContent=digihitsAccountUser.email||"Konto";
+    renderProfileName();
     const metaName=String(digihitsAccountUser.user_metadata?.display_name||"").trim();
     const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
-    if($("onlineName")&&!$("onlineName").value)$("onlineName").value=metaName||saved;
+    if(metaName)localStorage.setItem(ONLINE_NAME_KEY,metaName);
+    renderProfileName();
   }
 }
 
@@ -2937,6 +2968,12 @@ async function applyAccountSession(user,{migrate=true}={}){
   }
 
   renderAccountUi();
+  renderProfileName();
+  try{
+    const rt=getRealtimeClient();
+    const s=digihitsAuthSession||loadAuthSession();
+    if(rt?.realtime?.setAuth && s?.access_token)rt.realtime.setAuth(s.access_token);
+  }catch(e){console.warn("Realtime auth sync:",e)}
   scheduleOnlineListRefresh(0);
 }
 
@@ -3099,7 +3136,7 @@ async function createDigihitsAccount(){
   setAccountBusy(true);
   setAccountStatus("Skapar konto…");
   try{
-    const displayName=(localStorage.getItem(ONLINE_NAME_KEY)||"").trim();
+    const displayName="";
     const data=await authRequest("/signup?redirect_to="+encodeURIComponent(passwordResetRedirectUrl()),{
       method:"POST",
       body:{
@@ -3199,31 +3236,88 @@ function ensureOnlineUserId(){
 }
 ensureOnlineUserId();
 
-function onlineName(){
-  const input=$("onlineName");
-  return (input?.value||localStorage.getItem(ONLINE_NAME_KEY)||"").trim();
+function profileDisplayName(){
+  const meta=String(digihitsAccountUser?.user_metadata?.display_name||"").trim();
+  const saved=String(localStorage.getItem(ONLINE_NAME_KEY)||"").trim();
+  return meta||saved;
 }
-function saveOnlineName(){
-  const n=onlineName();
-  if(n){
-    localStorage.setItem(ONLINE_NAME_KEY,n);
-    if(digihitsAccountUser){
-      const s=digihitsAuthSession||loadAuthSession();
-      if(s?.access_token){
-        authRequest("/user",{
-          method:"PUT",
-          accessToken:s.access_token,
-          body:{data:{display_name:n}}
-        }).catch(e=>console.warn("Name sync:",e));
-      }
-      digihitsAccountUser={
-        ...digihitsAccountUser,
-        user_metadata:{...(digihitsAccountUser.user_metadata||{}),display_name:n}
-      };
-    }
+function setProfileNameStatus(text,isError=false){
+  const el=$("profileNameStatus");
+  if(!el)return;
+  el.textContent=text||"";
+  el.style.color=isError?"#ff8c99":"";
+}
+function renderProfileName(){
+  const name=profileDisplayName();
+  if($("profileNameText"))$("profileNameText").textContent=name||"Inte angivet";
+  if($("onlineName") && $("profileNameEdit")?.classList.contains("hidden"))$("onlineName").value=name||"";
+}
+function editProfileName(){
+  if(!digihitsAccountUser)return;
+  const name=profileDisplayName();
+  $("profileNameView")?.classList.add("hidden");
+  $("profileNameEdit")?.classList.remove("hidden");
+  if($("onlineName")){
+    $("onlineName").value=name;
+    requestAnimationFrame(()=>{$("onlineName").focus();$("onlineName").select();});
   }
-  return n;
+  setProfileNameStatus("");
 }
+function cancelProfileNameEdit(){
+  $("profileNameEdit")?.classList.add("hidden");
+  $("profileNameView")?.classList.remove("hidden");
+  setProfileNameStatus("");
+  renderProfileName();
+}
+async function saveProfileName(){
+  if(!digihitsAccountUser){setProfileNameStatus("Logga in först.",true);return false;}
+  const name=String($("onlineName")?.value||"").trim();
+  if(!name){setProfileNameStatus("Ange ett spelarnamn.",true);$("onlineName")?.focus();return false;}
+  if(name.length>24){setProfileNameStatus("Spelarnamnet får vara max 24 tecken.",true);return false;}
+  const btn=$("saveProfileNameBtn");
+  if(btn){btn.disabled=true;btn.textContent="SPARAR…"}
+  try{
+    const s=await refreshAuthSessionIfNeeded();
+    if(!s?.access_token)throw new Error("Sessionen har gått ut.");
+    const user=await authRequest("/user",{
+      method:"PUT",
+      accessToken:s.access_token,
+      body:{data:{display_name:name}}
+    });
+    localStorage.setItem(ONLINE_NAME_KEY,name);
+    digihitsAccountUser=user||{
+      ...digihitsAccountUser,
+      user_metadata:{...(digihitsAccountUser.user_metadata||{}),display_name:name}
+    };
+    if(user?.user_metadata?.display_name)localStorage.setItem(ONLINE_NAME_KEY,String(user.user_metadata.display_name).trim());
+    cancelProfileNameEdit();
+    renderProfileName();
+    return true;
+  }catch(e){
+    console.warn("Save profile name:",e);
+    setProfileNameStatus("Spelarnamnet kunde inte sparas. Försök igen.",true);
+    return false;
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="SPARA"}
+  }
+}
+function focusProfileNameRequirement(){
+  const account=$("accountCard");
+  account?.classList.add("profileNeedsAttention");
+  editProfileName();
+  setProfileNameStatus("Ange ett spelarnamn innan du spelar.",true);
+  account?.scrollIntoView({behavior:"smooth",block:"center"});
+  setTimeout(()=>account?.classList.remove("profileNeedsAttention"),1800);
+}
+function requireProfileName(){
+  const name=profileDisplayName();
+  if(name)return name;
+  focusProfileNameRequirement();
+  return "";
+}
+
+function onlineName(){return profileDisplayName();}
+function saveOnlineName(){return profileDisplayName();}
 function setOnlineStatus(t,isError=false){
   const el=$("onlineStatus");
   if(!el)return;
@@ -3448,8 +3542,8 @@ async function drawOnlineSpotifySong(){
 async function createOnlineMatch(){
   if(actionBusy)return;
   if(!requireDigihitsAccount())return;
-  const name=saveOnlineName();
-  if(!name){alert("Skriv ditt namn först.");return}
+  const name=requireProfileName();
+  if(!name)return;
   actionBusy=true;
   try{
     setOnlineStatus("Kontrollerar dina matcher…");
@@ -3513,9 +3607,9 @@ async function createOnlineMatch(){
 async function joinOnlineMatch(){
   if(actionBusy)return;
   if(!requireDigihitsAccount())return;
-  const name=saveOnlineName();
+  const name=requireProfileName();
   const code=($("onlineJoinCode").value||"").trim().toUpperCase();
-  if(!name){alert("Skriv ditt namn först.");return}
+  if(!name)return;
   if(!code){alert("Skriv matchkoden.");return}
   actionBusy=true;
   try{
@@ -3729,7 +3823,7 @@ async function loadOnlineMatches(options={}){
               :(yourTurn?"DIN TUR":"VÄNTAR PÅ MOTSPELARE");
 
           return `<div class="matchCardShell">
-            <button class="onlineMatchCard ${yourTurn?"yourTurn":"waiting"}" onclick="openOnlineMatch(${m.id})">
+            <button type="button" class="onlineMatchCard ${yourTurn?"yourTurn":"waiting"}" onclick="openOnlineMatch(${m.id})">
               <div class="onlineMatchTop">
                 <div>
                   <div class="onlineMatchNames">${row.me.display_name} mot ${opponent}</div>
@@ -3738,7 +3832,7 @@ async function loadOnlineMatches(options={}){
                 <div class="onlineMatchState ${yourTurn?"turn":"wait"}"><span class="matchStatusLamp"></span>${text}</div>${chatUnreadHtml}
               </div>
             </button>
-            <button class="leaveIconBtn" aria-label="Lämna match" title="Lämna match" onclick="event.stopPropagation();askLeaveMatch(${m.id},'${String(opponent).replace(/'/g,"\\'")}')">🗑</button>
+            <button type="button" class="leaveIconBtn" aria-label="Lämna match" title="Lämna match" onclick="event.stopPropagation();askLeaveMatch(${m.id},'${String(opponent).replace(/'/g,"\\'")}')">🗑</button>
           </div>`;
         }).join("");
 
@@ -4241,7 +4335,7 @@ function renderOnlinePlayers(force=false){
         </div>
       </div>
       <div class="playerRoundRow">
-        <button class="btn dark roundHistoryBtn" onclick="toggleOnlineLastRound(${p.id})">${roundOpen?"DÖLJ SENASTE OMGÅNG":"VISA SENASTE OMGÅNG"}</button>
+        <button type="button" class="btn dark roundHistoryBtn" onclick="toggleOnlineLastRound(${p.id})">${roundOpen?"DÖLJ SENASTE OMGÅNG":"VISA SENASTE OMGÅNG"}</button>
       </div>
       ${roundOpen?`<div class="lastRoundPanel">
         <div class="lastRoundTitle">SENASTE OMGÅNG – GISSNINGAR OCH TIDSLINJE</div>
@@ -4268,11 +4362,11 @@ function updateOnlineSwapButton(){
   if(!btn)return;
   const count=Math.max(0,Number(onlineMyPlayer?.swap_cards||0));
   if(count<1){
-    btn.innerHTML=`DU HAR INGA BYT-LÅT-KORT <span id="onlineSwapBtnCount">0/3</span>`;
+    btn.innerHTML=`DU HAR INGA BYT-LÅT-KORT <span class="onlineSwapBtnCount">0/3</span>`;
     btn.disabled=true;
     btn.classList.remove("hidden");
   }else{
-    btn.innerHTML=`ANVÄND BYT-LÅT-KORT <span id="onlineSwapBtnCount">${count}/3</span>`;
+    btn.innerHTML=`ANVÄND BYT-LÅT-KORT <span class="onlineSwapBtnCount">${count}/3</span>`;
     btn.disabled=false;
     btn.classList.remove("hidden");
   }
@@ -4989,8 +5083,8 @@ function showOnlineLocalResult(r,decision,held=false){
     $("onlineDecisionTimeline").classList.add("hidden");
   }
   $("onlineDecisionButtons").innerHTML=decision
-    ? `<button class="btn purple" onclick="onlineContinue()">▶ FORTSÄTT<br><small>Riskera ${(onlineMyPlayer.turn_cards||[]).length} olåsta kort</small></button>
-       <button class="btn green" onclick="onlineLockIn()">🔒 LÅS IN ${(onlineMyPlayer.turn_cards||[]).length} KORT</button>`
+    ? `<button type="button" class="btn purple" onclick="onlineContinue()">▶ FORTSÄTT<br><small>Riskera ${(onlineMyPlayer.turn_cards||[]).length} olåsta kort</small></button>
+       <button type="button" class="btn green" onclick="onlineLockIn()">🔒 LÅS IN ${(onlineMyPlayer.turn_cards||[]).length} KORT</button>`
     : ``;
 }
 function dismissOnlineLocalResult(){
@@ -5120,11 +5214,10 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.76.
+// Startsidan är alltid online i V4.78.
 function startOnlineHomeSync(){
-  const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
-  if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
   renderAccountUi();
+  renderProfileName();
   if(digihitsAccountUser)setupOnlineRealtimeList();
   loadOnlineMatches();
   loadOnlineHistory();
@@ -5146,8 +5239,8 @@ function startOnlineHomeSync(){
     <h3>Nollställ historiken?</h3>
     <p class="mut">Din lista med slutförda och lämnade matcher töms. Aktiva matcher påverkas inte.</p>
     <div class="modalActions">
-      <button id="confirmClearHistoryBtn" class="btn historyDanger full" onclick="confirmClearHistory()">JA, NOLLSTÄLL HISTORIK</button>
-      <button class="btn dark full" onclick="cancelClearHistory()">AVBRYT</button>
+      <button type="button" id="confirmClearHistoryBtn" class="btn historyDanger full" onclick="confirmClearHistory()">JA, NOLLSTÄLL HISTORIK</button>
+      <button type="button" class="btn dark full" onclick="cancelClearHistory()">AVBRYT</button>
     </div>
   </div>
 </div>
@@ -5158,8 +5251,8 @@ function startOnlineHomeSync(){
     <p id="leaveMatchWho" class="confirmLeaveName">Den här matchen</p>
     <p class="mut">Matchen försvinner från Mina matcher och du kan inte fortsätta spela den.</p>
     <div class="modalActions">
-      <button id="confirmLeaveBtn" class="btn full leaveMatchBtn" onclick="confirmLeaveMatch()">JA, LÄMNA MATCHEN</button>
-      <button class="btn dark full" onclick="cancelLeaveMatch()">NEJ, GÅ TILLBAKA</button>
+      <button type="button" id="confirmLeaveBtn" class="btn full leaveMatchBtn" onclick="confirmLeaveMatch()">JA, LÄMNA MATCHEN</button>
+      <button type="button" class="btn dark full" onclick="cancelLeaveMatch()">NEJ, GÅ TILLBAKA</button>
     </div>
   </div>
 </div>
@@ -5169,8 +5262,8 @@ function startOnlineHomeSync(){
     <h3>Vill du gissa artist och låtnamn först?</h3>
     <p class="mut">Det är frivilligt, men rätt artist och rätt låtnamn ger ett Byta-låt-kort.</p>
     <div class="modalActions">
-      <button class="btn cyan full" onclick="chooseGuessFirst()">JA, GISSA FÖRST</button>
-      <button class="btn dark full" onclick="choosePlaceAnyway()">NEJ, PLACERA KORT</button>
+      <button type="button" class="btn cyan full" onclick="chooseGuessFirst()">JA, GISSA FÖRST</button>
+      <button type="button" class="btn dark full" onclick="choosePlaceAnyway()">NEJ, PLACERA KORT</button>
     </div>
   </div>
 </div>
@@ -5180,8 +5273,8 @@ function startOnlineHomeSync(){
     <h3>Vill du gissa artist och låtnamn först?</h3>
     <p class="mut">Det är frivilligt. Rätt artist och rätt låtnamn ger ett Byta-låt-kort.</p>
     <div class="modalActions">
-      <button class="btn cyan full" onclick="onlineChooseGuessFirst()">JA, GISSA FÖRST</button>
-      <button class="btn dark full" onclick="onlineChoosePlaceAnyway()">NEJ, PLACERA KORT</button>
+      <button type="button" class="btn cyan full" onclick="onlineChooseGuessFirst()">JA, GISSA FÖRST</button>
+      <button type="button" class="btn dark full" onclick="onlineChoosePlaceAnyway()">NEJ, PLACERA KORT</button>
     </div>
   </div>
 </div>
