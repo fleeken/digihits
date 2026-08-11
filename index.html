@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.25</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.27</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.25 – kompaktare spelvy */
+/* V5.27 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.25 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.27 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.25 – equal years are a continuous timeline block */
+/* V5.27 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.25: compact, consistent home UX */
+/* V5.27: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -1034,7 +1034,9 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   display:flex;
   align-items:center;
   gap:8px;
-  flex-wrap:wrap
+  flex-wrap:nowrap;
+  white-space:nowrap;
+  min-width:0
 }
 .matchCodeLabel{
   color:#aeb8c6;
@@ -1050,12 +1052,107 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   line-height:1
 }
 @media(max-width:520px){
-  .matchCodeInlineFull{gap:7px}
-  .matchCodeLabel{font-size:10px}
-  .matchCodeInlineFull .code{font-size:22px}
+  .matchCodeInlineFull{gap:6px}
+  .matchCodeLabel{font-size:9px;flex:0 0 auto}
+  .matchCodeInlineFull .code{font-size:19px;letter-spacing:.08em;flex:0 1 auto}
+  .matchCodeInlineFull .copyCodeBtn{font-size:8px;padding:7px 8px;flex:0 0 auto}
+}
+
+.matchTopLock{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  white-space:nowrap
+}
+.matchTopLock.unlocked{
+  color:#7dffab;
+  border-color:#2e9b57;
+  background:#10261a
+}
+.matchTopLock.locked{
+  color:#d7dee8;
+  border-color:#596474;
+  background:#202630
+}
+.matchLockGlyph{
+  width:18px;
+  height:18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  font-size:0
+}
+.matchLockGlyph::before{
+  content:"";
+  position:absolute;
+  left:4px;
+  bottom:2px;
+  width:10px;
+  height:8px;
+  border:2px solid currentColor;
+  border-radius:2px;
+  box-sizing:border-box
+}
+.matchTopLock.unlocked .matchLockGlyph::after{
+  content:"";
+  position:absolute;
+  left:8px;
+  top:0;
+  width:7px;
+  height:8px;
+  border:2px solid currentColor;
+  border-bottom:0;
+  border-radius:7px 7px 0 0;
+  transform:rotate(22deg);
+  transform-origin:bottom left
+}
+.matchTopLock.locked .matchLockGlyph::after{
+  content:"";
+  position:absolute;
+  left:5px;
+  top:0;
+  width:8px;
+  height:8px;
+  border:2px solid currentColor;
+  border-bottom:0;
+  border-radius:7px 7px 0 0
+}
+@media(max-width:520px){
+  .onlineGameTop{gap:8px;align-items:flex-start}
+  .matchTopLock{font-size:9px;padding:7px 9px}
+}
+
+/* V5.27: matchkod ska alltid vara en enda rad, oavsett skärmstorlek */
+.matchCodeBox .matchCodeInlineFull{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  width:100%;
+  white-space:nowrap !important
+}
+.matchCodeBox .matchCodeInlineFull .matchCodeLabel,
+.matchCodeBox .matchCodeInlineFull .code,
+.matchCodeBox .matchCodeInlineFull .copyCodeBtn{
+  display:inline-flex !important;
+  width:auto !important;
+  margin:0 !important;
+  flex:0 0 auto !important
+}
+.matchCodeBox .matchCodeInlineFull .code{
+  align-items:center
+}
+@media(max-width:520px){
+  .matchCodeBox .matchCodeInlineFull{gap:6px !important}
+  .matchCodeBox .matchCodeInlineFull .matchCodeLabel{font-size:9px}
+  .matchCodeBox .matchCodeInlineFull .code{font-size:19px;letter-spacing:.08em}
+  .matchCodeBox .matchCodeInlineFull .copyCodeBtn{font-size:8px;padding:7px 8px}
 }
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.25</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.27</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1242,7 +1339,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.25</strong>
+    Version <strong style="color:#fff">V5.27</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1259,10 +1356,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
           <span id="onlineGameCode" class="code">–</span>
           <button type="button" class="copyCodeBtn" onclick="copyMatchCode(document.getElementById('onlineGameCode')?.textContent,this)">KOPIERA KOD</button>
         </div>
-        <div id="onlineMatchLockStatus" class="matchLockStatus unlocked">
-          <span id="onlineMatchLockIcon" class="matchLockIcon">🔓</span>
-          <span id="onlineMatchLockText">Match ej låst</span>
-        </div>
+
       </div>
       <h3>Motståndare</h3>
       <div id="onlineGamePlayers" class="players"></div>
@@ -1301,7 +1395,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
           <div id="onlineGameTitle" class="turn">Online-match</div>
           <div id="onlineGameSub" class="mut"></div>
         </div>
-        <div id="onlineGameBadge" class="badge">Väntar</div>
+        <div id="onlineGameBadge" class="badge matchTopLock unlocked">
+          <span id="onlineMatchLockIcon" class="matchLockIcon matchLockGlyph" aria-hidden="true">⌑</span>
+          <span id="onlineMatchLockText">Match ej låst</span>
+        </div>
       </div>
       <div id="onlineGameStatus" class="status"></div>
 
@@ -2145,7 +2242,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.25";
+    if(badge)badge.textContent="Återansluten · V5.27";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2153,7 +2250,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.25 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.27 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2164,7 +2261,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.25"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.27"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2283,7 +2380,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.25":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.27":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3036,7 +3133,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.25
+// SPELA ONLINE – V5.27
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -7317,7 +7414,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.25.
+// Startsidan är alltid online i V5.27.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
