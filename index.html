@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.98</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.99</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.98 – kompaktare spelvy */
+/* V4.99 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V4.98 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V4.99 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -516,7 +516,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V4.98 – equal years are a continuous timeline block */
+/* V4.99 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -551,32 +551,88 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .brandHomeBtn{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .spotifyAccountChangeBtn{display:block;margin:9px auto 0}
 
-.copyableMatchCode{
-  appearance:none;-webkit-appearance:none;background:transparent;border:0;
-  color:inherit;padding:0;margin:0;font:inherit;letter-spacing:inherit;
-  cursor:pointer;text-align:left;touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent
+
+
+
+
+
+
+
+
+
+/* V4.99: compact, consistent home UX */
+.signupNameHelp{font-size:10px;margin:5px 2px 0}
+.profileNameLocked{justify-content:flex-start}
+.profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
+
+.spotifyHomeCard{padding:14px}
+.spotifyCheckBtn{
+  width:100%;min-height:64px;border:0;border-radius:18px;padding:14px 18px;
+  color:#fff;font:inherit;font-weight:1000;font-size:17px;letter-spacing:.02em;
+  display:flex;align-items:center;justify-content:center;gap:11px;cursor:pointer;
+  transition:transform .12s,filter .12s,background .15s;touch-action:manipulation
 }
-.copyableMatchCode:hover,.homeCodeCopy:hover{filter:brightness(1.15)}
-.copyableMatchCode.copied,.homeCodeCopy.copied{color:#8ff0ad!important;text-decoration:none!important}
-.copyMatchHint{margin-top:2px;font-size:9px;color:#929aa8}
-.homeCodeCopy{
-  appearance:none;-webkit-appearance:none;background:transparent;border:0;
-  padding:0;margin:0;color:inherit;font:inherit;font-weight:inherit;
-  cursor:pointer;text-decoration:underline;text-decoration-style:dotted;
-  text-underline-offset:2px;touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent
+.spotifyCheckBtn:active{transform:scale(.99)}
+.spotifyCheckBtn.spotifyBad{background:#b72d3c}
+.spotifyCheckBtn.spotifyChecking{background:#6b7280}
+.spotifyCheckBtn.spotifyOk{background:#1db954;color:#06150b}
+.spotifyMark{
+  width:31px;height:31px;border-radius:50%;background:#0b1510;color:currentColor;
+  display:grid;place-items:center;font-size:29px;font-weight:1000;line-height:1;
+  transform:rotate(-7deg)
+}
+.spotifyCheckBtn.spotifyOk .spotifyMark{background:#08130c;color:#1db954}
+.spotifyActionMessage{
+  margin:10px 0 0;padding:11px 12px;border-radius:12px;background:#2b171b;
+  border:1px solid #71333d;color:#ffb0b8;font-size:12px;font-weight:750;line-height:1.4
+}
+.spotifyAccountChangeBtn{margin-top:8px}
+
+.matchCardShell{
+  position:relative!important;display:block!important;width:100%;min-width:0;margin-top:10px
+}
+.onlineMatchCard{
+  width:100%;padding:14px 52px 14px 14px!important;min-height:0;
+}
+.onlineMatchHeader{display:flex;align-items:flex-start;gap:8px;min-width:0}
+.onlineMatchNames{flex:1;min-width:0;font-size:16px}
+.matchCodeLine{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:11px;
+  padding-top:10px;border-top:1px solid #303744
+}
+.matchCodeLabel{font-size:9px;font-weight:900;letter-spacing:.08em;color:#9099a8}
+.matchCodeValue{font-size:14px;letter-spacing:.08em;color:#fff}
+.copyCodeBtn{
+  appearance:none;-webkit-appearance:none;border:1px solid #4a586d;background:#242b36;
+  color:#d9f5ff;border-radius:9px;padding:8px 11px;font:inherit;font-size:10px;
+  font-weight:950;letter-spacing:.04em;cursor:pointer;touch-action:manipulation
+}
+.copyCodeBtn.small{padding:6px 9px;font-size:9px}
+.copyCodeBtn.copied{border-color:#2fbd68;background:#153421;color:#91f0af}
+.onlineMatchState{
+  position:static!important;width:100%;margin-top:10px;padding:9px 10px!important;
+  min-height:0!important;border-radius:10px!important;justify-content:flex-start!important
+}
+.leaveIconBtn{
+  position:absolute;right:10px;top:10px;width:34px!important;height:34px!important;
+  min-width:34px!important;border-radius:10px!important;z-index:3
+}
+.matchCodeCopyRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}
+.matchCodeCopyRow.centered{justify-content:center;margin-top:12px}
+.waitingCode{font-size:24px;letter-spacing:.12em}
+.waitingCodeText{text-align:center}
+.historyCodeRow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+
+@media(max-width:600px){
+  .spotifyCheckBtn{min-height:58px;font-size:15px;border-radius:15px}
+  .onlineMatchCard{padding:12px 48px 12px 12px!important}
+  .onlineMatchNames{font-size:15px}
+  .matchCodeLine{gap:7px}
+  .leaveIconBtn{right:8px;top:8px}
 }
 
-.inlineCodeCopy{
-  appearance:none;-webkit-appearance:none;background:transparent;border:0;
-  padding:0;margin:0;color:#8fe7ff;font:inherit;font-weight:950;
-  text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;
-  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent
-}
-.inlineCodeCopy.copied{color:#8ff0ad;text-decoration:none}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.98</small></button><div class="badge" id="online">Redo · V4.98</div></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.99</small></button><div class="badge" id="online">Redo · V4.99</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -593,8 +649,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
             <div class="mut startStepHelp">Logga in så finns dina matcher och din historik på alla dina enheter.</div>
           </div>
         </div>
-        <input id="accountEmail" class="input" type="email" maxlength="120" placeholder="E-post" autocomplete="email" style="margin-top:12px">
-        <input id="accountPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Lösenord" autocomplete="current-password" style="margin-top:8px">
+        <input id="accountPlayerName" class="input" maxlength="24" placeholder="Spelarnamn" autocomplete="nickname" style="margin-top:12px">
+        <div class="mut signupNameHelp">Välj noga – spelarnamnet kan inte ändras efter att kontot skapats.</div>
+        <input id="accountEmail" class="input" type="email" maxlength="120" placeholder="E-post" autocomplete="email" style="margin-top:8px">
+        <input id="accountPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Lösenord" autocomplete="new-password" style="margin-top:8px">
         <div class="accountActions">
           <button type="button" id="accountLoginBtn" class="btn cyan" onclick="loginDigihitsAccount()">LOGGA IN</button>
           <button type="button" id="accountCreateBtn" class="btn dark" onclick="createDigihitsAccount()">SKAPA KONTO</button>
@@ -615,17 +673,9 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         </div>
         <div class="profileNameBox">
           <div class="profileNameLabel">Spelarnamn</div>
-          <div id="profileNameView" class="profileNameView">
+          <div id="profileNameView" class="profileNameView profileNameLocked">
             <strong id="profileNameText">Inte angivet</strong>
-            <button id="editProfileNameBtn" class="profileEditBtn" type="button" onclick="editProfileName()" aria-label="Ändra spelarnamn" title="Ändra spelarnamn">✎</button>
-          </div>
-          <div id="profileNameEdit" class="hidden">
-            <input id="onlineName" class="input" maxlength="24" placeholder="Ange spelarnamn" autocomplete="nickname">
-            <div class="profileEditActions">
-              <button id="saveProfileNameBtn" class="btn green" type="button" onclick="saveProfileName()">SPARA</button>
-              <button class="btn dark" type="button" onclick="cancelProfileNameEdit()">AVBRYT</button>
-            </div>
-            <div id="profileNameStatus" class="mut profileNameStatus"></div>
+            <span class="profileLockedMark" title="Spelarnamnet är låst">🔒</span>
           </div>
         </div>
       </div>
@@ -641,11 +691,13 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </div>
 
     <div id="authenticatedHomeContent" class="hidden">
-    <div class="role" style="margin-top:12px">
-      <button type="button" id="onlineSpotifyBtn" class="btn dark full startPrimaryAction" onclick="onlineSpotifyCheck()">KLICKA HÄR FÖR ATT KONTROLLERA SPOTIFY</button>
-      <div style="display:flex;justify-content:center;margin-top:10px"><span id="onlineSpotifyBadge" class="badge">SPOTIFY EJ KONTROLLERAT</span></div>
+    <div class="role spotifyHomeCard" style="margin-top:12px">
+      <button type="button" id="onlineSpotifyBtn" class="spotifyCheckBtn spotifyBad" onclick="onlineSpotifyCheck()">
+        <span class="spotifyMark" aria-hidden="true">≋</span>
+        <span id="onlineSpotifyBtnText">KONTROLLERA SPOTIFY</span>
+      </button>
+      <div id="onlineStatus" class="spotifyActionMessage hidden" role="status"></div>
       <button type="button" id="changeSpotifyAccountBtn" class="accountLinkBtn spotifyAccountChangeBtn" onclick="changeSpotifyAccount()">BYT SPOTIFY-KONTO</button>
-      <div id="onlineStatus" class="mut" style="font-size:12px;margin-top:9px"></div>
     </div>
 
     <div class="role" style="margin-top:12px">
@@ -691,7 +743,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.98</strong>
+    Version <strong style="color:#fff">V4.99</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -704,8 +756,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
       <button type="button" id="onlineBackToMatchesBtn" class="btn dark full" onclick="closeOnlineGame()">← TILL MINA MATCHER</button>
       <div class="matchCodeBox" style="margin-top:16px">
         <small class="mut">MATCHKOD</small>
-        <button type="button" id="onlineGameCode" class="code copyableMatchCode" onclick="copyMatchCodeFromElement(this)" title="Tryck för att kopiera matchkoden" aria-label="Kopiera matchkod">–</button>
-        <div class="copyMatchHint">Tryck på koden för att kopiera</div>
+        <div class="matchCodeCopyRow">
+          <span id="onlineGameCode" class="code">–</span>
+          <button type="button" class="copyCodeBtn" onclick="copyMatchCode(document.getElementById('onlineGameCode')?.textContent,this)">KOPIERA</button>
+        </div>
         <div id="onlineMatchLockStatus" class="matchLockStatus unlocked">
           <span id="onlineMatchLockIcon" class="matchLockIcon">🔓</span>
           <span id="onlineMatchLockText">Match ej låst</span>
@@ -844,7 +898,8 @@ async function sha256Bytes(text){
   return new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(text)));
 }
 function setSpotifySetupMessage(t){
-  const e=document.getElementById("spotifySetupMsg"); if(e)e.textContent=t;
+  const e=document.getElementById("spotifySetupMsg");
+  if(e){e.textContent=t||"";e.classList.toggle("hidden",!t)}
 }
 function updateSpotifyUi(){
   const connected=!!(spotifyAccessToken||spotifyRefreshToken);
@@ -864,6 +919,7 @@ function clearSpotifyConnectionForSwitch(){
   ["digihits_spotify_access","digihits_spotify_refresh","digihits_spotify_expires","digihits_spotify_device"].forEach(k=>localStorage.removeItem(k));
   ["spotify_pkce_verifier","spotify_oauth_state"].forEach(k=>sessionStorage.removeItem(k));
   try{updateSpotifyUi()}catch(_){}
+  try{setSpotifyHomeState("bad","")}catch(_){}
 }
 async function changeSpotifyAccount(){
   if(actionBusy)return;
@@ -930,7 +986,8 @@ async function handleSpotifyCallback(){
   history.replaceState({},document.title,location.pathname);
   spotifyPreflightOk=false;setSpotifySetupMessage("Spotify är anslutet. Kontrollerar enhet…");
   updateSpotifyUi();
-  await ensureSpotifyDevice(true);
+  await ensureSpotifyDevice(false);
+  try{await onlineSpotifyCheck()}catch(_){}
 }
 function saveSpotifyTokens(d){
   if(d.access_token){spotifyAccessToken=d.access_token;localStorage.setItem("digihits_spotify_access",spotifyAccessToken)}
@@ -990,7 +1047,10 @@ async function spotifyApi(path,options={}){
   let d=null;try{d=text?JSON.parse(text):null}catch(_){d=text}
   if(!r.ok){
     const msg=d?.error?.message||d?.error_description||("Spotify HTTP "+r.status);
-    throw new Error(msg);
+    const err=new Error(msg);
+    err.status=r.status;
+    err.path=path;
+    throw err;
   }
   return d;
 }
@@ -1584,7 +1644,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.98";
+    if(badge)badge.textContent="Återansluten · V4.99";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1592,7 +1652,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.98 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.99 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1603,7 +1663,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.98"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.99"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1722,7 +1782,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.98":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.99":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2475,7 +2535,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.98
+// SPELA ONLINE – V4.99
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3357,17 +3417,39 @@ async function saveNewPassword(){
   }
 }
 
+async function isProfileNameTaken(name){
+  const wanted=normalizeProfileName(name).toLocaleLowerCase("sv-SE");
+  if(!wanted)return false;
+  try{
+    // Existing match identities are searchable without exposing auth users.
+    // This catches names already in active/history data; the account metadata
+    // remains the immutable source for the signed-in user's own name.
+    const r=await db.from("online_players").select("display_name").limit(1000);
+    if(r.error)throw r.error;
+    return (r.data||[]).some(x=>normalizeProfileName(x.display_name).toLocaleLowerCase("sv-SE")===wanted);
+  }catch(e){
+    console.warn("Player-name uniqueness precheck:",e);
+    return false;
+  }
+}
+
 async function createDigihitsAccount(){
   $("passwordResetPanel")?.classList.add("hidden");
+  const displayName=normalizeProfileName($("accountPlayerName")?.value||"");
   const email=($("accountEmail")?.value||"").trim().toLowerCase();
   const password=$("accountPassword")?.value||"";
+  if(!displayName)return setAccountStatus("Välj ett spelarnamn.",true);
+  if(displayName.length<2)return setAccountStatus("Spelarnamnet måste vara minst 2 tecken.",true);
+  if(displayName.length>24)return setAccountStatus("Spelarnamnet får vara max 24 tecken.",true);
+  if(!/^[A-Za-zÅÄÖåäö0-9 _.-]+$/.test(displayName))return setAccountStatus("Spelarnamnet får bara innehålla bokstäver, siffror, mellanslag, punkt, bindestreck och understreck.",true);
   if(!email)return setAccountStatus("Skriv din e-postadress.",true);
   if(password.length<6)return setAccountStatus("Lösenordet måste vara minst 6 tecken.",true);
 
   setAccountBusy(true);
   setAccountStatus("Skapar konto…");
   try{
-    const displayName="";
+    const nameTaken=await isProfileNameTaken(displayName);
+    if(nameTaken)throw new Error("PLAYER_NAME_TAKEN");
     const data=await authRequest("/signup?redirect_to="+encodeURIComponent(passwordResetRedirectUrl()),{
       method:"POST",
       body:{
@@ -3388,7 +3470,8 @@ async function createDigihitsAccount(){
     }
   }catch(e){
     console.warn("Create account:",e);
-    setAccountStatus(friendlyAuthError(e,"create"),true);
+    if(String(e?.message||e)==="PLAYER_NAME_TAKEN")setAccountStatus("Spelarnamnet används redan. Välj ett annat.",true);
+    else setAccountStatus(friendlyAuthError(e,"create"),true);
   }finally{
     setAccountBusy(false);
   }
@@ -3481,83 +3564,23 @@ function setProfileNameStatus(text,isError=false){
 function renderProfileName(){
   const name=profileDisplayName();
   if($("profileNameText"))$("profileNameText").textContent=name||"Inte angivet";
-  if($("onlineName") && $("profileNameEdit")?.classList.contains("hidden"))$("onlineName").value=name||"";
 }
 function normalizeProfileName(name){
   return String(name||"").trim().replace(/\s+/g," ");
 }
 
-function editProfileName(){
-  if(!digihitsAccountUser)return;
-  const name=profileDisplayName();
-  $("profileNameView")?.classList.add("hidden");
-  $("profileNameEdit")?.classList.remove("hidden");
-  if($("onlineName")){
-    $("onlineName").value=name;
-    requestAnimationFrame(()=>{$("onlineName").focus();$("onlineName").select();});
-  }
-  setProfileNameStatus("");
-}
+function editProfileName(){ return false; }
 function cancelProfileNameEdit(){
   $("profileNameEdit")?.classList.add("hidden");
   $("profileNameView")?.classList.remove("hidden");
   setProfileNameStatus("");
   renderProfileName();
 }
-async function saveProfileName(){
-  if(!digihitsAccountUser){setProfileNameStatus("Logga in först.",true);return false;}
-  const name=normalizeProfileName($("onlineName")?.value||"");
-  if(!name){setProfileNameStatus("Ange ett spelarnamn.",true);$("onlineName")?.focus();return false;}
-  if(name.length>24){setProfileNameStatus("Spelarnamnet får vara max 24 tecken.",true);return false;}
-  const btn=$("saveProfileNameBtn");
-  if(btn){btn.disabled=true;btn.textContent="KONTROLLERAR…"}
-  try{
-    // Database unique index is the final authority. This remains safe even if
-    // two users try to claim the same name at exactly the same time.
-    const claimed=await claimServerProfileName(name);
-
-    const s=await refreshAuthSessionIfNeeded();
-    if(s?.access_token){
-      try{
-        const user=await authRequest("/user",{
-          method:"PUT",
-          accessToken:s.access_token,
-          body:{data:{display_name:claimed}}
-        });
-        if(user)digihitsAccountUser=user;
-      }catch(e){console.warn("Profile metadata sync:",e)}
-    }
-
-    localStorage.setItem(ONLINE_NAME_KEY,claimed);
-    digihitsProfileName=claimed;
-
-    // Keep the same fixed profile name visible in old and new matches.
-    try{
-      const up=await db.from("online_players").update({display_name:claimed,updated_at:new Date().toISOString()}).eq("user_id",digihitsAccountUser.id);
-      if(up.error)console.warn("Match name sync:",up.error.message);
-    }catch(e){console.warn("Match name sync:",e)}
-
-    cancelProfileNameEdit();
-    renderProfileName();
-    scheduleOnlineListRefresh(0);
-    return true;
-  }catch(e){
-    console.warn("Save profile name:",e);
-    if(profileNameConflictError(e)){
-      setProfileNameStatus("Spelarnamnet används redan. Välj ett annat.",true);
-    }else{
-      setProfileNameStatus("Spelarnamnet kunde inte sparas. Försök igen.",true);
-    }
-    return false;
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent="SPARA"}
-  }
-}
+async function saveProfileName(){ return false; }
 function focusProfileNameRequirement(){
   const account=$("accountCard");
   account?.classList.add("profileNeedsAttention");
-  editProfileName();
-  setProfileNameStatus("Ange ett spelarnamn innan du spelar.",true);
+  setOnlineStatus("Kontot saknar spelarnamn. Det här är ett äldre konto – kontakta administratören för att lägga in ett permanent spelarnamn.",true);
   account?.scrollIntoView({behavior:"smooth",block:"center"});
   setTimeout(()=>account?.classList.remove("profileNeedsAttention"),1800);
 }
@@ -3590,13 +3613,48 @@ function onlineHideScreens(){
 }
 function onlineEq(a,b){return eq(a,b)}
 
-async function onlineSpotifyCheck(){
-  const badge=$("onlineSpotifyBadge");
+function setSpotifyHomeState(state,message=""){
   const btn=$("onlineSpotifyBtn");
-  if(badge){badge.textContent="Kontrollerar…";badge.className="badge checking"}
-  if(btn){btn.disabled=true;btn.style.opacity=".55"}
+  const txt=$("onlineSpotifyBtnText");
+  const status=$("onlineStatus");
+  if(btn){
+    btn.classList.remove("spotifyBad","spotifyChecking","spotifyOk");
+    btn.classList.add(state==="ok"?"spotifyOk":state==="checking"?"spotifyChecking":"spotifyBad");
+    btn.disabled=state==="checking";
+  }
+  if(txt){
+    txt.textContent=state==="ok"?"SPOTIFY FUNGERAR ✓":state==="checking"?"KONTROLLERAR SPOTIFY…":"KONTROLLERA SPOTIFY";
+  }
+  if(status){
+    const show=state==="bad"&&!!message;
+    status.textContent=show?message:"";
+    status.classList.toggle("hidden",!show);
+  }
+}
+
+function spotifyActionableError(err){
+  const status=Number(err?.status||0);
+  const raw=String(err?.message||err||"");
+  if(status===401||/401|token|inloggningen har gått ut/i.test(raw))
+    return "Spotify-inloggningen har gått ut. Tryck BYT SPOTIFY-KONTO och anslut kontot igen.";
+  if(status===403||/403|nekade åtkomst/i.test(raw))
+    return "Spotify nekade åtkomst. Kontrollera att kontot har Spotify Premium. Om Digihits Spotify-app körs i Development Mode måste kontot också vara tillagt som godkänd användare i Spotify Developer Dashboard. Tryck sedan KONTROLLERA SPOTIFY igen.";
+  if(status===429||/429|begränsat antalet anrop/i.test(raw))
+    return "Spotify har tillfälligt begränsat anropen. Vänta en minut och tryck KONTROLLERA SPOTIFY igen.";
+  if(/premium/i.test(raw))
+    return "Spotify Premium krävs för uppspelningen. Byt till ett Spotify Premium-konto och kontrollera igen.";
+  if(/enhet|device|aktiv|spela valfri låt|några sekunder/i.test(raw))
+    return "Ingen aktiv Spotify-enhet hittades. Öppna Spotify på mobilen, starta en låt kort, pausa den, gå tillbaka till Digihits och tryck KONTROLLERA SPOTIFY igen.";
+  if(/network|fetch|internet/i.test(raw))
+    return "Spotify kunde inte nås. Kontrollera internetanslutningen och tryck KONTROLLERA SPOTIFY igen.";
+  return "Spotify-kontrollen misslyckades. Tryck BYT SPOTIFY-KONTO om kontot är fel, annars öppna Spotify och försök sedan KONTROLLERA SPOTIFY igen.";
+}
+
+async function onlineSpotifyCheck(){
+  setSpotifyHomeState("checking");
   try{
     if(!spotifyAccessToken&&!spotifyRefreshToken){
+      setSpotifyHomeState("bad","");
       await spotifyLogin();
       return false;
     }
@@ -3604,16 +3662,15 @@ async function onlineSpotifyCheck(){
     const me=await spotifyApi("/me");
     if(!me?.id)throw new Error("Spotify-inloggningen kunde inte verifieras.");
     const ok=await ensureSpotifyDevice(false);
-    if(!ok)throw new Error("Öppna Spotify på den här mobilen, starta valfri låt några sekunder, pausa och gå tillbaka.");
+    if(!ok)throw new Error("Ingen aktiv Spotify-enhet hittades.");
     await spotifyApi("/me/player");
-    if(badge){badge.textContent="SPOTIFY FUNGERAR ✓";badge.className="badge ok"}
+    spotifyPreflightOk=true;
+    setSpotifyHomeState("ok","");
     return true;
   }catch(e){
-    if(badge){badge.textContent="Spotify fungerar inte";badge.className="badge bad"}
-    setOnlineStatus(e.message,true);
+    spotifyPreflightOk=false;
+    setSpotifyHomeState("bad",spotifyActionableError(e));
     return false;
-  }finally{
-    if(btn){btn.disabled=false;btn.style.opacity="1"}
   }
 }
 
@@ -3721,9 +3778,6 @@ async function copyMatchCode(code,sourceEl=null){
   return false;
 }
 
-function copyMatchCodeFromElement(el){
-  return copyMatchCode(el?.textContent,el);
-}
 
 function onlineCode(){return gen()}
 function spotifyLooksLikeMusic(track){
@@ -4480,13 +4534,16 @@ async function loadOnlineMatches(options={}){
 
           return `<div class="matchCardShell">
             <button type="button" class="onlineMatchCard ${yourTurn?"yourTurn":"waiting"}" onclick="openOnlineMatch(${m.id})">
-              <div class="onlineMatchTop">
-                <div>
-                  <div class="onlineMatchNames">${row.me.display_name} mot ${opponent}</div>
-                  <div style="font-size:11px;margin-top:4px;color:#c7ced9">Matchkod <button type="button" class="homeCodeCopy" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)">${m.code}</button></div>
-                </div>
-                <div class="onlineMatchState ${yourTurn?"turn":"wait"}"><span class="matchStatusLamp"></span>${text}</div>${chatUnreadHtml}
+              <div class="onlineMatchHeader">
+                <div class="onlineMatchNames">${row.me.display_name} mot ${opponent}</div>
+                ${chatUnreadHtml}
               </div>
+              <div class="matchCodeLine">
+                <span class="matchCodeLabel">MATCHKOD</span>
+                <strong class="matchCodeValue">${m.code}</strong>
+                <span role="button" tabindex="0" class="copyCodeBtn small" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();copyMatchCode('${m.code}',this)}">KOPIERA</span>
+              </div>
+              <div class="onlineMatchState ${yourTurn?"turn":"wait"}"><span class="matchStatusLamp"></span>${text}</div>
             </button>
             <button type="button" class="leaveIconBtn" aria-label="Lämna match" title="Lämna match" onclick="event.stopPropagation();askLeaveMatch(${m.id},'${String(opponent).replace(/'/g,"\\'")}')">🗑</button>
           </div>`;
@@ -4569,7 +4626,7 @@ async function loadOnlineHistory(options={}){
               <div class="historyName">Mot ${opponent}</div>
               <div class="historyResult ${resultClass}">${resultText}</div>
             </div>
-            <div class="historyMeta">Matchkod <button type="button" class="homeCodeCopy" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)">${m.code}</button>${date?` · ${date}`:""}</div>
+            <div class="historyMeta historyCodeRow"><span>Matchkod <strong>${m.code}</strong>${date?` · ${date}`:""}</span><button type="button" class="copyCodeBtn small" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)">KOPIERA</button></div>
             <div class="historySummary">
               <span><strong>${myLocked}</strong> låsta kort för dig</span>
               <span><strong>${oppLocked}</strong> för ${opponent}</span>
@@ -5214,7 +5271,7 @@ function renderOnlineGame(){
     onlineHideScreens();
     $("onlineGameBadge").textContent="Väntar";
     $("onlineWaitingScreen").classList.remove("hidden");
-    $("onlineWaitingScreen").innerHTML=`Dela matchkoden <button type="button" class="inlineCodeCopy" onclick="copyMatchCode('${onlineMatch.code}',this)">${onlineMatch.code}</button> med din vän.`;
+    $("onlineWaitingScreen").innerHTML=`<div class="waitingCodeText">Dela matchkoden med din vän</div><div class="matchCodeCopyRow centered"><strong class="waitingCode">${onlineMatch.code}</strong><button type="button" class="copyCodeBtn" onclick="copyMatchCode('${onlineMatch.code}',this)">KOPIERA</button></div>`;
     return;
   }
 
@@ -6013,7 +6070,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.98.
+// Startsidan är alltid online i V4.99.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
