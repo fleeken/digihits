@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.35</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.37</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1159,7 +1159,7 @@ html.digihitsBooting body{
   background:#080b10
 }
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.35</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.37</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1346,7 +1346,7 @@ html.digihitsBooting body{
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.35</strong>
+    Version <strong style="color:#fff">V5.37</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -2274,7 +2274,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.35";
+    if(badge)badge.textContent="Återansluten · V5.37";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2282,7 +2282,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.35 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.37 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2293,7 +2293,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.35"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.37"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2407,12 +2407,12 @@ function gen(){let c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(let i=0;i<6;i++
 function showModeChooser(){showOnlineMode()}
 function showLocalMode(){showOnlineMode()}
 function showOnlineMode(){
-  const saved=localStorage.getItem(ONLINE_NAME_KEY)||"";
-  if($("onlineName")&&!$("onlineName").value)$("onlineName").value=saved;
+  const name=profileDisplayName();
+  if($("onlineName"))$("onlineName").value=name;
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.35":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.37":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3165,7 +3165,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.35
+// SPELA ONLINE – V5.37
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -4177,7 +4177,7 @@ function renderAccountUi(){
     }
 
     const metaName=String(digihitsAccountUser.user_metadata?.display_name||"").trim();
-    if(metaName)localStorage.setItem(ONLINE_NAME_KEY,metaName);
+    if(metaName)cacheCurrentAccountName(metaName);
     renderProfileName();
     return;
   }
@@ -4189,53 +4189,52 @@ function renderAccountUi(){
 }
 
 async function migrateLegacyIdentityToAccount(accountId){
-  const legacy=String(localStorage.getItem(ONLINE_USER_KEY)||"").trim();
-  if(!legacy||legacy===accountId)return;
-
-  try{
-    const owned=await db.from("online_players").select("id,match_id").eq("user_id",legacy);
-    if(owned.error)throw owned.error;
-
-    if((owned.data||[]).length){
-      const p=await db.from("online_players").update({
-        user_id:accountId,
-        updated_at:new Date().toISOString()
-      }).eq("user_id",legacy);
-      if(p.error)throw p.error;
-
-      const msg=await db.from("online_messages").update({user_id:accountId}).eq("user_id",legacy);
-      if(msg.error)console.warn("Message identity migration:",msg.error.message);
-
-      const cur=await db.from("online_matches").update({
-        current_user_id:accountId,
-        updated_at:new Date().toISOString()
-      }).eq("current_user_id",legacy);
-      if(cur.error)console.warn("Current turn identity migration:",cur.error.message);
-
-      const win=await db.from("online_matches").update({
-        winner_user_id:accountId,
-        updated_at:new Date().toISOString()
-      }).eq("winner_user_id",legacy);
-      if(win.error)console.warn("Winner identity migration:",win.error.message);
-    }
-  }catch(e){
-    console.warn("Legacy account migration:",e);
-  }
-
-  onlineUserId=accountId;
-  localStorage.setItem(ONLINE_USER_KEY,accountId);
+  // AVSTÄNGD PERMANENT.
+  // Ett autentiserat konto får aldrig ta över speldata från ett ID
+  // som råkar ligga kvar från en tidigare användare på samma enhet.
+  return String(accountId||"");
 }
 
-async function applyAccountSession(user,{migrate=true}={}){
+async function resolveAuthenticatedProfileName(user){
+  if(!user?.id)return "";
+
+  const meta=String(user.user_metadata?.display_name||"").trim();
+  if(meta){
+    cacheCurrentAccountName(meta);
+    return meta;
+  }
+
+  try{
+    const r=await db.from("digihits_profiles")
+      .select("display_name")
+      .eq("user_id",user.id)
+      .maybeSingle();
+    if(r.error)throw r.error;
+
+    const profileName=String(r.data?.display_name||"").trim();
+    if(profileName){
+      cacheCurrentAccountName(profileName);
+      return profileName;
+    }
+  }catch(e){
+    console.warn("Profile name lookup:",e);
+  }
+  return "";
+}
+
+async function applyAccountSession(user,{migrate=false}={}){
   digihitsAccountUser=user||null;
 
-  if(digihitsAccountUser){
-    if(migrate)await migrateLegacyIdentityToAccount(digihitsAccountUser.id);
-    onlineUserId=digihitsAccountUser.id;
+  if(digihitsAccountUser?.id){
+    clearUnscopedLegacyIdentityCache();
+    onlineUserId=String(digihitsAccountUser.id);
     localStorage.setItem(ONLINE_USER_KEY,onlineUserId);
 
-    const metaName=String(digihitsAccountUser.user_metadata?.display_name||"").trim();
-    if(metaName)localStorage.setItem(ONLINE_NAME_KEY,metaName);
+    const resolvedName=await resolveAuthenticatedProfileName(digihitsAccountUser);
+    if(resolvedName)cacheCurrentAccountName(resolvedName);
+  }else{
+    onlineUserId="";
+    localStorage.removeItem(ONLINE_USER_KEY);
   }
 
   renderAccountUi();
@@ -4338,7 +4337,7 @@ async function initDigihitsAccount(){
     if(user){
       digihitsAuthSession=loadAuthSession();
       if(digihitsAuthSession)digihitsAuthSession.user=user;
-      await applyAccountSession(user,{migrate:true});
+      await applyAccountSession(user,{migrate:false});
     }else{
       digihitsAccountUser=null;
       renderAccountUi();
@@ -4765,7 +4764,7 @@ async function createDigihitsAccount(){
       if(data?.access_token){
         saveAuthSession(data);
         const user=data.user||await fetchCurrentAuthUser();
-        if(user)await applyAccountSession(user,{migrate:true});
+        if(user)await applyAccountSession(user,{migrate:false});
         setAccountStatus("",false,"signupStatus");
         startOnlineHomeSync();
       }else{
@@ -4850,7 +4849,7 @@ $("passwordResetPanel")?.classList.add("hidden");
 
     saveAuthSession(data);
     currentAuthView="choice";
-    await applyAccountSession(data.user,{migrate:true});
+    await applyAccountSession(data.user,{migrate:false});
     setAccountStatus("",false,"loginStatus");
     startOnlineHomeSync();
   }catch(e){
@@ -5025,20 +5024,29 @@ async function logoutDigihitsAccount(){
     if(onlineListChannel&&getRealtimeClient())getRealtimeClient().removeChannel(onlineListChannel);
   }catch(_){}
   onlineListChannel=null;
+
+  cleanupOnlineMatchView();
   digihitsAccountUser=null;
+  onlineUserId="";
+  localStorage.removeItem(ONLINE_USER_KEY);
+  localStorage.removeItem(ONLINE_NAME_KEY);
+
   $("authenticatedHomeContent")?.classList.add("hidden");
   $("homeGameTitle")?.classList.add("hidden");
-  onlineMatch=null;
-  onlinePlayers=[];
-  onlineMyPlayer=null;
   onlineMatchesRenderedHtml="";
   onlineHistoryRenderedHtml="";
-  if($("onlineMatches"))$("onlineMatches").innerHTML='<div class="wait" style="padding:18px">Logga in för att se dina matcher.</div>';
-  if($("onlineHistory"))$("onlineHistory").innerHTML='<div class="wait" style="padding:18px">Logga in för att se din historik.</div>';
+
+  if($("onlineMatches")){
+    $("onlineMatches").innerHTML='<div class="wait" style="padding:18px">Logga in för att se dina matcher.</div>';
+  }
+  if($("onlineHistory")){
+    $("onlineHistory").innerHTML='<div class="wait" style="padding:18px">Logga in för att se din historik.</div>';
+  }
+
   currentAuthView="choice";
   renderAccountUi();
   showAuthView("choice",false);
-    pushDigihitsRoute({view:"choice"},true);
+  pushDigihitsRoute({view:"choice"},true);
 }
 
 function requireDigihitsAccount(){
@@ -5049,20 +5057,40 @@ function requireDigihitsAccount(){
   return false;
 }
 
-function ensureOnlineUserId(){
-  if(digihitsAccountUser?.id)return digihitsAccountUser.id;
-  if(!onlineUserId){
-    onlineUserId=(crypto.randomUUID?crypto.randomUUID():("u_"+Date.now()+"_"+Math.random().toString(36).slice(2)));
-    localStorage.setItem(ONLINE_USER_KEY,onlineUserId);
-  }
-  return onlineUserId;
+function accountScopedNameKey(userId){
+  return ONLINE_NAME_KEY+":"+String(userId||"");
 }
-ensureOnlineUserId();
+
+function clearUnscopedLegacyIdentityCache(){
+  localStorage.removeItem(ONLINE_NAME_KEY);
+  const storedId=String(localStorage.getItem(ONLINE_USER_KEY)||"").trim();
+  const currentId=String(digihitsAccountUser?.id||"").trim();
+  if(storedId && currentId && storedId!==currentId){
+    localStorage.removeItem(ONLINE_USER_KEY);
+  }
+}
+
+function cacheCurrentAccountName(name){
+  const userId=String(digihitsAccountUser?.id||"").trim();
+  const clean=String(name||"").trim();
+  if(!userId||!clean)return;
+  localStorage.setItem(accountScopedNameKey(userId),clean);
+}
+
+function currentAccountCachedName(){
+  const userId=String(digihitsAccountUser?.id||"").trim();
+  if(!userId)return "";
+  return String(localStorage.getItem(accountScopedNameKey(userId))||"").trim();
+}
+
+function ensureOnlineUserId(){
+  return String(digihitsAccountUser?.id||"").trim();
+}
 
 function profileDisplayName(){
-  const meta=String(digihitsAccountUser?.user_metadata?.display_name||"").trim();
-  const saved=String(localStorage.getItem(ONLINE_NAME_KEY)||"").trim();
-  return meta||saved;
+  if(!digihitsAccountUser?.id)return "";
+  const meta=String(digihitsAccountUser.user_metadata?.display_name||"").trim();
+  return meta||currentAccountCachedName();
 }
 function setProfileNameStatus(text,isError=false){
   const el=$("profileNameStatus");
@@ -5882,6 +5910,10 @@ async function joinOnlineMatch(){
       throw new Error("Andra omgången har tyvärr redan påbörjats.");
     }
 
+    if(list.some(p=>String(p.user_id||"")===String(ensureOnlineUserId()))){
+      throw new Error("Det här Digihits-kontot är redan med i matchen.");
+    }
+
     if(list.length>=8)throw new Error("Matchen är full.");
 
     onlineMatch=m;
@@ -6048,8 +6080,8 @@ async function loadOnlineMatches(options={}){
   const alreadyHasContent=!!onlineMatchesRenderedHtml || !!box.querySelector(".onlineMatchCard");
   const firstLoad=!alreadyHasContent;
 
-  const name=localStorage.getItem(ONLINE_NAME_KEY)||"";
-  if($("onlineName")&&!$("onlineName").value)$("onlineName").value=name;
+  const name=profileDisplayName();
+  if($("onlineName"))$("onlineName").value=name;
 
   if(firstLoad){
     box.innerHTML='<div class="wait" style="padding:18px">Hämtar dina matcher…</div>';
@@ -6059,7 +6091,11 @@ async function loadOnlineMatches(options={}){
     const pr=await db.from("online_players").select("*").eq("user_id",ensureOnlineUserId()).eq("active",true);
     if(pr.error)throw new Error(pr.error.message);
 
-    const memberships=pr.data||[];
+    const currentName=normalizeProfileName(profileDisplayName()).toLocaleLowerCase("sv-SE");
+    const memberships=(pr.data||[]).filter(p=>{
+      const rowName=normalizeProfileName(p.display_name||"").toLocaleLowerCase("sv-SE");
+      return !currentName || rowName===currentName;
+    });
     const rows=[];
 
     for(const membership of memberships){
@@ -6293,21 +6329,60 @@ function renderHistoryStats(rows){
   if($("historyBestStreak"))$("historyBestStreak").textContent=`${bestStreak} st`;
 }
 
-async function hideSingleHistoryMatch(playerRowId,opponentName="matchen"){
-  if(!playerRowId)return;
-  if(!confirm(`Radera ${opponentName ? "historiken mot "+opponentName : "den här matchen"}?`))return;
+async function hideSingleHistoryMatch(playerRowId,opponentName=""){
+  const id=String(playerRowId||"").trim();
+  if(!id){
+    alert("Kunde inte identifiera historikraden.");
+    return;
+  }
 
+  const label=String(opponentName||"den här matchen").trim();
+  if(!confirm(`Radera historiken${label ? " mot "+label : ""}?`))return;
+
+  const waitToken=beginGlobalWait("Raderar från historiken…");
   try{
-    const up=await db.from("online_players")
-      .update({history_hidden:true,updated_at:new Date().toISOString()})
-      .eq("id",playerRowId)
-      .eq("user_id",ensureOnlineUserId());
-    if(up.error)throw new Error(up.error.message);
+    const userId=String(ensureOnlineUserId()||"").trim();
+    if(!userId){
+      throw new Error("Ingen inloggad användare kunde identifieras.");
+    }
 
+    // Läs först raden för att verifiera ägarskap och ge tydligare fel än en tyst update.
+    const check=await db.from("online_players")
+      .select("id,user_id,history_hidden")
+      .eq("id",id)
+      .maybeSingle();
+
+    if(check.error)throw new Error(check.error.message);
+    if(!check.data){
+      throw new Error("Historikraden finns inte längre.");
+    }
+    if(String(check.data.user_id||"")!==userId){
+      throw new Error("Historikraden tillhör inte den inloggade användaren.");
+    }
+
+    const up=await db.from("online_players")
+      .update({
+        history_hidden:true,
+        updated_at:new Date().toISOString()
+      })
+      .eq("id",id)
+      .eq("user_id",userId)
+      .select("id,history_hidden")
+      .maybeSingle();
+
+    if(up.error)throw new Error(up.error.message);
+    if(!up.data || up.data.history_hidden!==true){
+      throw new Error("Raden kunde inte markeras som raderad.");
+    }
+
+    // Tvinga omrendering och ny hämtning.
     onlineHistoryRenderedHtml="";
-    await loadOnlineHistory({silent:true});
+    await loadOnlineHistory({silent:false});
   }catch(e){
-    alert("Kunde inte radera matchen från historiken: "+e.message);
+    console.error("Hide history row failed:",e);
+    alert("Kunde inte radera matchen från historiken.\n\n"+(e?.message||e));
+  }finally{
+    endGlobalWait(waitToken);
   }
 }
 
@@ -6327,7 +6402,12 @@ async function loadOnlineHistory(options={}){
     const pr=await db.from("online_players").select("*").eq("user_id",ensureOnlineUserId());
     if(pr.error)throw new Error(pr.error.message);
 
-    const memberships=(pr.data||[]).filter(p=>p.history_hidden!==true);
+    const currentName=normalizeProfileName(profileDisplayName()).toLocaleLowerCase("sv-SE");
+    const memberships=(pr.data||[]).filter(p=>{
+      if(p.history_hidden===true)return false;
+      const rowName=normalizeProfileName(p.display_name||"").toLocaleLowerCase("sv-SE");
+      return !currentName || rowName===currentName;
+    });
     const rows=[];
 
     for(const me of memberships){
@@ -6363,7 +6443,7 @@ async function loadOnlineHistory(options={}){
               <div class="historyName">Mot ${escapeHtml(opponent)}</div>
               <div class="historyTopActions">
                 <div class="historyResult ${outcome.className}">${escapeHtml(outcome.text)}</div>
-                <button type="button" class="historyDeleteBtn" aria-label="Radera match från historiken" title="Radera från historik" onclick="event.stopPropagation();hideSingleHistoryMatch(${me.id},${JSON.stringify(opponent)})">🗑</button>
+                <button type="button" class="historyDeleteBtn" aria-label="Radera match från historiken" title="Radera från historik" onclick="event.stopPropagation();hideSingleHistoryMatch(${JSON.stringify(String(me.id))},${JSON.stringify(opponent)})">🗑</button>
               </div>
             </div>
             ${summaryHtml}
@@ -6482,7 +6562,12 @@ async function fetchOnlineGameState(){
     }
     const ps=await db.from("online_players").select("*").eq("match_id",onlineMatch.id).eq("active",true).order("turn_order");
     onlinePlayers=ps.data||[];
-    onlineMyPlayer=onlinePlayers.find(p=>String(p.user_id||"")===String(ensureOnlineUserId()))||null;
+    const myAccountId=String(ensureOnlineUserId());
+    const myProfileName=normalizeProfileName(profileDisplayName()).toLocaleLowerCase("sv-SE");
+    onlineMyPlayer=onlinePlayers.find(p=>
+      String(p.user_id||"")===myAccountId &&
+      (!myProfileName || normalizeProfileName(p.display_name||"").toLocaleLowerCase("sv-SE")===myProfileName)
+    )||null;
     await repairOnlineTurnIfNeeded();
     renderOnlineGame();
   }catch(e){
@@ -6630,10 +6715,11 @@ function nextOnlinePlayerAfter(userId){
 }
 
 function onlineOpponent(){
-  return onlinePlayers.find(p=>String(p.user_id||"")!==String(ensureOnlineUserId()))||null;
+  return onlineOpponents()[0]||null;
 }
 function onlineOpponents(){
-  return (onlinePlayers||[]).filter(p=>String(p.user_id||"")!==String(ensureOnlineUserId())&&p.active!==false);
+  if(!onlineMyPlayer)return [];
+  return onlinePlayers.filter(p=>String(p.id||"")!==String(onlineMyPlayer.id||""));
 }
 
 function onlineAllTimeline(p){
@@ -6969,20 +7055,38 @@ function updateOnlineBackButton(){
   btn.classList.toggle("dark",!waitingForOpponent);
 }
 
+function onlineMatchIdentityWarning(){
+  const active=onlinePlayers.filter(p=>p.active!==false);
+  const counts=new Map();
+  for(const p of active){
+    const uid=String(p.user_id||"");
+    if(!uid)continue;
+    counts.set(uid,(counts.get(uid)||0)+1);
+  }
+  return [...counts.values()].some(n=>n>1);
+}
+
 function renderOnlineGame(){
   if($("onlineGameBadge"))$("onlineGameBadge").classList.remove("hidden");
   updateOnlineSwapButton();
   updateOnlineGameSubtitle();
   updateOnlineBackButton();
   if(!onlineMatch||!onlineMyPlayer)return;
+
+  if(onlineMatchIdentityWarning()){
+    console.error("IDENTITY COLLISION: flera spelarrader använder samma konto-ID i match",onlineMatch?.id);
+    setOnlineGameStatus("Matchens spelardata innehåller en identitetskonflikt. Spela inte vidare i den här matchen.",true);
+  }
+
   renderOnlinePlayers();
   $("onlineGameCode").textContent=onlineMatch.code;
   updateOnlineMatchLockStatus();
 
   const opp=onlineOpponent();
   const opponents=onlineOpponents();
+  const ownTitleName=profileDisplayName()||onlineMyPlayer.display_name||"Du";
   $("onlineGameTitle").textContent=opponents.length
-    ? `${onlineMyPlayer.display_name} mot ${opponents.map(p=>p.display_name).join(", ")}`
+    ? `${ownTitleName} mot ${opponents.map(p=>p.display_name).join(", ")}`
     : "Väntar på motspelare";
 
   const myTurn=onlineIsMyTurn();
@@ -7795,7 +7899,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.35.
+// Startsidan är alltid online i V5.37.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
