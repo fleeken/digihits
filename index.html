@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.06</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.07</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.06 – kompaktare spelvy */
+/* V5.07 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.06 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.07 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.06 – equal years are a continuous timeline block */
+/* V5.07 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.06: compact, consistent home UX */
+/* V5.07: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -703,7 +703,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 .historyCodeRow .copyCodeBtn{margin:0}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.06</small></button><div class="badge" id="online">Redo · V5.06</div></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.07</small></button><div class="badge" id="online">Redo · V5.07</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -852,7 +852,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.06</strong>
+    Version <strong style="color:#fff">V5.07</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1755,7 +1755,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.06";
+    if(badge)badge.textContent="Återansluten · V5.07";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1763,7 +1763,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.06 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.07 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1774,7 +1774,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V5.06"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V5.07"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1893,7 +1893,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V5.06":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V5.07":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2646,7 +2646,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.06
+// SPELA ONLINE – V5.07
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -4889,6 +4889,7 @@ async function loadOnlineMatches(options={}){
       ? '<div class="wait" style="padding:18px">Du har inga matcher ännu. Starta en ny match ovan.</div>'
       : rows.map(row=>{
           const m=row.match;
+          if(m?.status==="finished" || m?.status==="ended" || m?.ended_at) return "";
           const activePlayers=(row.players||[]).filter(p=>p?.active!==false);
           const opp=activePlayers.find(p=>String(p.user_id||"")!==String(ensureOnlineUserId()));
           const opponent=opp?.display_name||"";
@@ -4907,10 +4908,19 @@ async function loadOnlineMatches(options={}){
             : "";
           const leftPlayer=(row.allPlayers||[]).find(p=>p?.left_at || p?.active===false);
           const leftPlayerName=leftPlayer?.display_name||"";
+          const allPlayerCount=(row.allPlayers||[]).length;
+          const matchActuallyStarted=allPlayerCount>=2 && (
+            Number(m.round_no||m.round||1)>1 ||
+            !!m.started_at ||
+            (row.allPlayers||[]).some(p =>
+              (Array.isArray(p?.locked_timeline) && p.locked_timeline.length>0) ||
+              Number(p?.score||0)>0
+            )
+          );
           const text=m.status==="waiting"
             ?"VÄNTAR PÅ MOTSPELARE"
             :ended
-              ?(leftPlayerName
+              ?(leftPlayerName && matchActuallyStarted
                   ?`WALK OVER · ${escapeHtml(leftPlayerName)} LÄMNADE MATCHEN`
                   :(m.winner_user_id===ensureOnlineUserId()?"DU VANN":"AVSLUTAD"))
               :(yourTurn?"DIN TUR":"VÄNTAR PÅ MOTSPELARE");
@@ -4998,18 +5008,30 @@ async function loadOnlineHistory(options={}){
       : rows.map(row=>{
           const m=row.match, me=row.me, opp=row.opp;
           const leaver=(row.players||[]).find(p=>p?.left_at || p?.active===false)||null;
-          const isWalkover=!!leaver;
-          const won=!isWalkover && m.winner_user_id===ensureOnlineUserId();
-          const lost=!isWalkover && !!m.winner_user_id && m.winner_user_id!==ensureOnlineUserId();
+          const historyPlayerCount=(row.players||[]).length;
+          const matchActuallyStarted=historyPlayerCount>=2 && (
+            Number(m.round_no||m.round||1)>1 ||
+            !!m.started_at ||
+            (row.players||[]).some(p =>
+              (Array.isArray(p?.locked_timeline) && p.locked_timeline.length>0) ||
+              Number(p?.score||0)>0
+            )
+          );
+          const isWalkover=!!leaver && matchActuallyStarted;
+          const leftBeforeStart=!!leaver && !matchActuallyStarted;
+          const won=!isWalkover && !leftBeforeStart && m.winner_user_id===ensureOnlineUserId();
+          const lost=!isWalkover && !leftBeforeStart && !!m.winner_user_id && m.winner_user_id!==ensureOnlineUserId();
           const resultClass=isWalkover?"walkover":won?"win":lost?"loss":"left";
           const leaverName=leaver?.display_name||"Spelare";
           const resultText=isWalkover
             ?`WALK OVER · ${leaverName} LÄMNADE MATCHEN`
-            :won
-              ?"VINST"
-              :lost
-                ?"FÖRLUST"
-                :"AVSLUTAD";
+            :leftBeforeStart
+              ?`${leaverName} LÄMNADE INNAN MATCHSTART`
+              :won
+                ?"VINST"
+                :lost
+                  ?"FÖRLUST"
+                  :"MATCH AVSLUTAD";
           const myLocked=(me.locked_timeline||[]).length;
           const oppLocked=(opp?.locked_timeline||[]).length;
           const opponent=opp?.display_name||"Okänd spelare";
@@ -6468,7 +6490,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.06.
+// Startsidan är alltid online i V5.07.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
