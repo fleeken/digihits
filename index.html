@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.87</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.88</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.87 – kompaktare spelvy */
+/* V4.88 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V4.87 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V4.88 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -516,7 +516,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V4.87 – equal years are a continuous timeline block */
+/* V4.88 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -548,7 +548,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   opacity:.65
 }
 </style></head><body>
-<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.87</small></div><div class="badge" id="online">Redo · V4.87</div></div>
+<div class="app"><div class="top"><div class="brand">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.88</small></div><div class="badge" id="online">Redo · V4.88</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -572,6 +572,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
           <button type="button" id="accountCreateBtn" class="btn dark" onclick="createDigihitsAccount()">SKAPA KONTO</button>
         </div>
         <button type="button" id="forgotPasswordBtn" class="accountLinkBtn" onclick="sendPasswordReset()">GLÖMT LÖSENORD?</button>
+        <button type="button" id="resendVerificationBtn" class="accountLinkBtn hidden" onclick="resendVerificationEmail()">SKICKA VERIFIERINGSMAIL IGEN</button>
         <div id="accountStatus" class="mut accountStatus"></div>
       </div>
 
@@ -661,7 +662,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.87</strong>
+    Version <strong style="color:#fff">V4.88</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1510,7 +1511,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.87";
+    if(badge)badge.textContent="Återansluten · V4.88";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1518,7 +1519,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.87 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.88 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1529,7 +1530,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.87"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.88"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1648,7 +1649,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.87":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.88":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2401,7 +2402,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.87
+// SPELA ONLINE – V4.88
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -2891,7 +2892,7 @@ function setAccountStatus(text,isError=false){
 
 function friendlyAuthError(e,action="login"){
   const msg=String(e?.message||e||"").toLowerCase();
-  if(msg.includes("email not confirmed"))return "Verifiera din e-postadress först och försök sedan logga in igen.";
+  if(msg.includes("email not confirmed")){showVerificationResend(true);return "Verifiera din e-postadress först och försök sedan logga in igen.";}
   if(msg.includes("invalid login credentials"))return "Fel e-postadress eller lösenord.";
   if(msg.includes("user already registered")||msg.includes("already registered"))return "Det finns redan ett konto med den e-postadressen. Logga in eller välj Glömt lösenord.";
   if(msg.includes("password")&&msg.includes("6"))return "Lösenordet måste vara minst 6 tecken.";
@@ -2903,7 +2904,7 @@ function friendlyAuthError(e,action="login"){
 }
 
 function setAccountBusy(busy){
-  ["accountLoginBtn","accountCreateBtn","forgotPasswordBtn"].forEach(id=>{
+  ["accountLoginBtn","accountCreateBtn","forgotPasswordBtn","resendVerificationBtn"].forEach(id=>{
     const b=$(id);
     if(b){b.disabled=busy;b.style.opacity=busy?".55":"1"}
   });
@@ -3235,6 +3236,61 @@ async function saveNewPassword(){
   }
 }
 
+let verificationResendCooldownUntil=0;
+
+function showVerificationResend(show=true){
+  const btn=$("resendVerificationBtn");
+  if(!btn)return;
+  btn.classList.toggle("hidden",!show);
+}
+
+async function resendVerificationEmail(){
+  const email=($("accountEmail")?.value||"").trim().toLowerCase();
+  if(!email){
+    setAccountStatus("Skriv e-postadressen som du registrerade kontot med.",true);
+    $("accountEmail")?.focus();
+    return;
+  }
+  const now=Date.now();
+  if(now<verificationResendCooldownUntil){
+    const seconds=Math.ceil((verificationResendCooldownUntil-now)/1000);
+    setAccountStatus(`Vänta ${seconds} sekunder innan du skickar ett nytt verifieringsmejl.`);
+    return;
+  }
+  const btn=$("resendVerificationBtn");
+  if(btn){btn.disabled=true;btn.textContent="SKICKAR…"}
+  setAccountStatus("Skickar verifieringsmejl…");
+  try{
+    await authRequest("/resend",{
+      method:"POST",
+      body:{
+        type:"signup",
+        email,
+        options:{emailRedirectTo:passwordResetRedirectUrl()}
+      }
+    });
+    verificationResendCooldownUntil=Date.now()+60000;
+    setAccountStatus("Verifieringsmejlet har skickats igen. Kontrollera även skräppost om det inte syns i inkorgen.");
+  }catch(e){
+    console.warn("Verification resend:",e);
+    const msg=String(e?.message||e||"").toLowerCase();
+    if(msg.includes("rate limit")||msg.includes("too many")){
+      verificationResendCooldownUntil=Date.now()+60000;
+      setAccountStatus("Ett verifieringsmejl har nyligen skickats. Vänta en minut och försök igen.");
+    }else{
+      setAccountStatus("Verifieringsmejlet kunde inte skickas just nu. Försök igen om en stund.",true);
+    }
+  }finally{
+    if(btn){
+      btn.textContent="SKICKA VERIFIERINGSMAIL IGEN";
+      btn.disabled=Date.now()<verificationResendCooldownUntil;
+      if(btn.disabled){
+        setTimeout(()=>{ if(btn){btn.disabled=false;btn.style.opacity="1"} },Math.max(0,verificationResendCooldownUntil-Date.now()));
+      }
+    }
+  }
+}
+
 async function createDigihitsAccount(){
   $("passwordResetPanel")?.classList.add("hidden");
   const email=($("accountEmail")?.value||"").trim().toLowerCase();
@@ -3263,6 +3319,7 @@ async function createDigihitsAccount(){
       startOnlineHomeSync();
     }else{
       setAccountStatus("Kontot är skapat. Kontrollera din e-post och verifiera kontot innan du loggar in.");
+      showVerificationResend(true);
     }
   }catch(e){
     console.warn("Create account:",e);
@@ -5793,7 +5850,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.87.
+// Startsidan är alltid online i V4.88.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
