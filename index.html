@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.15</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.16</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.15 – kompaktare spelvy */
+/* V5.16 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.15 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.16 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.15 – equal years are a continuous timeline block */
+/* V5.16 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.15: compact, consistent home UX */
+/* V5.16: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -819,8 +819,40 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   .historyResetActions{width:100%;justify-content:flex-start}
   .historyResetActions .btn{font-size:9px;padding:8px 9px!important}
 }
+
+.historyResetMini{
+  appearance:none;
+  -webkit-appearance:none;
+  border-radius:9px;
+  padding:6px 9px;
+  font:inherit;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.04em;
+  cursor:pointer;
+  touch-action:manipulation
+}
+.historyResetMini.historySecondary{
+  background:#252c37;
+  border:1px solid #4c5868;
+  color:#e2eaf4
+}
+.historyResetMini.historyDanger{
+  background:#35171c;
+  border:1px solid #7f3943;
+  color:#ffadb6
+}
+.historyClearRow{
+  display:flex;
+  justify-content:flex-end;
+  margin:2px 0 10px
+}
+@media(max-width:600px){
+  .historyResetMini{font-size:8px;padding:6px 8px}
+  .historyClearRow{justify-content:flex-start}
+}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.15</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.16</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -966,21 +998,21 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </div>
 
     <div class="role" style="margin-top:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
         <div>
           <h3 style="margin:0">Historik</h3>
           <div class="mut" style="font-size:12px;margin-top:4px">Slutförda och lämnade matcher.</div>
         </div>
-        <div class="historyResetActions">
-          <button type="button" id="resetStatsBtn" class="btn historySecondary" style="padding:8px 11px" onclick="askResetStatistics()">NOLLSTÄLL ALL STATISTIK</button>
-          <button type="button" id="clearHistoryBtn" class="btn historyDanger" style="padding:8px 11px" onclick="askClearHistory()">NOLLSTÄLL ALL HISTORIK</button>
-        </div>
+        <button type="button" id="resetStatsBtn" class="historyResetMini historySecondary" onclick="askResetStatistics()">NOLLSTÄLL ALL STATISTIK</button>
       </div>
       <div id="historyStats" class="historyStats">
         <div class="historyStat"><span>Vinster</span><strong id="historyWins">0 st</strong></div>
         <div class="historyStat"><span>Förluster</span><strong id="historyLosses">0 st</strong></div>
         <div class="historyStat"><span>Walk Over</span><strong id="historyWalkovers">0 st</strong></div>
         <div class="historyStat"><span>Flest vinster i rad</span><strong id="historyBestStreak">0 st</strong></div>
+      </div>
+      <div class="historyClearRow">
+        <button type="button" id="clearHistoryBtn" class="historyResetMini historyDanger" onclick="askClearHistory()">NOLLSTÄLL ALL HISTORIK</button>
       </div>
       <div id="onlineHistory" class="historyList">
         <div class="wait" style="padding:18px">Hämtar historik…</div>
@@ -989,7 +1021,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.15</strong>
+    Version <strong style="color:#fff">V5.16</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1892,7 +1924,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.15";
+    if(badge)badge.textContent="Återansluten · V5.16";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1900,7 +1932,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.15 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.16 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1911,7 +1943,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.15"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.16"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2030,7 +2062,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.15":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.16":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2783,7 +2815,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.15
+// SPELA ONLINE – V5.16
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -6810,7 +6842,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.15.
+// Startsidan är alltid online i V5.16.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
