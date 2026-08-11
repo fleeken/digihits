@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.97</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V4.98</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.97 – kompaktare spelvy */
+/* V4.98 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V4.97 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V4.98 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -516,7 +516,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V4.97 – equal years are a continuous timeline block */
+/* V4.98 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -550,8 +550,33 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .brandHomeBtn{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .spotifyAccountChangeBtn{display:block;margin:9px auto 0}
+
+.copyableMatchCode{
+  appearance:none;-webkit-appearance:none;background:transparent;border:0;
+  color:inherit;padding:0;margin:0;font:inherit;letter-spacing:inherit;
+  cursor:pointer;text-align:left;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent
+}
+.copyableMatchCode:hover,.homeCodeCopy:hover{filter:brightness(1.15)}
+.copyableMatchCode.copied,.homeCodeCopy.copied{color:#8ff0ad!important;text-decoration:none!important}
+.copyMatchHint{margin-top:2px;font-size:9px;color:#929aa8}
+.homeCodeCopy{
+  appearance:none;-webkit-appearance:none;background:transparent;border:0;
+  padding:0;margin:0;color:inherit;font:inherit;font-weight:inherit;
+  cursor:pointer;text-decoration:underline;text-decoration-style:dotted;
+  text-underline-offset:2px;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent
+}
+
+.inlineCodeCopy{
+  appearance:none;-webkit-appearance:none;background:transparent;border:0;
+  padding:0;margin:0;color:#8fe7ff;font:inherit;font-weight:950;
+  text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent
+}
+.inlineCodeCopy.copied{color:#8ff0ad;text-decoration:none}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.97</small></button><div class="badge" id="online">Redo · V4.97</div></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.98</small></button><div class="badge" id="online">Redo · V4.98</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -666,7 +691,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.97</strong>
+    Version <strong style="color:#fff">V4.98</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -679,7 +704,8 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
       <button type="button" id="onlineBackToMatchesBtn" class="btn dark full" onclick="closeOnlineGame()">← TILL MINA MATCHER</button>
       <div class="matchCodeBox" style="margin-top:16px">
         <small class="mut">MATCHKOD</small>
-        <div id="onlineGameCode" class="code">–</div>
+        <button type="button" id="onlineGameCode" class="code copyableMatchCode" onclick="copyMatchCodeFromElement(this)" title="Tryck för att kopiera matchkoden" aria-label="Kopiera matchkod">–</button>
+        <div class="copyMatchHint">Tryck på koden för att kopiera</div>
         <div id="onlineMatchLockStatus" class="matchLockStatus unlocked">
           <span id="onlineMatchLockIcon" class="matchLockIcon">🔓</span>
           <span id="onlineMatchLockText">Match ej låst</span>
@@ -1558,7 +1584,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.97";
+    if(badge)badge.textContent="Återansluten · V4.98";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1566,7 +1592,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.97 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V4.98 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1577,7 +1603,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.97"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V4.98"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1696,7 +1722,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.97":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.98":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2449,7 +2475,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.97
+// SPELA ONLINE – V4.98
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3643,6 +3669,62 @@ async function onlineCountActiveMatches(){
   return count;
 }
 
+async function copyMatchCode(code,sourceEl=null){
+  const value=String(code||"").trim().toUpperCase();
+  if(!value||value==="–")return false;
+
+  let copied=false;
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(value);
+      copied=true;
+    }
+  }catch(_){}
+
+  if(!copied){
+    // iPhone/Safari fallback.
+    try{
+      const ta=document.createElement("textarea");
+      ta.value=value;
+      ta.setAttribute("readonly","");
+      ta.style.position="fixed";
+      ta.style.left="-9999px";
+      ta.style.top="0";
+      ta.style.fontSize="16px";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0,99999);
+      copied=document.execCommand("copy");
+      ta.remove();
+    }catch(_){}
+  }
+
+  if(copied){
+    const old=sourceEl?.textContent;
+    if(sourceEl){
+      sourceEl.classList.add("copied");
+      sourceEl.textContent="KOPIERAD ✓";
+      setTimeout(()=>{
+        sourceEl.classList.remove("copied");
+        sourceEl.textContent=old||value;
+      },850);
+    }
+    try{navigator.vibrate?.(25)}catch(_){}
+    return true;
+  }
+
+  // Last-resort selection for environments that block clipboard access.
+  try{
+    window.prompt("Kopiera matchkoden:",value);
+  }catch(_){}
+  return false;
+}
+
+function copyMatchCodeFromElement(el){
+  return copyMatchCode(el?.textContent,el);
+}
+
 function onlineCode(){return gen()}
 function spotifyLooksLikeMusic(track){
   if(!track?.id||!track?.name||!track?.artists?.length)return false;
@@ -4152,7 +4234,7 @@ async function createOnlineMatch(){
     if(pr.error)throw new Error(pr.error.message);
 
     stage="open";
-    setOnlineStatus("Match skapad. Dela koden "+created.code+" med din vän.");
+    setOnlineStatus("");
     scheduleOnlineListRefresh(0);
     await openOnlineMatch(created.id);
   }catch(e){
@@ -4401,7 +4483,7 @@ async function loadOnlineMatches(options={}){
               <div class="onlineMatchTop">
                 <div>
                   <div class="onlineMatchNames">${row.me.display_name} mot ${opponent}</div>
-                  <div style="font-size:11px;margin-top:4px;color:#c7ced9">Matchkod ${m.code}</div>
+                  <div style="font-size:11px;margin-top:4px;color:#c7ced9">Matchkod <button type="button" class="homeCodeCopy" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)">${m.code}</button></div>
                 </div>
                 <div class="onlineMatchState ${yourTurn?"turn":"wait"}"><span class="matchStatusLamp"></span>${text}</div>${chatUnreadHtml}
               </div>
@@ -4487,7 +4569,7 @@ async function loadOnlineHistory(options={}){
               <div class="historyName">Mot ${opponent}</div>
               <div class="historyResult ${resultClass}">${resultText}</div>
             </div>
-            <div class="historyMeta">Matchkod ${m.code}${date?` · ${date}`:""}</div>
+            <div class="historyMeta">Matchkod <button type="button" class="homeCodeCopy" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)">${m.code}</button>${date?` · ${date}`:""}</div>
             <div class="historySummary">
               <span><strong>${myLocked}</strong> låsta kort för dig</span>
               <span><strong>${oppLocked}</strong> för ${opponent}</span>
@@ -5132,7 +5214,7 @@ function renderOnlineGame(){
     onlineHideScreens();
     $("onlineGameBadge").textContent="Väntar";
     $("onlineWaitingScreen").classList.remove("hidden");
-    $("onlineWaitingScreen").innerHTML=`Dela matchkoden <b>${onlineMatch.code}</b> med din vän.`;
+    $("onlineWaitingScreen").innerHTML=`Dela matchkoden <button type="button" class="inlineCodeCopy" onclick="copyMatchCode('${onlineMatch.code}',this)">${onlineMatch.code}</button> med din vän.`;
     return;
   }
 
@@ -5931,7 +6013,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.97.
+// Startsidan är alltid online i V4.98.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
