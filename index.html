@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V4.99</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.01</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V4.99 – kompaktare spelvy */
+/* V5.01 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V4.99 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.01 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -516,7 +516,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V4.99 – equal years are a continuous timeline block */
+/* V5.01 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -560,7 +560,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V4.99: compact, consistent home UX */
+/* V5.01: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -576,12 +576,8 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .spotifyCheckBtn.spotifyBad{background:#b72d3c}
 .spotifyCheckBtn.spotifyChecking{background:#6b7280}
 .spotifyCheckBtn.spotifyOk{background:#1db954;color:#06150b}
-.spotifyMark{
-  width:31px;height:31px;border-radius:50%;background:#0b1510;color:currentColor;
-  display:grid;place-items:center;font-size:29px;font-weight:1000;line-height:1;
-  transform:rotate(-7deg)
-}
-.spotifyCheckBtn.spotifyOk .spotifyMark{background:#08130c;color:#1db954}
+
+.spotifyCheckBtn.spotifyOk 
 .spotifyActionMessage{
   margin:10px 0 0;padding:11px 12px;border-radius:12px;background:#2b171b;
   border:1px solid #71333d;color:#ffb0b8;font-size:12px;font-weight:750;line-height:1.4
@@ -631,8 +627,20 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   .leaveIconBtn{right:8px;top:8px}
 }
 
+
+.matchPlayersMeta{
+  display:flex;align-items:center;gap:7px;margin-top:7px;
+  color:#aeb7c5;font-size:11px;font-weight:800
+}
+.onlineMatchNames{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+@media(max-width:600px){
+  .onlineMatchNames{font-size:15px}
+  .matchPlayersMeta{font-size:10px;margin-top:6px}
+}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V4.99</small></button><div class="badge" id="online">Redo · V4.99</div></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.01</small></button><div class="badge" id="online">Redo · V5.01</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -693,11 +701,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     <div id="authenticatedHomeContent" class="hidden">
     <div class="role spotifyHomeCard" style="margin-top:12px">
       <button type="button" id="onlineSpotifyBtn" class="spotifyCheckBtn spotifyBad" onclick="onlineSpotifyCheck()">
-        <span class="spotifyMark" aria-hidden="true">≋</span>
-        <span id="onlineSpotifyBtnText">KONTROLLERA SPOTIFY</span>
+        <span id="onlineSpotifyBtnText">TESTA SPOTIFY-ANSLUTNINGEN</span>
       </button>
       <div id="onlineStatus" class="spotifyActionMessage hidden" role="status"></div>
-      <button type="button" id="changeSpotifyAccountBtn" class="accountLinkBtn spotifyAccountChangeBtn" onclick="changeSpotifyAccount()">BYT SPOTIFY-KONTO</button>
+      <button type="button" id="changeSpotifyAccountBtn" class="accountLinkBtn spotifyAccountChangeBtn hidden" onclick="changeSpotifyAccount()">BYT SPOTIFY-KONTO</button>
     </div>
 
     <div class="role" style="margin-top:12px">
@@ -743,7 +750,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V4.99</strong>
+    Version <strong style="color:#fff">V5.01</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -909,6 +916,8 @@ function updateSpotifyUi(){
   if(connectBtn)connectBtn.textContent=connected?"SPOTIFY ANSLUTEN ✓":"ANSLUT SPOTIFY";
   const deviceBtn=document.getElementById("spotifyDeviceBtn");
   if(deviceBtn)deviceBtn.disabled=!connected;
+  const changeBtn=$("changeSpotifyAccountBtn");
+  if(changeBtn)changeBtn.classList.toggle("hidden",!connected);
 }
 function clearSpotifyConnectionForSwitch(){
   spotifyAccessToken="";
@@ -1644,7 +1653,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V4.99";
+    if(badge)badge.textContent="Återansluten · V5.01";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1652,7 +1661,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V4.99 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.01 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1663,7 +1672,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V4.99"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V5.01"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1782,7 +1791,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V4.99":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V5.01":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2535,7 +2544,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V4.99
+// SPELA ONLINE – V5.01
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3617,19 +3626,27 @@ function setSpotifyHomeState(state,message=""){
   const btn=$("onlineSpotifyBtn");
   const txt=$("onlineSpotifyBtnText");
   const status=$("onlineStatus");
+  const changeBtn=$("changeSpotifyAccountBtn");
+  const connected=!!(spotifyAccessToken||spotifyRefreshToken);
+
   if(btn){
     btn.classList.remove("spotifyBad","spotifyChecking","spotifyOk");
     btn.classList.add(state==="ok"?"spotifyOk":state==="checking"?"spotifyChecking":"spotifyBad");
     btn.disabled=state==="checking";
   }
   if(txt){
-    txt.textContent=state==="ok"?"SPOTIFY FUNGERAR ✓":state==="checking"?"KONTROLLERAR SPOTIFY…":"KONTROLLERA SPOTIFY";
+    txt.textContent=state==="ok"
+      ?"SPOTIFY ÄR REDO ✓"
+      :state==="checking"
+        ?"TESTAR SPOTIFY…"
+        :"TESTA SPOTIFY-ANSLUTNINGEN";
   }
   if(status){
     const show=state==="bad"&&!!message;
     status.textContent=show?message:"";
     status.classList.toggle("hidden",!show);
   }
+  if(changeBtn)changeBtn.classList.toggle("hidden",!connected);
 }
 
 function spotifyActionableError(err){
@@ -4471,6 +4488,28 @@ function markCurrentChatSeen(){
   updateChatBadge();
 }
 
+function matchCardPlayerTitle(players){
+  const active=(players||[])
+    .filter(p=>p?.active!==false)
+    .sort((a,b)=>Number(a.turn_order||0)-Number(b.turn_order||0));
+
+  if(active.length<2)return "Väntar på motspelare";
+
+  const names=active
+    .slice(0,4)
+    .map(p=>String(p.display_name||"Spelare").trim()||"Spelare");
+
+  return names.join(", ")+(active.length>4?" …":"");
+}
+
+function matchCardRound(players,match){
+  const active=(players||[]).filter(p=>p?.active!==false);
+  if(!active.length)return 1;
+  const highest=Math.max(0,...active.map(p=>Number(p.rounds_started||0)));
+  if(match?.status==="waiting")return 1;
+  return Math.max(1,highest);
+}
+
 async function loadOnlineMatches(options={}){
   if(!digihitsAccountUser){
     const box=$("onlineMatches");
@@ -4514,8 +4553,12 @@ async function loadOnlineMatches(options={}){
       ? '<div class="wait" style="padding:18px">Du har inga matcher ännu. Starta en ny match ovan.</div>'
       : rows.map(row=>{
           const m=row.match;
-          const opp=row.players.find(p=>String(p.user_id||"")!==String(ensureOnlineUserId()));
-          const opponent=opp?.display_name||"Väntar på motspelare";
+          const activePlayers=(row.players||[]).filter(p=>p?.active!==false);
+          const opp=activePlayers.find(p=>String(p.user_id||"")!==String(ensureOnlineUserId()));
+          const opponent=opp?.display_name||"";
+          const matchTitle=matchCardPlayerTitle(activePlayers);
+          const playerCount=activePlayers.length;
+          const roundNumber=matchCardRound(activePlayers,m);
           const yourTurn=m.status==="active"&&String(m.current_user_id||"")===String(ensureOnlineUserId());
           const ended=m.status==="ended";
           const matchLocked=row.players.some(p=>Number(p.rounds_started||0)>=2);
@@ -4535,9 +4578,10 @@ async function loadOnlineMatches(options={}){
           return `<div class="matchCardShell">
             <button type="button" class="onlineMatchCard ${yourTurn?"yourTurn":"waiting"}" onclick="openOnlineMatch(${m.id})">
               <div class="onlineMatchHeader">
-                <div class="onlineMatchNames">${row.me.display_name} mot ${opponent}</div>
+                <div class="onlineMatchNames">${matchTitle}</div>
                 ${chatUnreadHtml}
               </div>
+              <div class="matchPlayersMeta"><span>${playerCount} spelare</span><span>·</span><span>Omgång ${roundNumber}</span></div>
               <div class="matchCodeLine">
                 <span class="matchCodeLabel">MATCHKOD</span>
                 <strong class="matchCodeValue">${m.code}</strong>
@@ -4545,7 +4589,7 @@ async function loadOnlineMatches(options={}){
               </div>
               <div class="onlineMatchState ${yourTurn?"turn":"wait"}"><span class="matchStatusLamp"></span>${text}</div>
             </button>
-            <button type="button" class="leaveIconBtn" aria-label="Lämna match" title="Lämna match" onclick="event.stopPropagation();askLeaveMatch(${m.id},'${String(opponent).replace(/'/g,"\\'")}')">🗑</button>
+            <button type="button" class="leaveIconBtn" aria-label="Lämna match" title="Lämna match" onclick="event.stopPropagation();askLeaveMatch(${m.id},'${playerCount===2?String(opponent).replace(/'/g,"\\'"):""}')">🗑</button>
           </div>`;
         }).join("");
 
@@ -6070,7 +6114,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V4.99.
+// Startsidan är alltid online i V5.01.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -6088,6 +6132,8 @@ function startOnlineHomeSync(){
   },2500);
 }
 
+
+window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}});
 </script>
 
 <div id="clearHistoryModal" class="modalBackdrop hidden">
