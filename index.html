@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.23</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.25</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.23 – kompaktare spelvy */
+/* V5.25 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.23 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.25 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.23 – equal years are a continuous timeline block */
+/* V5.25 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.23: compact, consistent home UX */
+/* V5.25: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -1055,12 +1055,12 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   .matchCodeInlineFull .code{font-size:22px}
 }
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.23</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.25</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
     <div class="hero">
-      <h1 id="homeGameTitle" class="hidden">Vilket år släpptes låten?</h1>
+      <h1 id="homeGameTitle" class="hidden">När släpptes låten?</h1>
     </div>
 
     <div id="accountCard" class="role accountCard" style="margin-top:18px">
@@ -1242,7 +1242,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.23</strong>
+    Version <strong style="color:#fff">V5.25</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -2145,7 +2145,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.23";
+    if(badge)badge.textContent="Återansluten · V5.25";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2153,7 +2153,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.23 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.25 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2164,7 +2164,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.23"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.25"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2283,7 +2283,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.23":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.25":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3036,7 +3036,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.23
+// SPELA ONLINE – V5.25
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3547,7 +3547,137 @@ function clearAuthStatuses(){
   });
 }
 
-function showAuthView(view="choice"){
+
+const DIGIHITS_NAV_KEY="digihitsNavState";
+
+function currentDigihitsRoute(){
+  if(!$("onlineGame")?.classList.contains("hidden") && onlineMatch?.id){
+    return {view:"match",matchId:String(onlineMatch.id)};
+  }
+  if(!$("passwordResetPanel")?.classList.contains("hidden")){
+    return {view:"reset-password"};
+  }
+  if(!$("changePasswordPanel")?.classList.contains("hidden")){
+    return {view:"change-password"};
+  }
+  if(currentAuthView && currentAuthView!=="choice"){
+    return {view:"auth",authView:currentAuthView};
+  }
+  if(digihitsAccountUser){
+    return {view:"home"};
+  }
+  return {view:"choice"};
+}
+
+function saveDigihitsNavState(state){
+  try{sessionStorage.setItem(DIGIHITS_NAV_KEY,JSON.stringify(state||currentDigihitsRoute()))}catch(_){}
+}
+
+function pushDigihitsRoute(state,replace=false){
+  const next=state||currentDigihitsRoute();
+  saveDigihitsNavState(next);
+  const hash=
+    next.view==="match" && next.matchId ? "#match="+encodeURIComponent(next.matchId) :
+    next.view==="auth" && next.authView ? "#auth="+encodeURIComponent(next.authView) :
+    next.view==="reset-password" ? "#reset-password" :
+    next.view==="change-password" ? "#change-password" :
+    next.view==="home" ? "#home" :
+    "#start";
+  const data={digihits:true,...next};
+  try{
+    if(replace)history.replaceState(data,"",hash);
+    else history.pushState(data,"",hash);
+  }catch(_){}
+}
+
+function routeFromLocation(){
+  const hash=String(location.hash||"");
+  if(hash.startsWith("#match="))return {view:"match",matchId:decodeURIComponent(hash.slice(7))};
+  if(hash.startsWith("#auth="))return {view:"auth",authView:decodeURIComponent(hash.slice(6))};
+  if(hash==="#reset-password")return {view:"reset-password"};
+  if(hash==="#change-password")return {view:"change-password"};
+  if(hash==="#home")return {view:"home"};
+  if(hash==="#start")return {view:"choice"};
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(DIGIHITS_NAV_KEY)||"null");
+    if(saved?.view)return saved;
+  }catch(_){}
+  return null;
+}
+
+async function applyDigihitsRoute(state,{fromPop=false}={}){
+  if(!state?.view)return;
+
+  if(state.view==="match" && state.matchId){
+    if(!digihitsAccountUser){
+      currentAuthView="login";
+      renderAccountUi();
+      showAuthView("login",false);
+      return;
+    }
+    try{
+      await openOnlineMatch(state.matchId,{skipHistory:true});
+      saveDigihitsNavState(state);
+    }catch(e){
+      console.warn("Kunde inte återställa matchvyn:",e);
+      pushDigihitsRoute({view:"home"},true);
+      $("onlineGame")?.classList.add("hidden");
+      $("home")?.classList.remove("hidden");
+    }
+    return;
+  }
+
+  if(state.view==="auth"){
+    currentAuthView=state.authView||"choice";
+    $("onlineGame")?.classList.add("hidden");
+    $("home")?.classList.remove("hidden");
+    renderAccountUi();
+    showAuthView(currentAuthView,false);
+    saveDigihitsNavState(state);
+    return;
+  }
+
+  if(state.view==="reset-password"){
+    $("onlineGame")?.classList.add("hidden");
+    $("home")?.classList.remove("hidden");
+    $("accountLoggedIn")?.classList.add("hidden");
+    $("passwordResetPanel")?.classList.remove("hidden");
+    saveDigihitsNavState(state);
+    return;
+  }
+
+  if(state.view==="change-password"){
+    if(digihitsAccountUser){
+      $("onlineGame")?.classList.add("hidden");
+      $("home")?.classList.remove("hidden");
+      showChangePasswordPanel(false);
+      saveDigihitsNavState(state);
+    }
+    return;
+  }
+
+  $("onlineGame")?.classList.add("hidden");
+  $("home")?.classList.remove("hidden");
+
+  if(state.view==="home" && digihitsAccountUser){
+    currentAuthView="choice";
+    renderAccountUi();
+    saveDigihitsNavState(state);
+    return;
+  }
+
+  currentAuthView="choice";
+  renderAccountUi();
+  showAuthView("choice",false);
+  saveDigihitsNavState({view:"choice"});
+}
+
+window.addEventListener("popstate",async event=>{
+  const state=event.state?.digihits ? event.state : routeFromLocation();
+  if(state)await applyDigihitsRoute(state,{fromPop:true});
+});
+
+function showAuthView(view,pushHistory=true){
   currentAuthView=view;
   $("passwordResetPanel")?.classList.add("hidden");
   $("accountLoggedIn")?.classList.add("hidden");
@@ -3570,7 +3700,9 @@ function showAuthView(view="choice"){
     if(fromLogin&&!$("recoveryEmail")?.value)$("recoveryEmail").value=fromLogin;
     requestAnimationFrame(()=>$("recoveryEmail")?.focus());
   }
-}
+  if(pushHistory){
+    pushDigihitsRoute(view==="choice"?{view:"choice"}:{view:"auth",authView:view});
+  }}
 
 function showPasswordRecoveryRequest(){ showAuthView("recovery"); }
 
@@ -3940,15 +4072,17 @@ async function resendVerificationEmail(){
   }
 }
 
-function showChangePasswordPanel(){
+function showChangePasswordPanel(pushHistory=true){
   if(!digihitsAccountUser)return;
   $("accountLoggedIn")?.classList.add("hidden");
   $("changePasswordPanel")?.classList.remove("hidden");
   if($("changePasswordStatus"))$("changePasswordStatus").textContent="";
   requestAnimationFrame(()=>$("changePasswordNew")?.focus());
+  if(pushHistory)pushDigihitsRoute({view:"change-password"});
 }
 
-function hideChangePasswordPanel(){
+function hideChangePasswordPanel(useHistory=false){
+  if(useHistory && location.hash==="#change-password"){history.back();return}
   $("changePasswordPanel")?.classList.add("hidden");
   if($("changePasswordNew"))$("changePasswordNew").value="";
   if($("changePasswordRepeat"))$("changePasswordRepeat").value="";
@@ -4009,7 +4143,7 @@ function showPasswordResetPanel(){
   $("passwordResetPanel")?.classList.remove("hidden");
   setPasswordResetStatus("");
   requestAnimationFrame(()=>$("newPassword")?.focus());
-}
+  pushDigihitsRoute({view:"reset-password"});}
 
 function hidePasswordResetPanel(){
   $("passwordResetPanel")?.classList.add("hidden");
@@ -4398,7 +4532,8 @@ async function logoutDigihitsAccount(){
   if($("onlineHistory"))$("onlineHistory").innerHTML='<div class="wait" style="padding:18px">Logga in för att se din historik.</div>';
   currentAuthView="choice";
   renderAccountUi();
-  showAuthView("choice");
+  showAuthView("choice",false);
+    pushDigihitsRoute({view:"choice"},true);
 }
 
 function requireDigihitsAccount(){
@@ -5850,7 +5985,7 @@ async function fetchOnlineGameState(){
   }
 }
 
-async function openOnlineMatch(id){
+async function openOnlineMatch(id,{skipHistory=false}={}){
   const waitToken_openOnlineMatch=beginGlobalWait('Laddar match…');
   try{
 clearInterval(onlineGameTimer);
@@ -5875,6 +6010,7 @@ clearInterval(onlineGameTimer);
 
   $("home").classList.add("hidden");
   $("onlineGame").classList.remove("hidden");
+  if(!skipHistory)pushDigihitsRoute({view:"match",matchId:String(id)});
   onlineChatOpen=false;
   onlineChatMessages=[];
   onlineChatUnread=0;
@@ -5973,9 +6109,11 @@ function goDigihitsHome(){
   onlineSelected=null;
   window.scrollTo(0,0);
   try{scheduleOnlineListRefresh(0)}catch(_){}
-}
+  pushDigihitsRoute(digihitsAccountUser?{view:"home"}:{view:"choice"});}
 
 function closeOnlineGame(){
+  if(location.hash.startsWith("#match=")){history.back();return}
+
   setPlacementMode(false);
   clearInterval(onlineGameTimer);
   teardownOnlineMatchRealtime();
@@ -7179,7 +7317,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.23.
+// Startsidan är alltid online i V5.25.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -7299,4 +7437,14 @@ window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}
     <div id="globalWaitLongText" class="globalWaitLongText hidden">Det tar lite längre tid än vanligt…</div>
   </div>
 </div>
+
+window.addEventListener("load",()=>{
+  setTimeout(async ()=>{
+    const state=routeFromLocation();
+    if(!history.state?.digihits){
+      try{history.replaceState({digihits:true,...(state||currentDigihitsRoute())},"",location.hash||"#start")}catch(_){}
+    }
+    if(state)await applyDigihitsRoute(state);
+  },250);
+});
 </body></html>
