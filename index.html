@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.32</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.33</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1159,7 +1159,7 @@ html.digihitsBooting body{
   background:#080b10
 }
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.32</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.33</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1346,7 +1346,7 @@ html.digihitsBooting body{
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.32</strong>
+    Version <strong style="color:#fff">V5.33</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -2269,7 +2269,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.32";
+    if(badge)badge.textContent="Återansluten · V5.33";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2277,7 +2277,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.32 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.33 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2288,7 +2288,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.32"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.33"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2407,7 +2407,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.32":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.33":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3160,7 +3160,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.32
+// SPELA ONLINE – V5.33
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3805,11 +3805,29 @@ async function applyDigihitsRoute(state,{fromPop=false}={}){
   }
 
   if(state.view==="reset-password"){
+    const rs=await getValidRecoverySession();
     $("onlineGame")?.classList.add("hidden");
     $("home")?.classList.remove("hidden");
-    $("accountLoggedIn")?.classList.add("hidden");
-    $("passwordResetPanel")?.classList.remove("hidden");
-    saveDigihitsNavState(state);
+
+    if(rs?.access_token){
+      $("accountLoggedOut")?.classList.add("hidden");
+      $("accountLoggedIn")?.classList.add("hidden");
+      $("authenticatedHomeContent")?.classList.add("hidden");
+      $("homeGameTitle")?.classList.add("hidden");
+      $("passwordResetPanel")?.classList.remove("hidden");
+      saveDigihitsNavState(state);
+    }else{
+      $("passwordResetPanel")?.classList.add("hidden");
+      currentAuthView="recovery";
+      renderAccountUi();
+      showAuthView("recovery",false);
+      setAccountStatus(
+        "Återställningslänken är ogiltig eller har gått ut. Begär en ny återställningslänk.",
+        true,
+        "recoveryStatus"
+      );
+      pushDigihitsRoute({view:"auth",authView:"recovery"},true);
+    }
     return;
   }
 
@@ -3877,6 +3895,7 @@ function showAuthView(view,pushHistory=true){
 function showPasswordRecoveryRequest(){ showAuthView("recovery"); }
 
 function cancelPasswordResetToLogin(){
+  saveRecoverySession(null);
   saveAuthSession(null);
   digihitsAccountUser=null;
   $("passwordResetPanel")?.classList.add("hidden");
@@ -3884,6 +3903,7 @@ function cancelPasswordResetToLogin(){
   showAuthView("login");
 }
 function cancelPasswordResetToHome(){
+  saveRecoverySession(null);
   saveAuthSession(null);
   digihitsAccountUser=null;
   $("passwordResetPanel")?.classList.add("hidden");
@@ -3960,6 +3980,86 @@ async function authRequest(path,{method="GET",body=null,accessToken=null}={}){
     throw new Error(msg);
   }
   return data;
+}
+
+const DIGIHITS_RECOVERY_KEY="digihits_recovery_session";
+
+function saveRecoverySession(session){
+  try{
+    if(session?.access_token){
+      sessionStorage.setItem(DIGIHITS_RECOVERY_KEY,JSON.stringify({
+        access_token:session.access_token,
+        refresh_token:session.refresh_token||"",
+        expires_at:session.expires_at||Math.floor(Date.now()/1000)+(Number(session.expires_in)||3600)
+      }));
+    }else{
+      sessionStorage.removeItem(DIGIHITS_RECOVERY_KEY);
+    }
+  }catch(_){}
+}
+
+function loadRecoverySession(){
+  try{
+    const s=JSON.parse(sessionStorage.getItem(DIGIHITS_RECOVERY_KEY)||"null");
+    if(!s?.access_token)return null;
+    if(Number(s.expires_at||0) && Number(s.expires_at)<=Math.floor(Date.now()/1000)){
+      saveRecoverySession(null);
+      return null;
+    }
+    return s;
+  }catch(_){
+    saveRecoverySession(null);
+    return null;
+  }
+}
+
+async function getValidRecoverySession(){
+  const s=loadRecoverySession();
+  if(!s?.access_token)return null;
+
+  // Recovery-token kan användas direkt tills det löper ut.
+  if(Number(s.expires_at||0)>Math.floor(Date.now()/1000)+15)return s;
+
+  if(!s.refresh_token){
+    saveRecoverySession(null);
+    return null;
+  }
+
+  try{
+    const fresh=await authRequest("/token?grant_type=refresh_token",{
+      method:"POST",
+      body:{refresh_token:s.refresh_token}
+    });
+    saveRecoverySession(fresh);
+    return loadRecoverySession();
+  }catch(e){
+    console.warn("Recovery refresh:",e);
+    saveRecoverySession(null);
+    return null;
+  }
+}
+
+function friendlyPasswordUpdateError(e){
+  const raw=String(e?.message||e||"").trim();
+  const msg=raw.toLowerCase();
+
+  if(msg.includes("expired") || msg.includes("invalid token") || msg.includes("jwt") ||
+     msg.includes("session") || msg.includes("not authorized") || msg.includes("401")){
+    return "Återställningslänken är ogiltig eller har gått ut. Begär en ny länk via Glömt lösenord.";
+  }
+  if(msg.includes("same password") || msg.includes("different from the old")){
+    return "Det nya lösenordet måste skilja sig från ditt tidigare lösenord.";
+  }
+  if(msg.includes("password") && (msg.includes("6") || msg.includes("weak"))){
+    return "Lösenordet uppfyller inte kraven. Välj ett starkare lösenord med minst 6 tecken.";
+  }
+  if(msg.includes("rate limit") || msg.includes("too many")){
+    return "För många försök på kort tid. Vänta en stund och försök igen.";
+  }
+  if(msg.includes("network") || msg.includes("nätverksfel") || msg.includes("failed to fetch")){
+    return "Kunde inte nå kontotjänsten. Kontrollera internetanslutningen och försök igen.";
+  }
+  return raw ? "Lösenordet kunde inte ändras: "+raw : "Lösenordet kunde inte ändras. Försök igen.";
 }
 
 function saveAuthSession(session){
@@ -4107,6 +4207,12 @@ function parseAuthCallbackFromUrl(){
   const access_token=get("access_token");
   const refresh_token=get("refresh_token");
   const type=get("type");
+  const error=get("error");
+  const error_description=get("error_description");
+
+  if(error){
+    return {type:type||"",error:error_description||error};
+  }
 
   if(access_token){
     const expires_in=Number(get("expires_in")||3600);
@@ -4116,10 +4222,15 @@ function parseAuthCallbackFromUrl(){
       expires_in,
       expires_at:Math.floor(Date.now()/1000)+expires_in
     };
-    saveAuthSession(session);
 
-    // Remove sensitive tokens from address bar.
-    history.replaceState({},document.title,location.origin+location.pathname);
+    if(type==="recovery"){
+      saveRecoverySession(session);
+      history.replaceState({digihits:true,view:"reset-password"},document.title,
+        location.origin+location.pathname+"#reset-password");
+    }else{
+      saveAuthSession(session);
+      history.replaceState({},document.title,location.origin+location.pathname);
+    }
     return {session,type};
   }
   return null;
@@ -4128,8 +4239,62 @@ function parseAuthCallbackFromUrl(){
 async function initDigihitsAccount(){
   try{
     const callback=parseAuthCallbackFromUrl();
-    let user=await fetchCurrentAuthUser();
 
+    if(callback?.error){
+      digihitsAccountUser=null;
+      renderAccountUi();
+      showAuthView("recovery",false);
+      setAccountStatus(
+        "Återställningslänken är ogiltig eller har gått ut. Begär en ny återställningslänk.",
+        true,
+        "recoveryStatus"
+      );
+      return;
+    }
+
+    // Recovery använder en separat kortlivad session. Blanda inte ihop den med
+    // vanlig inloggning eller eventuell redan inloggad användare.
+    if(callback?.type==="recovery"){
+      const rs=await getValidRecoverySession();
+      if(rs?.access_token){
+        try{
+          const recoveryUser=await authRequest("/user",{accessToken:rs.access_token});
+          digihitsAccountUser=null;
+          showPasswordResetPanel(false);
+          return;
+        }catch(e){
+          console.warn("Recovery user:",e);
+          saveRecoverySession(null);
+          digihitsAccountUser=null;
+          renderAccountUi();
+          showAuthView("recovery",false);
+          setAccountStatus(
+            "Återställningslänken är ogiltig eller har gått ut. Begär en ny återställningslänk.",
+            true,
+            "recoveryStatus"
+          );
+          return;
+        }
+      }
+    }
+
+    // Refresh på själva återställningsvyn ska fortsätta där användaren var.
+    if(location.hash==="#reset-password"){
+      const rs=await getValidRecoverySession();
+      if(rs?.access_token){
+        try{
+          await authRequest("/user",{accessToken:rs.access_token});
+          digihitsAccountUser=null;
+          showPasswordResetPanel(false);
+          return;
+        }catch(e){
+          console.warn("Stored recovery session:",e);
+          saveRecoverySession(null);
+        }
+      }
+    }
+
+    let user=await fetchCurrentAuthUser();
     if(user){
       digihitsAuthSession=loadAuthSession();
       if(digihitsAuthSession)digihitsAuthSession.user=user;
@@ -4137,10 +4302,6 @@ async function initDigihitsAccount(){
     }else{
       digihitsAccountUser=null;
       renderAccountUi();
-    }
-
-    if(callback?.type==="recovery" && user){
-      showPasswordResetPanel();
     }
   }catch(e){
     console.warn("Account init:",e);
@@ -4184,7 +4345,7 @@ async function sendPasswordReset(){
       method:"POST",
       body:{email}
     });
-    setAccountStatus("Återställningslänk skickad. Kontrollera din e-post.",false,"recoveryStatus");
+    setAccountStatus("Återställningslänken är skickad. Öppna mejlet och klicka på länken för att välja ett nytt lösenord. Kontrollera även skräpposten om mejlet saknas.",false,"recoveryStatus");
   }catch(e){
     console.warn("Password reset:",e);
     setAccountStatus(friendlyAuthError(e,"reset"),true,"recoveryStatus");
@@ -4305,7 +4466,7 @@ const p1=$("changePasswordNew")?.value||"";
   }
 }
 
-function showPasswordResetPanel(){
+function showPasswordResetPanel(pushHistory=true){
   $("authenticatedHomeContent")?.classList.add("hidden");
   $("homeGameTitle")?.classList.add("hidden");
   $("accountLoggedOut")?.classList.add("hidden");
@@ -4313,7 +4474,8 @@ function showPasswordResetPanel(){
   $("passwordResetPanel")?.classList.remove("hidden");
   setPasswordResetStatus("");
   requestAnimationFrame(()=>$("newPassword")?.focus());
-  pushDigihitsRoute({view:"reset-password"});}
+  if(pushHistory)pushDigihitsRoute({view:"reset-password"});
+}
 
 function hidePasswordResetPanel(){
   $("passwordResetPanel")?.classList.add("hidden");
@@ -4321,64 +4483,77 @@ function hidePasswordResetPanel(){
 }
 
 async function saveNewPassword(){
-  const waitToken_saveNewPassword=beginGlobalWait('Sparar nytt lösenord…');
-  try{
-const p1=$("newPassword")?.value||"";
-  const p2=$("newPasswordRepeat")?.value||"";
-
-  if(!p1||!p2){
-    setPasswordResetStatus("Båda lösenordsfälten är obligatoriska.",true);
-    return;
-  }
-  if(p1.length<6){
-    setPasswordResetStatus("Lösenordet måste vara minst 6 tecken.",true);
-    return;
-  }
-  if(p1!==p2){
-    setPasswordResetStatus("Lösenorden är inte likadana.",true);
-    return;
-  }
-
-  const s=await refreshAuthSessionIfNeeded();
-  if(!s?.access_token){
-    setPasswordResetStatus("Återställningslänken har gått ut. Begär en ny länk.",true);
-    return;
-  }
-
+  const waitToken_saveNewPassword=beginGlobalWait("Sparar nytt lösenord…");
   const btn=$("saveNewPasswordBtn");
-  if(btn){btn.disabled=true;btn.textContent="SPARAR…"}
 
   try{
-    await authRequest("/user",{
-      method:"PUT",
-      accessToken:s.access_token,
-      body:{password:p1}
-    });
+    const p1=$("newPassword")?.value||"";
+    const p2=$("newPasswordRepeat")?.value||"";
 
-    setPasswordResetStatus("NYTT LÖSENORD REGISTRERAT ✓");
-    if($("newPassword"))$("newPassword").value="";
-    if($("newPasswordRepeat"))$("newPasswordRepeat").value="";
+    if(!p1||!p2){
+      setPasswordResetStatus("Båda lösenordsfälten är obligatoriska.",true);
+      return;
+    }
+    if(p1.length<6){
+      setPasswordResetStatus("Lösenordet måste vara minst 6 tecken.",true);
+      return;
+    }
+    if(p1!==p2){
+      setPasswordResetStatus("Lösenorden är inte likadana.",true);
+      return;
+    }
 
-    // Recovery session should not silently leave the user signed in.
-    try{await authRequest("/logout",{method:"POST",accessToken:s.access_token})}catch(_){}
-    saveAuthSession(null);
-    digihitsAccountUser=null;
+    const s=await getValidRecoverySession();
+    if(!s?.access_token){
+      setPasswordResetStatus(
+        "Återställningslänken är ogiltig eller har gått ut. Begär en ny länk via Glömt lösenord.",
+        true
+      );
+      return;
+    }
 
-    setTimeout(()=>{
-      $("passwordResetPanel")?.classList.add("hidden");
-      currentAuthView="login";
-      renderAccountUi();
-      showAuthView("login");
-      setAccountStatus("Nytt lösenord registrerat. Logga in med ditt nya lösenord.",false,"loginStatus");
-    },850);
-  }catch(e){
-    console.warn("Password update:",e);
-    setPasswordResetStatus("Lösenordet kunde inte ändras. Begär en ny återställningslänk och försök igen.",true);
+    if(btn){btn.disabled=true;btn.textContent="SPARAR…"}
+
+    try{
+      // Kontrollera token direkt precis före lösenordsbytet.
+      await authRequest("/user",{accessToken:s.access_token});
+
+      await authRequest("/user",{
+        method:"PUT",
+        accessToken:s.access_token,
+        body:{password:p1}
+      });
+
+      setPasswordResetStatus("NYTT LÖSENORD REGISTRERAT ✓");
+      if($("newPassword"))$("newPassword").value="";
+      if($("newPasswordRepeat"))$("newPasswordRepeat").value="";
+
+      try{
+        await authRequest("/logout",{method:"POST",accessToken:s.access_token});
+      }catch(_){}
+
+      saveRecoverySession(null);
+      saveAuthSession(null);
+      digihitsAccountUser=null;
+
+      setTimeout(()=>{
+        $("passwordResetPanel")?.classList.add("hidden");
+        currentAuthView="login";
+        renderAccountUi();
+        showAuthView("login",false);
+        pushDigihitsRoute({view:"auth",authView:"login"},true);
+        setAccountStatus(
+          "Nytt lösenord registrerat. Logga in med ditt nya lösenord.",
+          false,
+          "loginStatus"
+        );
+      },850);
+    }catch(e){
+      console.warn("Password update:",e);
+      setPasswordResetStatus(friendlyPasswordUpdateError(e),true);
+    }
   }finally{
     if(btn){btn.disabled=false;btn.textContent="SPARA NYTT LÖSENORD"}
-  }
-
-  }finally{
     endGlobalWait(waitToken_saveNewPassword);
   }
 }
@@ -4401,81 +4576,148 @@ async function isProfileNameTaken(name){
 }
 
 async function createDigihitsAccount(){
-  const waitToken_createDigihitsAccount=beginGlobalWait('Skapar konto…');
+  const waitToken_createDigihitsAccount=beginGlobalWait("Skapar konto…");
   try{
-$("passwordResetPanel")?.classList.add("hidden");
-  const displayName=normalizeProfileName($("signupPlayerName")?.value||"");
-  const email=($("signupEmail")?.value||"").trim().toLowerCase();
-  const password=$("signupPassword")?.value||"";
+    $("passwordResetPanel")?.classList.add("hidden");
 
-  if(!displayName){
-    setAccountStatus("Spelarnamn är obligatoriskt.",true,"signupStatus");
-    $("signupPlayerName")?.focus();
-    return;
-  }
-  if(!email){
-    setAccountStatus("E-post är obligatoriskt.",true,"signupStatus");
-    $("signupEmail")?.focus();
-    return;
-  }
-  if(!password){
-    setAccountStatus("Lösenord är obligatoriskt.",true,"signupStatus");
-    $("signupPassword")?.focus();
-    return;
-  }
-  if(displayName.length<2)return setAccountStatus("Spelarnamnet måste vara minst 2 tecken.",true,"signupStatus");
-  if(displayName.length>24)return setAccountStatus("Spelarnamnet får vara max 24 tecken.",true,"signupStatus");
-  if(!/^[A-Za-zÅÄÖåäö0-9 _.-]+$/.test(displayName))
-    return setAccountStatus("Spelarnamnet får bara innehålla bokstäver, siffror, mellanslag, punkt, bindestreck och understreck.",true,"signupStatus");
-  if(!$("signupEmail")?.checkValidity()){
-    setAccountStatus("Ange en giltig e-postadress.",true,"signupStatus");
-    $("signupEmail")?.focus();
-    return;
-  }
-  if(password.length<6)return setAccountStatus("Lösenordet måste vara minst 6 tecken.",true,"signupStatus");
+    const displayName=normalizeProfileName($("signupPlayerName")?.value||"");
+    const email=($("signupEmail")?.value||"").trim().toLowerCase();
+    const password=$("signupPassword")?.value||"";
 
-  setAccountBusy(true);
-  setAccountStatus("Skapar konto…",false,"signupStatus");
+    if(!displayName){
+      setAccountStatus("Spelarnamn är obligatoriskt.",true,"signupStatus");
+      $("signupPlayerName")?.focus();
+      return;
+    }
+    if(!email){
+      setAccountStatus("E-post är obligatoriskt.",true,"signupStatus");
+      $("signupEmail")?.focus();
+      return;
+    }
+    if(!password){
+      setAccountStatus("Lösenord är obligatoriskt.",true,"signupStatus");
+      $("signupPassword")?.focus();
+      return;
+    }
+    if(displayName.length<2){
+      setAccountStatus("Spelarnamnet måste vara minst 2 tecken.",true,"signupStatus");
+      $("signupPlayerName")?.focus();
+      return;
+    }
+    if(displayName.length>24){
+      setAccountStatus("Spelarnamnet får vara max 24 tecken.",true,"signupStatus");
+      $("signupPlayerName")?.focus();
+      return;
+    }
+    if(!/^[A-Za-zÅÄÖåäö0-9 _.-]+$/.test(displayName)){
+      setAccountStatus(
+        "Spelarnamnet får bara innehålla bokstäver, siffror, mellanslag, punkt, bindestreck och understreck.",
+        true,
+        "signupStatus"
+      );
+      $("signupPlayerName")?.focus();
+      return;
+    }
+    if(!$("signupEmail")?.checkValidity()){
+      setAccountStatus("Ange en giltig e-postadress.",true,"signupStatus");
+      $("signupEmail")?.focus();
+      return;
+    }
+    if(password.length<6){
+      setAccountStatus("Lösenordet måste vara minst 6 tecken.",true,"signupStatus");
+      $("signupPassword")?.focus();
+      return;
+    }
 
-  try{
-    if(await isProfileNameTaken(displayName))throw new Error("PLAYER_NAME_TAKEN");
+    setAccountBusy(true);
+    setAccountStatus("Kontrollerar uppgifterna…",false,"signupStatus");
 
-    const data=await authRequest("/signup?redirect_to="+encodeURIComponent(passwordResetRedirectUrl()),{
-      method:"POST",
-      body:{
-        email,
-        password,
-        data:{display_name:displayName}
+    try{
+      if(await isProfileNameTaken(displayName)){
+        setAccountStatus("Spelarnamnet är redan registrerat. Välj ett annat spelarnamn.",true,"signupStatus");
+        $("signupPlayerName")?.focus();
+        return;
       }
-    });
 
-    if(data?.access_token){
-      saveAuthSession(data);
-      const user=data.user||await fetchCurrentAuthUser();
-      if(user)await applyAccountSession(user,{migrate:true});
-      setAccountStatus("",false,"signupStatus");
-      startOnlineHomeSync();
-    }else{
-      showResendVerificationButton(true);
-      setAccountStatus("Du har nu fått ett verifieringsmejl med en länk. Klicka på länken för att bekräfta din e-postadress och slutföra registreringen. Hittar du inte mejlet? Kontrollera även skräpposten.",false,"signupStatus");
+      setAccountStatus("Skapar konto…",false,"signupStatus");
+
+      const data=await authRequest(
+        "/signup?redirect_to="+encodeURIComponent(passwordResetRedirectUrl()),
+        {
+          method:"POST",
+          body:{
+            email,
+            password,
+            data:{display_name:displayName}
+          }
+        }
+      );
+
+      // Med e-postbekräftelse kan Supabase av säkerhetsskäl svara 200 även om
+      // adressen redan finns. Ett tomt identities-fält är då signalen.
+      const identities=data?.user?.identities;
+      const emailAlreadyExists=
+        Array.isArray(identities) && identities.length===0;
+
+      if(emailAlreadyExists){
+        setAccountStatus(
+          "E-postadressen är redan registrerad. Logga in eller välj Glömt lösenord.",
+          true,
+          "signupStatus"
+        );
+        $("signupEmail")?.focus();
+        return;
+      }
+
+      if(data?.access_token){
+        saveAuthSession(data);
+        const user=data.user||await fetchCurrentAuthUser();
+        if(user)await applyAccountSession(user,{migrate:true});
+        setAccountStatus("",false,"signupStatus");
+        startOnlineHomeSync();
+      }else{
+        showResendVerificationButton(true);
+        setAccountStatus(
+          "Du har nu fått ett verifieringsmejl med en länk. Klicka på länken för att bekräfta din e-postadress och slutföra registreringen. Hittar du inte mejlet? Kontrollera även skräpposten.",
+          false,
+          "signupStatus"
+        );
+      }
+    }catch(e){
+      console.warn("Create account:",e);
+      const raw=String(e?.message||e||"").toLowerCase();
+
+      if(
+        raw.includes("player_name_taken") ||
+        raw.includes("display_name_key") ||
+        raw.includes("display name") && raw.includes("duplicate") ||
+        raw.includes("digihits_profiles_display_name") ||
+        raw.includes("unique") && raw.includes("display_name")
+      ){
+        setAccountStatus(
+          "Spelarnamnet är redan registrerat. Välj ett annat spelarnamn.",
+          true,
+          "signupStatus"
+        );
+        $("signupPlayerName")?.focus();
+      }else if(
+        raw.includes("user already registered") ||
+        raw.includes("already registered") ||
+        raw.includes("email") && raw.includes("duplicate") ||
+        raw.includes("email") && raw.includes("already")
+      ){
+        setAccountStatus(
+          "E-postadressen är redan registrerad. Logga in eller välj Glömt lösenord.",
+          true,
+          "signupStatus"
+        );
+        $("signupEmail")?.focus();
+      }else{
+        setAccountStatus(friendlyAuthError(e,"create"),true,"signupStatus");
+      }
+    }finally{
+      setAccountBusy(false);
     }
-  }catch(e){
-    console.warn("Create account:",e);
-    const raw=String(e?.message||e||"").toLowerCase();
-
-    if(raw.includes("player_name_taken") ||
-       (raw.includes("duplicate")&&raw.includes("display_name")) ||
-       raw.includes("digihits_profiles_display_name")){
-      setAccountStatus("Spelarnamnet används redan. Välj ett annat.",true,"signupStatus");
-    }else if(raw.includes("user already registered")||raw.includes("already registered")){
-      setAccountStatus("Det finns redan ett konto med den e-postadressen. Logga in eller välj Glömt lösenord.",true,"signupStatus");
-    }else{
-      setAccountStatus(friendlyAuthError(e,"create"),true,"signupStatus");
-    }
-  }finally{
-    setAccountBusy(false);
-  }
-
   }finally{
     endGlobalWait(waitToken_createDigihitsAccount);
   }
@@ -7460,7 +7702,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.32.
+// Startsidan är alltid online i V5.33.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
