@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.52</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.57</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1242,7 +1242,7 @@ html.digihitsBooting body{
   font-size:11px
 }
 
-/* V5.52: tydligare matchstatus i Mina matcher */
+/* V5.57: tydligare matchstatus i Mina matcher */
 .matchSummaryBadge{
   padding:6px 10px;
   font-size:11px;
@@ -1299,7 +1299,7 @@ html.digihitsBooting body{
   #onlineGame .matchCodeInlineFull .copyCodeBtn{font-size:7px;padding:6px 7px}
 }
 
-/* V5.52: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
+/* V5.57: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
 @media(min-width:801px){
   .appBrandRow{
     padding-left:316px;
@@ -1313,7 +1313,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.52 - tydlig klickbarhet för pågående matcher */
+/* V5.57 - tydlig klickbarhet för pågående matcher */
 .onlineMatchCard.ongoingClickable{
   position:relative;
   cursor:pointer;
@@ -1361,7 +1361,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.52 - kompaktare huvudknappar på bredare skärmar */
+/* V5.57 - kompaktare huvudknappar på bredare skärmar */
 @media(min-width:700px){
   #onlineSpotifyBtn{
     width:auto !important;
@@ -1381,7 +1381,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.52 - statusraden är själva öppna-match-uppmaningen */
+/* V5.57 - statusraden är själva öppna-match-uppmaningen */
 .onlineMatchState{
   max-width:100%;
   white-space:normal;
@@ -1401,12 +1401,12 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.52 - namn på spelaren vars tur övriga väntar på */
+/* V5.57 - namn på spelaren vars tur övriga väntar på */
 .onlineMatchState.wait{
   overflow-wrap:anywhere
 }
 
-/* V5.52 - kompaktare redo-knapp pa mobil */
+/* V5.57 - kompaktare redo-knapp pa mobil */
 @media(max-width:520px){
   .btn{
     width:auto !important;
@@ -1427,14 +1427,14 @@ html.digihitsBooting body{
 }
 
 
-/* V5.52 - i mobil visas matchlaget bara i den centrala matchvyn */
+/* V5.57 - i mobil visas matchlaget bara i den centrala matchvyn */
 @media(max-width:520px){
   #onlineGameStatus{
     display:none !important;
   }
 }
 
-/* V5.52 - Pågående matcher: hela kortet färgkodas efter turstatus */
+/* V5.57 - Pågående matcher: hela kortet färgkodas efter turstatus */
 .onlineMatchCard.waiting{
   border-color:#c7972f !important;
   background:#2a210f !important;
@@ -1461,7 +1461,7 @@ html.digihitsBooting body{
   background:#102331 !important
 }
 
-/* V5.52 - Matcher utan motståndare: samma helkortsgrafik, blå */
+/* V5.57 - Matcher utan motståndare: samma helkortsgrafik, blå */
 .onlineMatchCard.waitingOpponent{
   border-color:#3577a8 !important;
   background:#102331 !important;
@@ -1474,8 +1474,206 @@ html.digihitsBooting body{
 .onlineMatchCard.waitingOpponent:active{
   background:#0d1e2a !important
 }
+
+/* V5.57 - matchkodsraden far aldrig sticka utanfor sidopanelen */
+#onlineGame .matchCodeInlineFull{
+  display:grid !important;
+  grid-template-columns:max-content minmax(0,1fr) max-content !important;
+  align-items:center !important;
+  column-gap:8px !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  overflow:hidden !important;
+}
+#onlineGame .matchCodeInlineFull .matchCodeLabel{
+  min-width:0 !important;
+  white-space:nowrap !important;
+}
+#onlineGame .matchCodeInlineFull .code{
+  min-width:0 !important;
+  max-width:100% !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  font-size:clamp(17px,2.05vw,23px) !important;
+  letter-spacing:.045em !important;
+}
+#onlineGame .matchCodeInlineFull .copyCodeBtn{
+  width:auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  white-space:nowrap !important;
+  padding:7px 8px !important;
+  font-size:7.5px !important;
+  box-sizing:border-box !important;
+}
+
+@media(max-width:520px){
+  #onlineGame .matchCodeInlineFull{
+    column-gap:6px !important;
+  }
+  #onlineGame .matchCodeInlineFull .matchCodeLabel{
+    font-size:8px !important;
+  }
+  #onlineGame .matchCodeInlineFull .code{
+    font-size:clamp(16px,5.4vw,20px) !important;
+    letter-spacing:.035em !important;
+  }
+  #onlineGame .matchCodeInlineFull .copyCodeBtn{
+    padding:6px 7px !important;
+    font-size:6.8px !important;
+  }
+}
+
+@media(max-width:380px){
+  #onlineGame .matchCodeInlineFull{
+    column-gap:4px !important;
+  }
+  #onlineGame .matchCodeInlineFull .matchCodeLabel{
+    font-size:7.2px !important;
+  }
+  #onlineGame .matchCodeInlineFull .code{
+    font-size:15px !important;
+    letter-spacing:.025em !important;
+  }
+  #onlineGame .matchCodeInlineFull .copyCodeBtn{
+    padding:5px 6px !important;
+    font-size:6.2px !important;
+  }
+}
+
+/* V5.57 - knappstorlekar i matchvyn */
+#onlineReadyScreen .btn.ready{
+  width:auto !important;
+  min-width:220px !important;
+  max-width:340px !important;
+  padding:12px 18px !important;
+  font-size:13px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+#onlineGame .btn.saveGuessBtn,
+#onlineGame .btn.continueBtn,
+#onlineGame .btn.lockCardBtn{
+  min-height:48px !important;
+  padding:12px 16px !important;
+  font-size:13px !important;
+  line-height:1.15 !important;
+}
+@media(max-width:520px){
+  #onlineReadyScreen .btn.ready{
+    min-width:0 !important;
+    width:auto !important;
+    max-width:92% !important;
+    padding:9px 13px !important;
+    font-size:10px !important;
+  }
+  #onlineGame .btn.saveGuessBtn,
+  #onlineGame .btn.continueBtn,
+  #onlineGame .btn.lockCardBtn{
+    width:100% !important;
+    min-height:52px !important;
+    padding:13px 14px !important;
+    font-size:12px !important;
+  }
+}
+
+#onlineGame .matchCodeBox.hiddenWhenLocked{
+  display:none !important;
+}
+
+/* V5.57 - korrekt låsbygel */
+#onlineGameBadge.unlocked .matchLockGlyph::after{
+  content:"";
+  position:absolute;
+  left:10px;
+  top:-2px;
+  width:8px;
+  height:9px;
+  border:2px solid currentColor;
+  border-bottom:0;
+  border-radius:8px 8px 0 0;
+  transform:rotate(32deg);
+  transform-origin:bottom left
+}
+#onlineGameBadge.locked .matchLockGlyph::after{
+  content:"";
+  position:absolute;
+  left:5px;
+  top:0;
+  width:8px;
+  height:8px;
+  border:2px solid currentColor;
+  border-bottom:0;
+  border-radius:8px 8px 0 0;
+  transform:none
+}
+
+/* V5.57 - matchvyns huvudknappar */
+#onlineGame .backToMatchesBtn{
+  background:#2b303a !important;
+  border-color:#3a414d !important;
+  color:#fff !important;
+}
+#onlineGame .backToMatchesBtn:hover{
+  background:#323844 !important;
+  border-color:#454d5a !important;
+}
+#onlineGame .backToMatchesBtn:active{
+  background:#252a33 !important;
+}
+
+@media(max-width:520px){
+  #onlineGame .side .btn,
+  #onlineGame .side .leaveMatchBtn,
+  #onlineGame .side .backToMatchesBtn{
+    box-sizing:border-box !important;
+  }
+
+  #onlineGame .side .chatBtn,
+  #onlineGame .side .leaveMatchBtn{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:88% !important;
+    min-width:0 !important;
+    max-width:320px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    padding:12px 16px !important;
+    font-size:12px !important;
+    line-height:1.1 !important;
+    text-align:center !important;
+  }
+
+  #onlineGame .side .chatBtn{
+    margin-top:10px !important;
+    margin-bottom:12px !important;
+  }
+
+  #onlineGame .side .leaveMatchBtn{
+    margin-top:10px !important;
+    margin-bottom:4px !important;
+  }
+
+  #onlineGame .side .backToMatchesBtn{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:92% !important;
+    min-width:0 !important;
+    max-width:340px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    padding:11px 14px !important;
+    font-size:11px !important;
+    line-height:1.1 !important;
+    text-align:center !important;
+  }
+}
 </style></head><body>
-<div class="app"><div class="top appBrandRow"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.52</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.57</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1674,7 +1872,7 @@ html.digihitsBooting body{
 <section id="onlineGame" class="hidden">
   <div class="grid">
     <aside class="panel side">
-      <button type="button" id="onlineBackToMatchesBtn" class="btn dark full" onclick="closeOnlineGame()">← TILL MINA MATCHER</button>
+      <button type="button" id="onlineBackToMatchesBtn" class="btn dark full backToMatchesBtn" onclick="closeOnlineGame()">← TILL MINA MATCHER</button>
       <div class="matchCodeBox" style="margin-top:16px">
         <div class="matchCodeInlineFull">
           <span class="matchCodeLabel">MATCHKOD</span>
@@ -1711,7 +1909,7 @@ html.digihitsBooting body{
         </div>
       </div>
 
-      <button type="button" class="btn full leaveMatchBtn" onclick="askLeaveCurrentMatch()">LÄMNA MATCHEN</button>
+      <button type="button" class="btn full leaveMatchBtn leaveMatchBtn" onclick="askLeaveCurrentMatch()">LÄMNA MATCHEN</button>
     </aside>
 
     <main class="panel main">
@@ -1760,7 +1958,7 @@ html.digihitsBooting body{
           <input id="onlineGuessArtist" class="input" placeholder="Artist">
           <input id="onlineGuessTitle" class="input" placeholder="Låtnamn">
           <div class="mut" style="font-size:11px">Små stavfel är okej.</div>
-          <button type="button" class="btn cyan full" onclick="saveOnlineGuess()">SPARA GISSNING</button>
+          <button type="button" class="saveGuessBtn btn cyan full" onclick="saveOnlineGuess()">SPARA GISSNING</button>
         </div>
       </div>
 
@@ -1803,6 +2001,141 @@ let spotifyRefreshToken = localStorage.getItem("digihits_spotify_refresh") || ""
 let spotifyExpiresAt = Number(localStorage.getItem("digihits_spotify_expires") || 0);
 let spotifyDeviceId = localStorage.getItem("digihits_spotify_device") || "";
 let spotifyCommandBusy=false;
+let spotifyCommandQueue=Promise.resolve();
+let spotifyExpectedTrackId="";
+let spotifyExpectedPlaying=null;
+
+function withSpotifyCommandLock(label,fn){
+  const run=async()=>{
+    spotifyCommandBusy=true;
+    try{
+      return await fn();
+    }finally{
+      spotifyCommandBusy=false;
+    }
+  };
+  const task=spotifyCommandQueue.then(run,run);
+  spotifyCommandQueue=task.catch(e=>{
+    console.warn("Spotify command failed ["+label+"]:",e);
+  });
+  return task;
+}
+
+async function verifySpotifyPlayback({
+  trackId=null,
+  playing=null,
+  maxProgressMs=null,
+  attempts=8,
+  delay=220
+}={}){
+  for(let i=0;i<attempts;i++){
+    try{
+      const state=await spotifyPlaybackState();
+      if(state){
+        const trackOk=!trackId || state.item?.id===trackId;
+        const playingOk=playing===null || !!state.is_playing===!!playing;
+        const progressOk=maxProgressMs===null || Number(state.progress_ms||0)<=Number(maxProgressMs);
+        if(trackOk&&playingOk&&progressOk)return state;
+      }else if(playing===false && !trackId){
+        // Spotify can answer 204/no active playback when effectively stopped/paused.
+        return {is_playing:false,item:null,progress_ms:0};
+      }
+    }catch(_){}
+    await sleep(delay);
+  }
+  return null;
+}
+
+async function ensureSpotifyPaused(reason=""){
+  if(!spotifyAccessToken&&!spotifyRefreshToken)return true;
+  return withSpotifyCommandLock("pause:"+reason,async()=>{
+    const state=await spotifyPlaybackState().catch(()=>null);
+    if(!state || state.is_playing===false){
+      spotifyExpectedPlaying=false;
+      return true;
+    }
+
+    const deviceId=await ensureSpotifyCommandDevice();
+    let lastError=null;
+
+    for(let attempt=0;attempt<4;attempt++){
+      try{
+        await spotifyApi("/me/player/pause?device_id="+encodeURIComponent(deviceId),{method:"PUT"});
+      }catch(e){
+        lastError=e;
+      }
+
+      const confirmed=await verifySpotifyPlayback({
+        playing:false,
+        attempts:6,
+        delay:220
+      });
+      if(confirmed){
+        spotifyExpectedPlaying=false;
+        return true;
+      }
+      await sleep(220*(attempt+1));
+    }
+
+    throw lastError||new Error("Spotify bekräftade inte paus.");
+  });
+}
+
+async function ensureSpotifyPlayingTrack(trackId,{restart=false}={}){
+  if(!trackId)throw new Error("Ingen låt att spela.");
+  return withSpotifyCommandLock(restart?"restart-track":"play-track",async()=>{
+    const deviceId=await ensureSpotifyCommandDevice();
+
+    if(!restart){
+      const current=await spotifyPlaybackState().catch(()=>null);
+      if(current?.item?.id===trackId && current?.is_playing){
+        spotifyExpectedTrackId=trackId;
+        spotifyExpectedPlaying=true;
+        return true;
+      }
+    }
+
+    let lastError=null;
+    for(let attempt=0;attempt<5;attempt++){
+      try{
+        await spotifyApi("/me/player/play?device_id="+encodeURIComponent(deviceId),{
+          method:"PUT",
+          body:JSON.stringify({
+            uris:["spotify:track:"+trackId],
+            ...(restart?{position_ms:0}:{})
+          })
+        });
+      }catch(e){
+        lastError=e;
+      }
+
+      const confirmed=await verifySpotifyPlayback({
+        trackId,
+        playing:true,
+        maxProgressMs:restart?6500:null,
+        attempts:8,
+        delay:240
+      });
+
+      if(confirmed){
+        spotifyExpectedTrackId=trackId;
+        spotifyExpectedPlaying=true;
+        spotifyLastCommandAt=Date.now();
+        return true;
+      }
+
+      // Re-resolve the active device after a failed command.
+      spotifyDeviceId="";
+      localStorage.removeItem("digihits_spotify_device");
+      await ensureSpotifyDevice(false);
+      await sleep(260*(attempt+1));
+    }
+
+    throw lastError||new Error("Spotify kunde inte starta rätt låt.");
+  });
+}
+
+
 let spotifyLastCommandAt=0;
 
 function bytesBase64Url(bytes){
@@ -2081,198 +2414,31 @@ async function ensureSpotifyCommandDevice(){
 }
 
 async function spotifyPauseRobust(){
-  if(spotifyCommandBusy)return false;
-  spotifyCommandBusy=true;
-  try{
-    const deviceId=await ensureSpotifyCommandDevice();
-
-    for(let attempt=0;attempt<3;attempt++){
-      try{
-        await spotifyApi("/me/player/pause?device_id="+encodeURIComponent(deviceId),{method:"PUT"});
-      }catch(e){
-        // Spotify may report a late error even when command succeeded.
-        const state=await spotifyPlaybackState();
-        if(state && state.is_playing===false)return true;
-        if(attempt===2)throw e;
-      }
-
-      const confirmed=await waitForSpotifyState(s=>s.is_playing===false,{attempts:5,delay:220});
-      if(confirmed)return true;
-      await sleep(250);
-    }
-    throw new Error("Spotify bekräftade inte paus.");
-  }finally{
-    spotifyCommandBusy=false;
-  }
+  return await ensureSpotifyPaused("manual");
 }
 
 async function spotifyResumeRobust(expectedTrackId=null){
-  if(spotifyCommandBusy)return false;
-  spotifyCommandBusy=true;
-  try{
-    const deviceId=await ensureSpotifyCommandDevice();
-
-    for(let attempt=0;attempt<3;attempt++){
-      try{
-        await spotifyApi("/me/player/play?device_id="+encodeURIComponent(deviceId),{method:"PUT"});
-      }catch(e){
-        const state=await spotifyPlaybackState();
-        const right=!expectedTrackId||state?.item?.id===expectedTrackId;
-        if(state?.is_playing && right)return true;
-        if(attempt===2)throw e;
-      }
-
-      const confirmed=await waitForSpotifyState(s=>{
-        const right=!expectedTrackId||s?.item?.id===expectedTrackId;
-        return !!s?.is_playing && right;
-      },{attempts:5,delay:220});
-      if(confirmed)return true;
-      await sleep(250);
-    }
-    throw new Error("Spotify bekräftade inte fortsatt uppspelning.");
-  }finally{
-    spotifyCommandBusy=false;
+  const trackId=expectedTrackId||spotifyExpectedTrackId||onlineMatch?.current_song?.id||null;
+  if(trackId){
+    return await ensureSpotifyPlayingTrack(trackId,{restart:false});
   }
+
+  return withSpotifyCommandLock("resume",async()=>{
+    const deviceId=await ensureSpotifyCommandDevice();
+    await spotifyApi("/me/player/play?device_id="+encodeURIComponent(deviceId),{method:"PUT"});
+    const confirmed=await verifySpotifyPlayback({playing:true,attempts:8,delay:220});
+    if(!confirmed)throw new Error("Spotify bekräftade inte fortsatt uppspelning.");
+    spotifyExpectedPlaying=true;
+    return true;
+  });
 }
 
 async function spotifyRestartTrack(trackId){
-  if(!trackId)throw new Error("Ingen låt att spela.");
-  if(spotifyCommandBusy)return false;
-  spotifyCommandBusy=true;
-
-  try{
-    const deviceId=await ensureSpotifyCommandDevice();
-    let lastError=null;
-
-    for(let attempt=1;attempt<=4;attempt++){
-      try{
-        // This command is intentionally sent even when the correct song
-        // is already playing. "Spela från början" must ALWAYS seek to 0.
-        await spotifyApi("/me/player/play?device_id="+encodeURIComponent(deviceId),{
-          method:"PUT",
-          body:JSON.stringify({
-            uris:["spotify:track:"+trackId],
-            position_ms:0
-          })
-        });
-      }catch(e){
-        lastError=e;
-      }
-
-      const confirmed=await waitForSpotifyState(s=>{
-        const pos=Number(s?.progress_ms||0);
-        return s?.item?.id===trackId && !!s?.is_playing && pos<5000;
-      },{attempts:7,delay:240});
-
-      if(confirmed){
-        spotifyLastCommandAt=Date.now();
-        return true;
-      }
-
-      // Re-resolve device before next retry.
-      spotifyDeviceId="";
-      localStorage.removeItem("digihits_spotify_device");
-      await ensureSpotifyDevice(false);
-      await sleep(300*attempt);
-    }
-
-    throw lastError||new Error("Spotify kunde inte starta om låten från början.");
-  }finally{
-    spotifyCommandBusy=false;
-  }
+  return await ensureSpotifyPlayingTrack(trackId,{restart:true});
 }
 
 async function spotifyPlayTrack(trackId){
-  let lastError=null;
-
-  // Om Spotify redan spelar rätt låt ska inget nytt API-anrop göras.
-  if(await verifySpotifyTrack(trackId)){
-    updateSpotifyUi();
-    return true;
-  }
-
-  for(let attempt=1;attempt<=6;attempt++){
-    try{
-      // Kontrollera igen före varje retry. Ett tidigare anrop kan ha lyckats
-      // även om Spotify svarade sent på ett efterföljande anrop.
-      if(await verifySpotifyTrack(trackId)){
-        updateSpotifyUi();
-        return true;
-      }
-
-      const deviceOk=await ensureSpotifyDevice(false);
-      if(!deviceOk)throw new Error("Spotify-appen svarar inte på startmobilen.");
-
-      // Försök först starta rätt låt direkt på aktiv playback.
-      try{
-        await spotifyApi("/me/player/play",{
-          method:"PUT",
-          body:JSON.stringify({
-            uris:["spotify:track:"+trackId],
-            position_ms:0
-          })
-        });
-        await sleep(700);
-        if(await verifySpotifyTrack(trackId)){
-          updateSpotifyUi();
-          return true;
-        }
-      }catch(directError){
-        lastError=directError;
-        // Om Spotify trots felet faktiskt började spela: betrakta det som lyckat.
-        if(await verifySpotifyTrack(trackId)){
-          updateSpotifyUi();
-          return true;
-        }
-      }
-
-      // Endast om direkt start inte fungerade: försök via den aktiva mobilen.
-      await spotifyApi("/me/player",{
-        method:"PUT",
-        body:JSON.stringify({device_ids:[spotifyDeviceId],play:false})
-      });
-
-      await sleep(attempt===1?450:700);
-
-      await spotifyApi("/me/player/play?device_id="+encodeURIComponent(spotifyDeviceId),{
-        method:"PUT",
-        body:JSON.stringify({
-          uris:["spotify:track:"+trackId],
-          position_ms:0
-        })
-      });
-
-      await sleep(700);
-
-      if(await verifySpotifyTrack(trackId)){
-        updateSpotifyUi();
-        return true;
-      }
-
-      lastError=new Error("Spotify bekräftade inte uppspelningen.");
-    }catch(e){
-      lastError=e;
-
-      // Viktigt: Spotify kan returnera ett sent fel trots att föregående
-      // playback-kommando faktiskt lyckades.
-      if(await verifySpotifyTrack(trackId)){
-        updateSpotifyUi();
-        return true;
-      }
-    }
-
-    spotifyDeviceId="";
-    localStorage.removeItem("digihits_spotify_device");
-    await sleep(450*attempt);
-  }
-
-  // Sista kontroll innan vi visar något fel för användaren.
-  if(await verifySpotifyTrack(trackId)){
-    updateSpotifyUi();
-    return true;
-  }
-
-  throw lastError||new Error("Spotify kunde inte starta låten.");
+  return await ensureSpotifyPlayingTrack(trackId,{restart:false});
 }
 
 let lastAutoPlayedSongId=null;
@@ -2592,7 +2758,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.52";
+    if(badge)badge.textContent="Återansluten · V5.57";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2600,7 +2766,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.52 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.57 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2611,7 +2777,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.52"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.57"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2730,7 +2896,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.52":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.57":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3483,7 +3649,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.52
+// SPELA ONLINE – V5.57
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -4037,6 +4203,9 @@ function cleanupOnlineMatchView(){
   onlineSelected=null;
   onlineGuessSaved=false;
   onlineSavedGuess={artist:"",title:""};
+
+  spotifyExpectedTrackId="";
+  spotifyExpectedPlaying=null;
 }
 
 function currentDigihitsRoute(){
@@ -7191,6 +7360,10 @@ function goDigihitsHome(){
 }
 
 function closeOnlineGame(){
+  // Lämna aldrig en matchvy med en låt spelande i bakgrunden.
+  ensureSpotifyPaused("stänger match").catch(e=>console.warn("Spotify pause on close:",e));
+  spotifyExpectedTrackId="";
+  spotifyExpectedPlaying=false;
   cleanupOnlineMatchView();
   $("onlineGame")?.classList.add("hidden");
   $("home")?.classList.remove("hidden");
@@ -7543,6 +7716,8 @@ function updateOnlineMatchLockStatus(){
 
   const locked=onlineMatchIsLocked();
   codeEl.classList.toggle("lockedCode",locked);
+  const codeBox=codeEl.closest(".matchCodeBox");
+  if(codeBox)codeBox.classList.toggle("hiddenWhenLocked",locked);
   badge.classList.remove("locked","unlocked");
   badge.classList.add(locked?"locked":"unlocked");
   badge.classList.remove("hidden");
@@ -7792,23 +7967,24 @@ async function onlineTogglePlayback(){
       btn.disabled=true;
       btn.style.opacity=".65";
     }
+
     setOnlineGameStatus("Kontrollerar Spotify…");
+    const state=await spotifyPlaybackState();
+    if(!state)throw new Error("Spotify svarar inte just nu.");
 
-    const s=await spotifyPlaybackState();
-    if(!s)throw new Error("Spotify svarar inte just nu.");
-
-    if(s.is_playing){
+    if(state.is_playing){
       if(btn)btn.textContent="PAUSAR…";
-      await spotifyPauseRobust();
+      await ensureSpotifyPaused("spelknapp");
       if(btn)btn.textContent="▶ FORTSÄTT SPELA";
-      setOnlineGameStatus("");
     }else{
+      const trackId=onlineMatch?.current_song?.id||spotifyExpectedTrackId||null;
       if(btn)btn.textContent="STARTAR…";
-      await spotifyResumeRobust(onlineMatch?.current_song?.id||null);
+      if(trackId)await ensureSpotifyPlayingTrack(trackId,{restart:false});
+      else await spotifyResumeRobust(null);
       if(btn)btn.textContent="❚❚ PAUSA";
-      setOnlineGameStatus("");
     }
 
+    setOnlineGameStatus("");
     startOnlinePlaybackPolling();
   }catch(e){
     setOnlineGameStatus("Spotify: "+e.message,true);
@@ -7822,33 +7998,25 @@ async function onlineTogglePlayback(){
 }
 
 async function onlineRestartPlayback(){
-  const btn=[...document.querySelectorAll("button")].find(b=>b.getAttribute("onclick")==="onlineRestartPlayback()");
-  if(btn?.disabled)return;
+  const btn=$("onlinePlayPauseBtn");
+  const trackId=onlineMatch?.current_song?.id||null;
+  if(!trackId){
+    setOnlineGameStatus("Det finns ingen aktiv låt att starta om.",true);
+    return;
+  }
 
   try{
-    if(!onlineMatch?.current_song)throw new Error("Ingen aktiv låt.");
-    if(btn){
-      btn.disabled=true;
-      btn.style.opacity=".65";
-      btn.textContent="STARTAR OM…";
-    }
+    if(btn)btn.disabled=true;
     setOnlineGameStatus("Startar låten från början…");
-
-    await spotifyRestartTrack(onlineMatch.current_song.id);
-    onlineLastPlayedSongId=onlineMatch.current_song.id;
-
-    if(btn)btn.textContent="↺ SPELA FRÅN BÖRJAN";
+    await ensureSpotifyPlayingTrack(trackId,{restart:true});
+    if(btn)btn.textContent="❚❚ PAUSA";
     setOnlineGameStatus("");
     startOnlinePlaybackPolling();
   }catch(e){
     setOnlineGameStatus("Spotify: "+e.message,true);
     alert("Spotify: "+e.message);
   }finally{
-    if(btn){
-      btn.disabled=false;
-      btn.style.opacity="1";
-      if(btn.textContent==="STARTAR OM…")btn.textContent="↺ SPELA FRÅN BÖRJAN";
-    }
+    if(btn)btn.disabled=false;
   }
 }
 
@@ -8102,6 +8270,31 @@ function bindOnlineSecretDrag(){
   card.addEventListener("pointercancel",resetOnlineDrag);
 }
 
+async function pauseSpotifyAfterConfirmedPlacement(){
+  if(!spotifyAccessToken&&!spotifyRefreshToken)return false;
+
+  try{
+    const paused=await ensureSpotifyPaused("kortplacering");
+    if(paused){
+      clearInterval(onlinePlaybackTimer);
+      onlinePlaybackTimer=null;
+      spotifyExpectedTrackId="";
+      spotifyExpectedPlaying=false;
+      const btn=$("onlinePlayPauseBtn");
+      if(btn)btn.textContent="▶ FORTSÄTT SPELA";
+      return true;
+    }
+  }catch(e){
+    console.warn("Spotify pause after placement:",e);
+  }
+
+  setOnlineGameStatus(
+    "Kortet är sparat, men Spotify kunde inte pausas automatiskt. Pausa Spotify innan du fortsätter.",
+    true
+  );
+  return false;
+}
+
 async function confirmOnlinePlacement(){
   if(actionBusy)return;
   if(onlineSelected===null){alert("Välj en plats.");return}
@@ -8181,6 +8374,10 @@ async function confirmOnlinePlacement(){
       }).eq("id",onlineMatch.id);
       if(mr.error)throw new Error(mr.error.message);
       onlineMatch={...onlineMatch,current_song:null,phase:"decision",last_result:result};
+
+      // Turen är nu sparad. Stoppa låten innan spelaren går vidare.
+      await pauseSpotifyAfterConfirmedPlacement();
+
       clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
       onlineSelected=null;
       renderOnlineGame();
@@ -8195,6 +8392,10 @@ async function confirmOnlinePlacement(){
         updated_at:new Date().toISOString()
       }).eq("id",onlineMatch.id);
       if(mr.error)throw new Error(mr.error.message);
+
+      // Även vid fel placering är turen avslutad och Spotify ska vara pausat.
+      await pauseSpotifyAfterConfirmedPlacement();
+
       clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
       onlineLocalResultHold=result;
       onlineMatch={...onlineMatch,current_song:null,phase:"turn_ready",current_user_id:next.user_id,last_result:null};
@@ -8408,7 +8609,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.52.
+// Startsidan är alltid online i V5.57.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
