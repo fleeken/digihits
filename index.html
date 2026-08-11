@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.33</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.34</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1159,7 +1159,7 @@ html.digihitsBooting body{
   background:#080b10
 }
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.33</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.34</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1346,7 +1346,7 @@ html.digihitsBooting body{
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.33</strong>
+    Version <strong style="color:#fff">V5.34</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -2077,6 +2077,11 @@ async function spotifyResume(){
 }
 
 document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && document.activeElement?.id==="recoveryEmail"){
+    e.preventDefault();
+    if(!$("sendRecoveryBtn")?.disabled)sendPasswordReset();
+    return;
+  }
   if(e.key==="Enter" && document.activeElement?.id==="matchChatInput"){
     e.preventDefault();
     sendMatchChatMessage();
@@ -2269,7 +2274,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.33";
+    if(badge)badge.textContent="Återansluten · V5.34";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2277,7 +2282,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.33 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.34 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2288,7 +2293,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.33"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.34"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2407,7 +2412,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.33":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.34":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3160,7 +3165,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.33
+// SPELA ONLINE – V5.34
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3956,17 +3961,26 @@ function authHeaders(accessToken=null){
   return headers;
 }
 
-async function authRequest(path,{method="GET",body=null,accessToken=null}={}){
+async function authRequest(path,{method="GET",body=null,accessToken=null,timeoutMs=20000}={}){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
   let response;
+
   try{
     response=await fetch(URL+"/auth/v1"+path,{
       method,
       headers:authHeaders(accessToken),
       body:body===null?undefined:JSON.stringify(body),
-      cache:"no-store"
+      cache:"no-store",
+      signal:controller.signal
     });
   }catch(e){
-    throw new Error("Nätverksfel: "+e.message);
+    if(e?.name==="AbortError"){
+      throw new Error("TIMEOUT: Kontotjänsten svarade inte inom 20 sekunder.");
+    }
+    throw new Error("Nätverksfel: "+(e?.message||e));
+  }finally{
+    clearTimeout(timeout);
   }
 
   const raw=await response.text();
@@ -3977,7 +3991,10 @@ async function authRequest(path,{method="GET",body=null,accessToken=null}={}){
 
   if(!response.ok){
     const msg=data?.msg||data?.message||data?.error_description||data?.error||("HTTP "+response.status);
-    throw new Error(msg);
+    const err=new Error(msg);
+    err.status=response.status;
+    err.code=data?.code||data?.error_code||"";
+    throw err;
   }
   return data;
 }
@@ -4323,34 +4340,86 @@ function passwordResetRedirectUrl(){
   return window.location.origin+window.location.pathname;
 }
 
-async function sendPasswordReset(){
-  const email=($("recoveryEmail")?.value||"").trim().toLowerCase();
-  if(!email){
-    setAccountStatus("E-post är obligatoriskt.",true,"recoveryStatus");
-    $("recoveryEmail")?.focus();
-    return;
-  }
-  if(!$("recoveryEmail")?.checkValidity()){
-    setAccountStatus("Ange en giltig e-postadress.",true,"recoveryStatus");
-    $("recoveryEmail")?.focus();
-    return;
-  }
+function friendlyRecoverySendError(e){
+  const raw=String(e?.message||e||"").trim();
+  const msg=raw.toLowerCase();
+  const status=Number(e?.status||0);
 
+  if(msg.includes("rate limit") || msg.includes("too many") || status===429){
+    return "För många återställningsmejl har begärts på kort tid. Vänta en stund och försök igen.";
+  }
+  if(msg.includes("email") && (msg.includes("invalid") || msg.includes("format"))){
+    return "E-postadressen verkar inte vara giltig. Kontrollera adressen och försök igen.";
+  }
+  if(msg.includes("redirect") || msg.includes("not allowed")){
+    return "Återställningslänken kunde inte skapas på grund av webbplatsens redirect-inställning.";
+  }
+  if(msg.includes("timeout")){
+    return "Kontotjänsten svarar långsamt just nu. Försök igen om en liten stund.";
+  }
+  if(msg.includes("network") || msg.includes("nätverksfel") || msg.includes("failed to fetch")){
+    return "Kunde inte nå kontotjänsten. Kontrollera internetanslutningen och försök igen.";
+  }
+  return raw
+    ? "Återställningslänken kunde inte skickas: "+raw
+    : "Återställningslänken kunde inte skickas. Försök igen.";
+}
+
+async function sendPasswordReset(){
+  const waitToken=beginGlobalWait("Skickar återställningslänk…");
   const btn=$("sendRecoveryBtn");
-  if(btn){btn.disabled=true;btn.textContent="SKICKAR…"}
-  setAccountStatus("Skickar återställningslänk…",false,"recoveryStatus");
 
   try{
-    await authRequest("/recover?redirect_to="+encodeURIComponent(passwordResetRedirectUrl()),{
-      method:"POST",
-      body:{email}
-    });
-    setAccountStatus("Återställningslänken är skickad. Öppna mejlet och klicka på länken för att välja ett nytt lösenord. Kontrollera även skräpposten om mejlet saknas.",false,"recoveryStatus");
-  }catch(e){
-    console.warn("Password reset:",e);
-    setAccountStatus(friendlyAuthError(e,"reset"),true,"recoveryStatus");
+    const field=$("recoveryEmail");
+    const email=(field?.value||"").trim().toLowerCase();
+
+    if(!email){
+      setAccountStatus("E-post är obligatoriskt.",true,"recoveryStatus");
+      field?.focus();
+      return;
+    }
+    if(!field?.checkValidity()){
+      setAccountStatus("Ange en giltig e-postadress.",true,"recoveryStatus");
+      field?.focus();
+      return;
+    }
+
+    saveRecoverySession(null);
+
+    if(btn){
+      btn.disabled=true;
+      btn.textContent="SKICKAR…";
+      btn.setAttribute("aria-busy","true");
+    }
+    setAccountStatus("Skickar återställningslänk…",false,"recoveryStatus");
+
+    try{
+      const redirect=passwordResetRedirectUrl();
+      if(!/^https?:\/\//i.test(redirect)){
+        throw new Error("Ogiltig redirect-adress.");
+      }
+
+      await authRequest(
+        "/recover?redirect_to="+encodeURIComponent(redirect),
+        {method:"POST",body:{email},timeoutMs:20000}
+      );
+
+      setAccountStatus(
+        "Återställningslänken är skickad. Öppna mejlet och klicka på länken för att välja ett nytt lösenord. Kontrollera även skräpposten om mejlet saknas.",
+        false,
+        "recoveryStatus"
+      );
+    }catch(e){
+      console.error("Password reset request failed:",e);
+      setAccountStatus(friendlyRecoverySendError(e),true,"recoveryStatus");
+    }
   }finally{
-    if(btn){btn.disabled=false;btn.textContent="SKICKA ÅTERSTÄLLNINGSLÄNK"}
+    if(btn){
+      btn.disabled=false;
+      btn.textContent="SKICKA ÅTERSTÄLLNINGSLÄNK";
+      btn.removeAttribute("aria-busy");
+    }
+    endGlobalWait(waitToken);
   }
 }
 
@@ -7702,7 +7771,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.33.
+// Startsidan är alltid online i V5.34.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
