@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.13</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.15</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.13 – kompaktare spelvy */
+/* V5.15 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.13 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.15 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.13 – equal years are a continuous timeline block */
+/* V5.15 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.13: compact, consistent home UX */
+/* V5.15: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -745,8 +745,82 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 .emptyMatchesState strong{display:block;color:#fff;font-size:14px;letter-spacing:.05em}
 .emptyMatchesState span{display:block;margin-top:5px;font-size:11px;color:#9fa9b7}
+
+.historyStats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin-top:14px;
+  margin-bottom:12px
+}
+.historyStat{
+  border:1px solid #36404e;
+  background:#141922;
+  border-radius:12px;
+  padding:10px 11px;
+  min-width:0
+}
+.historyStat span{
+  display:block;
+  color:#9fa9b8;
+  font-size:9px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.05em
+}
+.historyStat strong{
+  display:block;
+  margin-top:4px;
+  color:#fff;
+  font-size:17px
+}
+.historyTopActions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  flex-wrap:wrap
+}
+.historyDeleteBtn{
+  appearance:none;
+  -webkit-appearance:none;
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  border:1px solid #71333d;
+  background:#2c171b;
+  color:#ff7f8d;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  flex:0 0 auto;
+  touch-action:manipulation
+}
+.historyDeleteBtn:hover{filter:brightness(1.12)}
+@media(max-width:700px){
+  .historyStats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .historyTop{align-items:flex-start}
+  .historyTopActions{max-width:65%}
+}
+
+.historyResetActions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  flex-wrap:wrap
+}
+.historySecondary{
+  background:#252c37;
+  border:1px solid #4c5868;
+  color:#e2eaf4
+}
+@media(max-width:600px){
+  .historyResetActions{width:100%;justify-content:flex-start}
+  .historyResetActions .btn{font-size:9px;padding:8px 9px!important}
+}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.13</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.15</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -897,7 +971,16 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
           <h3 style="margin:0">Historik</h3>
           <div class="mut" style="font-size:12px;margin-top:4px">Slutförda och lämnade matcher.</div>
         </div>
-        <button type="button" id="clearHistoryBtn" class="btn historyDanger" style="padding:8px 11px" onclick="askClearHistory()">NOLLSTÄLL HISTORIK</button>
+        <div class="historyResetActions">
+          <button type="button" id="resetStatsBtn" class="btn historySecondary" style="padding:8px 11px" onclick="askResetStatistics()">NOLLSTÄLL ALL STATISTIK</button>
+          <button type="button" id="clearHistoryBtn" class="btn historyDanger" style="padding:8px 11px" onclick="askClearHistory()">NOLLSTÄLL ALL HISTORIK</button>
+        </div>
+      </div>
+      <div id="historyStats" class="historyStats">
+        <div class="historyStat"><span>Vinster</span><strong id="historyWins">0 st</strong></div>
+        <div class="historyStat"><span>Förluster</span><strong id="historyLosses">0 st</strong></div>
+        <div class="historyStat"><span>Walk Over</span><strong id="historyWalkovers">0 st</strong></div>
+        <div class="historyStat"><span>Flest vinster i rad</span><strong id="historyBestStreak">0 st</strong></div>
       </div>
       <div id="onlineHistory" class="historyList">
         <div class="wait" style="padding:18px">Hämtar historik…</div>
@@ -906,7 +989,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.13</strong>
+    Version <strong style="color:#fff">V5.15</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1809,7 +1892,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.13";
+    if(badge)badge.textContent="Återansluten · V5.15";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1817,7 +1900,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.13 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.15 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1828,7 +1911,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.13"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.15"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1947,7 +2030,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.13":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.15":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2700,7 +2783,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.13
+// SPELA ONLINE – V5.15
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -5090,10 +5173,149 @@ function fmtHistoryDate(value){
   }catch(_){return ""}
 }
 
+function statisticsResetStorageKey(){
+  return "digihits_stats_reset_at_"+String(ensureOnlineUserId()||"anonymous");
+}
+
+function getStatisticsResetAt(){
+  const raw=localStorage.getItem(statisticsResetStorageKey());
+  return raw||"";
+}
+
+function askResetStatistics(){
+  $("resetStatisticsModal")?.classList.remove("hidden");
+}
+function cancelResetStatistics(){
+  $("resetStatisticsModal")?.classList.add("hidden");
+}
+async function confirmResetStatistics(){
+  const btn=$("confirmResetStatsBtn");
+  if(btn){btn.disabled=true;btn.textContent="NOLLSTÄLLER…"}
+  try{
+    localStorage.setItem(statisticsResetStorageKey(),new Date().toISOString());
+    cancelResetStatistics();
+    onlineHistoryRenderedHtml="";
+    await loadOnlineHistory({silent:true});
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="JA, NOLLSTÄLL STATISTIK"}
+  }
+}
+
+function classifyHistoryRow(row){
+  const m=row.match, me=row.me;
+  const players=row.players||[];
+  const leaver=players.find(p=>p?.left_at || p?.active===false)||null;
+  const playerCount=players.length;
+  const matchActuallyStarted=playerCount>=2 && (
+    Number(m.round_no||m.round||1)>1 ||
+    !!m.started_at ||
+    players.some(p =>
+      (Array.isArray(p?.locked_timeline) && p.locked_timeline.length>0) ||
+      Number(p?.score||0)>0
+    )
+  );
+
+  const leftBeforeStart=!!leaver && !matchActuallyStarted;
+  const isWalkover=!!leaver && matchActuallyStarted;
+  const meIsLeaver=isWalkover && String(leaver?.user_id||"")===String(ensureOnlineUserId());
+
+  if(leftBeforeStart){
+    return {
+      type:"neutral",
+      className:"left",
+      text:`${leaver?.display_name||"Spelare"} LÄMNADE INNAN MATCHSTART`,
+      trueWin:false
+    };
+  }
+
+  if(isWalkover){
+    if(meIsLeaver){
+      return {
+        type:"loss",
+        className:"loss",
+        text:"DU LÄMNADE · WALK OVER",
+        trueWin:false
+      };
+    }
+    return {
+      type:"walkover",
+      className:"walkover",
+      text:`WALK OVER · ${leaver?.display_name||"Spelare"} LÄMNADE MATCHEN`,
+      trueWin:false
+    };
+  }
+
+  if(m.winner_user_id===ensureOnlineUserId()){
+    return {type:"win",className:"win",text:"VINST",trueWin:true};
+  }
+
+  if(m.winner_user_id){
+    return {type:"loss",className:"loss",text:"FÖRLUST",trueWin:false};
+  }
+
+  return {type:"neutral",className:"left",text:"MATCH AVSLUTAD",trueWin:false};
+}
+
+function renderHistoryStats(rows){
+  const resetAt=getStatisticsResetAt();
+  const statsRows=(rows||[]).filter(row=>{
+    if(!resetAt)return true;
+    const endedAt=String(row.match.updated_at||row.me.updated_at||"");
+    return endedAt && endedAt>resetAt;
+  });
+
+  const chronological=[...statsRows].sort(
+    (a,b)=>String(a.match.updated_at||"").localeCompare(String(b.match.updated_at||""))
+  );
+
+  let wins=0,losses=0,walkovers=0,currentStreak=0,bestStreak=0;
+
+  for(const row of chronological){
+    const result=classifyHistoryRow(row);
+
+    if(result.type==="win"){
+      wins++;
+      currentStreak++;
+      bestStreak=Math.max(bestStreak,currentStreak);
+    }else if(result.type==="loss"){
+      losses++;
+      currentStreak=0;
+    }else if(result.type==="walkover"){
+      walkovers++;
+      currentStreak=0;
+    }
+    // Match som avslutades innan start påverkar ingen statistik eller vinstsvit.
+  }
+
+  if($("historyWins"))$("historyWins").textContent=`${wins} st`;
+  if($("historyLosses"))$("historyLosses").textContent=`${losses} st`;
+  if($("historyWalkovers"))$("historyWalkovers").textContent=`${walkovers} st`;
+  if($("historyBestStreak"))$("historyBestStreak").textContent=`${bestStreak} st`;
+}
+
+async function hideSingleHistoryMatch(playerRowId,opponentName="matchen"){
+  if(!playerRowId)return;
+  if(!confirm(`Radera ${opponentName ? "historiken mot "+opponentName : "den här matchen"}?`))return;
+
+  try{
+    const up=await db.from("online_players")
+      .update({history_hidden:true,updated_at:new Date().toISOString()})
+      .eq("id",playerRowId)
+      .eq("user_id",ensureOnlineUserId());
+    if(up.error)throw new Error(up.error.message);
+
+    onlineHistoryRenderedHtml="";
+    await loadOnlineHistory({silent:true});
+  }catch(e){
+    alert("Kunde inte radera matchen från historiken: "+e.message);
+  }
+}
+
 async function loadOnlineHistory(options={}){
   if(!digihitsAccountUser){
     const box=$("onlineHistory");
     if(box)box.innerHTML='<div class="wait" style="padding:18px">Logga in för att se din historik.</div>';
+    renderHistoryStats([]);
     return;
   }
   const box=$("onlineHistory");
@@ -5120,49 +5342,29 @@ async function loadOnlineHistory(options={}){
     }
 
     rows.sort((a,b)=>String(b.match.updated_at||"").localeCompare(String(a.match.updated_at||"")));
+    renderHistoryStats(rows);
 
     const nextHtml=!rows.length
       ? '<div class="wait" style="padding:18px">Ingen historik ännu.</div>'
       : rows.map(row=>{
           const m=row.match, me=row.me, opp=row.opp;
-          const leaver=(row.players||[]).find(p=>p?.left_at || p?.active===false)||null;
-          const historyPlayerCount=(row.players||[]).length;
-          const matchActuallyStarted=historyPlayerCount>=2 && (
-            Number(m.round_no||m.round||1)>1 ||
-            !!m.started_at ||
-            (row.players||[]).some(p =>
-              (Array.isArray(p?.locked_timeline) && p.locked_timeline.length>0) ||
-              Number(p?.score||0)>0
-            )
-          );
-          const isWalkover=!!leaver && matchActuallyStarted;
-          const leftBeforeStart=!!leaver && !matchActuallyStarted;
-          const won=!isWalkover && !leftBeforeStart && m.winner_user_id===ensureOnlineUserId();
-          const lost=!isWalkover && !leftBeforeStart && !!m.winner_user_id && m.winner_user_id!==ensureOnlineUserId();
-          const resultClass=isWalkover?"walkover":won?"win":lost?"loss":"left";
-          const leaverName=leaver?.display_name||"Spelare";
-          const resultText=isWalkover
-            ?`WALK OVER · ${leaverName} LÄMNADE MATCHEN`
-            :leftBeforeStart
-              ?`${leaverName} LÄMNADE INNAN MATCHSTART`
-              :won
-                ?"VINST"
-                :lost
-                  ?"FÖRLUST"
-                  :"MATCH AVSLUTAD";
+          const outcome=classifyHistoryRow(row);
           const myLocked=(me.locked_timeline||[]).length;
           const oppLocked=(opp?.locked_timeline||[]).length;
           const opponent=opp?.display_name||"Okänd spelare";
-          const summaryHtml=won
+          const summaryHtml=outcome.trueWin
             ? `<div class="historySummary">
                 <span><strong>${myLocked}</strong> låsta kort för dig</span>
                 <span><strong>${oppLocked}</strong> för ${escapeHtml(opponent)}</span>
               </div>`
             : "";
-          return `<div class="historyCard ${resultClass}">
+          return `<div class="historyCard ${outcome.className}">
             <div class="historyTop">
               <div class="historyName">Mot ${escapeHtml(opponent)}</div>
-              <div class="historyResult ${resultClass}">${escapeHtml(resultText)}</div>
+              <div class="historyTopActions">
+                <div class="historyResult ${outcome.className}">${escapeHtml(outcome.text)}</div>
+                <button type="button" class="historyDeleteBtn" aria-label="Radera match från historiken" title="Radera från historik" onclick="event.stopPropagation();hideSingleHistoryMatch(${me.id},${JSON.stringify(opponent)})">🗑</button>
+              </div>
             </div>
             <div class="historyMeta historyCodeRow">
               <span class="historyCodeInline">Matchkod <strong>${escapeHtml(m.code)}</strong></span>
@@ -5213,7 +5415,7 @@ async function confirmClearHistory(){
   }catch(e){
     alert("Kunde inte nollställa historiken: "+e.message);
   }finally{
-    if(btn){btn.disabled=false;btn.textContent="JA, NOLLSTÄLL HISTORIK"}
+    if(btn){btn.disabled=false;btn.textContent="JA, NOLLSTÄLL ALL HISTORIK"}
   }
 }
 
@@ -6608,7 +6810,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.13.
+// Startsidan är alltid online i V5.15.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -6635,7 +6837,7 @@ window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}
     <h3>Nollställ historiken?</h3>
     <p class="mut">Din lista med slutförda och lämnade matcher töms. Aktiva matcher påverkas inte.</p>
     <div class="modalActions">
-      <button type="button" id="confirmClearHistoryBtn" class="btn historyDanger full" onclick="confirmClearHistory()">JA, NOLLSTÄLL HISTORIK</button>
+      <button type="button" id="confirmClearHistoryBtn" class="btn historyDanger full" onclick="confirmClearHistory()">JA, NOLLSTÄLL ALL HISTORIK</button>
       <button type="button" class="btn dark full" onclick="cancelClearHistory()">AVBRYT</button>
     </div>
   </div>
@@ -6698,6 +6900,20 @@ window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}
     <div class="modalActions">
       <button type="button" class="btn dark" onclick="cancelDeleteAccount()">AVBRYT</button>
       <button type="button" id="confirmDeleteAccountBtn" class="btn deleteAccountBtn" onclick="confirmDeleteAccount()">JA, RADERA KONTO</button>
+    </div>
+  </div>
+</div>
+
+<div id="resetStatisticsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resetStatisticsTitle">
+  <div class="modalBox">
+    <div id="resetStatisticsTitle" class="accountResetTitle">Nollställ all statistik?</div>
+    <div class="mut" style="margin-top:8px">
+      Vinster, förluster, Walk Over och flest vinster i rad börjar räknas från 0.
+      Matcherna ligger kvar i Historik.
+    </div>
+    <div class="modalActions" style="margin-top:14px">
+      <button type="button" class="btn dark" onclick="cancelResetStatistics()">AVBRYT</button>
+      <button type="button" id="confirmResetStatsBtn" class="btn historyDanger" onclick="confirmResetStatistics()">JA, NOLLSTÄLL STATISTIK</button>
     </div>
   </div>
 </div>
