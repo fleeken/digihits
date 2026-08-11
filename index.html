@@ -1,6 +1,6 @@
 <!doctype html><html lang="sv"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.01</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.02</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +370,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.01 – kompaktare spelvy */
+/* V5.02 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +439,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.01 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.02 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -516,7 +516,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.01 – equal years are a continuous timeline block */
+/* V5.02 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -560,7 +560,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.01: compact, consistent home UX */
+/* V5.02: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -639,8 +639,33 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   .onlineMatchNames{font-size:15px}
   .matchPlayersMeta{font-size:10px;margin-top:6px}
 }
+
+.authIntro{text-align:center;padding:4px 2px 8px}
+.authIntro h3{font-size:24px;margin:0 0 6px}
+.authChoiceActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.authNav{display:flex;align-items:center;margin-bottom:14px}
+.authNavSplit{justify-content:space-between;gap:10px}
+.authBackBtn,.authHomeBtn{
+  appearance:none;-webkit-appearance:none;border:0;background:transparent;
+  color:#73dcff;font:inherit;font-size:11px;font-weight:950;cursor:pointer;
+  padding:6px 0;text-decoration:none;touch-action:manipulation
+}
+.authHomeBtn{margin-left:auto}
+.authViewHelp{font-size:12px;margin-top:4px}
+.spotifyConnectOverlay{
+  position:fixed;inset:0;z-index:10050;background:#05070bd9;
+  display:grid;place-items:center;padding:18px
+}
+.spotifyConnectDialog{
+  width:min(460px,100%);background:#171a22;border:1px solid #3b4250;
+  border-radius:18px;padding:18px;box-shadow:0 24px 70px #000b
+}
+@media(max-width:520px){
+  .authChoiceActions{grid-template-columns:1fr}
+}
+
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.01</small></button><div class="badge" id="online">Redo · V5.01</div></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.02</small></button><div class="badge" id="online">Redo · V5.02</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -650,24 +675,57 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
     <div id="accountCard" class="role accountCard" style="margin-top:18px">
       <div id="accountLoggedOut">
-        <div class="startStepHead">
-          <div class="startStepNumber">1</div>
-          <div>
-            <h3>Ditt konto</h3>
-            <div class="mut startStepHelp">Logga in så finns dina matcher och din historik på alla dina enheter.</div>
+        <div id="authChoicePanel">
+          <div class="authIntro">
+            <h3>Välkommen till Digihits</h3>
+            <div class="mut">Logga in eller skapa ett konto för att spela.</div>
+          </div>
+          <div class="authChoiceActions">
+            <button type="button" class="btn cyan full" onclick="showAuthView('login')">LOGGA IN</button>
+            <button type="button" class="btn dark full" onclick="showAuthView('signup')">SKAPA KONTO</button>
           </div>
         </div>
-        <input id="accountPlayerName" class="input" maxlength="24" placeholder="Spelarnamn" autocomplete="nickname" style="margin-top:12px">
-        <div class="mut signupNameHelp">Välj noga – spelarnamnet kan inte ändras efter att kontot skapats.</div>
-        <input id="accountEmail" class="input" type="email" maxlength="120" placeholder="E-post" autocomplete="email" style="margin-top:8px">
-        <input id="accountPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Lösenord" autocomplete="new-password" style="margin-top:8px">
-        <div class="accountActions">
-          <button type="button" id="accountLoginBtn" class="btn cyan" onclick="loginDigihitsAccount()">LOGGA IN</button>
-          <button type="button" id="accountCreateBtn" class="btn dark" onclick="createDigihitsAccount()">SKAPA KONTO</button>
+
+        <div id="authLoginPanel" class="hidden">
+          <div class="authNav">
+            <button type="button" class="authBackBtn" onclick="showAuthView('choice')">← STARTSIDAN</button>
+          </div>
+          <div class="accountResetTitle">Logga in</div>
+          <div class="mut authViewHelp">Logga in med e-postadressen och lösenordet för ditt Digihits-konto.</div>
+          <input id="loginEmail" class="input" type="email" maxlength="120" placeholder="E-post *" autocomplete="email" required style="margin-top:12px">
+          <input id="loginPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Lösenord *" autocomplete="current-password" required style="margin-top:8px">
+          <button type="button" id="accountLoginBtn" class="btn cyan full" style="margin-top:10px" onclick="loginDigihitsAccount()">LOGGA IN</button>
+          <button type="button" id="forgotPasswordBtn" class="accountLinkBtn" onclick="showPasswordRecoveryRequest()">GLÖMT LÖSENORD?</button>
+          <button type="button" id="resendVerificationBtn" class="accountLinkBtn hidden" onclick="resendVerificationEmail()">SKICKA VERIFIERINGSMAIL IGEN</button>
+          <div id="loginStatus" class="mut accountStatus"></div>
         </div>
-        <button type="button" id="forgotPasswordBtn" class="accountLinkBtn" onclick="sendPasswordReset()">GLÖMT LÖSENORD?</button>
-        <button type="button" id="resendVerificationBtn" class="accountLinkBtn hidden" onclick="resendVerificationEmail()">SKICKA VERIFIERINGSMAIL IGEN</button>
-        <div id="accountStatus" class="mut accountStatus"></div>
+
+        <div id="authSignupPanel" class="hidden">
+          <div class="authNav">
+            <button type="button" class="authBackBtn" onclick="showAuthView('choice')">← STARTSIDAN</button>
+          </div>
+          <div class="accountResetTitle">Skapa konto</div>
+          <div class="mut authViewHelp">Alla fält är obligatoriska. E-postadressen behöver verifieras.</div>
+          <input id="signupPlayerName" class="input" maxlength="24" placeholder="Spelarnamn *" autocomplete="nickname" required style="margin-top:12px">
+          <div class="mut signupNameHelp">Spelarnamnet är unikt och kan inte ändras efteråt.</div>
+          <input id="signupEmail" class="input" type="email" maxlength="120" placeholder="E-post *" autocomplete="email" required style="margin-top:8px">
+          <input id="signupPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Lösenord *" autocomplete="new-password" required style="margin-top:8px">
+          <button type="button" id="accountCreateBtn" class="btn green full" style="margin-top:10px" onclick="createDigihitsAccount()">SKAPA KONTO</button>
+          <button type="button" id="signupResendVerificationBtn" class="accountLinkBtn hidden" onclick="resendVerificationEmail()">SKICKA VERIFIERINGSMAIL IGEN</button>
+          <div id="signupStatus" class="mut accountStatus"></div>
+        </div>
+
+        <div id="passwordRecoveryRequestPanel" class="hidden">
+          <div class="authNav authNavSplit">
+            <button type="button" class="authBackBtn" onclick="showAuthView('login')">← TILLBAKA</button>
+            <button type="button" class="authHomeBtn" onclick="showAuthView('choice')">STARTSIDAN</button>
+          </div>
+          <div class="accountResetTitle">Återställ lösenord</div>
+          <div class="mut authViewHelp">Ange e-postadressen för ditt Digihits-konto.</div>
+          <input id="recoveryEmail" class="input" type="email" maxlength="120" placeholder="E-post *" autocomplete="email" required style="margin-top:12px">
+          <button type="button" id="sendRecoveryBtn" class="btn cyan full" style="margin-top:10px" onclick="sendPasswordReset()">SKICKA ÅTERSTÄLLNINGSLÄNK</button>
+          <div id="recoveryStatus" class="mut accountStatus"></div>
+        </div>
       </div>
 
       <div id="accountLoggedIn" class="hidden">
@@ -675,7 +733,6 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
           <div>
             <div class="accountOk">● INLOGGAD</div>
             <strong id="accountEmailShown"></strong>
-            <div class="mut" style="font-size:12px;margin-top:3px">Dina matcher och din historik följer kontot.</div>
           </div>
           <button type="button" class="btn dark accountLogoutBtn" onclick="logoutDigihitsAccount()">LOGGA UT</button>
         </div>
@@ -689,10 +746,14 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
       </div>
 
       <div id="passwordResetPanel" class="hidden">
+        <div class="authNav authNavSplit">
+          <button type="button" class="authBackBtn" onclick="cancelPasswordResetToLogin()">← TILLBAKA</button>
+          <button type="button" class="authHomeBtn" onclick="cancelPasswordResetToHome()">STARTSIDAN</button>
+        </div>
         <div class="accountResetTitle">Välj nytt lösenord</div>
-        <div class="mut" style="font-size:12px;margin-top:4px">Skriv ett nytt lösenord för ditt Digihits-konto.</div>
-        <input id="newPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Nytt lösenord" autocomplete="new-password" style="margin-top:10px">
-        <input id="newPasswordRepeat" class="input" type="password" minlength="6" maxlength="72" placeholder="Upprepa nytt lösenord" autocomplete="new-password" style="margin-top:8px">
+        <div class="mut authViewHelp">Skriv ett nytt lösenord för ditt Digihits-konto.</div>
+        <input id="newPassword" class="input" type="password" minlength="6" maxlength="72" placeholder="Nytt lösenord *" autocomplete="new-password" required style="margin-top:10px">
+        <input id="newPasswordRepeat" class="input" type="password" minlength="6" maxlength="72" placeholder="Upprepa nytt lösenord *" autocomplete="new-password" required style="margin-top:8px">
         <button type="button" id="saveNewPasswordBtn" class="btn green full" style="margin-top:10px" onclick="saveNewPassword()">SPARA NYTT LÖSENORD</button>
         <div id="passwordResetStatus" class="mut accountStatus"></div>
       </div>
@@ -750,7 +811,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.01</strong>
+    Version <strong style="color:#fff">V5.02</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1653,7 +1714,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.01";
+    if(badge)badge.textContent="Återansluten · V5.02";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1661,7 +1722,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.01 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.02 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1672,7 +1733,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V5.01"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V5.02"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1791,7 +1852,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V5.01":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V5.02":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2544,7 +2605,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.01
+// SPELA ONLINE – V5.02
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3027,14 +3088,84 @@ async function sendMatchChatMessage(){
 }
 
 function showResendVerificationButton(show=true){
-  const btn=$("resendVerificationBtn");
-  if(btn)btn.classList.toggle("hidden",!show);
+  const a=$("resendVerificationBtn");
+  const b=$("signupResendVerificationBtn");
+  if(a)a.classList.toggle("hidden",!show);
+  if(b)b.classList.toggle("hidden",!show);
 }
-function setAccountStatus(text,isError=false){
-  const el=$("accountStatus");
+function setAccountStatus(text,isError=false,target=null){
+  let el=null;
+  if(target)el=$(target);
+  if(!el){
+    if(!$("authSignupPanel")?.classList.contains("hidden"))el=$("signupStatus");
+    else if(!$("passwordRecoveryRequestPanel")?.classList.contains("hidden"))el=$("recoveryStatus");
+    else el=$("loginStatus");
+  }
   if(!el)return;
   el.textContent=text||"";
   el.style.color=isError?"#ff8c99":"";
+}
+
+
+let currentAuthView="choice";
+
+function clearAuthStatuses(){
+  ["loginStatus","signupStatus","recoveryStatus"].forEach(id=>{
+    const el=$(id); if(el){el.textContent="";el.style.color=""}
+  });
+}
+
+function showAuthView(view="choice"){
+  currentAuthView=view;
+  $("passwordResetPanel")?.classList.add("hidden");
+  $("accountLoggedIn")?.classList.add("hidden");
+  $("accountLoggedOut")?.classList.remove("hidden");
+
+  const map={
+    choice:"authChoicePanel",
+    login:"authLoginPanel",
+    signup:"authSignupPanel",
+    recovery:"passwordRecoveryRequestPanel"
+  };
+  Object.values(map).forEach(id=>$(id)?.classList.add("hidden"));
+  $(map[view]||map.choice)?.classList.remove("hidden");
+  clearAuthStatuses();
+
+  if(view==="login")requestAnimationFrame(()=>$("loginEmail")?.focus());
+  if(view==="signup")requestAnimationFrame(()=>$("signupPlayerName")?.focus());
+  if(view==="recovery"){
+    const fromLogin=($("loginEmail")?.value||"").trim();
+    if(fromLogin&&!$("recoveryEmail")?.value)$("recoveryEmail").value=fromLogin;
+    requestAnimationFrame(()=>$("recoveryEmail")?.focus());
+  }
+}
+
+function showPasswordRecoveryRequest(){ showAuthView("recovery"); }
+
+function cancelPasswordResetToLogin(){
+  saveAuthSession(null);
+  digihitsAccountUser=null;
+  $("passwordResetPanel")?.classList.add("hidden");
+  renderAccountUi();
+  showAuthView("login");
+}
+function cancelPasswordResetToHome(){
+  saveAuthSession(null);
+  digihitsAccountUser=null;
+  $("passwordResetPanel")?.classList.add("hidden");
+  renderAccountUi();
+  showAuthView("choice");
+}
+
+function showSpotifyConnectPanel(){
+  $("spotifyConnectModal")?.classList.remove("hidden");
+}
+function closeSpotifyConnectPanel(){
+  $("spotifyConnectModal")?.classList.add("hidden");
+}
+async function startSpotifyConnection(){
+  closeSpotifyConnectPanel();
+  await spotifyLogin(false);
 }
 
 function friendlyAuthError(e,action="login"){
@@ -3051,7 +3182,8 @@ function friendlyAuthError(e,action="login"){
 }
 
 function setAccountBusy(busy){
-  ["accountLoginBtn","accountCreateBtn","forgotPasswordBtn"].forEach(id=>{
+  ["accountLoginBtn","accountCreateBtn","forgotPasswordBtn","sendRecoveryBtn",
+   "resendVerificationBtn","signupResendVerificationBtn"].forEach(id=>{
     const b=$(id);
     if(b){b.disabled=busy;b.style.opacity=busy?".55":"1"}
   });
@@ -3167,15 +3299,13 @@ function renderAccountUi(){
   $("authenticatedHomeContent")?.classList.toggle("hidden",!loggedIn);
   $("homeGameTitle")?.classList.toggle("hidden",!loggedIn);
 
-  if(!loggedIn && $("onlineName")){
-    $("onlineName").value="";
-  }
-
   if(loggedIn){
     if($("accountEmailShown"))$("accountEmailShown").textContent=digihitsAccountUser.email||"Konto";
     const metaName=String(digihitsAccountUser.user_metadata?.display_name||"").trim();
     if(metaName)localStorage.setItem(ONLINE_NAME_KEY,metaName);
     renderProfileName();
+  }else{
+    showAuthView(currentAuthView||"choice");
   }
 }
 
@@ -3298,71 +3428,82 @@ function passwordResetRedirectUrl(){
 }
 
 async function sendPasswordReset(){
-  const email=($("accountEmail")?.value||"").trim().toLowerCase();
+  const email=($("recoveryEmail")?.value||"").trim().toLowerCase();
   if(!email){
-    setAccountStatus("Skriv din e-postadress först.",true);
-    $("accountEmail")?.focus();
+    setAccountStatus("E-post är obligatoriskt.",true,"recoveryStatus");
+    $("recoveryEmail")?.focus();
+    return;
+  }
+  if(!$("recoveryEmail")?.checkValidity()){
+    setAccountStatus("Ange en giltig e-postadress.",true,"recoveryStatus");
+    $("recoveryEmail")?.focus();
     return;
   }
 
-  const btn=$("forgotPasswordBtn");
+  const btn=$("sendRecoveryBtn");
   if(btn){btn.disabled=true;btn.textContent="SKICKAR…"}
-  setAccountStatus("Skickar återställningslänk…");
+  setAccountStatus("Skickar återställningslänk…",false,"recoveryStatus");
 
   try{
     await authRequest("/recover?redirect_to="+encodeURIComponent(passwordResetRedirectUrl()),{
       method:"POST",
       body:{email}
     });
-    setAccountStatus("Om e-postadressen finns registrerad har en återställningslänk skickats.");
+    setAccountStatus("Återställningslänk skickad. Kontrollera din e-post.",false,"recoveryStatus");
   }catch(e){
     console.warn("Password reset:",e);
-    setAccountStatus(friendlyAuthError(e,"reset"),true);
+    setAccountStatus(friendlyAuthError(e,"reset"),true,"recoveryStatus");
   }finally{
-    if(btn){btn.disabled=false;btn.textContent="GLÖMT LÖSENORD?"}
+    if(btn){btn.disabled=false;btn.textContent="SKICKA ÅTERSTÄLLNINGSLÄNK"}
   }
 }
 
 async function resendVerificationEmail(){
-  const email=($("accountEmail")?.value||"").trim().toLowerCase();
+  const email=(
+    $("signupEmail")?.value ||
+    $("loginEmail")?.value ||
+    $("recoveryEmail")?.value ||
+    ""
+  ).trim().toLowerCase();
+
+  const statusTarget=!$("authSignupPanel")?.classList.contains("hidden")?"signupStatus":"loginStatus";
   if(!email){
-    setAccountStatus("Skriv e-postadressen som du registrerade kontot med.",true);
-    $("accountEmail")?.focus();
+    setAccountStatus("E-post är obligatoriskt.",true,statusTarget);
     return;
   }
   const now=Date.now();
   if(now<verificationResendCooldownUntil){
     const seconds=Math.ceil((verificationResendCooldownUntil-now)/1000);
-    setAccountStatus(`Vänta ${seconds} sekunder innan du skickar ett nytt verifieringsmejl.`);
+    setAccountStatus(`Vänta ${seconds} sekunder innan du skickar ett nytt verifieringsmejl.`,false,statusTarget);
     return;
   }
-  const btn=$("resendVerificationBtn");
-  if(btn){btn.disabled=true;btn.textContent="SKICKAR…"}
-  setAccountStatus("Skickar verifieringsmejl…");
+
+  const buttons=[$("resendVerificationBtn"),$("signupResendVerificationBtn")].filter(Boolean);
+  buttons.forEach(btn=>{btn.disabled=true;btn.textContent="SKICKAR…"});
+  setAccountStatus("Skickar verifieringsmejl…",false,statusTarget);
+
   try{
     await authRequest("/resend?redirect_to="+encodeURIComponent(passwordResetRedirectUrl()),{
       method:"POST",
       body:{type:"signup",email}
     });
     verificationResendCooldownUntil=Date.now()+60000;
-    setAccountStatus("Verifieringsmejlet har skickats igen. Kontrollera även skräppost om det inte syns i inkorgen.");
+    setAccountStatus("Verifieringsmejlet har skickats igen. Kontrollera även skräppost.",false,statusTarget);
   }catch(e){
     console.warn("Verification resend:",e);
     const msg=String(e?.message||e||"").toLowerCase();
     if(msg.includes("rate limit")||msg.includes("too many")){
       verificationResendCooldownUntil=Date.now()+60000;
-      setAccountStatus("Ett verifieringsmejl har nyligen skickats. Vänta en minut och försök igen.");
+      setAccountStatus("Ett verifieringsmejl har nyligen skickats. Vänta en minut och försök igen.",false,statusTarget);
     }else{
-      setAccountStatus("Verifieringsmejlet kunde inte skickas just nu. Försök igen om en stund.",true);
+      setAccountStatus("Verifieringsmejlet kunde inte skickas. Försök igen om en stund.",true,statusTarget);
     }
   }finally{
-    if(btn){
+    buttons.forEach(btn=>{
       btn.textContent="SKICKA VERIFIERINGSMAIL IGEN";
       btn.disabled=Date.now()<verificationResendCooldownUntil;
-      if(btn.disabled){
-        setTimeout(()=>{ if(btn){btn.disabled=false;btn.style.opacity="1"} },Math.max(0,verificationResendCooldownUntil-Date.now()));
-      }
-    }
+      if(btn.disabled)setTimeout(()=>{btn.disabled=false},Math.max(0,verificationResendCooldownUntil-Date.now()));
+    });
   }
 }
 
@@ -3385,6 +3526,10 @@ async function saveNewPassword(){
   const p1=$("newPassword")?.value||"";
   const p2=$("newPasswordRepeat")?.value||"";
 
+  if(!p1||!p2){
+    setPasswordResetStatus("Båda lösenordsfälten är obligatoriska.",true);
+    return;
+  }
   if(p1.length<6){
     setPasswordResetStatus("Lösenordet måste vara minst 6 tecken.",true);
     return;
@@ -3404,20 +3549,28 @@ async function saveNewPassword(){
   if(btn){btn.disabled=true;btn.textContent="SPARAR…"}
 
   try{
-    const user=await authRequest("/user",{
+    await authRequest("/user",{
       method:"PUT",
       accessToken:s.access_token,
       body:{password:p1}
     });
-    setPasswordResetStatus("Lösenordet är ändrat.");
+
+    setPasswordResetStatus("NYTT LÖSENORD REGISTRERAT ✓");
     if($("newPassword"))$("newPassword").value="";
     if($("newPasswordRepeat"))$("newPasswordRepeat").value="";
-    if(user)await applyAccountSession(user,{migrate:true});
+
+    // Recovery session should not silently leave the user signed in.
+    try{await authRequest("/logout",{method:"POST",accessToken:s.access_token})}catch(_){}
+    saveAuthSession(null);
+    digihitsAccountUser=null;
 
     setTimeout(()=>{
-      hidePasswordResetPanel();
-      setAccountStatus("Lösenordet är ändrat. Du är inloggad.");
-    },500);
+      $("passwordResetPanel")?.classList.add("hidden");
+      currentAuthView="login";
+      renderAccountUi();
+      showAuthView("login");
+      setAccountStatus("Nytt lösenord registrerat. Logga in med ditt nya lösenord.",false,"loginStatus");
+    },850);
   }catch(e){
     console.warn("Password update:",e);
     setPasswordResetStatus("Lösenordet kunde inte ändras. Begär en ny återställningslänk och försök igen.",true);
@@ -3430,35 +3583,57 @@ async function isProfileNameTaken(name){
   const wanted=normalizeProfileName(name).toLocaleLowerCase("sv-SE");
   if(!wanted)return false;
   try{
-    // Existing match identities are searchable without exposing auth users.
-    // This catches names already in active/history data; the account metadata
-    // remains the immutable source for the signed-in user's own name.
-    const r=await db.from("online_players").select("display_name").limit(1000);
+    const r=await db.from("digihits_profiles")
+      .select("user_id")
+      .eq("display_name_key",wanted)
+      .limit(1);
     if(r.error)throw r.error;
-    return (r.data||[]).some(x=>normalizeProfileName(x.display_name).toLocaleLowerCase("sv-SE")===wanted);
+    return (r.data||[]).length>0;
   }catch(e){
     console.warn("Player-name uniqueness precheck:",e);
+    // Database trigger remains the definitive uniqueness guard.
     return false;
   }
 }
 
 async function createDigihitsAccount(){
   $("passwordResetPanel")?.classList.add("hidden");
-  const displayName=normalizeProfileName($("accountPlayerName")?.value||"");
-  const email=($("accountEmail")?.value||"").trim().toLowerCase();
-  const password=$("accountPassword")?.value||"";
-  if(!displayName)return setAccountStatus("Välj ett spelarnamn.",true);
-  if(displayName.length<2)return setAccountStatus("Spelarnamnet måste vara minst 2 tecken.",true);
-  if(displayName.length>24)return setAccountStatus("Spelarnamnet får vara max 24 tecken.",true);
-  if(!/^[A-Za-zÅÄÖåäö0-9 _.-]+$/.test(displayName))return setAccountStatus("Spelarnamnet får bara innehålla bokstäver, siffror, mellanslag, punkt, bindestreck och understreck.",true);
-  if(!email)return setAccountStatus("Skriv din e-postadress.",true);
-  if(password.length<6)return setAccountStatus("Lösenordet måste vara minst 6 tecken.",true);
+  const displayName=normalizeProfileName($("signupPlayerName")?.value||"");
+  const email=($("signupEmail")?.value||"").trim().toLowerCase();
+  const password=$("signupPassword")?.value||"";
+
+  if(!displayName){
+    setAccountStatus("Spelarnamn är obligatoriskt.",true,"signupStatus");
+    $("signupPlayerName")?.focus();
+    return;
+  }
+  if(!email){
+    setAccountStatus("E-post är obligatoriskt.",true,"signupStatus");
+    $("signupEmail")?.focus();
+    return;
+  }
+  if(!password){
+    setAccountStatus("Lösenord är obligatoriskt.",true,"signupStatus");
+    $("signupPassword")?.focus();
+    return;
+  }
+  if(displayName.length<2)return setAccountStatus("Spelarnamnet måste vara minst 2 tecken.",true,"signupStatus");
+  if(displayName.length>24)return setAccountStatus("Spelarnamnet får vara max 24 tecken.",true,"signupStatus");
+  if(!/^[A-Za-zÅÄÖåäö0-9 _.-]+$/.test(displayName))
+    return setAccountStatus("Spelarnamnet får bara innehålla bokstäver, siffror, mellanslag, punkt, bindestreck och understreck.",true,"signupStatus");
+  if(!$("signupEmail")?.checkValidity()){
+    setAccountStatus("Ange en giltig e-postadress.",true,"signupStatus");
+    $("signupEmail")?.focus();
+    return;
+  }
+  if(password.length<6)return setAccountStatus("Lösenordet måste vara minst 6 tecken.",true,"signupStatus");
 
   setAccountBusy(true);
-  setAccountStatus("Skapar konto…");
+  setAccountStatus("Skapar konto…",false,"signupStatus");
+
   try{
-    const nameTaken=await isProfileNameTaken(displayName);
-    if(nameTaken)throw new Error("PLAYER_NAME_TAKEN");
+    if(await isProfileNameTaken(displayName))throw new Error("PLAYER_NAME_TAKEN");
+
     const data=await authRequest("/signup?redirect_to="+encodeURIComponent(passwordResetRedirectUrl()),{
       method:"POST",
       body:{
@@ -3472,15 +3647,25 @@ async function createDigihitsAccount(){
       saveAuthSession(data);
       const user=data.user||await fetchCurrentAuthUser();
       if(user)await applyAccountSession(user,{migrate:true});
-      setAccountStatus("");
+      setAccountStatus("",false,"signupStatus");
       startOnlineHomeSync();
     }else{
-      setAccountStatus("Kontot är skapat. Kontrollera din e-post och verifiera kontot innan du loggar in.");
+      showResendVerificationButton(true);
+      setAccountStatus("Kontot är skapat. Verifiera e-postadressen och logga sedan in.",false,"signupStatus");
     }
   }catch(e){
     console.warn("Create account:",e);
-    if(String(e?.message||e)==="PLAYER_NAME_TAKEN")setAccountStatus("Spelarnamnet används redan. Välj ett annat.",true);
-    else setAccountStatus(friendlyAuthError(e,"create"),true);
+    const raw=String(e?.message||e||"").toLowerCase();
+
+    if(raw.includes("player_name_taken") ||
+       (raw.includes("duplicate")&&raw.includes("display_name")) ||
+       raw.includes("digihits_profiles_display_name")){
+      setAccountStatus("Spelarnamnet används redan. Välj ett annat.",true,"signupStatus");
+    }else if(raw.includes("user already registered")||raw.includes("already registered")){
+      setAccountStatus("Det finns redan ett konto med den e-postadressen. Logga in eller välj Glömt lösenord.",true,"signupStatus");
+    }else{
+      setAccountStatus(friendlyAuthError(e,"create"),true,"signupStatus");
+    }
   }finally{
     setAccountBusy(false);
   }
@@ -3488,12 +3673,27 @@ async function createDigihitsAccount(){
 
 async function loginDigihitsAccount(){
   $("passwordResetPanel")?.classList.add("hidden");
-  const email=($("accountEmail")?.value||"").trim().toLowerCase();
-  const password=$("accountPassword")?.value||"";
-  if(!email||!password)return setAccountStatus("Skriv e-post och lösenord.",true);
+  const email=($("loginEmail")?.value||"").trim().toLowerCase();
+  const password=$("loginPassword")?.value||"";
+
+  if(!email){
+    setAccountStatus("E-post är obligatoriskt.",true,"loginStatus");
+    $("loginEmail")?.focus();
+    return;
+  }
+  if(!password){
+    setAccountStatus("Lösenord är obligatoriskt.",true,"loginStatus");
+    $("loginPassword")?.focus();
+    return;
+  }
+  if(!$("loginEmail")?.checkValidity()){
+    setAccountStatus("Ange en giltig e-postadress.",true,"loginStatus");
+    $("loginEmail")?.focus();
+    return;
+  }
 
   setAccountBusy(true);
-  setAccountStatus("Loggar in…");
+  setAccountStatus("Loggar in…",false,"loginStatus");
   try{
     const data=await authRequest("/token?grant_type=password",{
       method:"POST",
@@ -3502,12 +3702,15 @@ async function loginDigihitsAccount(){
     if(!data?.access_token||!data?.user)throw new Error("Inloggningen returnerade ingen session.");
 
     saveAuthSession(data);
+    currentAuthView="choice";
     await applyAccountSession(data.user,{migrate:true});
-    setAccountStatus("");
+    setAccountStatus("",false,"loginStatus");
     startOnlineHomeSync();
   }catch(e){
     console.warn("Login:",e);
-    setAccountStatus(friendlyAuthError(e,"login"),true);
+    const msg=friendlyAuthError(e,"login");
+    setAccountStatus(msg,true,"loginStatus");
+    if(String(e?.message||"").toLowerCase().includes("email not confirmed"))showResendVerificationButton(true);
   }finally{
     setAccountBusy(false);
   }
@@ -3539,13 +3742,16 @@ async function logoutDigihitsAccount(){
   onlineHistoryRenderedHtml="";
   if($("onlineMatches"))$("onlineMatches").innerHTML='<div class="wait" style="padding:18px">Logga in för att se dina matcher.</div>';
   if($("onlineHistory"))$("onlineHistory").innerHTML='<div class="wait" style="padding:18px">Logga in för att se din historik.</div>';
+  currentAuthView="choice";
   renderAccountUi();
+  showAuthView("choice");
 }
 
 function requireDigihitsAccount(){
   if(digihitsAccountUser)return true;
-  alert("Logga in på ditt Digihits-konto först. Då sparas matcherna på ditt konto och fungerar på alla dina enheter.");
-  $("accountEmail")?.focus();
+  showAuthView("login");
+  $("accountCard")?.scrollIntoView({behavior:"smooth",block:"center"});
+  setAccountStatus("Logga in för att fortsätta.",true,"loginStatus");
   return false;
 }
 
@@ -3672,7 +3878,7 @@ async function onlineSpotifyCheck(){
   try{
     if(!spotifyAccessToken&&!spotifyRefreshToken){
       setSpotifyHomeState("bad","");
-      await spotifyLogin();
+      showSpotifyConnectPanel();
       return false;
     }
     await getSpotifyToken();
@@ -6114,7 +6320,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.01.
+// Startsidan är alltid online i V5.02.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -6181,4 +6387,16 @@ window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}
   </div>
 </div>
 
+
+<div id="spotifyConnectModal" class="spotifyConnectOverlay hidden" role="dialog" aria-modal="true" aria-labelledby="spotifyConnectTitle">
+  <div class="spotifyConnectDialog">
+    <div class="authNav authNavSplit">
+      <button type="button" class="authBackBtn" onclick="closeSpotifyConnectPanel()">← TILLBAKA</button>
+      <button type="button" class="authHomeBtn" onclick="closeSpotifyConnectPanel();goDigihitsHome()">STARTSIDAN</button>
+    </div>
+    <div id="spotifyConnectTitle" class="accountResetTitle">Koppla Spotify</div>
+    <div class="mut authViewHelp">Digihits behöver ditt Spotify-konto för att spela låtar.</div>
+    <button type="button" class="spotifyCheckBtn spotifyOk" style="margin-top:14px" onclick="startSpotifyConnection()">KOPPLA SPOTIFY</button>
+  </div>
+</div>
 </body></html>
