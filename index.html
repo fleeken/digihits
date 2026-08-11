@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.84</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.88</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1242,7 +1242,7 @@ html.digihitsBooting body{
   font-size:11px
 }
 
-/* V5.84: tydligare matchstatus i Mina matcher */
+/* V5.88: tydligare matchstatus i Mina matcher */
 .matchSummaryBadge{
   padding:6px 10px;
   font-size:11px;
@@ -1299,7 +1299,7 @@ html.digihitsBooting body{
   #onlineGame .matchCodeInlineFull .copyCodeBtn{font-size:7px;padding:6px 7px}
 }
 
-/* V5.84: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
+/* V5.88: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
 @media(min-width:801px){
   .appBrandRow{
     padding-left:316px;
@@ -1313,7 +1313,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.84 - tydlig klickbarhet för pågående matcher */
+/* V5.88 - tydlig klickbarhet för pågående matcher */
 .onlineMatchCard.ongoingClickable{
   position:relative;
   cursor:pointer;
@@ -1361,7 +1361,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.84 - kompaktare huvudknappar på bredare skärmar */
+/* V5.88 - kompaktare huvudknappar på bredare skärmar */
 @media(min-width:700px){
   #onlineSpotifyBtn{
     width:auto !important;
@@ -1381,7 +1381,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.84 - statusraden är själva öppna-match-uppmaningen */
+/* V5.88 - statusraden är själva öppna-match-uppmaningen */
 .onlineMatchState{
   max-width:100%;
   white-space:normal;
@@ -1401,12 +1401,12 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.84 - namn på spelaren vars tur övriga väntar på */
+/* V5.88 - namn på spelaren vars tur övriga väntar på */
 .onlineMatchState.wait{
   overflow-wrap:anywhere
 }
 
-/* V5.84 - kompaktare redo-knapp pa mobil */
+/* V5.88 - kompaktare redo-knapp pa mobil */
 @media(max-width:520px){
   .btn{
     width:auto !important;
@@ -1427,14 +1427,14 @@ html.digihitsBooting body{
 }
 
 
-/* V5.84 - i mobil visas matchlaget bara i den centrala matchvyn */
+/* V5.88 - i mobil visas matchlaget bara i den centrala matchvyn */
 @media(max-width:520px){
   #onlineGameStatus{
     display:none !important;
   }
 }
 
-/* V5.84 - Pågående matcher: hela kortet färgkodas efter turstatus */
+/* V5.88 - Pågående matcher: hela kortet färgkodas efter turstatus */
 .onlineMatchCard.waiting{
   border-color:#c7972f !important;
   background:#2a210f !important;
@@ -1461,7 +1461,7 @@ html.digihitsBooting body{
   background:#102331 !important
 }
 
-/* V5.84 - Matcher utan motståndare: samma helkortsgrafik, blå */
+/* V5.88 - Matcher utan motståndare: samma helkortsgrafik, blå */
 .onlineMatchCard.waitingOpponent{
   border-color:#3577a8 !important;
   background:#102331 !important;
@@ -1475,7 +1475,7 @@ html.digihitsBooting body{
   background:#0d1e2a !important
 }
 
-/* V5.84 - matchkodsraden far aldrig sticka utanfor sidopanelen */
+/* V5.88 - matchkodsraden far aldrig sticka utanfor sidopanelen */
 #onlineGame .matchCodeInlineFull{
   display:grid !important;
   grid-template-columns:max-content minmax(0,1fr) max-content !important;
@@ -1543,7 +1543,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.84 - knappstorlekar i matchvyn */
+/* V5.88 - knappstorlekar i matchvyn */
 #onlineReadyScreen .btn.ready{
   width:auto !important;
   min-width:220px !important;
@@ -1583,7 +1583,7 @@ html.digihitsBooting body{
   display:none !important;
 }
 
-/* V5.84 - korrekt låsbygel */
+/* V5.88 - korrekt låsbygel */
 #onlineGameBadge.unlocked .matchLockGlyph::after{
   content:"";
   position:absolute;
@@ -1610,7 +1610,7 @@ html.digihitsBooting body{
   transform:none
 }
 
-/* V5.84 - matchvyns huvudknappar */
+/* V5.88 - matchvyns huvudknappar */
 #onlineGame .backToMatchesBtn{
   background:#2b303a !important;
   border-color:#3a414d !important;
@@ -1674,7 +1674,7 @@ html.digihitsBooting body{
 }
 </style>
 <style>
-/* V5.84 - matchvyn enligt godkänd layout */
+/* V5.88 - matchvyn enligt godkänd layout */
 #onlineGame{
   position:relative !important;
 }
@@ -1728,7 +1728,7 @@ html.digihitsBooting body{
 </style>
 
 <style>
-/* V5.84 - brand i eget layoututrymme, aldrig ovanpå annat */
+/* V5.88 - brand i eget layoututrymme, aldrig ovanpå annat */
 #onlineGameBrand{
   display:flex;
   align-items:baseline;
@@ -1776,7 +1776,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - Digihits/version precis ovanför huvudramens vänstra kant */
+/* V5.88 - Digihits/version precis ovanför huvudramens vänstra kant */
 #onlineGame .panel.main{
   position:relative !important;
   margin-top:30px !important;
@@ -1841,7 +1841,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - återställ Digihits-färger */
+/* V5.88 - återställ Digihits-färger */
 #onlineGameBrand .brandDigi{
   color:#59cfff !important;
 }
@@ -1857,7 +1857,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   color:#fff !important;
 }
 
-/* V5.84 - iPhone: chatt/lämna exakt samma bredd som motståndarboxen */
+/* V5.88 - iPhone: chatt/lämna exakt samma bredd som motståndarboxen */
 @media(max-width:520px){
   #onlineGame .side{
     box-sizing:border-box !important;
@@ -1885,7 +1885,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - tydlig väntanimation med noter som rör sig från vänster till höger */
+/* V5.88 - tydlig väntanimation med noter som rör sig från vänster till höger */
 .globalWaitOverlay{
   z-index:12000 !important;
 }
@@ -2002,7 +2002,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - mobil: chatt och lämna match har exakt samma bredd */
+/* V5.88 - mobil: chatt och lämna match har exakt samma bredd */
 @media(max-width:520px){
   #onlineGame .chatBtnWrap,
   #onlineGame .leaveMatchBtn{
@@ -2125,7 +2125,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - mobil: VISA CHATT och LÄMNA MATCHEN exakt samma bredd */
+/* V5.88 - mobil: VISA CHATT och LÄMNA MATCHEN exakt samma bredd */
 @media(max-width:600px){
   #onlineGame .chatBtnWrap,
   #onlineGame .chatBtnWrap .chatBtn,
@@ -2226,7 +2226,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - startsida/inloggning: LOGGA IN och SKAPA KONTO lika stora */
+/* V5.88 - startsida/inloggning: LOGGA IN och SKAPA KONTO lika stora */
 .authChoiceActions{
   width:100% !important;
   display:grid !important;
@@ -2276,7 +2276,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - inline väntindikator i själva matchen */
+/* V5.88 - inline väntindikator i själva matchen */
 #onlineGameStatus.busy{
   display:block !important;
   padding:8px 10px !important;
@@ -2359,7 +2359,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84: väntstatus måste synas även på mobil */
+/* V5.88: väntstatus måste synas även på mobil */
 @media(max-width:520px){
   #onlineGameStatus.busy{
     display:block !important;
@@ -2369,7 +2369,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - endast begärda UI-korrigeringar */
+/* V5.88 - endast begärda UI-korrigeringar */
 
 /* Om äldre markup för den blå Tillbaka-kontrollen finns kvar: dölj den. */
 #onlineGame .onlineBack,
@@ -2404,7 +2404,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - endast authknappar på mobil */
+/* V5.88 - endast authknappar på mobil */
 @media(max-width:520px){
   /* Behåll befintlig ordning/layout, men centrera auth-kontrollerna. */
   #authChoice,
@@ -2453,7 +2453,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.84 - endast riktiga auth-formulärknappar på mobil */
+/* V5.88 - endast riktiga auth-formulärknappar på mobil */
 @media(max-width:520px){
   #authLoginPanel #accountLoginBtn,
   #authSignupPanel #accountCreateBtn{
@@ -2493,8 +2493,43 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   }
 }
 </style>
+
+<style>
+/* V5.88 - spelknappar: rimlig tryckyta och proportioner */
+#onlineGame .btn.continue,
+#onlineGame .btn.lock,
+#onlineGame #onlineContinueBtn,
+#onlineGame #onlineLockBtn{
+  min-height:58px !important;
+  padding:14px 22px !important;
+  font-size:15px !important;
+  line-height:1.1 !important;
+  font-weight:950 !important;
+  border-radius:14px !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+
+@media(max-width:600px){
+  #onlineGame .btn.continue,
+  #onlineGame .btn.lock,
+  #onlineGame #onlineContinueBtn,
+  #onlineGame #onlineLockBtn{
+    width:min(100%,340px) !important;
+    min-width:0 !important;
+    min-height:60px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    padding:15px 20px !important;
+    font-size:16px !important;
+  }
+}
+</style>
 </head><body>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.84</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.88</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2731,7 +2766,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V5.84</span>
+        <span class="onlineGameBrandVersion">V5.88</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -3708,7 +3743,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.84";
+    if(badge)badge.textContent="Återansluten · V5.88";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -3716,7 +3751,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.84 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.88 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -3727,7 +3762,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.84"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.88"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -3946,7 +3981,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.84":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.88":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -4699,7 +4734,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.84
+// SPELA ONLINE – V5.88
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -7129,15 +7164,54 @@ function recognizabilityScore(card){
 
 function dedupeRecognizableVersions(cards){
   const best=new Map();
-  for(const card of cards||[]){
-    if(!card?.id)continue;
+
+  for(const raw of cards||[]){
+    if(!raw?.id)continue;
+
+    const card=applyCachedOriginalSongYear(raw);
     const key=`${canonicalSongTitle(card.title)}::${String(card.artist||"").toLowerCase().trim()}`;
     const prev=best.get(key);
-    if(!prev || recognizabilityScore(card)>recognizabilityScore(prev)){
+
+    if(!prev){
+      best.set(key,card);
+      continue;
+    }
+
+    const cy=Number(card.year||9999);
+    const py=Number(prev.year||9999);
+
+    // For the same song + artist, an earlier release year is generally the
+    // safer original-release candidate than a later remaster/compilation.
+    if(cy<py){
+      best.set(key,card);
+      continue;
+    }
+
+    if(cy===py && recognizabilityScore(card)>recognizabilityScore(prev)){
       best.set(key,card);
     }
   }
+
   return [...best.values()];
+}
+
+
+function albumNameLooksLikeReissueOrCompilation(name){
+  const s=String(name||"").toLowerCase();
+  if(!s)return false;
+  return /greatest hits|best of|the best|essentials|anthology|collection|complete|singles|hits\b|remaster|remastered|deluxe|anniversary|expanded|special edition|super deluxe|legacy edition|reissue|re-release|compilation|gold\b|platinum\b/.test(s);
+}
+
+function cardYearLooksUntrusted(card){
+  if(!card)return true;
+  if(card.year_verified===true)return false;
+  if(albumNameLooksLikeReissueOrCompilation(card.album_name))return true;
+
+  const release=String(card.spotify_release_date||"");
+  const albumYear=Number(release.slice(0,4));
+  if(!Number.isFinite(albumYear))return true;
+
+  return false;
 }
 
 function spotifyTrackToCard(track){
@@ -7165,7 +7239,10 @@ function spotifyTrackToCard(track){
     year,
     duration_ms:Number(track.duration_ms||0),
     explicit:!!track.explicit,
-    popularity:Number(track.popularity||0)
+    popularity:Number(track.popularity||0),
+    album_name:String(track.album?.name||""),
+    spotify_release_date:String(track.album?.release_date||""),
+    year_verified:!albumNameLooksLikeReissueOrCompilation(track.album?.name||"")
   };
 }
 
@@ -7174,6 +7251,183 @@ const DIGIHITS_RECENT_TRACK_MAX=500;
 let digihitsRecentTracks=[];
 let recentTrackSyncBusy=false;
 let recentTrackLastServerSyncAt=0;
+
+const ORIGINAL_YEAR_CACHE_KEY="digihits_original_year_v1";
+
+function loadOriginalYearCache(){
+  try{
+    const x=JSON.parse(localStorage.getItem(ORIGINAL_YEAR_CACHE_KEY)||"{}");
+    return x&&typeof x==="object"?x:{};
+  }catch(_){return {}}
+}
+
+function saveOriginalYearCache(cache){
+  try{localStorage.setItem(ORIGINAL_YEAR_CACHE_KEY,JSON.stringify(cache||{}))}catch(_){}
+}
+
+function originalYearKey(card){
+  const title=canonicalSongTitle(card?.title||"");
+  const artist=String(card?.artists?.[0]||card?.artist||"")
+    .toLowerCase()
+    .replace(/\s+/g," ")
+    .trim();
+  return `${title}::${artist}`;
+}
+
+function samePrimaryArtist(track,card){
+  const wanted=String(card?.artists?.[0]||card?.artist||"")
+    .toLowerCase()
+    .replace(/\s+/g," ")
+    .trim();
+  const got=String(track?.artists?.[0]?.name||"")
+    .toLowerCase()
+    .replace(/\s+/g," ")
+    .trim();
+  return !!wanted && !!got && (wanted===got || wanted.includes(got) || got.includes(wanted));
+}
+
+function spotifyTrackReleaseYear(track){
+  const y=Number(String(track?.album?.release_date||"").slice(0,4));
+  return Number.isFinite(y)&&y>=1900&&y<=new Date().getFullYear()+1?y:null;
+}
+
+function cachedOriginalSongYear(card){
+  try{
+    const key=originalYearKey(card);
+    const fixed={"good vibrations::the beach boys":1966};
+    if(Number.isFinite(Number(fixed[key])))return Number(fixed[key]);
+    const cached=Number(loadOriginalYearCache()[key]);
+    return Number.isFinite(cached)?cached:null;
+  }catch(_){return null}
+}
+
+function applyCachedOriginalSongYear(card){
+  if(!card)return card;
+  const y=cachedOriginalSongYear(card);
+  return Number.isFinite(y)?{...card,year:y,year_verified:true}:card;
+}
+
+let originalYearWarmBusy=false;
+let originalYearWarmQueue=[];
+let originalYearWarmTimer=null;
+
+function queueOriginalYearWarmup(cards){
+  try{
+    const seen=new Set(originalYearWarmQueue.map(c=>originalYearKey(c)));
+    const ordered=[...(cards||[])].sort((a,b)=>
+      Number(cardYearLooksUntrusted(b))-Number(cardYearLooksUntrusted(a))
+    );
+    for(const card of ordered){
+      if(!card?.id)continue;
+      const key=originalYearKey(card);
+      if(!key||seen.has(key)||Number.isFinite(cachedOriginalSongYear(card)))continue;
+      seen.add(key);
+      originalYearWarmQueue.push(card);
+    }
+    if(!originalYearWarmTimer){
+      originalYearWarmTimer=setTimeout(()=>{
+        originalYearWarmTimer=null;
+        warmOriginalYearsInBackground().catch(()=>{});
+      },350);
+    }
+  }catch(_){}
+}
+
+async function warmOriginalYearsInBackground(){
+  if(originalYearWarmBusy)return;
+  originalYearWarmBusy=true;
+  try{
+    let processed=0;
+    while(originalYearWarmQueue.length&&processed<6){
+      if(actionBusy)break;
+      const card=originalYearWarmQueue.shift();
+      try{await resolveOriginalSongYear(card)}catch(e){console.warn("Original-year background lookup skipped:",e)}
+      processed++;
+      await sleep(120);
+    }
+  }finally{
+    originalYearWarmBusy=false;
+    if(originalYearWarmQueue.length&&!originalYearWarmTimer){
+      originalYearWarmTimer=setTimeout(()=>{
+        originalYearWarmTimer=null;
+        warmOriginalYearsInBackground().catch(()=>{});
+      },1200);
+    }
+  }
+}
+
+async function resolveOriginalSongYear(card){
+  if(!card?.title||!(card?.artists?.length||card?.artist))return card;
+
+  const key=originalYearKey(card);
+  const cache=loadOriginalYearCache();
+
+  // Explicit correction for a notorious Spotify reissue case.
+  // "Good Vibrations" was first released as a single in 1966.
+  const fixed={
+    "good vibrations::the beach boys":1966
+  };
+
+  if(Number.isFinite(Number(fixed[key]))){
+    const corrected={...card,year:Number(fixed[key])};
+    cache[key]=Number(fixed[key]);
+    saveOriginalYearCache(cache);
+    return {...corrected,year_verified:true};
+  }
+
+  if(Number.isFinite(Number(cache[key]))){
+    return {...card,year:Number(cache[key]),year_verified:true};
+  }
+
+  const originalYear=Number(card.year);
+  const title=String(card.title||"").replace(/"/g,"").trim();
+  const artist=String(card?.artists?.[0]||card?.artist||"").replace(/"/g,"").trim();
+  if(!title||!artist)return card;
+
+  const years=[];
+
+  try{
+    // Search several Spotify versions of exactly the same song/artist.
+    // Reissues/remasters often have a later album.release_date; the earliest
+    // matching version is the best Spotify-side proxy for original release.
+    for(const offset of [0,10,20]){
+      let data=null;
+      try{
+        data=await spotifySearchTracksSweden(`track:"${title}" artist:"${artist}"`,offset);
+      }catch(_){
+        break;
+      }
+
+      const items=data?.tracks?.items||[];
+      for(const track of items){
+        if(!track?.name||!samePrimaryArtist(track,card))continue;
+        if(canonicalSongTitle(track.name)!==canonicalSongTitle(card.title))continue;
+        const y=spotifyTrackReleaseYear(track);
+        if(y)years.push(y);
+      }
+
+      if(items.length<10)break;
+    }
+  }catch(e){
+    console.warn("Original-year lookup skipped:",e);
+  }
+
+  // Never make the year later than the Spotify card we started with.
+  // If Spotify search finds no older exact version, keep the current year.
+  const valid=[...new Set(years)]
+    .filter(y=>Number.isFinite(y)&&y>=1900&&(!Number.isFinite(originalYear)||y<=originalYear))
+    .sort((x,y)=>x-y);
+
+  const resolved=valid.length?valid[0]:originalYear;
+
+  if(Number.isFinite(resolved)){
+    cache[key]=resolved;
+    saveOriginalYearCache(cache);
+    return {...card,year:resolved,year_verified:true};
+  }
+
+  return card;
+}
 
 function recentTrackStorageKey(userId=digihitsAccountUser?.id){
   return "digihits_recent_tracks_v1:"+String(userId||"");
@@ -7350,7 +7604,7 @@ const SWEDEN_POOL_CACHE_MAX=1000;
 function loadSwedenMusicPool(){
   try{
     const x=JSON.parse(localStorage.getItem(SWEDEN_POOL_CACHE_KEY)||"[]");
-    return Array.isArray(x)?x:[];
+    return Array.isArray(x)?x.map(applyCachedOriginalSongYear):[];
   }catch(_){return []}
 }
 function saveSwedenMusicPool(cards){
@@ -7367,7 +7621,7 @@ function saveSwedenMusicPool(cards){
   }catch(_){}
 }
 function mergeSwedenMusicPool(cards){
-  const current=loadSwedenMusicPool().filter(isVeryRecognizableHit);
+  const current=loadSwedenMusicPool().map(applyCachedOriginalSongYear).filter(isVeryRecognizableHit);
   const merged=dedupeRecognizableVersions([
     ...(cards||[]).filter(isVeryRecognizableHit),
     ...current
@@ -7548,7 +7802,9 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
     }
   }
 
-  return sh(picked.slice(0,wanted));
+  const result=sh(picked.slice(0,wanted));
+  queueOriginalYearWarmup(result);
+  return result;
 }
 
 
@@ -7628,6 +7884,11 @@ async function drawOnlineSpotifySong(){
   if(!deck.length)deck=sh(await fetchSpotifyTrackBatch(onlineKnownTrackIds(),12));
   if(!deck.length)throw new Error("Spotify kunde inte hämta en ny låt just nu. Kontrollera Spotify och försök igen.");
 
+  // Never let an obvious Greatest Hits/remaster/reissue year become game truth
+  // when a verified/trustworthy card is available.
+  const trustedDeck=deck.filter(card=>!cardYearLooksUntrusted(card));
+  if(trustedDeck.length)deck=trustedDeck;
+
   // 24-timmarsregeln är bara en preferens. Spelet går alltid först.
   try{
     const recentIds=new Set(
@@ -7638,9 +7899,15 @@ async function drawOnlineSpotifySong(){
   }catch(_){}
 
   const picked=chooseVariedYearSong(deck);
-  const song=picked.song;
+  let song=picked.song;
   deck=picked.deck;
   if(!song)throw new Error("Ingen ny låt kunde väljas.");
+
+  // Spotify album.release_date can be a remaster/reissue year.
+  // Resolve original release before storing/revealing the card.
+  song=applyCachedOriginalSongYear(song);
+
+  queueOriginalYearWarmup(deck);
 
   const used=[...new Set([...(onlineMatch.used_track_ids||[]).map(String),String(song.id)])];
   return {song,deck,used};
@@ -7725,7 +7992,9 @@ async function createOnlineMatch(){
     if(deck.length<4){
       throw new Error("Spotify kunde inte hämta tillräckligt många låtar. Försök igen.");
     }
-    const firstCard=deck.pop();
+    let firstCard=deck.pop();
+    firstCard=applyCachedOriginalSongYear(firstCard);
+    queueOriginalYearWarmup(deck);
 
     // Keep the very first playable song from immediately matching the
     // starting timeline card's year when another year is available.
@@ -7847,7 +8116,9 @@ async function joinOnlineMatch(){
       deck=await fetchSpotifyTrackBatch(onlineKnownTrackIds(),18);
     }
     if(!deck.length)throw new Error("Spotify kunde inte hämta en startlåt just nu.");
-    const firstCard=deck.pop();
+    let firstCard=deck.pop();
+    firstCard=applyCachedOriginalSongYear(firstCard);
+    queueOriginalYearWarmup(deck);
     const usedTrackIds=[...new Set([...(m.used_track_ids||[]).map(String),String(firstCard.id)])];
 
     const pr=await db.from("online_players").insert({
@@ -9514,6 +9785,8 @@ function showOnlinePlace(){
 }
 
 function onlineCardMarkup(card,risk=false){
+  c=applyCachedOriginalSongYear(c);
+
   return `<div class="onlinePlaced ${risk?"risk":""}">
     <div class="year">${card.year}</div>
     <div class="title"><strong>${card.title}</strong><br>${card.artist||""}</div>
@@ -10055,7 +10328,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.84.
+// Startsidan är alltid online i V5.88.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
