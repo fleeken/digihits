@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.07</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.09</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.07 – kompaktare spelvy */
+/* V5.09 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.07 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.09 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.07 – equal years are a continuous timeline block */
+/* V5.09 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.07: compact, consistent home UX */
+/* V5.09: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -702,8 +702,26 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   gap:5px
 }
 .historyCodeRow .copyCodeBtn{margin:0}
+
+.accountIdentity{min-width:0}
+.accountTopActions.compact{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.accountMiniBtn{
+  appearance:none;-webkit-appearance:none;border:1px solid #46505e;
+  background:#202631;color:#e7edf5;border-radius:9px;
+  padding:7px 9px;font:inherit;font-size:9px;font-weight:950;
+  letter-spacing:.04em;cursor:pointer;touch-action:manipulation
+}
+.accountMiniBtn:hover{filter:brightness(1.08)}
+.accountMiniBtn.danger{border-color:#7f3943;background:#35171c;color:#ffadb6}
+.profileNamePlain{margin-top:12px;padding-top:10px;border-top:1px solid #323946}
+.profileNameTextPlain{display:block;margin-top:3px;color:#fff;font-size:18px;line-height:1.2}
+@media(max-width:600px){
+  .accountSignedInRow{align-items:flex-start}
+  .accountTopActions.compact{justify-content:flex-start;margin-top:9px}
+  .accountMiniBtn{font-size:9px;padding:7px 8px}
+}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.07</small></button><div class="badge" id="online">Redo · V5.07</div></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.09</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -768,22 +786,33 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
       <div id="accountLoggedIn" class="hidden">
         <div class="accountSignedInRow">
-          <div>
+          <div class="accountIdentity">
             <div class="accountOk">● INLOGGAD</div>
             <strong id="accountEmailShown"></strong>
           </div>
-          <div class="accountTopActions">
-            <button type="button" class="btn dark accountLogoutBtn" onclick="logoutDigihitsAccount()">LOGGA UT</button>
-            <button type="button" class="btn deleteAccountBtn" onclick="askDeleteAccount()">RADERA KONTO</button>
+          <div class="accountTopActions compact">
+            <button type="button" class="accountMiniBtn" onclick="showChangePasswordPanel()">BYT LÖSENORD</button>
+            <button type="button" class="accountMiniBtn" onclick="logoutDigihitsAccount()">LOGGA UT</button>
+            <button type="button" class="accountMiniBtn danger" onclick="askDeleteAccount()">RADERA KONTO</button>
           </div>
         </div>
-        <div class="profileNameBox">
+        <div class="profileNamePlain">
           <div class="profileNameLabel">Spelarnamn</div>
-          <div id="profileNameView" class="profileNameView profileNameLocked">
-            <strong id="profileNameText">Inte angivet</strong>
-            <span class="profileLockedMark" title="Spelarnamnet är låst">🔒</span>
-          </div>
+          <strong id="profileNameText" class="profileNameTextPlain">Inte angivet</strong>
         </div>
+      </div>
+
+      <div id="changePasswordPanel" class="hidden">
+        <div class="authNav authNavSplit">
+          <button type="button" class="authBackBtn" onclick="hideChangePasswordPanel()">← TILLBAKA</button>
+          <button type="button" class="authHomeBtn" onclick="hideChangePasswordPanel();goDigihitsHome()">STARTSIDAN</button>
+        </div>
+        <div class="accountResetTitle">Byt lösenord</div>
+        <div class="mut authViewHelp">Skriv ett nytt lösenord för ditt Digihits-konto.</div>
+        <input id="changePasswordNew" class="input" type="password" minlength="6" maxlength="72" placeholder="Nytt lösenord *" autocomplete="new-password" required style="margin-top:10px">
+        <input id="changePasswordRepeat" class="input" type="password" minlength="6" maxlength="72" placeholder="Upprepa nytt lösenord *" autocomplete="new-password" required style="margin-top:8px">
+        <button type="button" id="changePasswordSaveBtn" class="btn green full" style="margin-top:10px" onclick="saveChangedPassword()">SPARA NYTT LÖSENORD</button>
+        <div id="changePasswordStatus" class="mut accountStatus"></div>
       </div>
 
       <div id="passwordResetPanel" class="hidden">
@@ -852,7 +881,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.07</strong>
+    Version <strong style="color:#fff">V5.09</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1755,7 +1784,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.07";
+    if(badge)badge.textContent="Återansluten · V5.09";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1763,7 +1792,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.07 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.09 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1774,8 +1803,8 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V5.07"});
-window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.09"});
+window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
   const el=document.getElementById("createStatus");
@@ -1893,7 +1922,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V5.07":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.09":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2646,7 +2675,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.07
+// SPELA ONLINE – V5.09
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3335,6 +3364,7 @@ async function fetchCurrentAuthUser(){
 
 function renderAccountUi(){
   if(!$("passwordResetPanel")?.classList.contains("hidden"))return;
+  if(!$("changePasswordPanel")?.classList.contains("hidden"))return;
   const loggedIn=!!digihitsAccountUser;
   $("accountLoggedOut")?.classList.toggle("hidden",loggedIn);
   $("accountLoggedIn")?.classList.toggle("hidden",!loggedIn);
@@ -3546,6 +3576,61 @@ async function resendVerificationEmail(){
       btn.disabled=Date.now()<verificationResendCooldownUntil;
       if(btn.disabled)setTimeout(()=>{btn.disabled=false},Math.max(0,verificationResendCooldownUntil-Date.now()));
     });
+  }
+}
+
+function showChangePasswordPanel(){
+  if(!digihitsAccountUser)return;
+  $("accountLoggedIn")?.classList.add("hidden");
+  $("changePasswordPanel")?.classList.remove("hidden");
+  if($("changePasswordStatus"))$("changePasswordStatus").textContent="";
+  requestAnimationFrame(()=>$("changePasswordNew")?.focus());
+}
+
+function hideChangePasswordPanel(){
+  $("changePasswordPanel")?.classList.add("hidden");
+  if($("changePasswordNew"))$("changePasswordNew").value="";
+  if($("changePasswordRepeat"))$("changePasswordRepeat").value="";
+  if($("changePasswordStatus"))$("changePasswordStatus").textContent="";
+  renderAccountUi();
+}
+
+async function saveChangedPassword(){
+  const p1=$("changePasswordNew")?.value||"";
+  const p2=$("changePasswordRepeat")?.value||"";
+  const status=$("changePasswordStatus");
+
+  const setStatus=(t,err=false)=>{
+    if(status){
+      status.textContent=t||"";
+      status.style.color=err?"#ff8c99":"";
+    }
+  };
+
+  if(!p1||!p2)return setStatus("Båda lösenordsfälten är obligatoriska.",true);
+  if(p1.length<6)return setStatus("Lösenordet måste vara minst 6 tecken.",true);
+  if(p1!==p2)return setStatus("Lösenorden är inte likadana.",true);
+
+  const s=await refreshAuthSessionIfNeeded();
+  if(!s?.access_token)return setStatus("Din inloggning har gått ut. Logga in igen.",true);
+
+  const btn=$("changePasswordSaveBtn");
+  if(btn){btn.disabled=true;btn.textContent="SPARAR…"}
+  try{
+    await authRequest("/user",{
+      method:"PUT",
+      accessToken:s.access_token,
+      body:{password:p1}
+    });
+    setStatus("LÖSENORDET ÄR ÄNDRAT ✓");
+    if($("changePasswordNew"))$("changePasswordNew").value="";
+    if($("changePasswordRepeat"))$("changePasswordRepeat").value="";
+    setTimeout(()=>hideChangePasswordPanel(),800);
+  }catch(e){
+    console.warn("Change password:",e);
+    setStatus("Lösenordet kunde inte ändras. Försök igen.",true);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="SPARA NYTT LÖSENORD"}
   }
 }
 
@@ -6490,7 +6575,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.07.
+// Startsidan är alltid online i V5.09.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
