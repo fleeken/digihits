@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.22</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.23</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.22 – kompaktare spelvy */
+/* V5.23 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.22 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.23 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.22 – equal years are a continuous timeline block */
+/* V5.23 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.22: compact, consistent home UX */
+/* V5.23: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -1029,8 +1029,33 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 @media (prefers-reduced-motion:reduce){
   .musicLoaderTrack::after,.musicNote{animation-duration:3.5s}
 }
+
+.matchCodeInlineFull{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap
+}
+.matchCodeLabel{
+  color:#aeb8c6;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.04em
+}
+.matchCodeInlineFull .code{margin:0;line-height:1}
+.matchCodeInlineFull .copyCodeBtn{margin:0}
+.matchLockIcon{
+  font-family:"Segoe UI Symbol","Noto Sans Symbols 2",sans-serif;
+  font-size:15px;
+  line-height:1
+}
+@media(max-width:520px){
+  .matchCodeInlineFull{gap:7px}
+  .matchCodeLabel{font-size:10px}
+  .matchCodeInlineFull .code{font-size:22px}
+}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.22</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.23</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1217,7 +1242,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.22</strong>
+    Version <strong style="color:#fff">V5.23</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1229,8 +1254,8 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     <aside class="panel side">
       <button type="button" id="onlineBackToMatchesBtn" class="btn dark full" onclick="closeOnlineGame()">← TILL MINA MATCHER</button>
       <div class="matchCodeBox" style="margin-top:16px">
-        <small class="mut">MATCHKOD</small>
-        <div class="matchCodeCopyRow">
+        <div class="matchCodeInlineFull">
+          <span class="matchCodeLabel">MATCHKOD</span>
           <span id="onlineGameCode" class="code">–</span>
           <button type="button" class="copyCodeBtn" onclick="copyMatchCode(document.getElementById('onlineGameCode')?.textContent,this)">KOPIERA KOD</button>
         </div>
@@ -2120,7 +2145,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.22";
+    if(badge)badge.textContent="Återansluten · V5.23";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2128,7 +2153,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.22 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.23 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2139,7 +2164,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.22"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.23"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2258,7 +2283,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.22":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.23":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3011,7 +3036,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.22
+// SPELA ONLINE – V5.23
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -6270,7 +6295,7 @@ function updateOnlineGameSubtitle(){
   const myTurn=onlineIsMyTurn();
 
   if(!active){
-    el.textContent="Väntar på att matchen ska starta.";
+    el.textContent="";
     return;
   }
 
@@ -6326,6 +6351,7 @@ function updateOnlineBackButton(){
 }
 
 function renderOnlineGame(){
+  if($("onlineGameBadge"))$("onlineGameBadge").classList.remove("hidden");
   updateOnlineSwapButton();
   updateOnlineGameSubtitle();
   updateOnlineBackButton();
@@ -6354,7 +6380,7 @@ function renderOnlineGame(){
     onlineHideScreens();
     $("onlineGameBadge").textContent="Väntar";
     $("onlineWaitingScreen").classList.remove("hidden");
-    $("onlineWaitingScreen").innerHTML=`<div class="waitingCodeText">Dela matchkoden med din vän</div><div class="matchCodeCopyRow centered"><strong class="waitingCode">${onlineMatch.code}</strong><button type="button" class="copyCodeBtn" onclick="copyMatchCode('${onlineMatch.code}',this)">KOPIERA KOD</button></div>`;
+    $("onlineWaitingScreen").innerHTML=`<div class="matchCodeCopyRow centered"><strong class="waitingCode">${onlineMatch.code}</strong><button type="button" class="copyCodeBtn" onclick="copyMatchCode('${onlineMatch.code}',this)">KOPIERA KOD</button></div>`;
     return;
   }
 
@@ -7153,7 +7179,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.22.
+// Startsidan är alltid online i V5.23.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
