@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.27</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.28</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.27 – kompaktare spelvy */
+/* V5.28 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.27 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.28 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.27 – equal years are a continuous timeline block */
+/* V5.28 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.27: compact, consistent home UX */
+/* V5.28: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -1123,36 +1123,160 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   .matchTopLock{font-size:9px;padding:7px 9px}
 }
 
-/* V5.27: matchkod ska alltid vara en enda rad, oavsett skärmstorlek */
-.matchCodeBox .matchCodeInlineFull{
-  display:flex !important;
-  flex-direction:row !important;
-  flex-wrap:nowrap !important;
+
+/* V5.28 - matchkod ska alltid rymmas pa en rad */
+#onlineGame .side{
+  min-width:0;
+  overflow:hidden
+}
+#onlineGame .matchCodeBox{
+  min-width:0;
+  max-width:100%;
+  overflow:hidden
+}
+#onlineGame .matchCodeInlineFull{
+  display:grid !important;
+  grid-template-columns:auto minmax(0,1fr) auto !important;
   align-items:center !important;
-  justify-content:flex-start !important;
-  gap:8px !important;
-  width:100%;
+  gap:6px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
   white-space:nowrap !important
 }
-.matchCodeBox .matchCodeInlineFull .matchCodeLabel,
-.matchCodeBox .matchCodeInlineFull .code,
-.matchCodeBox .matchCodeInlineFull .copyCodeBtn{
-  display:inline-flex !important;
+#onlineGame .matchCodeInlineFull .matchCodeLabel{
+  display:block !important;
   width:auto !important;
   margin:0 !important;
+  min-width:0 !important;
+  font-size:10px !important
+}
+#onlineGame .matchCodeInlineFull .code{
+  display:block !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+  font-size:clamp(18px,2vw,27px) !important;
+  letter-spacing:.08em !important;
+  line-height:1 !important;
+  overflow:hidden !important
+}
+#onlineGame .matchCodeInlineFull .copyCodeBtn{
+  display:inline-flex !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+  padding:7px 8px !important;
+  font-size:8px !important;
   flex:0 0 auto !important
 }
-.matchCodeBox .matchCodeInlineFull .code{
-  align-items:center
+@media(max-width:900px){
+  #onlineGame .matchCodeInlineFull{
+    gap:5px !important
+  }
+  #onlineGame .matchCodeInlineFull .matchCodeLabel{
+    font-size:9px !important
+  }
+  #onlineGame .matchCodeInlineFull .code{
+    font-size:clamp(17px,4.6vw,23px) !important;
+    letter-spacing:.06em !important
+  }
+  #onlineGame .matchCodeInlineFull .copyCodeBtn{
+    font-size:7px !important;
+    padding:6px 7px !important
+  }
+}
+@media(max-width:390px){
+  #onlineGame .matchCodeInlineFull{
+    gap:4px !important
+  }
+  #onlineGame .matchCodeInlineFull .matchCodeLabel{
+    font-size:8px !important
+  }
+  #onlineGame .matchCodeInlineFull .code{
+    font-size:16px !important;
+    letter-spacing:.04em !important
+  }
+  #onlineGame .matchCodeInlineFull .copyCodeBtn{
+    font-size:6.5px !important;
+    padding:6px !important
+  }
+}
+
+/* V5.28 - endast lasstatus uppe till hoger */
+#onlineGameBadge.matchTopLock{
+  display:inline-flex !important;
+  align-items:center;
+  gap:7px;
+  white-space:nowrap;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.03em;
+  padding:8px 11px
+}
+#onlineGameBadge.matchTopLock.unlocked{
+  color:#7dffab !important;
+  border-color:#2e9b57 !important;
+  background:#10261a !important
+}
+#onlineGameBadge.matchTopLock.locked{
+  color:#ff9aa5 !important;
+  border-color:#a8414f !important;
+  background:#35171c !important
+}
+#onlineGameBadge .matchLockGlyph{
+  width:18px;
+  height:18px;
+  display:inline-flex;
+  position:relative;
+  flex:0 0 18px
+}
+#onlineGameBadge .matchLockGlyph::before{
+  content:"";
+  position:absolute;
+  left:4px;
+  bottom:2px;
+  width:10px;
+  height:8px;
+  border:2px solid currentColor;
+  border-radius:2px;
+  box-sizing:border-box
+}
+/* Oppet las: bygeln ar tydligt dragen at sidan */
+#onlineGameBadge.unlocked .matchLockGlyph::after{
+  content:"";
+  position:absolute;
+  left:9px;
+  top:-1px;
+  width:8px;
+  height:9px;
+  border:2px solid currentColor;
+  border-bottom:0;
+  border-radius:8px 8px 0 0;
+  transform:rotate(28deg);
+  transform-origin:bottom left
+}
+/* Last: bygeln sitter rakt over laset */
+#onlineGameBadge.locked .matchLockGlyph::after{
+  content:"";
+  position:absolute;
+  left:5px;
+  top:0;
+  width:8px;
+  height:8px;
+  border:2px solid currentColor;
+  border-bottom:0;
+  border-radius:8px 8px 0 0
 }
 @media(max-width:520px){
-  .matchCodeBox .matchCodeInlineFull{gap:6px !important}
-  .matchCodeBox .matchCodeInlineFull .matchCodeLabel{font-size:9px}
-  .matchCodeBox .matchCodeInlineFull .code{font-size:19px;letter-spacing:.08em}
-  .matchCodeBox .matchCodeInlineFull .copyCodeBtn{font-size:8px;padding:7px 8px}
+  #onlineGameBadge.matchTopLock{
+    font-size:8px;
+    padding:7px 8px;
+    gap:5px
+  }
 }
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.27</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.28</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1339,7 +1463,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.27</strong>
+    Version <strong style="color:#fff">V5.28</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1396,8 +1520,8 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
           <div id="onlineGameSub" class="mut"></div>
         </div>
         <div id="onlineGameBadge" class="badge matchTopLock unlocked">
-          <span id="onlineMatchLockIcon" class="matchLockIcon matchLockGlyph" aria-hidden="true">⌑</span>
-          <span id="onlineMatchLockText">Match ej låst</span>
+          <span id="onlineMatchLockIcon" class="matchLockIcon matchLockGlyph" aria-hidden="true"></span>
+          <span id="onlineMatchLockText">OLÅST MATCH</span>
         </div>
       </div>
       <div id="onlineGameStatus" class="status"></div>
@@ -2242,7 +2366,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.27";
+    if(badge)badge.textContent="Återansluten · V5.28";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2250,7 +2374,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.27 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.28 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2261,7 +2385,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.27"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.28"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2380,7 +2504,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.27":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.28":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3133,7 +3257,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.27
+// SPELA ONLINE – V5.28
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -6568,7 +6692,7 @@ function updateOnlineMatchLockStatus(){
   status.classList.toggle("locked",locked);
   status.classList.toggle("unlocked",!locked);
   icon.textContent=locked?"🔒":"🔓";
-  text.textContent=locked?"Match är låst":"Match ej låst";
+  text.textContent=locked?"Match är låst":"OLÅST MATCH";
 }
 
 function updateOnlineBackButton(){
@@ -6613,7 +6737,7 @@ function renderOnlineGame(){
 
   if(onlineMatch.status==="waiting"){
     onlineHideScreens();
-    $("onlineGameBadge").textContent="Väntar";
+    
     $("onlineWaitingScreen").classList.remove("hidden");
     $("onlineWaitingScreen").innerHTML=`<div class="matchCodeCopyRow centered"><strong class="waitingCode">${onlineMatch.code}</strong><button type="button" class="copyCodeBtn" onclick="copyMatchCode('${onlineMatch.code}',this)">KOPIERA KOD</button></div>`;
     return;
@@ -6621,7 +6745,7 @@ function renderOnlineGame(){
 
   if(onlineMatch.status==="ended"){
     onlineHideScreens();
-    $("onlineGameBadge").textContent="Match slut";
+    
     $("onlineResultScreen").classList.remove("hidden");
     const winner=onlinePlayers.find(p=>p.user_id===onlineMatch.winner_user_id);
     $("onlineResultTitle").textContent=winner?`${winner.display_name} VINNER!`:"MATCHEN ÄR SLUT";
@@ -6634,13 +6758,13 @@ function renderOnlineGame(){
 
   if(!myTurn){
     onlineHideScreens();
-    $("onlineGameBadge").textContent="Väntar";
+    
     $("onlineWaitingScreen").classList.remove("hidden");
     $("onlineWaitingScreen").innerHTML=`Väntar på ${opp?.display_name||"motspelaren"}. Du behöver inte ha sidan öppen.`;
     return;
   }
 
-  $("onlineGameBadge").textContent="DIN TUR";
+  
 
   if(onlineMatch.phase==="turn_ready"){
     onlineHideScreens();
@@ -7414,7 +7538,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.27.
+// Startsidan är alltid online i V5.28.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -7434,6 +7558,17 @@ function startOnlineHomeSync(){
 
 
 window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}});
+
+window.addEventListener("load",()=>{
+  setTimeout(async ()=>{
+    const state=routeFromLocation();
+    if(!history.state?.digihits){
+      try{history.replaceState({digihits:true,...(state||currentDigihitsRoute())},"",location.hash||"#start")}catch(_){}
+    }
+    if(state)await applyDigihitsRoute(state);
+  },250);
+});
+
 </script>
 
 <div id="clearHistoryModal" class="modalBackdrop hidden">
@@ -7535,13 +7670,4 @@ window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}
   </div>
 </div>
 
-window.addEventListener("load",()=>{
-  setTimeout(async ()=>{
-    const state=routeFromLocation();
-    if(!history.state?.digihits){
-      try{history.replaceState({digihits:true,...(state||currentDigihitsRoute())},"",location.hash||"#start")}catch(_){}
-    }
-    if(state)await applyDigihitsRoute(state);
-  },250);
-});
 </body></html>
