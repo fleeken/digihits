@@ -1,6 +1,10 @@
 <!doctype html><html lang="sv"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.02</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://accounts.spotify.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://accounts.spotify.com; object-src 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<title>Digihits V5.05</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -370,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.02 – kompaktare spelvy */
+/* V5.05 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -439,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.02 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.05 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -516,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.02 – equal years are a continuous timeline block */
+/* V5.05 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -560,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.02: compact, consistent home UX */
+/* V5.05: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -664,8 +668,42 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   .authChoiceActions{grid-template-columns:1fr}
 }
 
+.spotifyCheckBtn.spotifyNeutral{background:#2478c9}
+
+.accountTopActions{display:flex;gap:8px;flex-wrap:wrap}
+.deleteAccountBtn{background:#b72d3c;color:#fff}
+.deleteAccountBtn:hover{filter:brightness(1.08)}
+.deleteAccountWarning{margin:8px 0 14px;color:#ffb4bc}
+.deleteConfirmLabel{display:block;font-size:12px;margin:0 0 6px;color:#d8dee8}
+.deleteAccountModalBox{max-width:470px}
+.modalActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+@media(max-width:520px){
+  .accountTopActions{width:100%}
+  .accountTopActions .btn{flex:1}
+  .modalActions{grid-template-columns:1fr}
+}
+
+.historyResult.walkover{
+  color:#ffd34d;
+  border-color:#8f6d00;
+  background:#2b240b
+}
+.historyCard.walkover{border-left:4px solid #e6ad00}
+.historyCodeRow{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:7px;
+  flex-wrap:wrap
+}
+.historyCodeInline{
+  display:inline-flex;
+  align-items:center;
+  gap:5px
+}
+.historyCodeRow .copyCodeBtn{margin:0}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.02</small></button><div class="badge" id="online">Redo · V5.02</div></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.05</small></button><div class="badge" id="online">Redo · V5.05</div></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -734,7 +772,10 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
             <div class="accountOk">● INLOGGAD</div>
             <strong id="accountEmailShown"></strong>
           </div>
-          <button type="button" class="btn dark accountLogoutBtn" onclick="logoutDigihitsAccount()">LOGGA UT</button>
+          <div class="accountTopActions">
+            <button type="button" class="btn dark accountLogoutBtn" onclick="logoutDigihitsAccount()">LOGGA UT</button>
+            <button type="button" class="btn deleteAccountBtn" onclick="askDeleteAccount()">RADERA KONTO</button>
+          </div>
         </div>
         <div class="profileNameBox">
           <div class="profileNameLabel">Spelarnamn</div>
@@ -761,7 +802,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
     <div id="authenticatedHomeContent" class="hidden">
     <div class="role spotifyHomeCard" style="margin-top:12px">
-      <button type="button" id="onlineSpotifyBtn" class="spotifyCheckBtn spotifyBad" onclick="onlineSpotifyCheck()">
+      <button type="button" id="onlineSpotifyBtn" class="spotifyCheckBtn spotifyNeutral" onclick="onlineSpotifyCheck()">
         <span id="onlineSpotifyBtnText">TESTA SPOTIFY-ANSLUTNINGEN</span>
       </button>
       <div id="onlineStatus" class="spotifyActionMessage hidden" role="status"></div>
@@ -780,7 +821,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
           <strong style="color:#fff">Har du fått en matchkod?</strong>
           <div class="mut">Skriv koden du fått av din vän.</div>
           <input id="onlineJoinCode" class="input" maxlength="6" placeholder="Skriv matchkod" style="text-transform:uppercase">
-          <button type="button" class="btn cyan full" onclick="safeJoinOnlineMatch()">GÅ MED I MATCHEN</button>
+          <button type="button" class="btn green full" onclick="safeJoinOnlineMatch()">GÅ MED I MATCHEN</button>
         </div>
       </div>
     </div>
@@ -811,7 +852,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.02</strong>
+    Version <strong style="color:#fff">V5.05</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -826,7 +867,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
         <small class="mut">MATCHKOD</small>
         <div class="matchCodeCopyRow">
           <span id="onlineGameCode" class="code">–</span>
-          <button type="button" class="copyCodeBtn" onclick="copyMatchCode(document.getElementById('onlineGameCode')?.textContent,this)">KOPIERA</button>
+          <button type="button" class="copyCodeBtn" onclick="copyMatchCode(document.getElementById('onlineGameCode')?.textContent,this)">KOPIERA KOD</button>
         </div>
         <div id="onlineMatchLockStatus" class="matchLockStatus unlocked">
           <span id="onlineMatchLockIcon" class="matchLockIcon">🔓</span>
@@ -1714,7 +1755,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.02";
+    if(badge)badge.textContent="Återansluten · V5.05";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1722,7 +1763,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.02 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.05 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1733,7 +1774,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{$("online").textContent="Redo · V5.02"});
+window.addEventListener("online",()=>{$("online").textContent="Redo · V5.05"});
 window.addEventListener("offline",()=>{$("online").textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1852,7 +1893,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V5.02":"Ingen internetanslutning";
+function hostSetup(){ $("online").textContent=navigator.onLine?"Redo · V5.05":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2605,7 +2646,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.02
+// SPELA ONLINE – V5.05
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3034,6 +3075,7 @@ function toggleMatchChat(){
 }
 
 async function sendMatchChatMessage(){
+  if(!rateLimitAction("chat-send",700))return;
   if(!onlineMatch){
     alert("Matchen är inte öppen.");
     return;
@@ -3716,6 +3758,86 @@ async function loginDigihitsAccount(){
   }
 }
 
+
+function askDeleteAccount(){
+  if(!digihitsAccountUser)return;
+  const input=$("deleteAccountConfirmInput");
+  const status=$("deleteAccountStatus");
+  if(input)input.value="";
+  if(status){status.textContent="";status.style.color=""}
+  $("deleteAccountModal")?.classList.remove("hidden");
+  requestAnimationFrame(()=>input?.focus());
+}
+function cancelDeleteAccount(){
+  $("deleteAccountModal")?.classList.add("hidden");
+  if($("deleteAccountConfirmInput"))$("deleteAccountConfirmInput").value="";
+}
+async function confirmDeleteAccount(){
+  const confirmText=String($("deleteAccountConfirmInput")?.value||"").trim().toUpperCase();
+  const status=$("deleteAccountStatus");
+  if(confirmText!=="RADERA"){
+    if(status){status.textContent="Skriv RADERA för att bekräfta.";status.style.color="#ff8c99"}
+    return;
+  }
+
+  const session=await refreshAuthSessionIfNeeded();
+  if(!session?.access_token){
+    if(status){status.textContent="Din inloggning har gått ut. Logga in igen.";status.style.color="#ff8c99"}
+    return;
+  }
+
+  const btn=$("confirmDeleteAccountBtn");
+  if(btn){btn.disabled=true;btn.textContent="RADERAR…"}
+  if(status){status.textContent="Raderar kontot…";status.style.color=""}
+
+  try{
+    const r=await fetch(SUPABASE_URL+"/functions/v1/delete-account",{
+      method:"POST",
+      headers:{
+        "Authorization":"Bearer "+session.access_token,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({confirm:"RADERA"})
+    });
+    let payload={};
+    try{payload=await r.json()}catch(_){}
+    if(!r.ok)throw new Error(payload?.error||payload?.message||("HTTP "+r.status));
+
+    try{clearSpotifyConnectionForSwitch()}catch(_){}
+    saveAuthSession(null);
+    digihitsAccountUser=null;
+    onlineUserId="";
+    localStorage.removeItem(ONLINE_USER_KEY);
+    localStorage.removeItem(ONLINE_NAME_KEY);
+    cancelDeleteAccount();
+    currentAuthView="choice";
+    renderAccountUi();
+    showAuthView("choice");
+    alert("Kontot är raderat.");
+  }catch(e){
+    console.error("Delete account:",e);
+    if(status){
+      status.textContent="Kontot kunde inte raderas. Försök igen. Om felet kvarstår, logga ut och in och försök på nytt.";
+      status.style.color="#ff8c99";
+    }
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="JA, RADERA KONTO"}
+  }
+}
+
+function safeText(value,max=200){
+  return String(value??"").replace(/[\u0000-\u001F\u007F]/g,"").trim().slice(0,max);
+}
+
+const clientRateLimits=new Map();
+function rateLimitAction(key,windowMs=1200){
+  const now=Date.now();
+  const prev=Number(clientRateLimits.get(key)||0);
+  if(now-prev<windowMs)return false;
+  clientRateLimits.set(key,now);
+  return true;
+}
+
 async function logoutDigihitsAccount(){
   const s=await refreshAuthSessionIfNeeded();
   try{
@@ -3836,8 +3958,12 @@ function setSpotifyHomeState(state,message=""){
   const connected=!!(spotifyAccessToken||spotifyRefreshToken);
 
   if(btn){
-    btn.classList.remove("spotifyBad","spotifyChecking","spotifyOk");
-    btn.classList.add(state==="ok"?"spotifyOk":state==="checking"?"spotifyChecking":"spotifyBad");
+    btn.classList.remove("spotifyNeutral","spotifyBad","spotifyChecking","spotifyOk");
+    btn.classList.add(
+      state==="ok" ? "spotifyOk" :
+      state==="checking" ? "spotifyChecking" :
+      message ? "spotifyBad" : "spotifyNeutral"
+    );
     btn.disabled=state==="checking";
   }
   if(txt){
@@ -4393,6 +4519,7 @@ async function drawOnlineSpotifySong(){
 
 
 async function safeCreateOnlineMatch(){
+  if(!rateLimitAction("create-match",1800))return;
   try{
     await createOnlineMatch();
   }catch(e){
@@ -4404,6 +4531,7 @@ async function safeCreateOnlineMatch(){
   }
 }
 async function safeJoinOnlineMatch(){
+  if(!rateLimitAction("join-match",1200))return;
   try{
     await joinOnlineMatch();
   }catch(e){
@@ -4536,6 +4664,7 @@ async function joinOnlineMatch(){
   const code=($("onlineJoinCode").value||"").trim().toUpperCase();
   if(!name)return;
   if(!code){alert("Skriv matchkoden.");return}
+  if(!/^[A-Z0-9]{4,6}$/.test(code)){alert("Matchkoden är ogiltig.");return}
   actionBusy=true;
   try{
     const session=await refreshAuthSessionIfNeeded();
@@ -4748,7 +4877,8 @@ async function loadOnlineMatches(options={}){
       if(!mr.data)continue;
 
       const ps=await db.from("online_players").select("*").eq("match_id",membership.match_id).eq("active",true).order("turn_order");
-      rows.push({match:mr.data,players:ps.data||[],me:membership});
+      const allPs=await db.from("online_players").select("*").eq("match_id",membership.match_id).order("turn_order");
+      rows.push({match:mr.data,players:ps.data||[],allPlayers:allPs.data||[],me:membership});
     }
 
     rows.sort((a,b)=>String(b.match.updated_at||"").localeCompare(String(a.match.updated_at||"")));
@@ -4775,23 +4905,27 @@ async function loadOnlineMatches(options={}){
           const chatUnreadHtml=unreadChat>0
             ? `<span class="homeChatUnread" aria-label="Olästa chattmeddelanden" title="Olästa chattmeddelanden">✉<span>!</span></span>`
             : "";
+          const leftPlayer=(row.allPlayers||[]).find(p=>p?.left_at || p?.active===false);
+          const leftPlayerName=leftPlayer?.display_name||"";
           const text=m.status==="waiting"
             ?"VÄNTAR PÅ MOTSPELARE"
             :ended
-              ?(m.winner_user_id===ensureOnlineUserId()?"DU VANN":"AVSLUTAD")
+              ?(leftPlayerName
+                  ?`WALK OVER · ${escapeHtml(leftPlayerName)} LÄMNADE MATCHEN`
+                  :(m.winner_user_id===ensureOnlineUserId()?"DU VANN":"AVSLUTAD"))
               :(yourTurn?"DIN TUR":"VÄNTAR PÅ MOTSPELARE");
 
           return `<div class="matchCardShell">
             <button type="button" class="onlineMatchCard ${yourTurn?"yourTurn":"waiting"}" onclick="openOnlineMatch(${m.id})">
               <div class="onlineMatchHeader">
-                <div class="onlineMatchNames">${matchTitle}</div>
+                <div class="onlineMatchNames">${escapeHtml(matchTitle)}</div>
                 ${chatUnreadHtml}
               </div>
               <div class="matchPlayersMeta"><span>${playerCount} spelare</span><span>·</span><span>Omgång ${roundNumber}</span></div>
               <div class="matchCodeLine">
                 <span class="matchCodeLabel">MATCHKOD</span>
-                <strong class="matchCodeValue">${m.code}</strong>
-                <span role="button" tabindex="0" class="copyCodeBtn small" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();copyMatchCode('${m.code}',this)}">KOPIERA</span>
+                <strong class="matchCodeValue">${escapeHtml(m.code)}</strong>
+                <span role="button" tabindex="0" class="copyCodeBtn small" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();copyMatchCode('${m.code}',this)}">KOPIERA KOD</span>
               </div>
               <div class="onlineMatchState ${yourTurn?"turn":"wait"}"><span class="matchStatusLamp"></span>${text}</div>
             </button>
@@ -4863,24 +4997,38 @@ async function loadOnlineHistory(options={}){
       ? '<div class="wait" style="padding:18px">Ingen historik ännu.</div>'
       : rows.map(row=>{
           const m=row.match, me=row.me, opp=row.opp;
-          const left=!!me.left_at || me.active===false;
-          const won=!left && m.winner_user_id===ensureOnlineUserId();
-          const resultClass=left?"left":won?"win":"loss";
-          const resultText=left?"LÄMNAD":won?"VINST":"FÖRLUST";
+          const leaver=(row.players||[]).find(p=>p?.left_at || p?.active===false)||null;
+          const isWalkover=!!leaver;
+          const won=!isWalkover && m.winner_user_id===ensureOnlineUserId();
+          const lost=!isWalkover && !!m.winner_user_id && m.winner_user_id!==ensureOnlineUserId();
+          const resultClass=isWalkover?"walkover":won?"win":lost?"loss":"left";
+          const leaverName=leaver?.display_name||"Spelare";
+          const resultText=isWalkover
+            ?`WALK OVER · ${leaverName} LÄMNADE MATCHEN`
+            :won
+              ?"VINST"
+              :lost
+                ?"FÖRLUST"
+                :"AVSLUTAD";
           const myLocked=(me.locked_timeline||[]).length;
           const oppLocked=(opp?.locked_timeline||[]).length;
           const opponent=opp?.display_name||"Okänd spelare";
-          const date=fmtHistoryDate(m.updated_at||me.updated_at);
+          const summaryHtml=won
+            ? `<div class="historySummary">
+                <span><strong>${myLocked}</strong> låsta kort för dig</span>
+                <span><strong>${oppLocked}</strong> för ${escapeHtml(opponent)}</span>
+              </div>`
+            : "";
           return `<div class="historyCard ${resultClass}">
             <div class="historyTop">
-              <div class="historyName">Mot ${opponent}</div>
-              <div class="historyResult ${resultClass}">${resultText}</div>
+              <div class="historyName">Mot ${escapeHtml(opponent)}</div>
+              <div class="historyResult ${resultClass}">${escapeHtml(resultText)}</div>
             </div>
-            <div class="historyMeta historyCodeRow"><span>Matchkod <strong>${m.code}</strong>${date?` · ${date}`:""}</span><button type="button" class="copyCodeBtn small" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)">KOPIERA</button></div>
-            <div class="historySummary">
-              <span><strong>${myLocked}</strong> låsta kort för dig</span>
-              <span><strong>${oppLocked}</strong> för ${opponent}</span>
+            <div class="historyMeta historyCodeRow">
+              <span class="historyCodeInline">Matchkod <strong>${escapeHtml(m.code)}</strong></span>
+              <button type="button" class="copyCodeBtn small" onclick="event.stopPropagation();copyMatchCode('${m.code}',this)">KOPIERA KOD</button>
             </div>
+            ${summaryHtml}
           </div>`;
         }).join("");
 
@@ -5521,7 +5669,7 @@ function renderOnlineGame(){
     onlineHideScreens();
     $("onlineGameBadge").textContent="Väntar";
     $("onlineWaitingScreen").classList.remove("hidden");
-    $("onlineWaitingScreen").innerHTML=`<div class="waitingCodeText">Dela matchkoden med din vän</div><div class="matchCodeCopyRow centered"><strong class="waitingCode">${onlineMatch.code}</strong><button type="button" class="copyCodeBtn" onclick="copyMatchCode('${onlineMatch.code}',this)">KOPIERA</button></div>`;
+    $("onlineWaitingScreen").innerHTML=`<div class="waitingCodeText">Dela matchkoden med din vän</div><div class="matchCodeCopyRow centered"><strong class="waitingCode">${onlineMatch.code}</strong><button type="button" class="copyCodeBtn" onclick="copyMatchCode('${onlineMatch.code}',this)">KOPIERA KOD</button></div>`;
     return;
   }
 
@@ -6320,7 +6468,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.02.
+// Startsidan är alltid online i V5.05.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -6397,6 +6545,20 @@ window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}
     <div id="spotifyConnectTitle" class="accountResetTitle">Koppla Spotify</div>
     <div class="mut authViewHelp">Digihits behöver ditt Spotify-konto för att spela låtar.</div>
     <button type="button" class="spotifyCheckBtn spotifyOk" style="margin-top:14px" onclick="startSpotifyConnection()">KOPPLA SPOTIFY</button>
+  </div>
+</div>
+
+<div id="deleteAccountModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="deleteAccountTitle">
+  <div class="modalBox deleteAccountModalBox">
+    <div id="deleteAccountTitle" class="accountResetTitle">Radera konto?</div>
+    <div class="mut deleteAccountWarning">Kontot, din profil och dina Digihits-data raderas permanent. Detta går inte att ångra.</div>
+    <label class="deleteConfirmLabel" for="deleteAccountConfirmInput">Skriv <strong>RADERA</strong> för att bekräfta.</label>
+    <input id="deleteAccountConfirmInput" class="input" autocomplete="off" maxlength="10" placeholder="RADERA">
+    <div id="deleteAccountStatus" class="mut accountStatus"></div>
+    <div class="modalActions">
+      <button type="button" class="btn dark" onclick="cancelDeleteAccount()">AVBRYT</button>
+      <button type="button" id="confirmDeleteAccountBtn" class="btn deleteAccountBtn" onclick="confirmDeleteAccount()">JA, RADERA KONTO</button>
+    </div>
   </div>
 </div>
 </body></html>
