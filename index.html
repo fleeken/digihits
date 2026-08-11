@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.11</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.13</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.11 – kompaktare spelvy */
+/* V5.13 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.11 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.13 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.11 – equal years are a continuous timeline block */
+/* V5.13 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.11: compact, consistent home UX */
+/* V5.13: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -675,12 +675,30 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .deleteAccountBtn:hover{filter:brightness(1.08)}
 .deleteAccountWarning{margin:8px 0 14px;color:#ffb4bc}
 .deleteConfirmLabel{display:block;font-size:12px;margin:0 0 6px;color:#d8dee8}
-.deleteAccountModalBox{max-width:470px}
+.deleteAccountModalBox{
+  width:min(470px,calc(100vw - 28px));
+  max-width:470px;
+  margin:auto
+}
+#deleteAccountModal{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+  box-sizing:border-box;
+  z-index:9999
+}
+#deleteAccountModal.hidden{display:none}
 .modalActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
 @media(max-width:520px){
   .accountTopActions{width:100%}
   .accountTopActions .btn{flex:1}
-  .modalActions{grid-template-columns:1fr}
+  .modalActions{grid-template-columns:1fr 1fr}
+  .modalActions .btn{min-width:0;padding-left:8px;padding-right:8px}
 }
 
 .historyResult.walkover{
@@ -728,7 +746,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .emptyMatchesState strong{display:block;color:#fff;font-size:14px;letter-spacing:.05em}
 .emptyMatchesState span{display:block;margin-top:5px;font-size:11px;color:#9fa9b7}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.11</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.13</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -888,7 +906,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   </div>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.11</strong>
+    Version <strong style="color:#fff">V5.13</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -1791,7 +1809,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.11";
+    if(badge)badge.textContent="Återansluten · V5.13";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -1799,7 +1817,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.11 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.13 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -1810,7 +1828,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.11"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.13"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -1929,7 +1947,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.11":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.13":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2682,7 +2700,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.11
+// SPELA ONLINE – V5.13
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3883,7 +3901,7 @@ async function confirmDeleteAccount(){
   if(status){status.textContent="Raderar kontot…";status.style.color=""}
 
   try{
-    const r=await fetch(SUPABASE_URL+"/functions/v1/delete-account",{
+    const r=await fetch(URL+"/functions/v1/delete-account",{
       method:"POST",
       headers:{
         "Authorization":"Bearer "+session.access_token,
@@ -3909,7 +3927,10 @@ async function confirmDeleteAccount(){
   }catch(e){
     console.error("Delete account:",e);
     if(status){
-      status.textContent="Kontot kunde inte raderas. Försök igen. Om felet kvarstår, logga ut och in och försök på nytt.";
+      const msg=String(e?.message||e||"");
+      status.textContent=msg
+        ? "Kontot kunde inte raderas: "+msg
+        : "Kontot kunde inte raderas. Försök igen.";
       status.style.color="#ff8c99";
     }
   }finally{
@@ -6587,7 +6608,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.11.
+// Startsidan är alltid online i V5.13.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
