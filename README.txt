@@ -1,17 +1,19 @@
-DIGIHITS V4.87 – MATCHLÅS
+DIGIHITS V4.91 - UNIKA KONTON OCH PROFILNAMN
 
-- Matchkoden visar nu låsstatus.
-- Före andra omgången:
-  🔓 Match ej låst
-- När någon spelare har påbörjat sin andra omgång:
-  🔒 Match är låst
-- När matchen är låst stryks matchkoden över.
-- Samma låsregel används som i Gå med i match:
-  rounds_started >= 2 för någon deltagare.
-- Låsstatus visas både inne i matchen och i Mina matcher.
+E-POST
+- Supabase Auth ar fortsatt den slutliga sparren mot dubbla e-postkonton.
+- Samma e-postadress kan inte skapa tva separata Auth-konton.
 
-JavaScript syntax: PASS.
-Alla onclick-funktioner: PASS.
-Dubbla funktioner: 0.
-Dubbla HTML-ID:n: 0.
-Ingen SQL krävs.
+SPELARNAMN
+- Ny tabell: public.digihits_profiles.
+- Unikt index pa lower(trim(display_name)).
+- Viktor, viktor och VIKTOR raknas som samma namn.
+- Samtidiga forsok att ta samma namn stoppas av databasen, inte bara JavaScript.
+- Feltext: Spelarnamnet anvands redan. Valj ett annat.
+- Profilnamnet synkas till befintliga online_players-rader sa samma namn visas i alla matcher.
+- Befintliga profilnamn migreras vid SQL-korning. Vid gamla dubbletter behaller aldsta kontot namnet och andra valjer nytt.
+
+VIKTIGT
+Kor ONLINE_V4_91_UNIQUE_PROFILES.sql en gang i Supabase SQL Editor.
+
+JavaScript syntax och knappkopplingar kontrolleras vid paketering.
