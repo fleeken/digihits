@@ -1,10 +1,10 @@
-<!doctype html><html lang="sv"><head>
+<!doctype html><html class="digihitsBooting" lang="sv"><head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://accounts.spotify.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://accounts.spotify.com; object-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.31</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.32</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1151,8 +1151,15 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   .matchCodeInlineFull .code{font-size:15px;letter-spacing:.03em}
   .matchCodeInlineFull .copyCodeBtn{padding:5px;font-size:5.8px}
 }
+
+html.digihitsBooting .app{
+  visibility:hidden
+}
+html.digihitsBooting body{
+  background:#080b10
+}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.31</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.32</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1339,7 +1346,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.31</strong>
+    Version <strong style="color:#fff">V5.32</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -2077,6 +2084,8 @@ document.addEventListener("keydown",e=>{
 });
 
 window.addEventListener("load",async()=>{
+  try{
+
   // Kontot bestämmer vilken spelares matcher/historik som ska hämtas.
   await initDigihitsAccount();
 
@@ -2117,6 +2126,10 @@ window.addEventListener("load",async()=>{
     }
   }catch(e){
     console.warn("Spotify startup:",e);
+  }
+
+  }finally{
+    finishDigihitsBoot();
   }
 });
 
@@ -2256,7 +2269,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.31";
+    if(badge)badge.textContent="Återansluten · V5.32";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2264,7 +2277,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.31 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.32 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2275,7 +2288,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.31"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.32"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2394,7 +2407,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.31":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.32":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3147,7 +3160,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.31
+// SPELA ONLINE – V5.32
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3660,6 +3673,10 @@ function clearAuthStatuses(){
 
 
 const DIGIHITS_NAV_KEY="digihitsNavState";
+
+function finishDigihitsBoot(){
+  document.documentElement.classList.remove("digihitsBooting");
+}
 
 function sameDigihitsRoute(a,b){
   if(!a||!b)return false;
@@ -7443,7 +7460,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.31.
+// Startsidan är alltid online i V5.32.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -7464,6 +7481,13 @@ function startOnlineHomeSync(){
 
 window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}});
 
+
+setTimeout(()=>{
+  if(document.documentElement.classList.contains("digihitsBooting")){
+    console.warn("Boot timeout: visar aktuell DOM som reserv.");
+    finishDigihitsBoot();
+  }
+},4000);
 </script>
 
 <div id="clearHistoryModal" class="modalBackdrop hidden">
