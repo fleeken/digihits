@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.21</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.22</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -374,7 +374,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .yourGuess{margin-top:5px;font-size:12px;font-weight:700;color:#b9c3d4}
 
-/* V5.21 – kompaktare spelvy */
+/* V5.22 – kompaktare spelvy */
 #onlineGame .main{padding-top:18px}
 #onlineGame .main > .onlineGameTop{margin-bottom:8px}
 #onlineGameTitle{margin:0 0 2px;line-height:1.08}
@@ -443,7 +443,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .profileNeedsAttention{box-shadow:0 0 0 2px #ffad42;border-radius:13px}
 @media(max-width:520px){.profileEditActions{grid-template-columns:1fr}}
 
-/* V5.21 – iPhone placement: true 100% viewport, no carried input zoom */
+/* V5.22 – iPhone placement: true 100% viewport, no carried input zoom */
 @media(max-width:800px){
   input,select,textarea{font-size:16px!important}
 
@@ -520,7 +520,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 
 
-/* V5.21 – equal years are a continuous timeline block */
+/* V5.22 – equal years are a continuous timeline block */
 #onlineTimeline .onlinePlaced + .onlinePlaced{margin-left:2px}
 
 .matchCodeBox{min-width:0}
@@ -564,7 +564,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 
 
-/* V5.21: compact, consistent home UX */
+/* V5.22: compact, consistent home UX */
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
 .profileNameLocked{justify-content:flex-start}
 .profileLockedMark{margin-left:auto;opacity:.65;font-size:13px}
@@ -946,8 +946,91 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
   transform:rotate(0deg);
   transform-origin:center;
 }
+
+.globalWaitOverlay{
+  position:fixed;
+  inset:0;
+  z-index:12000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:#05070bb8;
+  backdrop-filter:blur(2px)
+}
+.globalWaitOverlay.hidden{display:none}
+.globalWaitBox{
+  width:min(360px,calc(100vw - 36px));
+  background:#171b23;
+  border:1px solid #3a4351;
+  border-radius:16px;
+  padding:18px 16px 16px;
+  text-align:center
+}
+.musicLoader{
+  position:relative;
+  height:34px;
+  overflow:hidden;
+  margin:0 2px 8px
+}
+.musicLoaderTrack{
+  position:absolute;
+  left:0;
+  right:0;
+  top:17px;
+  height:3px;
+  border-radius:999px;
+  background:#29313c
+}
+.musicLoaderTrack::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-35%;
+  width:35%;
+  height:100%;
+  border-radius:inherit;
+  background:#69d7ff;
+  animation:musicBar 1.35s ease-in-out infinite
+}
+.musicNote{
+  position:absolute;
+  top:2px;
+  color:#b9efff;
+  font-size:19px;
+  line-height:1;
+  animation:musicNoteMove 2.3s linear infinite
+}
+.musicNote.n1{left:-12%;animation-delay:0s}
+.musicNote.n2{left:-12%;animation-delay:.72s}
+.musicNote.n3{left:-12%;animation-delay:1.44s}
+.globalWaitText{
+  color:#fff;
+  font-size:14px;
+  font-weight:900
+}
+.globalWaitLongText{
+  margin-top:5px;
+  color:#aeb8c6;
+  font-size:11px
+}
+@keyframes musicBar{
+  0%{left:-35%}
+  55%{left:60%}
+  100%{left:105%}
+}
+@keyframes musicNoteMove{
+  0%{left:-12%;transform:translateY(4px) rotate(-8deg);opacity:0}
+  10%{opacity:1}
+  50%{transform:translateY(-3px) rotate(6deg)}
+  90%{opacity:1}
+  100%{left:108%;transform:translateY(3px) rotate(-6deg);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .musicLoaderTrack::after,.musicNote{animation-duration:3.5s}
+}
 </style></head><body>
-<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.21</small></button></div>
+<div class="app"><div class="top"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.22</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -1134,7 +1217,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
     </details>
 
   <div style="margin-top:14px;text-align:center" class="mut">
-    Version <strong style="color:#fff">V5.21</strong>
+    Version <strong style="color:#fff">V5.22</strong>
   </div>
   </div><!-- authenticatedHomeContent -->
 </section>
@@ -2037,7 +2120,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.21";
+    if(badge)badge.textContent="Återansluten · V5.22";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2045,7 +2128,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.21 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.22 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2056,7 +2139,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.21"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.22"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2175,7 +2258,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.21":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.22":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -2928,7 +3011,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.21
+// SPELA ONLINE – V5.22
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3849,7 +3932,9 @@ function hideChangePasswordPanel(){
 }
 
 async function saveChangedPassword(){
-  const p1=$("changePasswordNew")?.value||"";
+  const waitToken_saveChangedPassword=beginGlobalWait('Sparar nytt lösenord…');
+  try{
+const p1=$("changePasswordNew")?.value||"";
   const p2=$("changePasswordRepeat")?.value||"";
   const status=$("changePasswordStatus");
 
@@ -3885,6 +3970,10 @@ async function saveChangedPassword(){
   }finally{
     if(btn){btn.disabled=false;btn.textContent="SPARA NYTT LÖSENORD"}
   }
+
+  }finally{
+    endGlobalWait(waitToken_saveChangedPassword);
+  }
 }
 
 function showPasswordResetPanel(){
@@ -3903,7 +3992,9 @@ function hidePasswordResetPanel(){
 }
 
 async function saveNewPassword(){
-  const p1=$("newPassword")?.value||"";
+  const waitToken_saveNewPassword=beginGlobalWait('Sparar nytt lösenord…');
+  try{
+const p1=$("newPassword")?.value||"";
   const p2=$("newPasswordRepeat")?.value||"";
 
   if(!p1||!p2){
@@ -3957,6 +4048,10 @@ async function saveNewPassword(){
   }finally{
     if(btn){btn.disabled=false;btn.textContent="SPARA NYTT LÖSENORD"}
   }
+
+  }finally{
+    endGlobalWait(waitToken_saveNewPassword);
+  }
 }
 
 async function isProfileNameTaken(name){
@@ -3977,7 +4072,9 @@ async function isProfileNameTaken(name){
 }
 
 async function createDigihitsAccount(){
-  $("passwordResetPanel")?.classList.add("hidden");
+  const waitToken_createDigihitsAccount=beginGlobalWait('Skapar konto…');
+  try{
+$("passwordResetPanel")?.classList.add("hidden");
   const displayName=normalizeProfileName($("signupPlayerName")?.value||"");
   const email=($("signupEmail")?.value||"").trim().toLowerCase();
   const password=$("signupPassword")?.value||"";
@@ -4031,7 +4128,7 @@ async function createDigihitsAccount(){
       startOnlineHomeSync();
     }else{
       showResendVerificationButton(true);
-      setAccountStatus("Kontot är skapat. Verifiera e-postadressen och logga sedan in.",false,"signupStatus");
+      setAccountStatus("Du har nu fått ett verifieringsmejl med en länk. Klicka på länken för att bekräfta din e-postadress och slutföra registreringen. Hittar du inte mejlet? Kontrollera även skräpposten.",false,"signupStatus");
     }
   }catch(e){
     console.warn("Create account:",e);
@@ -4049,10 +4146,16 @@ async function createDigihitsAccount(){
   }finally{
     setAccountBusy(false);
   }
+
+  }finally{
+    endGlobalWait(waitToken_createDigihitsAccount);
+  }
 }
 
 async function loginDigihitsAccount(){
-  $("passwordResetPanel")?.classList.add("hidden");
+  const waitToken_loginDigihitsAccount=beginGlobalWait('Loggar in…');
+  try{
+$("passwordResetPanel")?.classList.add("hidden");
   const email=($("loginEmail")?.value||"").trim().toLowerCase();
   const password=$("loginPassword")?.value||"";
 
@@ -4094,6 +4197,10 @@ async function loginDigihitsAccount(){
   }finally{
     setAccountBusy(false);
   }
+
+  }finally{
+    endGlobalWait(waitToken_loginDigihitsAccount);
+  }
 }
 
 
@@ -4111,7 +4218,9 @@ function cancelDeleteAccount(){
   if($("deleteAccountConfirmInput"))$("deleteAccountConfirmInput").value="";
 }
 async function confirmDeleteAccount(){
-  const confirmText=String($("deleteAccountConfirmInput")?.value||"").trim().toUpperCase();
+  const waitToken_confirmDeleteAccount=beginGlobalWait('Raderar konto…');
+  try{
+const confirmText=String($("deleteAccountConfirmInput")?.value||"").trim().toUpperCase();
   const status=$("deleteAccountStatus");
   if(confirmText!=="RADERA"){
     if(status){status.textContent="Skriv RADERA för att bekräfta.";status.style.color="#ff8c99"}
@@ -4163,6 +4272,63 @@ async function confirmDeleteAccount(){
     }
   }finally{
     if(btn){btn.disabled=false;btn.textContent="JA, RADERA KONTO"}
+  }
+
+  }finally{
+    endGlobalWait(waitToken_confirmDeleteAccount);
+  }
+}
+
+let globalWaitDelayTimer=null;
+let globalWaitLongTimer=null;
+let globalWaitActiveCount=0;
+let globalWaitTokenSeq=0;
+const globalWaitTokens=new Map();
+
+function beginGlobalWait(text="Arbetar…",delayMs=850){
+  const token=++globalWaitTokenSeq;
+  globalWaitTokens.set(token,{text});
+  globalWaitActiveCount++;
+
+  if(globalWaitActiveCount===1){
+    clearTimeout(globalWaitDelayTimer);
+    clearTimeout(globalWaitLongTimer);
+
+    globalWaitDelayTimer=setTimeout(()=>{
+      if(globalWaitActiveCount<1)return;
+      const latest=[...globalWaitTokens.values()].at(-1);
+      if($("globalWaitText"))$("globalWaitText").textContent=latest?.text||text;
+      $("globalWaitLongText")?.classList.add("hidden");
+      $("globalWaitOverlay")?.classList.remove("hidden");
+
+      globalWaitLongTimer=setTimeout(()=>{
+        if(globalWaitActiveCount>0){
+          $("globalWaitLongText")?.classList.remove("hidden");
+        }
+      },5000);
+    },delayMs);
+  }else{
+    const latest=[...globalWaitTokens.values()].at(-1);
+    if(!$("globalWaitOverlay")?.classList.contains("hidden") && $("globalWaitText")){
+      $("globalWaitText").textContent=latest?.text||text;
+    }
+  }
+  return token;
+}
+
+function endGlobalWait(token){
+  if(globalWaitTokens.has(token)){
+    globalWaitTokens.delete(token);
+    globalWaitActiveCount=Math.max(0,globalWaitActiveCount-1);
+  }
+  if(globalWaitActiveCount===0){
+    clearTimeout(globalWaitDelayTimer);
+    clearTimeout(globalWaitLongTimer);
+    $("globalWaitOverlay")?.classList.add("hidden");
+    $("globalWaitLongText")?.classList.add("hidden");
+  }else{
+    const latest=[...globalWaitTokens.values()].at(-1);
+    if($("globalWaitText"))$("globalWaitText").textContent=latest?.text||"Arbetar…";
   }
 }
 
@@ -4341,7 +4507,9 @@ function spotifyActionableError(err){
 }
 
 async function onlineSpotifyCheck(){
-  setSpotifyHomeState("checking");
+  const waitToken_onlineSpotifyCheck=beginGlobalWait('Kontrollerar Spotify…');
+  try{
+setSpotifyHomeState("checking");
   try{
     if(!spotifyAccessToken&&!spotifyRefreshToken){
       setSpotifyHomeState("bad","");
@@ -4361,6 +4529,10 @@ async function onlineSpotifyCheck(){
     spotifyPreflightOk=false;
     setSpotifyHomeState("bad",spotifyActionableError(e));
     return false;
+  }
+
+  }finally{
+    endGlobalWait(waitToken_onlineSpotifyCheck);
   }
 }
 
@@ -4860,7 +5032,9 @@ async function drawOnlineSpotifySong(){
 
 
 async function safeCreateOnlineMatch(){
-  if(!rateLimitAction("create-match",1800))return;
+  const waitToken_safeCreateOnlineMatch=beginGlobalWait('Skapar match…');
+  try{
+if(!rateLimitAction("create-match",1800))return;
   try{
     await createOnlineMatch();
   }catch(e){
@@ -4870,9 +5044,15 @@ async function safeCreateOnlineMatch(){
     setOnlineStatus(msg,true);
     alert(msg);
   }
+
+  }finally{
+    endGlobalWait(waitToken_safeCreateOnlineMatch);
+  }
 }
 async function safeJoinOnlineMatch(){
-  if(!rateLimitAction("join-match",1200))return;
+  const waitToken_safeJoinOnlineMatch=beginGlobalWait('Går med i match…');
+  try{
+if(!rateLimitAction("join-match",1200))return;
   try{
     await joinOnlineMatch();
   }catch(e){
@@ -4881,6 +5061,10 @@ async function safeJoinOnlineMatch(){
     const msg="Det gick inte att gå med i matchen. Försök igen.";
     setOnlineStatus(msg,true);
     alert(msg);
+  }
+
+  }finally{
+    endGlobalWait(waitToken_safeJoinOnlineMatch);
   }
 }
 
@@ -5334,7 +5518,9 @@ function cancelResetStatistics(){
   $("resetStatisticsModal")?.classList.add("hidden");
 }
 async function confirmResetStatistics(){
-  const btn=$("confirmResetStatsBtn");
+  const waitToken_confirmResetStatistics=beginGlobalWait('Nollställer statistik…');
+  try{
+const btn=$("confirmResetStatsBtn");
   if(btn){btn.disabled=true;btn.textContent="NOLLSTÄLLER…"}
   try{
     localStorage.setItem(statisticsResetStorageKey(),new Date().toISOString());
@@ -5343,6 +5529,10 @@ async function confirmResetStatistics(){
     await loadOnlineHistory({silent:true});
   }finally{
     if(btn){btn.disabled=false;btn.textContent="JA, NOLLSTÄLL ALL STATISTIK"}
+  }
+
+  }finally{
+    endGlobalWait(waitToken_confirmResetStatistics);
   }
 }
 
@@ -5537,7 +5727,9 @@ function cancelClearHistory(){
   $("clearHistoryModal").classList.add("hidden");
 }
 async function confirmClearHistory(){
-  const btn=$("confirmClearHistoryBtn");
+  const waitToken_confirmClearHistory=beginGlobalWait('Nollställer historik…');
+  try{
+const btn=$("confirmClearHistoryBtn");
   if(btn){btn.disabled=true;btn.textContent="NOLLSTÄLLER…"}
   try{
     const pr=await db.from("online_players").select("*").eq("user_id",ensureOnlineUserId());
@@ -5557,6 +5749,10 @@ async function confirmClearHistory(){
     alert("Kunde inte nollställa historiken: "+e.message);
   }finally{
     if(btn){btn.disabled=false;btn.textContent="JA, NOLLSTÄLL ALL HISTORIK"}
+  }
+
+  }finally{
+    endGlobalWait(waitToken_confirmClearHistory);
   }
 }
 
@@ -5630,7 +5826,9 @@ async function fetchOnlineGameState(){
 }
 
 async function openOnlineMatch(id){
-  clearInterval(onlineGameTimer);
+  const waitToken_openOnlineMatch=beginGlobalWait('Laddar match…');
+  try{
+clearInterval(onlineGameTimer);
   const mr=await db.from("online_matches").select("*").eq("id",id).maybeSingle();
   if(mr.error||!mr.data){alert("Matchen kunde inte öppnas.");return}
   onlineMatch=mr.data;
@@ -5671,6 +5869,10 @@ async function openOnlineMatch(id){
   // Realtime är primärt. 700 ms polling är endast reserv om websocket
   // tappas eller en mobil lägger anslutningen i viloläge.
   onlineGameTimer=setInterval(fetchOnlineGameState,700);
+
+  }finally{
+    endGlobalWait(waitToken_openOnlineMatch);
+  }
 }
 
 let pendingLeaveMatchId=null;
@@ -6951,7 +7153,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.21.
+// Startsidan är alltid online i V5.22.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -7056,6 +7258,19 @@ window.addEventListener("DOMContentLoaded",()=>{try{updateSpotifyUi()}catch(_){}
       <button type="button" class="btn dark" onclick="cancelResetStatistics()">AVBRYT</button>
       <button type="button" id="confirmResetStatsBtn" class="btn historyDanger" onclick="confirmResetStatistics()">JA, NOLLSTÄLL ALL STATISTIK</button>
     </div>
+  </div>
+</div>
+
+<div id="globalWaitOverlay" class="globalWaitOverlay hidden" aria-live="polite" aria-busy="true">
+  <div class="globalWaitBox">
+    <div class="musicLoader" aria-hidden="true">
+      <div class="musicLoaderTrack"></div>
+      <span class="musicNote n1">♪</span>
+      <span class="musicNote n2">♫</span>
+      <span class="musicNote n3">♪</span>
+    </div>
+    <div id="globalWaitText" class="globalWaitText">Arbetar…</div>
+    <div id="globalWaitLongText" class="globalWaitLongText hidden">Det tar lite längre tid än vanligt…</div>
   </div>
 </div>
 </body></html>
