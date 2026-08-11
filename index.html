@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.45</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.48</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1242,7 +1242,7 @@ html.digihitsBooting body{
   font-size:11px
 }
 
-/* V5.45: tydligare matchstatus i Mina matcher */
+/* V5.48: tydligare matchstatus i Mina matcher */
 .matchSummaryBadge{
   padding:6px 10px;
   font-size:11px;
@@ -1299,7 +1299,7 @@ html.digihitsBooting body{
   #onlineGame .matchCodeInlineFull .copyCodeBtn{font-size:7px;padding:6px 7px}
 }
 
-/* V5.45: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
+/* V5.48: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
 @media(min-width:801px){
   .appBrandRow{
     padding-left:316px;
@@ -1313,7 +1313,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.45 - tydlig klickbarhet för pågående matcher */
+/* V5.48 - tydlig klickbarhet för pågående matcher */
 .onlineMatchCard.ongoingClickable{
   position:relative;
   cursor:pointer;
@@ -1321,7 +1321,7 @@ html.digihitsBooting body{
   box-shadow:0 0 0 1px rgba(79,195,247,.08),0 8px 22px #0003
 }
 .onlineMatchCard.ongoingClickable::after{
-  content:"ÖPPNA MATCH";
+  content:"";
   position:absolute;
   right:10px;
   top:10px;
@@ -1361,7 +1361,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.45 - kompaktare huvudknappar på bredare skärmar */
+/* V5.48 - kompaktare huvudknappar på bredare skärmar */
 @media(min-width:700px){
   #onlineSpotifyBtn{
     width:auto !important;
@@ -1380,8 +1380,33 @@ html.digihitsBooting body{
     justify-self:start;
   }
 }
+
+/* V5.48 - statusraden är själva öppna-match-uppmaningen */
+.onlineMatchState{
+  max-width:100%;
+  white-space:normal;
+  line-height:1.2;
+  text-align:left
+}
+@media(max-width:520px){
+  .onlineMatchState{
+    font-size:9px;
+    padding:6px 7px;
+    gap:5px
+  }
+}
+@media(max-width:370px){
+  .onlineMatchState{
+    font-size:8px;
+  }
+}
+
+/* V5.48 - namn på spelaren vars tur övriga väntar på */
+.onlineMatchState.wait{
+  overflow-wrap:anywhere
+}
 </style></head><body>
-<div class="app"><div class="top appBrandRow"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.45</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.48</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2498,7 +2523,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.45";
+    if(badge)badge.textContent="Återansluten · V5.48";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2506,7 +2531,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.45 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.48 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2517,7 +2542,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.45"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.48"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -2636,7 +2661,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.45":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.48":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3389,7 +3414,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.45
+// SPELA ONLINE – V5.48
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -3484,6 +3509,7 @@ let verificationResendCooldownUntil=0;
 let digihitsAccountUser=null;
 let digihitsAuthReady=false;
 const DIGIHITS_AUTH_KEY="digihits_auth_session_v1";
+const DIGIHITS_LOGOUT_EPOCH_KEY="digihits_logout_epoch_v1";
 let digihitsAuthSession=null;
 let onlineMatchesTimer=null;
 let onlineGameTimer=null;
@@ -4096,7 +4122,15 @@ async function applyDigihitsRoute(state,{fromPop=false}={}){
 
 window.addEventListener("popstate",async event=>{
   const state=event.state?.digihits ? event.state : routeFromLocation();
-  if(state)await applyDigihitsRoute(state,{fromPop:true});
+  if(!state)return;
+
+  const protectedView=["home","match","change-password"].includes(String(state.view||""));
+  if(protectedView){
+    const ok=await revalidateAuthAfterHistoryRestore();
+    if(!ok)return;
+  }
+
+  await applyDigihitsRoute(state,{fromPop:true});
 });
 
 function showAuthView(view,pushHistory=true){
@@ -4327,6 +4361,55 @@ function saveAuthSession(session){
   }else{
     localStorage.removeItem(DIGIHITS_AUTH_KEY);
   }
+}
+
+
+function markDigihitsLoggedOut(){
+  try{localStorage.setItem(DIGIHITS_LOGOUT_EPOCH_KEY,String(Date.now()))}catch(_){}
+}
+
+function clearDigihitsLoggedOutMarker(){
+  try{localStorage.removeItem(DIGIHITS_LOGOUT_EPOCH_KEY)}catch(_){}
+}
+
+function hasDigihitsLoggedOutMarker(){
+  try{return !!localStorage.getItem(DIGIHITS_LOGOUT_EPOCH_KEY)}catch(_){return false}
+}
+
+async function revalidateAuthAfterHistoryRestore(){
+  // bfcache/history may restore old in-memory JS state. Never trust it.
+  if(hasDigihitsLoggedOutMarker()){
+    saveAuthSession(null);
+    digihitsAccountUser=null;
+    onlineUserId="";
+    cleanupOnlineMatchView();
+    $("onlineGame")?.classList.add("hidden");
+    $("home")?.classList.remove("hidden");
+    currentAuthView="choice";
+    renderAccountUi();
+    showAuthView("choice",false);
+    pushDigihitsRoute({view:"choice"},true);
+    return false;
+  }
+
+  const user=await fetchCurrentAuthUser();
+  if(!user){
+    saveAuthSession(null);
+    digihitsAccountUser=null;
+    onlineUserId="";
+    cleanupOnlineMatchView();
+    $("onlineGame")?.classList.add("hidden");
+    $("home")?.classList.remove("hidden");
+    currentAuthView="choice";
+    renderAccountUi();
+    showAuthView("choice",false);
+    pushDigihitsRoute({view:"choice"},true);
+    return false;
+  }
+
+  // Rebind live state to the currently valid server session.
+  await applyAccountSession(user,{migrate:false});
+  return true;
 }
 
 function loadAuthSession(){
@@ -4989,6 +5072,7 @@ async function createDigihitsAccount(){
 
       if(data?.access_token){
         saveAuthSession(data);
+        clearDigihitsLoggedOutMarker();
         const user=data.user||await fetchCurrentAuthUser();
         if(user)await applyAccountSession(user,{migrate:false});
         setAccountStatus("",false,"signupStatus");
@@ -5074,6 +5158,7 @@ $("passwordResetPanel")?.classList.add("hidden");
     if(!data?.access_token||!data?.user)throw new Error("Inloggningen returnerade ingen session.");
 
     saveAuthSession(data);
+    clearDigihitsLoggedOutMarker();
     currentAuthView="choice";
     await applyAccountSession(data.user,{migrate:false});
     setAccountStatus("",false,"loginStatus");
@@ -5235,6 +5320,9 @@ function rateLimitAction(key,windowMs=1200){
 }
 
 async function logoutDigihitsAccount(){
+  // Mark logout immediately so bfcache/history cannot resurrect the old account.
+  markDigihitsLoggedOut();
+
   const s=await refreshAuthSessionIfNeeded();
   try{
     if(s?.access_token){
@@ -5245,6 +5333,7 @@ async function logoutDigihitsAccount(){
   }
 
   saveAuthSession(null);
+  saveRecoverySession(null);
 
   try{
     if(onlineListChannel&&getRealtimeClient())getRealtimeClient().removeChannel(onlineListChannel);
@@ -5256,6 +5345,7 @@ async function logoutDigihitsAccount(){
   onlineUserId="";
   localStorage.removeItem(ONLINE_USER_KEY);
   localStorage.removeItem(ONLINE_NAME_KEY);
+  sessionStorage.removeItem(DIGIHITS_NAV_KEY);
 
   $("authenticatedHomeContent")?.classList.add("hidden");
   $("homeGameTitle")?.classList.add("hidden");
@@ -6438,11 +6528,16 @@ async function loadOnlineMatches(options={}){
         ? `<span class="homeChatUnread" aria-label="Olästa chattmeddelanden" title="Olästa chattmeddelanden">✉<span>!</span></span>`
         : "";
 
+      const currentTurnPlayer=activePlayers.find(
+        p=>String(p.user_id||"")===String(m.current_user_id||"")
+      );
+      const waitingForName=String(currentTurnPlayer?.display_name||opponent||"spelare").trim();
+
       const text=yourTurn
-        ? "DIN TUR"
+        ? "DIN TUR - ÖPPNA MATCH HÄR"
         : waitingForOpponent
-          ? "VÄNTAR PÅ MOTSPELARE"
-          : "VÄNTAR PÅ ANNAN SPELARE";
+          ? "VÄNTAR PÅ MOTSPELARE - VISA MATCH HÄR"
+          : `VÄNTAR PÅ ${waitingForName.toLocaleUpperCase("sv-SE")} - VISA MATCH HÄR`;
 
       const stateClass=yourTurn
         ? "yourTurn"
@@ -8244,7 +8339,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.45.
+// Startsidan är alltid online i V5.48.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -8272,6 +8367,22 @@ setTimeout(()=>{
     finishDigihitsBoot();
   }
 },4000);
+
+window.addEventListener("pageshow",async event=>{
+  if(event.persisted){
+    try{await revalidateAuthAfterHistoryRestore()}catch(e){
+      console.error("Auth revalidation after history restore:",e);
+      markDigihitsLoggedOut();
+      saveAuthSession(null);
+      digihitsAccountUser=null;
+      onlineUserId="";
+      currentAuthView="choice";
+      renderAccountUi();
+      showAuthView("choice",false);
+      pushDigihitsRoute({view:"choice"},true);
+    }
+  }
+});
 </script>
 
 <div id="clearHistoryModal" class="modalBackdrop hidden">
