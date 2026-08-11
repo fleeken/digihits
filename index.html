@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.66</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.69</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1242,7 +1242,7 @@ html.digihitsBooting body{
   font-size:11px
 }
 
-/* V5.66: tydligare matchstatus i Mina matcher */
+/* V5.69: tydligare matchstatus i Mina matcher */
 .matchSummaryBadge{
   padding:6px 10px;
   font-size:11px;
@@ -1299,7 +1299,7 @@ html.digihitsBooting body{
   #onlineGame .matchCodeInlineFull .copyCodeBtn{font-size:7px;padding:6px 7px}
 }
 
-/* V5.66: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
+/* V5.69: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
 @media(min-width:801px){
   .appBrandRow{
     padding-left:316px;
@@ -1313,7 +1313,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.66 - tydlig klickbarhet för pågående matcher */
+/* V5.69 - tydlig klickbarhet för pågående matcher */
 .onlineMatchCard.ongoingClickable{
   position:relative;
   cursor:pointer;
@@ -1361,7 +1361,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.66 - kompaktare huvudknappar på bredare skärmar */
+/* V5.69 - kompaktare huvudknappar på bredare skärmar */
 @media(min-width:700px){
   #onlineSpotifyBtn{
     width:auto !important;
@@ -1381,7 +1381,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.66 - statusraden är själva öppna-match-uppmaningen */
+/* V5.69 - statusraden är själva öppna-match-uppmaningen */
 .onlineMatchState{
   max-width:100%;
   white-space:normal;
@@ -1401,12 +1401,12 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.66 - namn på spelaren vars tur övriga väntar på */
+/* V5.69 - namn på spelaren vars tur övriga väntar på */
 .onlineMatchState.wait{
   overflow-wrap:anywhere
 }
 
-/* V5.66 - kompaktare redo-knapp pa mobil */
+/* V5.69 - kompaktare redo-knapp pa mobil */
 @media(max-width:520px){
   .btn{
     width:auto !important;
@@ -1427,14 +1427,14 @@ html.digihitsBooting body{
 }
 
 
-/* V5.66 - i mobil visas matchlaget bara i den centrala matchvyn */
+/* V5.69 - i mobil visas matchlaget bara i den centrala matchvyn */
 @media(max-width:520px){
   #onlineGameStatus{
     display:none !important;
   }
 }
 
-/* V5.66 - Pågående matcher: hela kortet färgkodas efter turstatus */
+/* V5.69 - Pågående matcher: hela kortet färgkodas efter turstatus */
 .onlineMatchCard.waiting{
   border-color:#c7972f !important;
   background:#2a210f !important;
@@ -1461,7 +1461,7 @@ html.digihitsBooting body{
   background:#102331 !important
 }
 
-/* V5.66 - Matcher utan motståndare: samma helkortsgrafik, blå */
+/* V5.69 - Matcher utan motståndare: samma helkortsgrafik, blå */
 .onlineMatchCard.waitingOpponent{
   border-color:#3577a8 !important;
   background:#102331 !important;
@@ -1475,7 +1475,7 @@ html.digihitsBooting body{
   background:#0d1e2a !important
 }
 
-/* V5.66 - matchkodsraden far aldrig sticka utanfor sidopanelen */
+/* V5.69 - matchkodsraden far aldrig sticka utanfor sidopanelen */
 #onlineGame .matchCodeInlineFull{
   display:grid !important;
   grid-template-columns:max-content minmax(0,1fr) max-content !important;
@@ -1543,7 +1543,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.66 - knappstorlekar i matchvyn */
+/* V5.69 - knappstorlekar i matchvyn */
 #onlineReadyScreen .btn.ready{
   width:auto !important;
   min-width:220px !important;
@@ -1583,7 +1583,7 @@ html.digihitsBooting body{
   display:none !important;
 }
 
-/* V5.66 - korrekt låsbygel */
+/* V5.69 - korrekt låsbygel */
 #onlineGameBadge.unlocked .matchLockGlyph::after{
   content:"";
   position:absolute;
@@ -1610,7 +1610,7 @@ html.digihitsBooting body{
   transform:none
 }
 
-/* V5.66 - matchvyns huvudknappar */
+/* V5.69 - matchvyns huvudknappar */
 #onlineGame .backToMatchesBtn{
   background:#2b303a !important;
   border-color:#3a414d !important;
@@ -1674,7 +1674,7 @@ html.digihitsBooting body{
 }
 </style>
 <style>
-/* V5.66 - matchvyn enligt godkänd layout */
+/* V5.69 - matchvyn enligt godkänd layout */
 #onlineGame{
   position:relative !important;
 }
@@ -1728,7 +1728,7 @@ html.digihitsBooting body{
 </style>
 
 <style>
-/* V5.66 - brand i eget layoututrymme, aldrig ovanpå annat */
+/* V5.69 - brand i eget layoututrymme, aldrig ovanpå annat */
 #onlineGameBrand{
   display:flex;
   align-items:baseline;
@@ -1776,7 +1776,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.66 - Digihits/version precis ovanför huvudramens vänstra kant */
+/* V5.69 - Digihits/version precis ovanför huvudramens vänstra kant */
 #onlineGame .panel.main{
   position:relative !important;
   margin-top:30px !important;
@@ -1841,7 +1841,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.66 - återställ Digihits-färger */
+/* V5.69 - återställ Digihits-färger */
 #onlineGameBrand .brandDigi{
   color:#59cfff !important;
 }
@@ -1857,7 +1857,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   color:#fff !important;
 }
 
-/* V5.66 - iPhone: chatt/lämna exakt samma bredd som motståndarboxen */
+/* V5.69 - iPhone: chatt/lämna exakt samma bredd som motståndarboxen */
 @media(max-width:520px){
   #onlineGame .side{
     box-sizing:border-box !important;
@@ -1883,8 +1883,125 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   }
 }
 </style>
+
+<style>
+/* V5.69 - tydlig väntanimation med noter som rör sig från vänster till höger */
+.globalWaitOverlay{
+  z-index:12000 !important;
+}
+.globalWaitBox{
+  overflow:hidden !important;
+}
+.musicLoader{
+  position:relative !important;
+  display:block !important;
+  width:100% !important;
+  height:42px !important;
+  overflow:hidden !important;
+  margin:0 0 10px !important;
+}
+
+/* Fyra diskreta notlinjer bakom noterna */
+.musicLoaderTrack{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  top:9px !important;
+  height:24px !important;
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 1px,
+      rgba(255,255,255,.14) 1px,
+      rgba(255,255,255,.14) 2px,
+      transparent 2px,
+      transparent 7px,
+      rgba(255,255,255,.14) 7px,
+      rgba(255,255,255,.14) 8px,
+      transparent 8px,
+      transparent 13px,
+      rgba(255,255,255,.14) 13px,
+      rgba(255,255,255,.14) 14px,
+      transparent 14px,
+      transparent 19px,
+      rgba(255,255,255,.14) 19px,
+      rgba(255,255,255,.14) 20px,
+      transparent 20px
+    ) !important;
+  opacity:1 !important;
+  pointer-events:none !important;
+}
+
+.musicNote{
+  position:absolute !important;
+  left:-28px !important;
+  top:8px !important;
+  display:block !important;
+  opacity:0 !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  color:#59cfff !important;
+  text-shadow:0 0 10px rgba(89,207,255,.5) !important;
+  will-change:transform,opacity !important;
+  animation-name:digihitsNoteTravel !important;
+  animation-duration:2.8s !important;
+  animation-timing-function:linear !important;
+  animation-iteration-count:infinite !important;
+}
+
+.musicNote.n1{
+  animation-delay:0s !important;
+  top:7px !important;
+}
+.musicNote.n2{
+  animation-delay:.85s !important;
+  top:14px !important;
+}
+.musicNote.n3{
+  animation-delay:1.7s !important;
+  top:4px !important;
+}
+
+@keyframes digihitsNoteTravel{
+  0%{
+    transform:translateX(0) rotate(-8deg);
+    opacity:0;
+  }
+  10%{
+    opacity:1;
+  }
+  85%{
+    opacity:1;
+  }
+  100%{
+    transform:translateX(calc(min(360px, 82vw))) rotate(8deg);
+    opacity:0;
+  }
+}
+
+@media(max-width:520px){
+  .musicLoader{
+    height:38px !important;
+  }
+  .musicNote{
+    font-size:21px !important;
+    animation-duration:2.5s !important;
+  }
+}
+
+/* Respektera reduced motion men visa fortfarande laddning tydligt */
+@media(prefers-reduced-motion:reduce){
+  .musicNote{
+    animation:none !important;
+    left:50% !important;
+    opacity:1 !important;
+    transform:none !important;
+  }
+}
+</style>
 </head><body>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.66</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.69</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2126,7 +2243,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V5.66</span>
+        <span class="onlineGameBrandVersion">V5.69</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2973,7 +3090,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.66";
+    if(badge)badge.textContent="Återansluten · V5.69";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -2981,7 +3098,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.66 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.69 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -2992,7 +3109,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.66"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.69"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -3111,7 +3228,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.66":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.69":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -3864,7 +3981,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.66
+// SPELA ONLINE – V5.69
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -6574,7 +6691,7 @@ async function fetchPlaylistMusicCards(playlistId,excludeIds,maxItems=40,sourceQ
   return out;
 }
 
-async function fetchSwedenMainstreamCandidates(excludeIds,wanted=40){
+async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
   const out=[];
   const seen=new Set(excludeIds||[]);
 
@@ -6582,82 +6699,82 @@ async function fetchSwedenMainstreamCandidates(excludeIds,wanted=40){
     if(!card?.id)return;
     const enriched=markRecognitionSource(card,query,type);
     if(!isVeryRecognizableHit(enriched))return;
+
     const id=String(enriched.id);
     if(seen.has(id))return;
     seen.add(id);
     out.push(enriched);
   };
 
-  // Keep turn-start latency bounded. Search only a few high-value sources and
-  // run them in parallel instead of walking 30+ Spotify searches sequentially.
-  const playlistQueries=sh([
-    "All Out 80s","All Out 90s","All Out 2000s","All Out 2010s",
-    "Classic Hits","Svenska Klassiker","Svenska Hits","Hot Hits Sweden"
-  ]).slice(0,4);
+  // Recognition-first sources. These are deliberately mainstream/iconic,
+  // not generic discovery or genre playlists.
+  const playlistQueries=[
+    "All Out 60s","All Out 70s","All Out 80s","All Out 90s",
+    "All Out 2000s","All Out 2010s","Top Hits 2020s",
+    "Classic Hits","Greatest Hits","Sing Along Hits","Party Classics",
+    "Svenska Klassiker","Svenska Hits","Hits Sverige",
+    "Top 50 Sweden","Hot Hits Sweden"
+  ];
 
-  const playlistResults=await Promise.allSettled(
-    playlistQueries.map(q=>withTimeout(
-      spotifySearchPlaylistsSweden(q),
-      3500,
-      "Spotify-sökningen tog för lång tid."
-    ).then(d=>({q,d})))
-  );
+  // Swedish household-name catalog sources. Individual tracks still have to
+  // pass the popularity floor, so famous artists do not mean arbitrary album tracks.
+  const swedishIconQueries=[
+    "ABBA greatest hits","Roxette greatest hits","Avicii greatest hits",
+    "Gyllene Tider hits","Carola hits","Tomas Ledin hits","Kent greatest hits",
+    "Håkan Hellström hits","Veronica Maggio hits","Laleh hits",
+    "Zara Larsson hits","Måns Zelmerlöw hits"
+  ];
 
-  const playlistJobs=[];
-  for(const r of playlistResults){
-    if(r.status!=="fulfilled")continue;
-    const {q,d}=r.value;
-    const pl=(d?.playlists?.items||[]).find(x=>x?.id);
-    if(!pl)continue;
-    playlistJobs.push(
-      withTimeout(
-        fetchPlaylistMusicCards(pl.id,seen,18,q),
-        4000,
-        "Spotify-spellistan tog för lång tid."
-      ).then(cards=>({q,cards})).catch(()=>null)
-    );
-  }
+  const allPlaylistQueries=[...playlistQueries,...swedishIconQueries];
 
-  const cardGroups=await Promise.all(playlistJobs);
-  for(const group of cardGroups){
-    if(!group)continue;
-    for(const card of group.cards||[]){
-      add(card,group.q,"playlist");
+  for(const q of allPlaylistQueries.sort(()=>Math.random()-.5)){
+    if(out.length>=wanted)break;
+    const d=await spotifySearchPlaylistsSweden(q);
+
+    for(const pl of (d?.playlists?.items||[]).slice(0,2)){
+      if(!pl?.id)continue;
+
+      const cards=await fetchPlaylistMusicCards(pl.id,seen,26,q);
+      for(const card of cards)add(card,q,"playlist");
+
       if(out.length>=wanted)break;
     }
-    if(out.length>=wanted)break;
   }
 
-  // One compact track-search fallback, also parallel and bounded.
-  if(out.length<wanted){
-    const trackQueries=sh([
-      "80s greatest hits","90s greatest hits","2000s greatest hits",
-      "2010s greatest hits","swedish classics","svenska hits"
-    ]).slice(0,3);
+  // Track search is secondary and still strict.
+  const trackQueries=[
+    "60s greatest hits","70s greatest hits","80s greatest hits","90s greatest hits",
+    "2000s greatest hits","2010s greatest hits","2020s biggest hits",
+    "swedish classics","svenska klassiker","svenska hits",
+    "radio classics","party classics","sing along classics",
+    "pop classics","rock classics","dance classics"
+  ];
 
-    const trackResults=await Promise.allSettled(
-      trackQueries.map(q=>withTimeout(
-        spotifySearchTracksSweden(q,0),
-        3500,
-        "Spotify-sökningen tog för lång tid."
-      ).then(d=>({q,d})))
-    );
+  for(const q of trackQueries.sort(()=>Math.random()-.5)){
+    if(out.length>=wanted)break;
 
-    for(const r of trackResults){
-      if(r.status!=="fulfilled")continue;
-      for(const track of (r.value.d?.tracks?.items||[])){
+    for(const offset of [0,10]){
+      let d=null;
+      try{
+        d=await spotifySearchTracksSweden(q,offset);
+      }catch(_){
+        break;
+      }
+
+      for(const track of (d?.tracks?.items||[])){
         const card=spotifyTrackToCard(track);
-        if(card)add(card,r.value.q,"track");
+        if(card)add(card,q,"track");
         if(out.length>=wanted)break;
       }
       if(out.length>=wanted)break;
     }
   }
 
-  return dedupeRecognizableVersions(out)
+  const pool=dedupeRecognizableVersions(out)
     .filter(isVeryRecognizableHit)
-    .sort((a,b)=>recognizabilityScore(b)-recognizabilityScore(a))
-    .slice(0,wanted);
+    .sort((a,b)=>recognizabilityScore(b)-recognizabilityScore(a));
+
+  return pool.slice(0,Math.max(wanted,60));
 }
 
 async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
@@ -6818,69 +6935,53 @@ function chooseVariedYearSong(deck){
 }
 
 async function drawOnlineSpotifySong(){
-  // Cross-device history is useful, but must never freeze a turn.
-  await withTimeout(
-    syncRecentTrackHistoryFromServer({force:true}),
-    2500,
-    "Historiksynk hoppades över."
-  ).catch(()=>{});
-
   const recentIds=recentTrackIdsForCurrentAccount();
-  const matchIds=onlineKnownTrackIds();
-  const excludeIds=new Set([...recentIds,...matchIds]);
-
-  let deck=await withTimeout(
-    refillOnlineDeckIfNeeded(8,40),
-    10000,
-    "Spotify tog för lång tid på sig att hämta låtar."
-  );
-
-  let eligible=deck.filter(card=>
+  let deck=await refillOnlineDeckIfNeeded(6,18);
+  deck=deck.filter(card=>
     isVeryRecognizableHit(card) &&
     !recentIds.has(String(card?.id||""))
   );
 
-  if(!eligible.length){
-    const fresh=await withTimeout(
-      fetchSpotifyTrackBatch(excludeIds,24),
-      10000,
-      "Spotify tog för lång tid på sig att hitta nästa låt."
-    );
-
-    const byId=new Map();
-    for(const card of [...deck,...fresh]){
-      if(card?.id && isVeryRecognizableHit(card))byId.set(String(card.id),card);
-    }
-    deck=sh([...byId.values()]);
-    eligible=deck.filter(card=>!recentIds.has(String(card?.id||"")));
-  }
-
-  // So far as possible: relax only the seven-day rule, never the clean/hit rules.
-  if(!eligible.length){
-    eligible=deck.filter(card=>
-      isVeryRecognizableHit(card) &&
-      !matchIds.has(String(card?.id||""))
+  if(!deck.length){
+    deck=sh(
+      (await fetchSpotifyTrackBatch(
+        new Set([...onlineKnownTrackIds(),...recentIds]),
+        18
+      )).filter(card=>
+        isVeryRecognizableHit(card) &&
+        !recentIds.has(String(card?.id||""))
+      )
     );
   }
 
-  if(!eligible.length){
-    throw new Error("Spotify kunde inte hitta en ny lämplig låt just nu. Tryck på redo och försök igen.");
+  if(!deck.length){
+    deck=sh(
+      (await fetchSpotifyTrackBatch(onlineKnownTrackIds(),18))
+        .filter(isVeryRecognizableHit)
+    );
   }
 
-  const picked=chooseVariedYearSong(eligible);
+  if(!deck.length){
+    throw new Error(
+      "Spotify kunde inte hitta tillräckligt många välkända hits just nu. Försök igen om en stund."
+    );
+  }
+
+  const picked=chooseVariedYearSong(deck);
   const song=picked.song;
-  if(!song || !isVeryRecognizableHit(song))throw new Error("Ingen lämplig låt kunde väljas.");
+  deck=picked.deck;
 
-  deck=deck.filter(card=>String(card?.id||"")!==String(song.id));
+  if(!song || !isVeryRecognizableHit(song)){
+    throw new Error("Ingen tillräckligt välkänd låt kunde väljas.");
+  }
 
-  // Record locally immediately. Server persistence is best-effort in background,
-  // and may not hold up Spotify playback.
-  const entry={id:String(song.id),ts:Date.now()};
-  digihitsRecentTracks=mergeRecentTrackHistory([entry],digihitsRecentTracks,loadLocalRecentTrackEntries());
-  saveLocalRecentTrackEntries(digihitsRecentTracks);
-  rememberPlayedTrackForAccount(song.id).catch(e=>console.warn("Recent track persist:",e));
+  const used=[
+    ...new Set([
+      ...(onlineMatch.used_track_ids||[]).map(String),
+      String(song.id)
+    ])
+  ];
 
-  const used=[...new Set([...(onlineMatch.used_track_ids||[]).map(String),String(song.id)])];
   return {song,deck,used};
 }
 
@@ -7619,42 +7720,34 @@ async function hideSingleHistoryMatch(playerRowId,opponentName=""){
   const waitToken=beginGlobalWait("Raderar från historiken…");
   try{
     const userId=String(ensureOnlineUserId()||"").trim();
-    if(!userId){
-      throw new Error("Ingen inloggad användare kunde identifieras.");
-    }
+    if(!userId)throw new Error("Ingen inloggad användare kunde identifieras.");
 
-    // Läs först raden för att verifiera ägarskap och ge tydligare fel än en tyst update.
-    const check=await db.from("online_players")
-      .select("id,user_id,history_hidden")
-      .eq("id",id)
-      .maybeSingle();
-
-    if(check.error)throw new Error(check.error.message);
-    if(!check.data){
-      throw new Error("Historikraden finns inte längre.");
-    }
-    if(String(check.data.user_id||"")!==userId){
-      throw new Error("Historikraden tillhör inte den inloggade användaren.");
-    }
-
+    // Gör samma enkla update som "Nollställ all historik". Den tidigare varianten
+    // krävde att Supabase skulle returnera den uppdaterade raden via .select(),
+    // vilket kan fallera/tyst blockeras av RLS trots att själva UPDATE är tillåten.
     const up=await db.from("online_players")
       .update({
         history_hidden:true,
         updated_at:new Date().toISOString()
       })
       .eq("id",id)
-      .eq("user_id",userId)
-      .select("id,history_hidden")
-      .maybeSingle();
+      .eq("user_id",userId);
 
     if(up.error)throw new Error(up.error.message);
-    if(!up.data || up.data.history_hidden!==true){
-      throw new Error("Raden kunde inte markeras som raderad.");
+
+    // Uppdatera UI direkt så knappen alltid ger omedelbar respons.
+    const btn=document.querySelector(`.historyDeleteBtn[data-history-player-id="${CSS.escape(id)}"]`);
+    const card=btn?.closest(".historyCard");
+    if(card){
+      card.style.transition="opacity .16s ease,transform .16s ease";
+      card.style.opacity="0";
+      card.style.transform="scale(.985)";
+      await sleep(170);
+      card.remove();
     }
 
-    // Tvinga omrendering och ny hämtning.
     onlineHistoryRenderedHtml="";
-    await loadOnlineHistory({silent:false});
+    await loadOnlineHistory({silent:true});
   }catch(e){
     console.error("Hide history row failed:",e);
     alert("Kunde inte radera matchen från historiken.\n\n"+(e?.message||e));
@@ -7720,7 +7813,7 @@ async function loadOnlineHistory(options={}){
               <div class="historyName">Mot ${escapeHtml(opponent)}</div>
               <div class="historyTopActions">
                 <div class="historyResult ${outcome.className}">${escapeHtml(outcome.text)}</div>
-                <button type="button" class="historyDeleteBtn" aria-label="Radera match från historiken" title="Radera från historik" onclick="event.stopPropagation();hideSingleHistoryMatch(${JSON.stringify(String(me.id))},${JSON.stringify(opponent)})">🗑</button>
+                <button type="button" class="historyDeleteBtn" data-history-player-id="${escapeHtml(String(me.id))}" aria-label="Radera match från historiken" title="Radera från historik" onclick="event.stopPropagation();hideSingleHistoryMatch(this.dataset.historyPlayerId,${JSON.stringify(opponent)})">🗑</button>
               </div>
             </div>
             ${summaryHtml}
@@ -8505,11 +8598,7 @@ async function startOnlineTurn(){
     onlineMyPlayer={...onlineMyPlayer,rounds_started:nextRoundsStarted};
 
     setOnlineGameStatus("Hämtar nästa låt från Spotify…");
-    const draw=await withTimeout(
-      drawOnlineSpotifySong(),
-      12000,
-      "Spotify svarade för långsamt. Tryck på redo och försök igen."
-    );
+    const draw=await drawOnlineSpotifySong();
     const song=draw.song;
     const deck=draw.deck;
     const up=await db.from("online_matches").update({
@@ -9231,7 +9320,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.66.
+// Startsidan är alltid online i V5.69.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
@@ -9365,7 +9454,7 @@ window.addEventListener("pageshow",async event=>{
 
 <div id="globalWaitOverlay" class="globalWaitOverlay hidden" aria-live="polite" aria-busy="true">
   <div class="globalWaitBox">
-    <div class="musicLoader" aria-hidden="true">
+    <div class="musicLoader" aria-hidden="true" data-loader-version="5.69">
       <div class="musicLoaderTrack"></div>
       <span class="musicNote n1">♪</span>
       <span class="musicNote n2">♫</span>
