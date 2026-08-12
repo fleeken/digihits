@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.38</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.39</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2636,8 +2636,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 </head><body>
-<script>console.info("DIGIHITS_V6_38_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.38</small></button></div>
+<script>console.info("DIGIHITS_V6_39_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.39</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2874,7 +2874,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.38</span>
+        <span class="onlineGameBrandVersion">V6.39</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -3890,12 +3890,6 @@ function openSpotifyForRecovery(){
       return true;
     }
 
-    const notice=$("spotifyDesktopLaunchNotice");
-    if(notice){
-      notice.classList.add("show");
-      setTimeout(()=>notice.classList.remove("show"),7000);
-    }
-
     // Give the user enough time to read the instruction before focus leaves
     // the browser. Then invoke only the installed Spotify desktop client.
     setTimeout(()=>{
@@ -4022,7 +4016,6 @@ function scheduleSpotifyRecoveryOnReturn(){
 
 document.addEventListener("visibilitychange",()=>{
   if(!document.hidden){
-    try{$("spotifyDesktopLaunchNotice")?.classList.remove("show")}catch(_){}
     scheduleSpotifyRecoveryOnReturn();
   }
 });
@@ -4181,7 +4174,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.38"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.39"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -10681,13 +10674,9 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_38_BUILD_20260812_E");
+console.info("DIGIHITS_V6_39_BUILD_20260812_F");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
-
-<div id="spotifyDesktopLaunchNotice" role="status" aria-live="polite">
-  Spotify öppnas nu. Låten startar inte medan Spotify visas. Gå tillbaka till Digihits när Spotify har startat – först då startar låten.
-</div>
 
 
 </body></html>
