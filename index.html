@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.29</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.30</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2738,7 +2738,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 </head><body>
 <script>console.info("DIGIHITS_V6_29_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.29</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.30</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2975,7 +2975,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.29</span>
+        <span class="onlineGameBrandVersion">V6.30</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -3000,7 +3000,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
         </ol>
         <div class="spotifyRecoveryActions">
           <button type="button" class="btn green" onclick="openSpotifyForRecovery()">ÖPPNA SPOTIFY</button>
-          <button type="button" class="btn dark" onclick="retrySpotifyRecoveryNow()">FÖRSÖK IGEN</button>
+          <button type="button" class="btn dark" onclick="retrySpotifyRecoveryNow()">SPELA HÄR / FÖRSÖK IGEN</button>
         </div>
       </div>
 
@@ -3079,6 +3079,18 @@ window.__digihitsRealtimeLibraryDisabled=true;
 
 const SPOTIFY_CLIENT_ID = "096b8f046aba41759da21ada77d8f920";
 const SPOTIFY_REDIRECT = location.origin + location.pathname;
+// "streaming" kravs for Spotify Web Playback SDK (uppspelning direkt i webblasaren).
+// user-read-email + user-read-private kravs ocksa av SDK:n.
+const SPOTIFY_SCOPES = "streaming app-remote-control user-read-playback-state user-modify-playback-state user-read-private user-read-email";
+// Hojs nar scope-listan andras, sa att gamla tokens tvingas till ny inloggning.
+const SPOTIFY_SCOPE_VERSION = "v2-streaming";
+function spotifyGrantedScopeVersion(){
+  try{return localStorage.getItem("digihits_spotify_scope_version")||""}catch(_){return ""}
+}
+function spotifyNeedsScopeUpgrade(){
+  if(!spotifyAccessToken && !spotifyRefreshToken) return false;
+  return spotifyGrantedScopeVersion() !== SPOTIFY_SCOPE_VERSION;
+}
 let spotifyAccessToken = localStorage.getItem("digihits_spotify_access") || "";
 let spotifyRefreshToken = localStorage.getItem("digihits_spotify_refresh") || "";
 let spotifyExpiresAt = Number(localStorage.getItem("digihits_spotify_expires") || 0);
@@ -3309,7 +3321,7 @@ async function spotifyLogin(forceAccountChoice=false){spotifyPreflightOk=false;
   const state=randomPkceString(24);
   sessionStorage.setItem("spotify_pkce_verifier",verifier);
   sessionStorage.setItem("spotify_oauth_state",state);
-  const scopes="user-read-playback-state user-modify-playback-state user-read-private user-read-email";
+  const scopes=SPOTIFY_SCOPES;
   const q=new URLSearchParams({
     client_id:clientId,
     response_type:"code",
@@ -3357,6 +3369,7 @@ async function handleSpotifyCallback(){
   }
 
   saveSpotifyTokens(d);
+  try{localStorage.setItem("digihits_spotify_scope_version",SPOTIFY_SCOPE_VERSION)}catch(_){}
 
   // Remove callback parameters before any further navigation/reload.
   history.replaceState({},document.title,location.pathname+location.hash);
@@ -3381,15 +3394,22 @@ async function handleSpotifyCallback(){
 
     setSpotifySetupMessage(`Nytt Spotify-konto verifierat: ${account}. Kontrollerar enhet…`);
 
-    const deviceOk=await ensureSpotifyDevice(false);
-    if(!deviceOk){
-      setSpotifyHomeState("bad",`Spotify-kontot ${account} är anslutet, men ingen tillgänglig Spotify-enhet hittades. Öppna Spotify-appen och testa igen.`);
-      return;
+    // Webbspelaren i Digihits forst - inget behov av Spotify-appen.
+    const browserDevice=await dhGetWebPlayerDevice();
+    if(browserDevice){
+      spotifyDeviceId=browserDevice;
+      try{localStorage.setItem("digihits_spotify_device",spotifyDeviceId)}catch(_){}
+    }else{
+      const deviceOk=await ensureSpotifyDevice(false);
+      if(!deviceOk){
+        setSpotifyHomeState("bad",`Spotify-kontot ${account} är anslutet. Tryck TESTA SPOTIFY-ANSLUTNINGEN för att starta uppspelningen här i webbläsaren.${dhWebPlayerLastError?" ("+dhWebPlayerLastError+")":""}`);
+        return;
+      }
     }
 
     spotifyPreflightOk=true;
     setSpotifyHomeState("ok","");
-    setSpotifySetupMessage(`Spotify redo ✓ · konto: ${account}`);
+    setSpotifySetupMessage(`Spotify redo ✓ · konto: ${account}${browserDevice?" · spelar i webbläsaren":""}`);
     updateSpotifyUi();
   }catch(e){
     spotifyPreflightOk=false;
@@ -3591,6 +3611,9 @@ function spotifyControlsHtml(){
   if(!spotifyAccessToken&&!spotifyRefreshToken){
     return `<div class="mut" style="margin-top:10px">Spotify är inte anslutet.</div>`;
   }
+  if(dhWebPlayerIsActiveDevice()){
+    return `<div style="margin-top:10px" class="mut">Spotify redo ✓ · spelar direkt i webbläsaren</div>`;
+  }
   return `<div style="margin-top:10px" class="mut">${spotifyDeviceId?"Spotify redo ✓":"Spotify anslutet · väntar på aktiv enhet"}</div>`;
 }
 function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
@@ -3612,6 +3635,9 @@ let dhWebPlayerDeviceId="";
 let dhWebPlayerReady=false;
 let dhWebPlayerSdkPromise=null;
 let dhWebPlayerInitPromise=null;
+let dhWebPlayerLastError="";
+let dhAudioActivated=false;
+let dhWebPlayerNeedsReconnect=false;
 
 function dhLoadSpotifyWebSdk(){
   if(window.Spotify?.Player)return Promise.resolve(true);
@@ -3652,9 +3678,16 @@ async function dhInitWebPlayer(){
   if(dhWebPlayerInitPromise)return dhWebPlayerInitPromise;
 
   dhWebPlayerInitPromise=(async()=>{
+    if(spotifyNeedsScopeUpgrade()){
+      dhWebPlayerNeedsReconnect=true;
+      dhWebPlayerLastError="Anslut Spotify igen för att kunna spela låtar direkt i webbläsaren.";
+      throw new Error(dhWebPlayerLastError);
+    }
+
     const loaded=await dhLoadSpotifyWebSdk();
     if(!loaded||!window.Spotify?.Player){
-      throw new Error("Spotify Web Playback SDK kunde inte laddas.");
+      dhWebPlayerLastError="Spotify Web Playback SDK kunde inte laddas.";
+      throw new Error(dhWebPlayerLastError);
     }
 
     await getSpotifyToken();
@@ -3679,10 +3712,23 @@ async function dhInitWebPlayer(){
     player.addListener("not_ready",({device_id})=>{
       if(String(device_id||"")===dhWebPlayerDeviceId)dhWebPlayerReady=false;
     });
-    player.addListener("initialization_error",({message})=>console.warn("Web Player init:",message));
-    player.addListener("authentication_error",({message})=>console.warn("Web Player auth:",message));
-    player.addListener("account_error",({message})=>console.warn("Web Player account:",message));
-    player.addListener("playback_error",({message})=>console.warn("Web Player playback:",message));
+    player.addListener("initialization_error",({message})=>{
+      console.warn("Web Player init:",message);
+      dhWebPlayerLastError="Webbläsaren kunde inte starta Spotify-spelaren. Prova en annan webbläsare eller stäng av blockerare.";
+    });
+    player.addListener("authentication_error",({message})=>{
+      console.warn("Web Player auth:",message);
+      dhWebPlayerNeedsReconnect=true;
+      dhWebPlayerLastError="Spotify-inloggningen saknar behörighet för uppspelning i webbläsaren. Anslut Spotify igen.";
+    });
+    player.addListener("account_error",({message})=>{
+      console.warn("Web Player account:",message);
+      dhWebPlayerLastError="Spotify Premium krävs för att spela låtar direkt i webbläsaren.";
+    });
+    player.addListener("playback_error",({message})=>{
+      console.warn("Web Player playback:",message);
+      dhWebPlayerLastError="Spotify kunde inte spela låten i webbläsaren.";
+    });
 
     dhWebPlayer=player;
     const connected=await player.connect();
@@ -3718,11 +3764,57 @@ async function dhGetWebPlayerDevice(){
       body:JSON.stringify({device_ids:[dhWebPlayerDeviceId],play:false})
     });
 
+    dhWebPlayerLastError="";
     return dhWebPlayerDeviceId;
   }catch(e){
     console.warn("Web Player unavailable:",e);
+    if(!dhWebPlayerLastError)dhWebPlayerLastError=String(e?.message||e);
     return "";
   }
+}
+
+/* -------------------------------------------------------------------------
+   Ljudupplasning: webblasare tillater bara ljud efter en riktig anvandartryck.
+   Vi varmer darfor upp spelaren vid forsta klicket/tryckningen i appen.
+   ------------------------------------------------------------------------- */
+let dhWarmupInFlight=false;
+
+function dhWarmWebPlayerFromGesture(){
+  if(!spotifyAccessToken && !spotifyRefreshToken)return;
+  if(spotifyNeedsScopeUpgrade())return;
+
+  // Spelaren finns redan: aktivera ljudet direkt i gestens callback (kravs pa iOS).
+  if(dhWebPlayer && typeof dhWebPlayer.activateElement==="function" && !dhAudioActivated){
+    try{
+      const r=dhWebPlayer.activateElement();
+      if(r && typeof r.then==="function"){
+        r.then(()=>{dhAudioActivated=true}).catch(e=>console.warn("activateElement:",e));
+      }else{
+        dhAudioActivated=true;
+      }
+    }catch(e){console.warn("activateElement:",e)}
+    return;
+  }
+
+  if(dhWebPlayer || dhWarmupInFlight)return;
+  dhWarmupInFlight=true;
+  dhInitWebPlayer()
+    .then(player=>{
+      try{
+        const r=player.activateElement?.();
+        if(r&&typeof r.then==="function")r.then(()=>{dhAudioActivated=true}).catch(()=>{});
+      }catch(_){}
+    })
+    .catch(e=>console.warn("Web Player warmup:",e))
+    .finally(()=>{dhWarmupInFlight=false});
+}
+
+document.addEventListener("pointerdown",dhWarmWebPlayerFromGesture,{capture:true,passive:true});
+document.addEventListener("touchstart",dhWarmWebPlayerFromGesture,{capture:true,passive:true});
+document.addEventListener("keydown",dhWarmWebPlayerFromGesture,{capture:true});
+
+function dhWebPlayerIsActiveDevice(){
+  return !!(dhWebPlayerReady && dhWebPlayerDeviceId && spotifyDeviceId===dhWebPlayerDeviceId);
 }
 
 function dhResetWebPlayer(){
@@ -3732,6 +3824,8 @@ function dhResetWebPlayer(){
   dhWebPlayerReady=false;
   dhWebPlayerSdkPromise=null;
   dhWebPlayerInitPromise=null;
+  dhAudioActivated=false;
+  dhWebPlayerLastError="";
 }
 
 async function spotifyPlaybackState(){
@@ -3857,15 +3951,35 @@ function showSpotifyRecovery(trackId,message=""){
   spotifyRecoveryTrackId=String(trackId||onlineMatch?.current_song?.id||"");
 
   const box=$("spotifyRecoveryBox");
+  const inBrowser=dhWebPlayerIsActiveDevice()||dhWebPlayerReady;
+
   if(box){
     box.classList.add("show");
+
+    const title=box.querySelector(".spotifyRecoveryTitle");
     const text=box.querySelector(".spotifyRecoveryText");
-    if(text){
-      text.textContent=message||
-        spotifyRecoveryPlatformText();
+    const steps=box.querySelector(".spotifyRecoverySteps");
+    const openBtn=box.querySelector(".spotifyRecoveryActions .btn.green");
+
+    if(inBrowser){
+      // Ljudet spelas har i appen - anvandaren behover bara trycka en gang.
+      if(title)title.textContent="Tryck för att starta låten";
+      if(text){
+        text.textContent=message&&!/Spotify-appen/i.test(message)
+          ? message
+          : "Webbläsaren kräver en tryckning innan ljudet får starta. Tryck på SPELA HÄR så startar låten direkt i Digihits.";
+      }
+      if(steps)steps.style.display="none";
+      if(openBtn)openBtn.style.display="none";
+      setOnlineGameStatus("Tryck SPELA HÄR för att starta låten.");
+    }else{
+      if(title)title.textContent="Spotify behöver startas";
+      if(text)text.textContent=message||spotifyRecoveryPlatformText();
+      if(steps)steps.style.display="";
+      if(openBtn)openBtn.style.display="";
+      setOnlineGameStatus("Öppna Spotify och gå sedan tillbaka till Digihits.");
     }
   }
-  setOnlineGameStatus("Öppna Spotify och gå sedan tillbaka till Digihits.");
 }
 
 function hideSpotifyRecovery(){
@@ -4374,7 +4488,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V6.29";
+    if(badge)badge.textContent="Återansluten · V6.30";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -4396,7 +4510,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.29"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.30"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -4627,7 +4741,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V6.29":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V6.30":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -7547,6 +7661,13 @@ async function onlineSpotifyCheck(){
         return false;
       }
 
+      // Gamla inloggningar saknar "streaming" och kan inte spela i webbläsaren.
+      if(spotifyNeedsScopeUpgrade()){
+        setSpotifyHomeState("checking","Uppdaterar Spotify-behörigheten så att låtarna kan spelas direkt här…");
+        await spotifyLogin(false);
+        return false;
+      }
+
       await getSpotifyToken();
 
       // 1. Verify the exact Spotify account behind the current token.
@@ -7581,8 +7702,13 @@ async function onlineSpotifyCheck(){
 
         if(!devices.length){
           spotifyPreflightOk=false;
-          setSpotifyHomeState("bad",`Aktivt Spotify-konto: ${account}. Ingen Spotify-spelare är tillgänglig.`);
-          setSpotifySetupMessage(`Konto verifierat: ${account} · ingen Spotify-spelare tillgänglig.`);
+          const why=dhWebPlayerLastError?` (${dhWebPlayerLastError})`:"";
+          setSpotifyHomeState("bad",`Aktivt Spotify-konto: ${account}. Uppspelningen i webbläsaren kunde inte startas.${why}`);
+          setSpotifySetupMessage(`Konto verifierat: ${account} · webbspelaren kunde inte startas.${why}`);
+          if(dhWebPlayerNeedsReconnect){
+            dhWebPlayerNeedsReconnect=false;
+            try{localStorage.removeItem("digihits_spotify_scope_version")}catch(_){}
+          }
           return false;
         }
 
