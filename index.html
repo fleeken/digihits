@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.48</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.49</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -27,6 +27,21 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .musicPlayer .hostButtons{margin-top:12px}
 .musicPlayer .hostButtons .btn{flex:1 1 190px}
 .playbackBox{padding:12px;background:#0c1610;border:1px solid #245b38;border-radius:14px}
+.matchOverview{display:grid;gap:12px;text-align:left}
+.overviewStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.overviewStat{padding:10px;background:#171a22;border:1px solid #303744;border-radius:12px;text-align:center}
+.overviewStat b{display:block;font-size:20px;color:#fff}
+.overviewStat span{font-size:10px;color:var(--mut)}
+.overviewPlayers{display:grid;gap:8px}
+.overviewPlayer{padding:11px;background:#151922;border:1px solid #343c49;border-radius:12px}
+.overviewPlayer.active{border-color:var(--c)}
+.overviewPlayerHead{display:flex;justify-content:space-between;gap:8px;font-weight:900}
+.overviewPlayerMeta{margin-top:4px;color:var(--mut);font-size:11px;line-height:1.4}
+.overviewRound{padding:12px;background:#10151d;border:1px solid #354253;border-radius:14px}
+.overviewRoundTitle{font-size:11px;font-weight:950;margin-bottom:8px}
+.overviewRound .lastRoundScroll{overflow-x:auto}
+.overviewRound .lastRoundRail{min-height:190px}
+@media(max-width:650px){.overviewStats{grid-template-columns:repeat(3,1fr)}.overviewStat{padding:8px 5px}.overviewStat b{font-size:17px}}
 .playbackTimes{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-bottom:7px}
 .playbackTrack{height:10px;background:#26302a;border-radius:999px;overflow:hidden;border:1px solid #35483c}
 .playbackFill{height:100%;width:0%;background:linear-gradient(90deg,var(--g),var(--c));transition:width .35s linear}
@@ -2641,8 +2656,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 </head><body>
-<script>console.info("DIGIHITS_V6_48_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.48</small></button></div>
+<script>console.info("DIGIHITS_V6_49_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.49</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2880,7 +2895,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.48</span>
+        <span class="onlineGameBrandVersion">V6.49</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2914,7 +2929,6 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
         </div>
         <div class="screenTitle">Vad vill du göra?</div>
         <div class="onlineChoice">
-          <button type="button" class="choice guess" onclick="showOnlineGuess()">🎤 GISSA ARTIST & LÅTNAMN<small>Gissa först</small></button>
           <button type="button" class="choice place" onclick="requestOnlinePlace()">🃏 PLACERA LÅTEN<small>Placera kortet på tidslinjen</small></button>
         </div>
         <button type="button" id="onlineSwapBtn" class="btn orange full" style="margin-top:12px" onclick="onlineSwapSong()">BYT LÅT <span class="onlineSwapBtnCount">0/3</span></button>
@@ -2930,6 +2944,20 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
           <button type="button" class="saveGuessBtn btn cyan full" onclick="saveOnlineGuess()">SPARA GISSNING</button>
         </div>
       </div>
+
+      <div id="onlinePostPlacementGuessScreen" class="hidden">
+        <button type="button" class="back" onclick="skipOnlinePostPlacementGuess()">← Till matchen</button>
+        <div class="screenTitle">Gissa artist & låtnamn</div>
+        <p class="mut" style="text-align:center">Valfritt. Rätt artist och låtnamn ger ett Byta-låt-kort.</p>
+        <div class="guessFields">
+          <input id="onlinePostGuessArtist" class="input" placeholder="Artist">
+          <input id="onlinePostGuessTitle" class="input" placeholder="Låtnamn">
+          <button type="button" class="btn cyan full" onclick="lockInOnlinePostPlacementGuess()">LÅS IN SVAR</button>
+          <button type="button" class="btn dark full" onclick="skipOnlinePostPlacementGuess()">HOPPA ÖVER</button>
+        </div>
+      </div>
+
+      <div id="onlineOverviewScreen" class="hidden"></div>
 
       <div id="onlinePlaceScreen" class="hidden placementScreen">
         <button type="button" class="back" onclick="showOnlineListen()">← Tillbaka</button>
@@ -4254,7 +4282,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.48"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.49"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -4621,6 +4649,8 @@ let onlineMyPlayer=null;
 let onlineSelected=null;
 let onlineGuessSaved=false;
 let onlineSavedGuess={artist:"",title:""};
+let onlinePostPlacementGuessPending=false;
+let onlinePlacementResult=null;
 let onlineDecisionOpen=false;
 let onlineView="listen";
 let onlineViewSongId=null;
@@ -6596,7 +6626,7 @@ function setOnlineGameStatus(text,isError=false){
 }
 function onlineHideScreens(){
   setPlacementMode(false);
-  ["onlineWaitingScreen","onlineReadyScreen","onlineListenScreen","onlineGuessScreen","onlinePlaceScreen","onlineResultScreen"].forEach(id=>{
+  ["onlineWaitingScreen","onlineReadyScreen","onlineListenScreen","onlineGuessScreen","onlinePostPlacementGuessScreen","onlinePlaceScreen","onlineResultScreen","onlineOverviewScreen"].forEach(id=>{
     const el=$(id);if(el)el.classList.add("hidden");
   });
 }
@@ -9480,9 +9510,7 @@ function renderOnlineGame(){
 
   if(!myTurn){
     onlineHideScreens();
-    
-    $("onlineWaitingScreen").classList.remove("hidden");
-    $("onlineWaitingScreen").innerHTML=`Väntar på ${opp?.display_name||"motspelaren"}. Du behöver inte ha sidan öppen.`;
+    renderOnlineOverview();
     return;
   }
 
@@ -9539,9 +9567,13 @@ function renderOnlineGame(){
   }
 
   if(onlineMatch.phase==="decision"){
+    if(onlinePostPlacementGuessPending){
+      showOnlinePostPlacementGuess();
+      return;
+    }
     onlineHideScreens();
     onlineLocalResultHold=null;
-    showOnlineResult(true);
+    renderOnlineOverview();
     return;
   }
 
@@ -10002,6 +10034,62 @@ function saveOnlineGuess(){
     artist:($("onlineGuessArtist")?.value||"").trim(),
     title:($("onlineGuessTitle")?.value||"").trim()
   };
+
+  function showOnlinePostPlacementGuess(){
+    onlineHideScreens();
+    $("onlinePostPlacementGuessScreen")?.classList.remove("hidden");
+  }
+  async function finishOnlinePostPlacementGuess(artist="",title=""){
+    onlinePostPlacementGuessPending=false;
+    onlineSavedGuess={artist:String(artist||"").trim(),title:String(title||"").trim()};
+    onlineGuessSaved=!!(onlineSavedGuess.artist||onlineSavedGuess.title);
+    const result=onlineMatch?.last_result;
+    if(result?.song&&onlineGuessSaved&&onlineMyPlayer){
+      const artistNames=(result.song.artists&&result.song.artists.length?result.song.artists:String(result.song.artist||"").split(/,|&| feat\.? | ft\.? /i)).map(x=>String(x).trim()).filter(Boolean);
+      const artistOk=artistNames.some(name=>onlineEq(onlineSavedGuess.artist,name));
+      const titleOk=onlineEq(onlineSavedGuess.title,result.song.title);
+      const guess={guessed:true,artist:onlineSavedGuess.artist,title:onlineSavedGuess.title,artistOk,titleOk};
+      const cards=(onlineMyPlayer.turn_cards||[]).map(card=>card.id===result.song.id?{...card,_round_guess:guess}:card);
+      const swapCards=Math.min(3,Number(onlineMyPlayer.swap_cards||0)+(artistOk&&titleOk?1:0));
+      onlineMyPlayer={...onlineMyPlayer,turn_cards:cards,swap_cards:swapCards};
+      result.guess=guess;result.artistOk=artistOk;result.titleOk=titleOk;result.bonus=artistOk&&titleOk;
+      onlineMatch={...onlineMatch,last_result:result};
+      try{
+        await db.from("online_players").update({turn_cards:cards,swap_cards:swapCards,last_round:{...(onlineMyPlayer.last_round||{}),guess},updated_at:new Date().toISOString()}).eq("id",onlineMyPlayer.id);
+        await db.from("online_matches").update({last_result:compactMatchResult(result),updated_at:new Date().toISOString()}).eq("id",onlineMatch.id);
+      }catch(e){console.warn("Post-placement guess save:",e)}
+    }
+    renderOnlineOverview();
+  }
+  function lockInOnlinePostPlacementGuess(){
+    finishOnlinePostPlacementGuess($("onlinePostGuessArtist")?.value,$("onlinePostGuessTitle")?.value);
+  }
+  function skipOnlinePostPlacementGuess(){
+    const artist=$("onlinePostGuessArtist")?.value||"";
+    const title=$("onlinePostGuessTitle")?.value||"";
+    finishOnlinePostPlacementGuess(artist,title);
+  }
+
+  function renderOnlineOverview(){
+    const el=$("onlineOverviewScreen");
+    if(!el||!onlineMatch)return;
+    const players=onlinePlayers||[];
+    const target=Number(onlineMatch.target_cards||10);
+    const rows=players.map(p=>{
+      const locked=(p.locked_timeline||[]).length;
+      const unlocked=(p.turn_cards||[]).length;
+      const current=String(p.user_id||"")===String(onlineMatch.current_user_id||"");
+      return `<div class="overviewPlayer ${current?"active":""}"><div class="overviewPlayerHead"><span>${escapeHtml(p.display_name||"Spelare")}</span>${current?"<span class=\"ok\">DIN TUR</span>":""}</div><div class="overviewPlayerMeta">${locked}/${target} låsta kort · ${unlocked} olåsta · ${p.swap_cards||0}/3 Byt låt-kort</div></div>`;
+    }).join("");
+    const opponent=players.find(p=>String(p.user_id||"")!==String(ensureOnlineUserId()));
+    const round=opponent?.last_round;
+    const roundContent=round
+      ? `<div class="overviewRound"><div class="overviewRoundTitle">MOTSTÅNDARENS SENASTE OMGÅNG</div><div class="lastRoundScroll"><div class="lastRoundRail">${lastRoundTimelineHtml(round)}</div></div></div>`
+      : `<div class="overviewRound"><div class="overviewRoundTitle">MOTSTÅNDARENS SENASTE OMGÅNG</div><div class="mut">Ingen tidigare omgång finns ännu.</div></div>`;
+    el.innerHTML=`<div class="matchOverview"><div class="screenTitle">Matchöversikt</div><div class="overviewStats"><div class="overviewStat"><b>${players.length}</b><span>SPELARE</span></div><div class="overviewStat"><b>${onlineMatch.phase==="turn_ready"?"REDO":"PÅGÅR"}</b><span>OMGÅNG</span></div><div class="overviewStat"><b>${target}</b><span>MÅL KORT</span></div></div><div class="overviewPlayers">${rows||"<div class=\"mut\">Inga spelare ännu.</div>"}</div>${roundContent}</div>`;
+    onlineHideScreens();
+    el.classList.remove("hidden");
+  }
   onlineGuessSaved=true;
   onlineView="listen";
   setOnlineGameStatus("");
@@ -10358,6 +10446,8 @@ async function confirmOnlinePlacement(){
       }).eq("id",onlineMatch.id);
       if(mr.error)throw new Error(mr.error.message);
       onlineMatch={...onlineMatch,current_song:null,phase:"decision",last_result:result};
+      onlinePlacementResult=result;
+      onlinePostPlacementGuessPending=true;
 
       // Turen är nu sparad. Stoppa låten innan spelaren går vidare.
       await pauseSpotifyAfterConfirmedPlacement();
@@ -10756,7 +10846,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_48_BUILD_20260812_O");
+console.info("DIGIHITS_V6_49_BUILD_20260812_P");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
