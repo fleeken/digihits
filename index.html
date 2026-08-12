@@ -3128,13 +3128,13 @@ async function verifySpotifyPlayback({
 async function ensureSpotifyPaused(reason=""){
   if(!spotifyAccessToken&&!spotifyRefreshToken)return true;
   return withSpotifyCommandLock("pause:"+reason,async()=>{
+    const deviceId=await ensureSpotifyCommandDevice();
     const state=await spotifyPlaybackState().catch(()=>null);
     if(!state || state.is_playing===false){
       spotifyExpectedPlaying=false;
       return true;
     }
 
-    const deviceId=await ensureSpotifyCommandDevice();
     let lastError=null;
 
     for(let attempt=0;attempt<4;attempt++){
@@ -3165,6 +3165,7 @@ async function ensureSpotifyPlayingTrack(trackId,{restart=false}={}){
   if(!id)throw new Error("Ingen låt att spela.");
 
   return withSpotifyCommandLock(restart?"restart-track":"play-track",async()=>{
+    const deviceId=await ensureSpotifyCommandDevice();
     const current=await spotifyPlaybackState().catch(()=>null);
     const sameTrack=String(current?.item?.id||"")===id;
 
@@ -3174,7 +3175,6 @@ async function ensureSpotifyPlayingTrack(trackId,{restart=false}={}){
       return true;
     }
 
-    const deviceId=await ensureSpotifyCommandDevice();
     const deviceQuery="?device_id="+encodeURIComponent(deviceId);
 
     if(sameTrack&&current?.is_playing===false&&!restart){
@@ -3882,39 +3882,9 @@ async function ensureSpotifyCommandDevice(){
     return browserDevice;
   }
 
-  if(!spotifyAccessToken&&!spotifyRefreshToken)throw new Error("Spotify är inte anslutet.");
-
-  const d=await spotifyApi("/me/player/devices");
-  const devices=(d?.devices||[]).filter(x=>x?.id&&!x.is_restricted);
-  if(!devices.length){
-    spotifyDeviceId="";
-    localStorage.removeItem("digihits_spotify_device");
-    throw new Error("Ingen tillgänglig Spotify-enhet hittades.");
-  }
-
-  let selected=devices.find(x=>x.is_active)||null;
-  if(!selected&&spotifyDeviceId){
-    selected=devices.find(x=>x.id===spotifyDeviceId)||null;
-  }
-  if(!selected)selected=devices[0];
-
-  spotifyDeviceId=selected.id;
-  localStorage.setItem("digihits_spotify_device",spotifyDeviceId);
-
-  // If Spotify reports no active device, activate the selected device once.
-  if(!selected.is_active){
-    try{
-      await spotifyApi("/me/player",{
-        method:"PUT",
-        body:JSON.stringify({device_ids:[selected.id],play:false})
-      });
-      await sleep(250);
-    }catch(e){
-      console.warn("Spotify device activation failed:",e);
-    }
-  }
-
-  return spotifyDeviceId;
+  spotifyDeviceId="";
+  localStorage.removeItem("digihits_spotify_device");
+  throw new Error(dhBrowserPlaybackMessage("player"));
 }
 
 
@@ -6736,7 +6706,7 @@ async function onlineSpotifyCheck(){
         return false;
       }
 
-      // 3. Digihits-webbspelaren först; befintlig Spotify-device är fallback.
+      // 3. Digihits-webbspelaren är den enda tillåtna uppspelningsenheten.
       spotifyDeviceId="";
       localStorage.removeItem("digihits_spotify_device");
 
@@ -6755,24 +6725,11 @@ async function onlineSpotifyCheck(){
         spotifyDeviceId=browserDevice;
         selectedName="Digihits i webbläsaren";
       }else{
-        const d=await spotifyApi("/me/player/devices");
-        const devices=(d?.devices||[]).filter(x=>x?.id&&!x.is_restricted);
-
-        if(!devices.length){
-          spotifyPreflightOk=false;
-          const why=dhWebPlayerLastError?` (${dhWebPlayerLastError})`:"";
-          setSpotifyHomeState("bad",`Aktivt Spotify-konto: ${account}. Uppspelningen i webbläsaren kunde inte startas.${why}`);
-          setSpotifySetupMessage(`Konto verifierat: ${account} · webbspelaren kunde inte startas.${why}`);
-          if(dhWebPlayerNeedsReconnect){
-            dhWebPlayerNeedsReconnect=false;
-            try{localStorage.removeItem("digihits_spotify_scope_version")}catch(_){}
-          }
-          return false;
-        }
-
-        const selected=devices.find(x=>x.is_active)||devices[0];
-        spotifyDeviceId=selected.id;
-        selectedName=selected.name||"Spotify-enhet";
+        const why=dhWebPlayerLastError?` (${dhWebPlayerLastError})`:"";
+        spotifyPreflightOk=false;
+        setSpotifyHomeState("bad",`Aktivt Spotify-konto: ${account}. Digihits kunde inte starta uppspelning i webbläsaren.${why}`);
+        setSpotifySetupMessage(`Konto verifierat: ${account} · webbspelaren kunde inte startas.${why}`);
+        return false;
       }
 
       localStorage.setItem("digihits_spotify_device",spotifyDeviceId);
