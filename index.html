@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.63</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.65</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -617,7 +617,7 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .onlineMatchHeader{display:flex;align-items:flex-start;gap:8px;min-width:0}
 .onlineMatchNames{flex:1;min-width:0;font-size:16px}
 .matchCodeLine{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:11px;
+  display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;align-items:center;gap:8px;margin-top:11px;
   padding-top:10px;border-top:1px solid #303744
 }
 .matchCodeLabel{font-size:9px;font-weight:900;letter-spacing:.08em;color:#9099a8}
@@ -629,6 +629,8 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 }
 .copyCodeBtn.small{padding:6px 9px;font-size:9px}
 .copyCodeBtn.copied{border-color:#2fbd68;background:#153421;color:#91f0af}
+.matchCodeLine .matchCodeValue{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.matchCodeLine .copyCodeBtn{min-width:max-content;white-space:nowrap}
 .onlineMatchState{
   position:static!important;width:100%;margin-top:10px;padding:9px 10px!important;
   min-height:0!important;border-radius:10px!important;justify-content:flex-start!important
@@ -2413,6 +2415,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   /* LÄMNA MATCHEN exakt samma bredd som VISA CHATT. */
   #onlineGame .side .chatBtnWrap,
   #onlineGame .side .chatBtnWrap .chatBtn,
+  #onlineGame .side #onlineBackToMatchesBtn,
   #onlineGame .side .leaveMatchBtn{
     width:100% !important;
     max-width:100% !important;
@@ -2672,7 +2675,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 
 </head><body>
 <script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.63</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.65</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2907,7 +2910,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.63</span>
+        <span class="onlineGameBrandVersion">V6.65</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -4289,7 +4292,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.63"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.65"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -8976,7 +8979,7 @@ clearInterval(onlineGameTimer);
   try{await repairOnlineTurnIfNeeded()}catch(e){console.warn("Turn repair:",e)}
 
   // A match opened on the player's active turn must always start in the guess view.
-  if((preferTurn||onlineIsMyTurn()) && onlineMatch.phase==="listen" && onlineMatch.current_song?.id){
+  if((preferTurn||onlineIsMyTurn()) && onlineMatch.current_song?.id){
     onlineView="guess";
     onlineGuessSaved=false;
     onlineSavedGuess={artist:"",title:""};
@@ -9515,7 +9518,7 @@ function renderOnlineGame(){
   }
 
   // On refresh/open, own active turn always wins over a previously visible overview.
-  if(myTurn && onlineMatch.phase==="listen" && onlineMatch.current_song?.id){
+  if(myTurn && onlineMatch.current_song?.id){
     onlineView="guess";
     onlineGuessSaved=false;
     onlineSavedGuess={artist:"",title:""};
@@ -10898,7 +10901,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_63_BUILD_20260812_AD");
+console.info("DIGIHITS_V6_65_BUILD_20260812_AF");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
