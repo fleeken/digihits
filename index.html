@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.70</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.71</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2698,7 +2698,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 </head><body>
 <script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.70</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.71</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2933,7 +2933,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.70</span>
+        <span class="onlineGameBrandVersion">V6.71</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2980,7 +2980,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
       </div>
 
       <div id="onlineGuessScreen" class="hidden">
-        <button type="button" class="back" onclick="showOnlineListen()">← Tillbaka</button>
+        <button type="button" class="back" onclick="showOnlinePlace()">← Tillbaka</button>
         <div class="screenTitle">Gissa artist & låtnamn</div>
         <div class="guessFields">
           <input id="onlineGuessArtist" class="input" placeholder="Artist">
@@ -4318,7 +4318,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.70"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.71"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -4685,6 +4685,7 @@ let onlineMyPlayer=null;
 let onlineSelected=null;
 let onlineGuessSaved=false;
 let onlineGuessStepDone=false;
+let onlinePlacementMode=false;
 let onlineSavedGuess={artist:"",title:""};
 let onlinePostPlacementGuessPending=false;
 let onlinePlacementResult=null;
@@ -8960,13 +8961,14 @@ async function fetchOnlineGameState(){
       onlineTimelineScrollLeft=0;
       onlineGuessSaved=false;
       onlineGuessStepDone=false;
+      onlinePlacementMode=false;
       onlineSavedGuess={artist:"",title:""};
       if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
       if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
     }
 
     // Om servern byter fas ska gamla lokala delvyer inte ligga kvar.
-    if(previousPhase!==onlineMatch.phase && onlineMatch.phase!=="listen"){
+    if(previousPhase!==onlineMatch.phase && onlineMatch.phase!=="listen" && !onlinePlacementMode){
       onlineView="listen";
     }
     const ps=await db.from("online_players").select("*").eq("match_id",onlineMatch.id).eq("active",true).order("turn_order");
@@ -9621,7 +9623,12 @@ function renderOnlineGame(){
     // Bevara den delvy spelaren själv valt under hela samma låt.
     onlineHideScreens();
     $("onlineTurnPlayer")?.classList.remove("hidden");
-    if(onlineView==="guess" || (onlineView!=="place" && !onlineGuessStepDone)){
+    if(onlinePlacementMode || onlineView==="place"){
+      onlineView="place";
+      $("onlinePlaceScreen").classList.remove("hidden");
+      renderOnlineTimeline();
+      requestAnimationFrame(bindOnlineSecretDrag);
+    }else if(onlineView==="guess" || !onlineGuessStepDone){
       onlineView="guess";
       $("onlineGuessScreen").classList.remove("hidden");
     }else if(onlineView==="place"){
@@ -9666,6 +9673,7 @@ function clearOnlineRoundLocal(){
   onlineSelected=null;
   onlineGuessSaved=false;
   onlineGuessStepDone=false;
+  onlinePlacementMode=false;
       onlineSavedGuess={artist:"",title:""};
   onlineView="listen";
       onlineLastPlayedSongId=null;
@@ -10117,6 +10125,7 @@ function saveOnlineGuess(){
   };
   onlineGuessSaved=true;
   onlineGuessStepDone=true;
+  onlinePlacementMode=true;
   onlineView="place";
   setOnlineGameStatus("");
   showOnlinePlace();
@@ -10125,6 +10134,7 @@ function skipOnlineGuessWithoutSaving(){
   onlineSavedGuess={artist:"",title:""};
   onlineGuessSaved=false;
   onlineGuessStepDone=true;
+  onlinePlacementMode=true;
   if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
   if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
   onlineView="place";
@@ -10211,6 +10221,7 @@ function onlineChoosePlaceAnyway(){
 }
 function showOnlinePlace(){
   normalizeMobileGameViewport();
+  onlinePlacementMode=true;
   onlineView="place";
   onlineViewSongId=onlineMatch?.current_song?.id||null;
   onlineHideScreens();
@@ -10946,7 +10957,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_70_BUILD_20260812_AK");
+console.info("DIGIHITS_V6_71_BUILD_20260812_AL");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
