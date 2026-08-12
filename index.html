@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.51</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.53</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -42,6 +42,9 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .overviewRound .lastRoundScroll{overflow-x:auto}
 .overviewRound .lastRoundRail{min-height:190px}
 @media(max-width:650px){.overviewStats{grid-template-columns:repeat(3,1fr)}.overviewStat{padding:8px 5px}.overviewStat b{font-size:17px}}
+.turnFocus #onlineGame .side{display:none!important}
+.turnFocus #onlineGame .grid{grid-template-columns:1fr!important}
+.turnFocus #onlineGame .main{width:100%;max-width:none}
 .playbackTimes{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-bottom:7px}
 .playbackTrack{height:10px;background:#26302a;border-radius:999px;overflow:hidden;border:1px solid #35483c}
 .playbackFill{height:100%;width:0%;background:linear-gradient(90deg,var(--g),var(--c));transition:width .35s linear}
@@ -2656,8 +2659,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 </head><body>
-<script>console.info("DIGIHITS_V6_51_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.51</small></button></div>
+<script>console.info("DIGIHITS_V6_53_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.53</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2895,7 +2898,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.51</span>
+        <span class="onlineGameBrandVersion">V6.53</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -4276,7 +4279,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.51"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.53"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -9436,6 +9439,12 @@ function clearStaleSpotifyGameStatus(){
 }
 
 function renderOnlineGame(){
+  const turnFocus=!!(onlineMyPlayer&&onlineIsMyTurn()&&(
+    onlineMatch?.phase==="listen"||
+    onlineMatch?.phase==="decision"&&onlinePostPlacementGuessPending||
+    onlineView==="guess"
+  ));
+  document.body.classList.toggle("turnFocus",turnFocus);
   if($("onlineGameBadge"))$("onlineGameBadge").classList.remove("hidden");
   updateOnlineSwapButton();
   try{
@@ -9544,7 +9553,8 @@ function renderOnlineGame(){
 
     // Bevara den delvy spelaren själv valt under hela samma låt.
     onlineHideScreens();
-    if(onlineView==="guess"){
+    if(onlineView==="guess" || !onlineGuessSaved){
+      onlineView="guess";
       $("onlineGuessScreen").classList.remove("hidden");
     }else if(onlineView==="place"){
       $("onlinePlaceScreen").classList.remove("hidden");
@@ -10442,7 +10452,7 @@ async function confirmOnlinePlacement(){
       if(mr.error)throw new Error(mr.error.message);
       onlineMatch={...onlineMatch,current_song:null,phase:"decision",last_result:result};
       onlinePlacementResult=result;
-      onlinePostPlacementGuessPending=true;
+      onlinePostPlacementGuessPending=!onlineGuessSaved;
 
       // Turen är nu sparad. Stoppa låten innan spelaren går vidare.
       await pauseSpotifyAfterConfirmedPlacement();
@@ -10450,6 +10460,7 @@ async function confirmOnlinePlacement(){
       clearInterval(onlinePlaybackTimer);onlinePlaybackTimer=null;
       onlineSelected=null;
       renderOnlineGame();
+      if(!onlinePostPlacementGuessPending)renderOnlineOverview();
     }else{
       const next=nextOnlinePlayerAfter(ensureOnlineUserId());
       if(!next)throw new Error("Ingen nästa spelare hittades.");
@@ -10841,7 +10852,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_51_BUILD_20260812_R");
+console.info("DIGIHITS_V6_53_BUILD_20260812_T");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
