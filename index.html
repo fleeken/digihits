@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.92</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.94</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1242,7 +1242,7 @@ html.digihitsBooting body{
   font-size:11px
 }
 
-/* V5.92: tydligare matchstatus i Mina matcher */
+/* V5.94: tydligare matchstatus i Mina matcher */
 .matchSummaryBadge{
   padding:6px 10px;
   font-size:11px;
@@ -1299,7 +1299,7 @@ html.digihitsBooting body{
   #onlineGame .matchCodeInlineFull .copyCodeBtn{font-size:7px;padding:6px 7px}
 }
 
-/* V5.92: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
+/* V5.94: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
 @media(min-width:801px){
   .appBrandRow{
     padding-left:316px;
@@ -1313,7 +1313,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.92 - tydlig klickbarhet för pågående matcher */
+/* V5.94 - tydlig klickbarhet för pågående matcher */
 .onlineMatchCard.ongoingClickable{
   position:relative;
   cursor:pointer;
@@ -1361,7 +1361,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.92 - kompaktare huvudknappar på bredare skärmar */
+/* V5.94 - kompaktare huvudknappar på bredare skärmar */
 @media(min-width:700px){
   #onlineSpotifyBtn{
     width:auto !important;
@@ -1381,7 +1381,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.92 - statusraden är själva öppna-match-uppmaningen */
+/* V5.94 - statusraden är själva öppna-match-uppmaningen */
 .onlineMatchState{
   max-width:100%;
   white-space:normal;
@@ -1401,12 +1401,12 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.92 - namn på spelaren vars tur övriga väntar på */
+/* V5.94 - namn på spelaren vars tur övriga väntar på */
 .onlineMatchState.wait{
   overflow-wrap:anywhere
 }
 
-/* V5.92 - kompaktare redo-knapp pa mobil */
+/* V5.94 - kompaktare redo-knapp pa mobil */
 @media(max-width:520px){
   .btn{
     width:auto !important;
@@ -1427,14 +1427,14 @@ html.digihitsBooting body{
 }
 
 
-/* V5.92 - i mobil visas matchlaget bara i den centrala matchvyn */
+/* V5.94 - i mobil visas matchlaget bara i den centrala matchvyn */
 @media(max-width:520px){
   #onlineGameStatus{
     display:none !important;
   }
 }
 
-/* V5.92 - Pågående matcher: hela kortet färgkodas efter turstatus */
+/* V5.94 - Pågående matcher: hela kortet färgkodas efter turstatus */
 .onlineMatchCard.waiting{
   border-color:#c7972f !important;
   background:#2a210f !important;
@@ -1461,7 +1461,7 @@ html.digihitsBooting body{
   background:#102331 !important
 }
 
-/* V5.92 - Matcher utan motståndare: samma helkortsgrafik, blå */
+/* V5.94 - Matcher utan motståndare: samma helkortsgrafik, blå */
 .onlineMatchCard.waitingOpponent{
   border-color:#3577a8 !important;
   background:#102331 !important;
@@ -1475,7 +1475,7 @@ html.digihitsBooting body{
   background:#0d1e2a !important
 }
 
-/* V5.92 - matchkodsraden far aldrig sticka utanfor sidopanelen */
+/* V5.94 - matchkodsraden far aldrig sticka utanfor sidopanelen */
 #onlineGame .matchCodeInlineFull{
   display:grid !important;
   grid-template-columns:max-content minmax(0,1fr) max-content !important;
@@ -1543,7 +1543,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.92 - knappstorlekar i matchvyn */
+/* V5.94 - knappstorlekar i matchvyn */
 #onlineReadyScreen .btn.ready{
   width:auto !important;
   min-width:220px !important;
@@ -1583,7 +1583,7 @@ html.digihitsBooting body{
   display:none !important;
 }
 
-/* V5.92 - korrekt låsbygel */
+/* V5.94 - korrekt låsbygel */
 #onlineGameBadge.unlocked .matchLockGlyph::after{
   content:"";
   position:absolute;
@@ -1610,7 +1610,7 @@ html.digihitsBooting body{
   transform:none
 }
 
-/* V5.92 - matchvyns huvudknappar */
+/* V5.94 - matchvyns huvudknappar */
 #onlineGame .backToMatchesBtn{
   background:#2b303a !important;
   border-color:#3a414d !important;
@@ -1674,7 +1674,7 @@ html.digihitsBooting body{
 }
 </style>
 <style>
-/* V5.92 - matchvyn enligt godkänd layout */
+/* V5.94 - matchvyn enligt godkänd layout */
 #onlineGame{
   position:relative !important;
 }
@@ -1728,7 +1728,7 @@ html.digihitsBooting body{
 </style>
 
 <style>
-/* V5.92 - brand i eget layoututrymme, aldrig ovanpå annat */
+/* V5.94 - brand i eget layoututrymme, aldrig ovanpå annat */
 #onlineGameBrand{
   display:flex;
   align-items:baseline;
@@ -1776,7 +1776,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - Digihits/version precis ovanför huvudramens vänstra kant */
+/* V5.94 - Digihits/version precis ovanför huvudramens vänstra kant */
 #onlineGame .panel.main{
   position:relative !important;
   margin-top:30px !important;
@@ -1841,7 +1841,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - återställ Digihits-färger */
+/* V5.94 - återställ Digihits-färger */
 #onlineGameBrand .brandDigi{
   color:#59cfff !important;
 }
@@ -1857,7 +1857,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   color:#fff !important;
 }
 
-/* V5.92 - iPhone: chatt/lämna exakt samma bredd som motståndarboxen */
+/* V5.94 - iPhone: chatt/lämna exakt samma bredd som motståndarboxen */
 @media(max-width:520px){
   #onlineGame .side{
     box-sizing:border-box !important;
@@ -1885,7 +1885,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - tydlig väntanimation med noter som rör sig från vänster till höger */
+/* V5.94 - tydlig väntanimation med noter som rör sig från vänster till höger */
 .globalWaitOverlay{
   z-index:12000 !important;
 }
@@ -2002,7 +2002,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - mobil: chatt och lämna match har exakt samma bredd */
+/* V5.94 - mobil: chatt och lämna match har exakt samma bredd */
 @media(max-width:520px){
   #onlineGame .chatBtnWrap,
   #onlineGame .leaveMatchBtn{
@@ -2125,7 +2125,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - mobil: VISA CHATT och LÄMNA MATCHEN exakt samma bredd */
+/* V5.94 - mobil: VISA CHATT och LÄMNA MATCHEN exakt samma bredd */
 @media(max-width:600px){
   #onlineGame .chatBtnWrap,
   #onlineGame .chatBtnWrap .chatBtn,
@@ -2226,7 +2226,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - startsida/inloggning: LOGGA IN och SKAPA KONTO lika stora */
+/* V5.94 - startsida/inloggning: LOGGA IN och SKAPA KONTO lika stora */
 .authChoiceActions{
   width:100% !important;
   display:grid !important;
@@ -2276,7 +2276,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - inline väntindikator i själva matchen */
+/* V5.94 - inline väntindikator i själva matchen */
 #onlineGameStatus.busy{
   display:block !important;
   padding:8px 10px !important;
@@ -2359,7 +2359,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92: väntstatus måste synas även på mobil */
+/* V5.94: väntstatus måste synas även på mobil */
 @media(max-width:520px){
   #onlineGameStatus.busy{
     display:block !important;
@@ -2369,7 +2369,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - endast begärda UI-korrigeringar */
+/* V5.94 - endast begärda UI-korrigeringar */
 
 /* Om äldre markup för den blå Tillbaka-kontrollen finns kvar: dölj den. */
 #onlineGame .onlineBack,
@@ -2404,7 +2404,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - endast authknappar på mobil */
+/* V5.94 - endast authknappar på mobil */
 @media(max-width:520px){
   /* Behåll befintlig ordning/layout, men centrera auth-kontrollerna. */
   #authChoice,
@@ -2453,7 +2453,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - endast riktiga auth-formulärknappar på mobil */
+/* V5.94 - endast riktiga auth-formulärknappar på mobil */
 @media(max-width:520px){
   #authLoginPanel #accountLoginBtn,
   #authSignupPanel #accountCreateBtn{
@@ -2495,7 +2495,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - spelknappar: rimlig tryckyta och proportioner */
+/* V5.94 - spelknappar: rimlig tryckyta och proportioner */
 #onlineGame .btn.continue,
 #onlineGame .btn.lock,
 #onlineGame #onlineContinueBtn,
@@ -2530,7 +2530,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.92 - resultatets beslutsknappar ligger före tidslinjen och får inte klippas bort */
+/* V5.94 - resultatets beslutsknappar ligger före tidslinjen och får inte klippas bort */
 #onlineResultScreen #onlineDecisionButtons{
   display:grid !important;
   grid-template-columns:1fr 1fr !important;
@@ -2579,7 +2579,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 }
 </style>
 </head><body>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.92</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.94</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2816,7 +2816,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V5.92</span>
+        <span class="onlineGameBrandVersion">V5.94</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -3794,7 +3794,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.92";
+    if(badge)badge.textContent="Återansluten · V5.94";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -3802,7 +3802,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.92 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.94 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -3813,7 +3813,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.92"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.94"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -4032,7 +4032,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.92":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.94":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -4785,7 +4785,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.92
+// SPELA ONLINE – V5.94
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -7245,6 +7245,80 @@ function cardYearLooksUntrusted(card){
   return false;
 }
 
+function compactSongCard(card){
+  if(!card||typeof card!=="object")return null;
+
+  const id=String(card.id||"").trim();
+  const title=String(card.title||card.name||"").trim();
+  const artist=String(
+    card.artist||
+    (Array.isArray(card.artists)
+      ? card.artists.map(a=>typeof a==="string"?a:a?.name).filter(Boolean).join(", ")
+      : "")
+  ).trim();
+
+  let artists=[];
+  if(Array.isArray(card.artists)){
+    artists=card.artists
+      .map(a=>typeof a==="string"?a:a?.name)
+      .filter(Boolean)
+      .map(x=>String(x).trim())
+      .slice(0,8);
+  }
+  if(!artists.length&&artist)artists=[artist];
+
+  const year=Number(card.year);
+  if(!id||!title||!artist||!Number.isFinite(year))return null;
+
+  return {
+    id:id.slice(0,120),
+    title:title.slice(0,240),
+    artist:artist.slice(0,240),
+    artists,
+    year:Math.trunc(year),
+    duration_ms:Math.max(0,Math.trunc(Number(card.duration_ms)||0)),
+    explicit:card.explicit===true,
+    popularity:Math.max(0,Math.min(100,Math.trunc(Number(card.popularity)||0)))
+  };
+}
+
+function compactSongCards(cards,max=1000){
+  const out=[];
+  const seen=new Set();
+
+  for(const raw of Array.isArray(cards)?cards:[]){
+    const card=compactSongCard(raw);
+    if(!card||seen.has(card.id))continue;
+    seen.add(card.id);
+    out.push(card);
+    if(out.length>=max)break;
+  }
+  return out;
+}
+
+function compactMatchResult(result){
+  if(!result||typeof result!=="object")return result;
+  const r={...result};
+
+  if(r.song)r.song=compactSongCard(r.song)||r.song;
+
+  for(const key of ["locked_before","unlocked_before"]){
+    if(Array.isArray(r[key]))r[key]=compactSongCards(r[key],30);
+  }
+
+  if(r.guess&&typeof r.guess==="object"){
+    r.guess={
+      guessed:!!r.guess.guessed,
+      artist:String(r.guess.artist||"").slice(0,240),
+      title:String(r.guess.title||"").slice(0,240),
+      artistOk:!!r.guess.artistOk,
+      titleOk:!!r.guess.titleOk
+    };
+  }
+
+  return r;
+}
+
 function spotifyTrackToCard(track){
   if(!spotifyLooksLikeMusic(track))return null;
   if(!track?.id||!track?.name||!track?.artists?.length)return null;
@@ -7653,6 +7727,8 @@ function saveSwedenMusicPool(cards){
     localStorage.setItem(SWEDEN_POOL_CACHE_KEY,JSON.stringify(uniq));
   }catch(_){}
 }
+
+
 function mergeSwedenMusicPool(cards){
   const current=loadSwedenMusicPool();
   const merged=dedupeRecognizableVersions([...(cards||[]),...current]);
@@ -7980,32 +8056,26 @@ async function createOnlineMatch(){
   if(!name)return;
 
   actionBusy=true;
-  const createPerfStart=performance.now();
-  const createPerf=(label)=>console.info("[create-match]",label,Math.round(performance.now()-createPerfStart)+"ms");
   let stage="start";
   let created=null;
   try{
     stage="session";
-    createPerf("session");
     const session=await refreshAuthSessionIfNeeded();
     if(!session?.access_token||!digihitsAccountUser?.id){
       throw new Error("Din inloggning har gått ut. Logga ut och logga in igen.");
     }
 
     stage="database";
-    createPerf("database");
     setOnlineStatus("Kontrollerar serveranslutningen…");
     await onlineDatabasePreflight();
 
     stage="matches";
-    createPerf("matches");
     setOnlineStatus("Kontrollerar dina matcher…");
     if(await onlineCountActiveMatches()>=10){
       throw new Error("Du kan ha max 10 aktiva online-matcher.");
     }
 
     stage="spotify";
-    createPerf("spotify");
     setOnlineStatus("Kontrollerar Spotify…");
     const spotifyOk=await onlineSpotifyCheck();
     if(!spotifyOk){
@@ -8015,14 +8085,12 @@ async function createOnlineMatch(){
     }
 
     stage="songs";
-    createPerf("songs");
     setOnlineStatus("Hämtar låtar från Spotify…");
     let deck=await fetchSpotifyTrackBatch(new Set(),18);
     if(deck.length<4){
       throw new Error("Spotify kunde inte hämta tillräckligt många låtar. Försök igen.");
     }
-    let firstCard=deck.pop();
-    firstCard=applyCachedOriginalSongYear(firstCard);
+    const firstCard=deck.pop();
 
     // Keep the very first playable song from immediately matching the
     // starting timeline card's year when another year is available.
@@ -8035,7 +8103,6 @@ async function createOnlineMatch(){
     const usedTrackIds=[String(firstCard.id)];
 
     stage="match";
-    createPerf("match");
     setOnlineStatus("Skapar matchen…");
     for(let i=0;i<5;i++){
       const code=onlineCode();
@@ -8060,7 +8127,6 @@ async function createOnlineMatch(){
     if(!created)throw new Error("Kunde inte skapa en unik matchkod.");
 
     stage="player";
-    createPerf("player");
     setOnlineStatus("Kopplar din profil till matchen…");
     const pr=await db.from("online_players").insert({
       match_id:created.id,
@@ -8079,7 +8145,6 @@ async function createOnlineMatch(){
     if(pr.error)throw new Error(pr.error.message);
 
     stage="open";
-    createPerf("open");
     setOnlineStatus("");
     scheduleOnlineListRefresh(0);
     await openOnlineMatch(created.id);
@@ -8097,6 +8162,7 @@ async function createOnlineMatch(){
     actionBusy=false;
   }
 }
+
 
 async function joinOnlineMatch(){
   if(actionBusy)return;
@@ -8147,8 +8213,9 @@ async function joinOnlineMatch(){
       deck=await fetchSpotifyTrackBatch(onlineKnownTrackIds(),18);
     }
     if(!deck.length)throw new Error("Spotify kunde inte hämta en startlåt just nu.");
+    deck=compactSongCards(deck,18);
     let firstCard=deck.pop();
-    firstCard=applyCachedOriginalSongYear(firstCard);
+    firstCard=compactSongCard(applyCachedOriginalSongYear(firstCard));
     const usedTrackIds=[...new Set([...(m.used_track_ids||[]).map(String),String(firstCard.id)])];
 
     const pr=await db.from("online_players").insert({
@@ -9594,8 +9661,8 @@ async function startOnlineTurn(){
 
     setOnlineGameStatus("Startar nästa låt…");
     const draw=await drawOnlineSpotifySong();
-    const song=draw.song;
-    const deck=draw.deck;
+    const song=compactSongCard(draw.song);
+    const deck=compactSongCards(draw.deck,30);
     const up=await db.from("online_matches").update({
       deck,
       used_track_ids:draw.used,
@@ -10087,17 +10154,18 @@ async function confirmOnlinePlacement(){
       artistOk,
       titleOk
     };
-    const songWithRoundData={...song,_round_guess:roundGuess};
+    const compactRoundSong=compactSongCard(song)||song;
+    const songWithRoundData={...compactRoundSong,_round_guess:roundGuess};
     let swaps=onlineMyPlayer.swap_cards||0;
     if(artistOk&&titleOk)swaps=Math.min(3,swaps+1);
     const newTurn=placeOk?[...(onlineMyPlayer.turn_cards||[]),songWithRoundData].sort((a,b)=>a.year-b.year):[];
     const lockedBefore=[...(onlineMyPlayer.locked_timeline||[])];
     const unlockedBefore=[...(onlineMyPlayer.turn_cards||[])];
     const result={
-      song,placeOk,artistOk,titleOk,bonus:artistOk&&titleOk,
+      song:compactSongCard(song)||song,placeOk,artistOk,titleOk,bonus:artistOk&&titleOk,
       attempted_index:Number(onlineSelected),
-      locked_before:lockedBefore,
-      unlocked_before:unlockedBefore,
+      locked_before:compactSongCards(lockedBefore,30),
+      unlocked_before:compactSongCards(unlockedBefore,30),
       guess:roundGuess
     };
 
@@ -10133,7 +10201,7 @@ async function confirmOnlinePlacement(){
       const mr=await db.from("online_matches").update({
         current_song:null,
         phase:"decision",
-        last_result:result,
+        last_result:compactMatchResult(result),
         updated_at:new Date().toISOString()
       }).eq("id",onlineMatch.id);
       if(mr.error)throw new Error(mr.error.message);
@@ -10301,8 +10369,8 @@ async function onlineContinue(){
     clearOnlineRoundLocal();
     setOnlineGameStatus("Startar nästa låt…");
     const draw=await drawOnlineSpotifySong();
-    const song=draw.song;
-    const deck=draw.deck;
+    const song=compactSongCard(draw.song);
+    const deck=compactSongCards(draw.deck,30);
     const mr=await db.from("online_matches").update({
       deck,used_track_ids:draw.used,current_song:song,phase:"listen",last_result:null,updated_at:new Date().toISOString()
     }).eq("id",onlineMatch.id);
@@ -10323,7 +10391,7 @@ async function onlineLockIn(){
   try{
     const lockedBefore=[...(onlineMyPlayer.locked_timeline||[])];
     const unlockedRound=[...(onlineMyPlayer.turn_cards||[])];
-    const locked=[...lockedBefore,...unlockedRound].sort((a,b)=>a.year-b.year);
+    const locked=compactSongCards([...lockedBefore,...unlockedRound],30).sort((a,b)=>a.year-b.year);
     const lastRound={
       ended_at:new Date().toISOString(),
       outcome:"locked",
@@ -10389,7 +10457,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.92.
+// Startsidan är alltid online i V5.94.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
