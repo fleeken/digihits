@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.54</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.56</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -41,6 +41,9 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .overviewRoundTitle{font-size:11px;font-weight:950;margin-bottom:8px}
 .overviewRound .lastRoundScroll{overflow-x:auto}
 .overviewRound .lastRoundRail{min-height:190px}
+.overviewTimeline{margin-top:8px;padding:10px;border:1px solid #343c49;border-radius:12px;background:#0d0f14;overflow-x:auto}
+.overviewTimeline .onlineTimeline{min-height:190px;padding:10px 4px;border:0}
+.overviewTimelineBtn{margin-top:8px;width:100%;font-size:11px;padding:9px 10px}
 @media(max-width:650px){.overviewStats{grid-template-columns:repeat(3,1fr)}.overviewStat{padding:8px 5px}.overviewStat b{font-size:17px}}
 .turnFocus #onlineGame .side{display:none!important}
 .turnFocus #onlineGame .grid{grid-template-columns:1fr!important}
@@ -2659,8 +2662,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 </head><body>
-<script>console.info("DIGIHITS_V6_54_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.54</small></button></div>
+<script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.56</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2869,8 +2872,6 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
         </div>
 
       </div>
-      <div id="onlineGamePlayers" class="players"></div>
-
       <div class="chatBtnWrap">
         <button type="button" id="matchChatBtn" class="btn cyan full chatBtn" onclick="toggleMatchChat()">
           <span id="matchChatBtnText">VISA CHATT</span>
@@ -2897,7 +2898,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.54</span>
+        <span class="onlineGameBrandVersion">V6.56</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2950,7 +2951,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
           <input id="onlineGuessArtist" class="input" placeholder="Artist">
           <input id="onlineGuessTitle" class="input" placeholder="Låtnamn">
           <div class="mut" style="font-size:11px">Små stavfel är okej.</div>
-          <button type="button" class="saveGuessBtn btn cyan full" onclick="saveOnlineGuess()">SPARA GISSNING</button>
+          <button type="button" class="saveGuessBtn btn cyan full" onclick="saveOnlineGuess()">SPARA</button>
         </div>
       </div>
 
@@ -4279,7 +4280,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.54"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.56"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -4661,6 +4662,7 @@ let onlineTimelineRenderKey="";
 let onlineTimelineScrollLeft=0;
 let onlineDecisionScrollLeft=0;
 let onlineResultRenderKey="";
+let onlineOverviewTimelineOpen="";
 
 let realtimeClient=null;
 let onlineListChannel=null;
@@ -8955,6 +8957,13 @@ clearInterval(onlineGameTimer);
   if(!onlineMyPlayer){alert("Du är inte med i matchen.");return}
   try{await repairOnlineTurnIfNeeded()}catch(e){console.warn("Turn repair:",e)}
 
+  // A match opened on the player's active turn must always start in the guess view.
+  if(onlineIsMyTurn() && onlineMatch.phase==="listen" && onlineMatch.current_song?.id){
+    onlineView="guess";
+    onlineGuessSaved=false;
+    onlineSavedGuess={artist:"",title:""};
+  }
+
   $("home").classList.add("hidden");
   $("onlineGame").classList.remove("hidden");
   window.scrollTo({top:0,left:0,behavior:"auto"});
@@ -9231,6 +9240,7 @@ function onlinePlayersKey(){
 }
 
 function renderOnlinePlayers(force=false){
+  if(!$("onlineGamePlayers"))return;
   const current=onlineMatch?.current_user_id;
 
   Object.keys(onlinePlayerTimelineOpen).forEach(id=>{
@@ -10069,7 +10079,11 @@ function renderOnlineOverview(){
       const locked=(p.locked_timeline||[]).length;
       const unlocked=(p.turn_cards||[]).length;
       const current=String(p.user_id||"")===String(onlineMatch.current_user_id||"");
-      return `<div class="overviewPlayer ${current?"active":""}"><div class="overviewPlayerHead"><span>${escapeHtml(p.display_name||"Spelare")}</span>${current?"<span class=\"ok\">DIN TUR</span>":""}</div><div class="overviewPlayerMeta">${locked}/${target} låsta kort · ${unlocked} olåsta · ${p.swap_cards||0}/3 Byt låt-kort</div></div>`;
+      const playerId=String(p.id||p.user_id||"");
+      const open=onlineOverviewTimelineOpen===playerId;
+      const cards=onlineAllTimeline(p);
+      const timeline=open?`<div class="overviewTimeline"><div class="onlineTimeline">${cards.map(c=>onlineCardMarkup(c,(p.turn_cards||[]).some(x=>x.id===c.id))).join("")}</div></div>`:"";
+      return `<div class="overviewPlayer ${current?"active":""}"><div class="overviewPlayerHead"><span>${escapeHtml(p.display_name||"Spelare")}</span>${current?"<span class=\"ok\">DIN TUR</span>":""}</div><div class="overviewPlayerMeta">${locked}/${target} låsta kort · ${unlocked} olåsta · ${p.swap_cards||0}/3 Byt låt-kort</div><button type="button" class="btn dark overviewTimelineBtn" onclick="toggleOverviewTimeline('${playerId}')">${open?"DÖLJ TIDSLINJE":"VISA TIDSLINJE"}</button>${timeline}</div>`;
     }).join("");
     const opponent=players.find(p=>String(p.user_id||"")!==String(ensureOnlineUserId()));
     const round=opponent?.last_round;
@@ -10077,8 +10091,15 @@ function renderOnlineOverview(){
       ? `<div class="overviewRound"><div class="overviewRoundTitle">MOTSTÅNDARENS SENASTE OMGÅNG</div><div class="lastRoundScroll"><div class="lastRoundRail">${lastRoundTimelineHtml(round)}</div></div></div>`
       : `<div class="overviewRound"><div class="overviewRoundTitle">MOTSTÅNDARENS SENASTE OMGÅNG</div><div class="mut">Ingen tidigare omgång finns ännu.</div></div>`;
     el.innerHTML=`<div class="matchOverview"><div class="screenTitle">Matchöversikt</div><div class="overviewStats"><div class="overviewStat"><b>${players.length}</b><span>SPELARE</span></div><div class="overviewStat"><b>${onlineMatch.phase==="turn_ready"?"REDO":"PÅGÅR"}</b><span>OMGÅNG</span></div><div class="overviewStat"><b>${target}</b><span>MÅL KORT</span></div></div><div class="overviewPlayers">${rows||"<div class=\"mut\">Inga spelare ännu.</div>"}</div>${roundContent}</div>`;
+    $("onlineGameTitle").textContent="Matchöversikt";
+    $("onlineGameSub").textContent="";
     onlineHideScreens();
     el.classList.remove("hidden");
+}
+
+function toggleOverviewTimeline(playerId){
+  onlineOverviewTimelineOpen=onlineOverviewTimelineOpen===String(playerId)?"":String(playerId);
+  renderOnlineOverview();
 }
 
 function requestOnlinePlace(){
@@ -10832,7 +10853,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_54_BUILD_20260812_U");
+console.info("DIGIHITS_V6_56_BUILD_20260812_W");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
