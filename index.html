@@ -3083,6 +3083,7 @@ let spotifyCommandBusy=false;
 let spotifyCommandQueue=Promise.resolve();
 let spotifyExpectedTrackId="";
 let spotifyExpectedPlaying=null;
+let spotifyLastCommandAt=0;
 
 function withSpotifyCommandLock(label,fn){
   const run=async()=>{
@@ -3151,6 +3152,7 @@ async function ensureSpotifyPaused(reason=""){
       });
       if(confirmed){
         spotifyExpectedPlaying=false;
+        spotifyLastCommandAt=Date.now();
         return true;
       }
       await sleep(220*(attempt+1));
@@ -3212,6 +3214,7 @@ async function ensureSpotifyPlayingTrack(trackId,{restart=false}={}){
 
     if(!confirmed){
       if(commandError){
+        spotifyLastCommandAt=Date.now();
         const detail=String(commandError?.message||"");
         throw new Error(detail||"Spotify kunde inte starta låten på vald enhet.");
       }
@@ -8908,6 +8911,9 @@ async function fetchOnlineGameState(){
 }
 
 async function openOnlineMatch(id,{skipHistory=false}={}){
+  // Anropas direkt från matchkortets klick: använd gesten för att aktivera ljudet.
+  dhActivateAudioSync();
+  dhWarmWebPlayerFromGesture();
   const waitToken_openOnlineMatch=beginGlobalWait('Laddar match…');
   try{
 clearInterval(onlineGameTimer);
@@ -9808,6 +9814,13 @@ async function syncOnlinePlaybackButtonFromSpotify(){
   const btn=$("onlinePlayPauseBtn");
   if(!btn)return false;
 
+  // Spotify API kan ligga efter Web Playback SDK direkt efter ett kommando.
+  // Behåll det bekräftade lokala läget under den korta eftersläpningen.
+  if(Date.now()-spotifyLastCommandAt<1800 && spotifyExpectedPlaying!==null){
+    btn.textContent=spotifyExpectedPlaying?"❚❚ PAUSA LÅT":"▶ SPELA LÅT";
+    return spotifyExpectedPlaying;
+  }
+
   try{
     const state=await spotifyPlaybackState();
     const currentId=String(state?.item?.id||"");
@@ -9864,6 +9877,8 @@ async function dhWebPlayerCommand(kind,trackId){
         paused:!!fresh.paused,
         at:Date.now()
       };
+      spotifyExpectedPlaying=!fresh.paused;
+      spotifyLastCommandAt=Date.now();
     }
     return true;
   }catch(e){
