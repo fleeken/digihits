@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.44</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.45</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2641,8 +2641,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 </head><body>
-<script>console.info("DIGIHITS_V6_44_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.44</small></button></div>
+<script>console.info("DIGIHITS_V6_45_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.45</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2752,8 +2752,9 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 
     <div id="authenticatedHomeContent" class="hidden">
     <div class="role spotifyHomeCard" style="margin-top:12px">
+      <div id="spotifyGateHelp" class="mut" style="font-size:12px;margin-bottom:9px">Förbered Spotify innan du går vidare till matcher.</div>
       <button type="button" id="onlineSpotifyBtn" class="spotifyCheckBtn spotifyNeutral" onclick="onlineSpotifyCheck()">
-        <span id="onlineSpotifyBtnText">TESTA SPOTIFY-ANSLUTNINGEN</span>
+        <span id="onlineSpotifyBtnText">STARTA SPOTIFY OCH TESTA</span>
       </button>
       <div id="onlineStatus" class="spotifyActionMessage hidden" role="status"></div>
       <button type="button" id="changeSpotifyAccountBtn" class="accountLinkBtn spotifyAccountChangeBtn hidden" onclick="changeSpotifyAccount()">BYT SPOTIFY-KONTO</button>
@@ -2879,7 +2880,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.44</span>
+        <span class="onlineGameBrandVersion">V6.45</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2995,6 +2996,28 @@ let spotifyCommandQueue=Promise.resolve();
 let spotifyExpectedTrackId="";
 let spotifyExpectedPlaying=null;
 let spotifyLastCommandAt=0;
+const SPOTIFY_SESSION_TTL=30*60*1000;
+let spotifySessionReadyUntil=Number(localStorage.getItem("digihits_spotify_ready_until")||0);
+
+function spotifySessionIsFresh(){
+  return !!(spotifyAccessToken||spotifyRefreshToken) && spotifySessionReadyUntil>Date.now();
+}
+function setSpotifySessionReady(){
+  spotifySessionReadyUntil=Date.now()+SPOTIFY_SESSION_TTL;
+  localStorage.setItem("digihits_spotify_ready_until",String(spotifySessionReadyUntil));
+  updateSpotifyGate();
+}
+function clearSpotifySessionReady(){
+  spotifySessionReadyUntil=0;
+  localStorage.removeItem("digihits_spotify_ready_until");
+  updateSpotifyGate();
+}
+function updateSpotifyGate(){
+  const ready=spotifySessionIsFresh()||spotifyPreflightOk;
+  ["foldMatchActions","foldMatches"].forEach(id=>$(id)?.classList.toggle("hidden",!ready));
+  const help=$("spotifyGateHelp");
+  if(help)help.classList.toggle("hidden",ready);
+}
 
 function withSpotifyCommandLock(label,fn){
   const run=async()=>{
@@ -3184,6 +3207,7 @@ function clearSpotifyConnectionForSwitch(){
   spotifyPreflightOk=false;
   spotifyExpectedTrackId="";
   spotifyExpectedPlaying=false;
+  clearSpotifySessionReady();
 
   [
     "digihits_spotify_access",
@@ -4229,7 +4253,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.44"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.45"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -5597,6 +5621,7 @@ function renderAccountUi(){
     const metaName=String(digihitsAccountUser.user_metadata?.display_name||"").trim();
     if(metaName)cacheCurrentAccountName(metaName);
     renderProfileName();
+    updateSpotifyGate();
     return;
   }
 
@@ -6597,7 +6622,7 @@ function setSpotifyHomeState(state,message=""){
       ?(spotifyAccountLabel()?`SPOTIFY ÄR REDO ✓ · ${spotifyAccountLabel()}`:"SPOTIFY ÄR REDO ✓")
       :state==="checking"
         ?"TESTAR SPOTIFY…"
-        :"TESTA SPOTIFY-ANSLUTNINGEN";
+        :"STARTA SPOTIFY OCH TESTA";
   }
   if(status){
     const show=state==="bad"&&!!message;
@@ -6605,6 +6630,7 @@ function setSpotifyHomeState(state,message=""){
     status.classList.toggle("hidden",!show);
   }
   if(changeBtn)changeBtn.classList.toggle("hidden",!connected);
+  updateSpotifyGate();
 }
 
 function spotifyActionableError(err){
@@ -6687,8 +6713,11 @@ async function onlineSpotifyCheck(){
         if(!devices.length){
           const why=dhWebPlayerLastError?` (${dhWebPlayerLastError})`:"";
           spotifyPreflightOk=false;
-          setSpotifyHomeState("bad",`Aktivt Spotify-konto: ${account}. Öppna Spotify-appen och gå sedan tillbaka hit.${why}`);
+          spotifyRecoveryPending=true;
+          spotifyRecoveryTrackId="";
+          setSpotifyHomeState("bad",`Aktivt Spotify-konto: ${account}. Spotify-appen öppnas nu – gå tillbaka hit när den syns.${why}`);
           setSpotifySetupMessage(`Konto verifierat: ${account} · öppna Spotify-appen för uppspelning.${why}`);
+          openSpotifyForRecovery();
           return false;
         }
         const selected=devices.find(x=>x.is_active)||devices.find(x=>x.id===spotifyDeviceId)||devices[0];
@@ -6700,6 +6729,7 @@ async function onlineSpotifyCheck(){
       await spotifyApi("/me/player");
 
       spotifyPreflightOk=true;
+      setSpotifySessionReady();
       setSpotifyHomeState("ok","");
       setSpotifySetupMessage(`Spotify redo ✓ · ${account} · ${selectedName}`);
       return true;
@@ -10725,7 +10755,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_44_BUILD_20260812_K");
+console.info("DIGIHITS_V6_45_BUILD_20260812_L");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
