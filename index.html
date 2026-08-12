@@ -5,11 +5,11 @@
 <meta http-equiv="Expires" content="0">
 
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://cdn.jsdelivr.net https://sdk.scdn.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: mediastream: https://*.scdn.co https://*.spotifycdn.com; frame-src https://sdk.scdn.co https://*.scdn.co https://*.spotify.com https://accounts.spotify.com; child-src blob: https://sdk.scdn.co; worker-src 'self' blob:; connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com https://*.scdn.co https://*.spotifycdn.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://accounts.spotify.com; object-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://cdn.jsdelivr.net https://sdk.scdn.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: mediastream: https://*.scdn.co https://*.spotifycdn.com; frame-src https://sdk.scdn.co https://*.scdn.co https://*.spotify.com https://accounts.spotify.com; child-src blob: https://sdk.scdn.co; worker-src 'self' blob:; connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com https://*.scdn.co https://*.spotifycdn.com; base-uri 'self'; form-action 'self' https://accounts.spotify.com; object-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.32</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.34</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2717,7 +2717,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 </head><body>
 <script>console.info("DIGIHITS_V6_29_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.32</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.34</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2954,7 +2954,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.32</span>
+        <span class="onlineGameBrandVersion">V6.34</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -3050,9 +3050,14 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </section>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-// Realtime-biblioteket laddas inte under startup. REST + polling fungerar utan det.
-window.__digihitsRealtimeLibraryDisabled=true;
+// Realtime kraver supabase-js ovan. Laddas det inte (offline, blockerare) faller
+// appen tillbaka pa REST + polling precis som tidigare.
+window.__digihitsRealtimeLibraryDisabled=!window.supabase?.createClient;
+if(window.__digihitsRealtimeLibraryDisabled){
+  console.warn("Digihits: realtidsbiblioteket kunde inte laddas - kör på reservpolling.");
+}
 </script>
 <script>
 
@@ -4297,7 +4302,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.32"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.34"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -4632,6 +4637,20 @@ class RestQuery {
 }
 const db={from:(table)=>new RestQuery(table)};
 
+/* Tidsgräns för löften. Återinförd i V6.32 - togs bort av misstag när det
+   gamla lokalläget städades bort i V6.31, men används av Spotify-flödet. */
+async function withTimeout(promise, ms=12000, message=""){
+  let timer;
+  const timeout=new Promise((_,reject)=>{
+    timer=setTimeout(
+      ()=>reject(new Error(message||"Åtgärden tog för lång tid.")),
+      Number(ms)>0?Number(ms):12000
+    );
+  });
+  try{return await Promise.race([Promise.resolve(promise),timeout])}
+  finally{clearTimeout(timer)}
+}
+
 
 const ONLINE_USER_KEY="digihits_online_user_v1";
 const ONLINE_NAME_KEY="digihits_online_name_v1";
@@ -4701,7 +4720,7 @@ function getRealtimeClient(){
       console.warn("Realtime disabled: missing Supabase anon key.");
       return null;
     }
-    if(!window.supabase?.createClient){
+    if(window.__digihitsRealtimeLibraryDisabled||!window.supabase?.createClient){
       console.warn("Realtime disabled: Supabase createClient unavailable.");
       return null;
     }
@@ -4758,6 +4777,9 @@ function setupOnlineRealtimeList(){
         if(status==="SUBSCRIBED"){
           onlineRealtimeAvailable=true;
           scheduleOnlineListRefresh(0);
+        }else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED"){
+          // Tillbaka till tät polling tills realtiden är uppe igen.
+          onlineRealtimeAvailable=false;
         }
       });
   }catch(e){
@@ -4911,8 +4933,12 @@ function startMatchChatPolling(){
 
   // Immediate fallback check, then every 800 ms.
   if(onlineMatch?.id)loadMatchChat(true);
+  let onlineChatTick=0;
   onlineChatPollTimer=setInterval(()=>{
-    if(onlineMatch?.id)loadMatchChat(true);
+    if(!onlineMatch?.id)return;
+    onlineChatTick++;
+    if(onlineRealtimeAvailable&&(onlineChatTick%6)!==0)return;
+    loadMatchChat(true);
   },800);
 }
 
@@ -8978,8 +9004,12 @@ clearInterval(onlineGameTimer);
   startMatchChatPolling();
 
   // Realtime är primärt. Reservpolling hålls lugn för mobil Safari.
+  let onlineGameTick=0;
   onlineGameTimer=setInterval(()=>{
     if(document.hidden)return;
+    onlineGameTick++;
+    // Med realtid igång räcker en kontroll var tionde sekund som skyddsnät.
+    if(onlineRealtimeAvailable&&(onlineGameTick%4)!==0)return;
     fetchOnlineGameState();
   },2500);
 
