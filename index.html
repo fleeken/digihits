@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.40</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.41</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2641,8 +2641,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 </head><body>
-<script>console.info("DIGIHITS_V6_40_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.40</small></button></div>
+<script>console.info("DIGIHITS_V6_41_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.41</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2879,7 +2879,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.40</span>
+        <span class="onlineGameBrandVersion">V6.41</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -3801,6 +3801,23 @@ async function ensureSpotifyCommandDevice(){
   throw new Error(dhBrowserPlaybackMessage("player"));
 }
 
+async function startSpotifyTrackInBrowser(trackId){
+  const id=String(trackId||"");
+  if(!id)throw new Error("Ingen låt att spela.");
+
+  const browser=await dhEnsureBrowserPlayback();
+  if(!browser.ok)throw new Error(dhBrowserPlaybackMessage(browser.reason));
+
+  await spotifyPlayTrack(id);
+  spotifyExpectedTrackId=id;
+  spotifyExpectedPlaying=true;
+  onlineLastPlayedSongId=id;
+  hideSpotifyRecovery();
+  setOnlineGameStatus("");
+  startOnlinePlaybackPolling();
+  return true;
+}
+
 
 async function spotifyRestartTrack(trackId){
   const id=String(trackId||"");
@@ -4179,7 +4196,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.40"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.41"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -9473,6 +9490,7 @@ function clearOnlineRoundLocal(){
   onlineGuessSaved=false;
       onlineSavedGuess={artist:"",title:""};
   onlineView="listen";
+      onlineLastPlayedSongId=null;
   onlineViewSongId=onlineMatch?.current_song?.id||null;
   if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
   if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
@@ -9637,8 +9655,7 @@ async function startOnlineTurn(){
 
 
 async function onlinePlaySong(trackId){
-  await spotifyPlayTrack(trackId);
-  onlineLastPlayedSongId=trackId;
+  await startSpotifyTrackInBrowser(trackId);
 }
 
 
@@ -9646,7 +9663,8 @@ async function autoPlayOnlineSong(){
   const id=onlineMatch?.current_song?.id;
   if(!id||onlineLastPlayedSongId===id)return;
   try{
-    await onlinePlaySong(id);
+    onlineLastPlayedSongId=null;
+    await startSpotifyTrackInBrowser(id);
     setOnlineGameStatus("");
   }catch(e){
     if(onlineIsMyTurn() && onlineMatch?.phase==="listen" && onlineMatch?.current_song?.id){
@@ -9839,15 +9857,10 @@ async function onlineTogglePlayback(){
     }else{
       if(btn)btn.textContent="STARTAR LÅT…";
       try{
-        await ensureSpotifyPlayingTrack(trackId,{restart:false});
+        await startSpotifyTrackInBrowser(trackId);
       }catch(e){
-        const browser=await dhEnsureBrowserPlayback().catch(()=>({ok:false,reason:"player"}));
-        if(browser.ok){
-          await ensureSpotifyPlayingTrack(trackId,{restart:false});
-        }else{
-          showSpotifyRecovery(trackId,dhBrowserPlaybackMessage(browser.reason));
-          throw e;
-        }
+        showSpotifyRecovery(trackId,String(e?.message||e));
+        throw e;
       }
 
       const confirmed=await verifySpotifyPlayback({
@@ -10679,7 +10692,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_40_BUILD_20260812_G");
+console.info("DIGIHITS_V6_41_BUILD_20260812_H");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
