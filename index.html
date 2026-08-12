@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.90</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.91</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -1242,7 +1242,7 @@ html.digihitsBooting body{
   font-size:11px
 }
 
-/* V5.90: tydligare matchstatus i Mina matcher */
+/* V5.91: tydligare matchstatus i Mina matcher */
 .matchSummaryBadge{
   padding:6px 10px;
   font-size:11px;
@@ -1299,7 +1299,7 @@ html.digihitsBooting body{
   #onlineGame .matchCodeInlineFull .copyCodeBtn{font-size:7px;padding:6px 7px}
 }
 
-/* V5.90: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
+/* V5.91: varumarket ska visuellt hora ihop med spelpanelen pa breda skarmar. */
 @media(min-width:801px){
   .appBrandRow{
     padding-left:316px;
@@ -1313,7 +1313,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.90 - tydlig klickbarhet för pågående matcher */
+/* V5.91 - tydlig klickbarhet för pågående matcher */
 .onlineMatchCard.ongoingClickable{
   position:relative;
   cursor:pointer;
@@ -1361,7 +1361,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.90 - kompaktare huvudknappar på bredare skärmar */
+/* V5.91 - kompaktare huvudknappar på bredare skärmar */
 @media(min-width:700px){
   #onlineSpotifyBtn{
     width:auto !important;
@@ -1381,7 +1381,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.90 - statusraden är själva öppna-match-uppmaningen */
+/* V5.91 - statusraden är själva öppna-match-uppmaningen */
 .onlineMatchState{
   max-width:100%;
   white-space:normal;
@@ -1401,12 +1401,12 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.90 - namn på spelaren vars tur övriga väntar på */
+/* V5.91 - namn på spelaren vars tur övriga väntar på */
 .onlineMatchState.wait{
   overflow-wrap:anywhere
 }
 
-/* V5.90 - kompaktare redo-knapp pa mobil */
+/* V5.91 - kompaktare redo-knapp pa mobil */
 @media(max-width:520px){
   .btn{
     width:auto !important;
@@ -1427,14 +1427,14 @@ html.digihitsBooting body{
 }
 
 
-/* V5.90 - i mobil visas matchlaget bara i den centrala matchvyn */
+/* V5.91 - i mobil visas matchlaget bara i den centrala matchvyn */
 @media(max-width:520px){
   #onlineGameStatus{
     display:none !important;
   }
 }
 
-/* V5.90 - Pågående matcher: hela kortet färgkodas efter turstatus */
+/* V5.91 - Pågående matcher: hela kortet färgkodas efter turstatus */
 .onlineMatchCard.waiting{
   border-color:#c7972f !important;
   background:#2a210f !important;
@@ -1461,7 +1461,7 @@ html.digihitsBooting body{
   background:#102331 !important
 }
 
-/* V5.90 - Matcher utan motståndare: samma helkortsgrafik, blå */
+/* V5.91 - Matcher utan motståndare: samma helkortsgrafik, blå */
 .onlineMatchCard.waitingOpponent{
   border-color:#3577a8 !important;
   background:#102331 !important;
@@ -1475,7 +1475,7 @@ html.digihitsBooting body{
   background:#0d1e2a !important
 }
 
-/* V5.90 - matchkodsraden far aldrig sticka utanfor sidopanelen */
+/* V5.91 - matchkodsraden far aldrig sticka utanfor sidopanelen */
 #onlineGame .matchCodeInlineFull{
   display:grid !important;
   grid-template-columns:max-content minmax(0,1fr) max-content !important;
@@ -1543,7 +1543,7 @@ html.digihitsBooting body{
   }
 }
 
-/* V5.90 - knappstorlekar i matchvyn */
+/* V5.91 - knappstorlekar i matchvyn */
 #onlineReadyScreen .btn.ready{
   width:auto !important;
   min-width:220px !important;
@@ -1583,7 +1583,7 @@ html.digihitsBooting body{
   display:none !important;
 }
 
-/* V5.90 - korrekt låsbygel */
+/* V5.91 - korrekt låsbygel */
 #onlineGameBadge.unlocked .matchLockGlyph::after{
   content:"";
   position:absolute;
@@ -1610,7 +1610,7 @@ html.digihitsBooting body{
   transform:none
 }
 
-/* V5.90 - matchvyns huvudknappar */
+/* V5.91 - matchvyns huvudknappar */
 #onlineGame .backToMatchesBtn{
   background:#2b303a !important;
   border-color:#3a414d !important;
@@ -1674,7 +1674,7 @@ html.digihitsBooting body{
 }
 </style>
 <style>
-/* V5.90 - matchvyn enligt godkänd layout */
+/* V5.91 - matchvyn enligt godkänd layout */
 #onlineGame{
   position:relative !important;
 }
@@ -1728,7 +1728,7 @@ html.digihitsBooting body{
 </style>
 
 <style>
-/* V5.90 - brand i eget layoututrymme, aldrig ovanpå annat */
+/* V5.91 - brand i eget layoututrymme, aldrig ovanpå annat */
 #onlineGameBrand{
   display:flex;
   align-items:baseline;
@@ -1776,7 +1776,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - Digihits/version precis ovanför huvudramens vänstra kant */
+/* V5.91 - Digihits/version precis ovanför huvudramens vänstra kant */
 #onlineGame .panel.main{
   position:relative !important;
   margin-top:30px !important;
@@ -1841,7 +1841,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - återställ Digihits-färger */
+/* V5.91 - återställ Digihits-färger */
 #onlineGameBrand .brandDigi{
   color:#59cfff !important;
 }
@@ -1857,7 +1857,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   color:#fff !important;
 }
 
-/* V5.90 - iPhone: chatt/lämna exakt samma bredd som motståndarboxen */
+/* V5.91 - iPhone: chatt/lämna exakt samma bredd som motståndarboxen */
 @media(max-width:520px){
   #onlineGame .side{
     box-sizing:border-box !important;
@@ -1885,7 +1885,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - tydlig väntanimation med noter som rör sig från vänster till höger */
+/* V5.91 - tydlig väntanimation med noter som rör sig från vänster till höger */
 .globalWaitOverlay{
   z-index:12000 !important;
 }
@@ -2002,7 +2002,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - mobil: chatt och lämna match har exakt samma bredd */
+/* V5.91 - mobil: chatt och lämna match har exakt samma bredd */
 @media(max-width:520px){
   #onlineGame .chatBtnWrap,
   #onlineGame .leaveMatchBtn{
@@ -2125,7 +2125,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - mobil: VISA CHATT och LÄMNA MATCHEN exakt samma bredd */
+/* V5.91 - mobil: VISA CHATT och LÄMNA MATCHEN exakt samma bredd */
 @media(max-width:600px){
   #onlineGame .chatBtnWrap,
   #onlineGame .chatBtnWrap .chatBtn,
@@ -2226,7 +2226,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - startsida/inloggning: LOGGA IN och SKAPA KONTO lika stora */
+/* V5.91 - startsida/inloggning: LOGGA IN och SKAPA KONTO lika stora */
 .authChoiceActions{
   width:100% !important;
   display:grid !important;
@@ -2276,7 +2276,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - inline väntindikator i själva matchen */
+/* V5.91 - inline väntindikator i själva matchen */
 #onlineGameStatus.busy{
   display:block !important;
   padding:8px 10px !important;
@@ -2359,7 +2359,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90: väntstatus måste synas även på mobil */
+/* V5.91: väntstatus måste synas även på mobil */
 @media(max-width:520px){
   #onlineGameStatus.busy{
     display:block !important;
@@ -2369,7 +2369,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - endast begärda UI-korrigeringar */
+/* V5.91 - endast begärda UI-korrigeringar */
 
 /* Om äldre markup för den blå Tillbaka-kontrollen finns kvar: dölj den. */
 #onlineGame .onlineBack,
@@ -2404,7 +2404,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - endast authknappar på mobil */
+/* V5.91 - endast authknappar på mobil */
 @media(max-width:520px){
   /* Behåll befintlig ordning/layout, men centrera auth-kontrollerna. */
   #authChoice,
@@ -2453,7 +2453,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - endast riktiga auth-formulärknappar på mobil */
+/* V5.91 - endast riktiga auth-formulärknappar på mobil */
 @media(max-width:520px){
   #authLoginPanel #accountLoginBtn,
   #authSignupPanel #accountCreateBtn{
@@ -2495,7 +2495,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 <style>
-/* V5.90 - spelknappar: rimlig tryckyta och proportioner */
+/* V5.91 - spelknappar: rimlig tryckyta och proportioner */
 #onlineGame .btn.continue,
 #onlineGame .btn.lock,
 #onlineGame #onlineContinueBtn,
@@ -2528,8 +2528,58 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   }
 }
 </style>
+
+<style>
+/* V5.91 - resultatets beslutsknappar ligger före tidslinjen och får inte klippas bort */
+#onlineResultScreen #onlineDecisionButtons{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:12px !important;
+  width:100% !important;
+  margin:14px 0 8px !important;
+  overflow:visible !important;
+}
+
+#onlineResultScreen #onlineDecisionButtons .continueBtn,
+#onlineResultScreen #onlineDecisionButtons .lockCardBtn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:58px !important;
+  margin:0 !important;
+  padding:14px 18px !important;
+  box-sizing:border-box !important;
+  text-align:center !important;
+  font-size:15px !important;
+  line-height:1.15 !important;
+  font-weight:950 !important;
+  border-radius:14px !important;
+}
+
+#onlineResultScreen #onlineDecisionButtons .continueBtn small,
+#onlineResultScreen #onlineDecisionButtons .lockCardBtn small{
+  font-size:10px !important;
+}
+
+#onlineResultScreen #onlineDecisionTimeline{
+  margin-top:10px !important;
+}
+
+@media(max-width:650px){
+  #onlineResultScreen #onlineDecisionButtons{
+    grid-template-columns:1fr !important;
+  }
+  #onlineResultScreen #onlineDecisionButtons .continueBtn,
+  #onlineResultScreen #onlineDecisionButtons .lockCardBtn{
+    min-height:60px !important;
+    font-size:16px !important;
+  }
+}
+</style>
 </head><body>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.90</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.91</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2766,7 +2816,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V5.90</span>
+        <span class="onlineGameBrandVersion">V5.91</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2838,8 +2888,9 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
         <div id="onlineChecks" class="checklist"></div>
         <div id="onlineBonus"></div>
         
-        <div id="onlineDecisionTimeline" class="onlineTimelinePanel hidden"></div>
         <div id="onlineDecisionButtons" class="onlineDecision"></div>
+        <div id="onlineDecisionTimeline" class="onlineTimelinePanel hidden"></div>
+        
       </div>
     </main>
   </div>
@@ -3743,7 +3794,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.90";
+    if(badge)badge.textContent="Återansluten · V5.91";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -3751,7 +3802,7 @@ async function resumeSavedMatch(){
 }
 
 async function restoreActiveSession(){
-  // V5.90 använder bara online-matcher. Äldre lokalt matchminne rensas.
+  // V5.91 använder bara online-matcher. Äldre lokalt matchminne rensas.
   clearActiveSession();
 }
 function requireDb(){
@@ -3762,7 +3813,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.90"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.91"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -3981,7 +4032,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.90":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.91":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -4734,7 +4785,7 @@ async function endFailedTurn(){
 }
 async function swapSong(){if(actionBusy)return;let c=cur();if(!c||((c.swap_cards||0)<=0))return;actionBusy=true;try{let deck=[...(match.deck||[])];if(!deck.length)throw new Error("Kortleken är slut.");let song=deck.shift();let pr=await db.from("players").update({swap_cards:(c.swap_cards||0)-1}).eq("id",c.id);if(pr.error)throw new Error(pr.error.message);let mr=await db.from("matches").update({deck,current_song:song,phase:"listen"}).eq("code",code);if(mr.error)throw new Error(mr.error.message);$("guessArtist").value="";$("guessTitle").value="";guessSaved=false;selected=null;const source=$("dragSecret");if(source)source.classList.remove("hidden");clearGameStatus()}catch(e){alert("Kunde inte byta låt: "+e.message)}finally{actionBusy=false}}
 
-// SPELA ONLINE – V5.90
+// SPELA ONLINE – V5.91
 // =======================
 const URL="https://zttkujhoyuxerdewofkb.supabase.co", KEY="sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
 
@@ -10172,6 +10223,17 @@ function renderWrongPlacementTimeline(r){
 }
 
 function showOnlineLocalResult(r,decision,held=false){
+  const decisionButtonsEl=$("onlineDecisionButtons");
+  const decisionTimelineEl=$("onlineDecisionTimeline");
+  if(
+    decisionButtonsEl &&
+    decisionTimelineEl &&
+    decisionTimelineEl.parentNode===decisionButtonsEl.parentNode &&
+    decisionTimelineEl.previousElementSibling!==decisionButtonsEl
+  ){
+    decisionTimelineEl.parentNode.insertBefore(decisionButtonsEl,decisionTimelineEl);
+  }
+
   onlineHideScreens();
   $("onlineResultScreen").classList.remove("hidden");
 
@@ -10210,8 +10272,8 @@ function showOnlineLocalResult(r,decision,held=false){
     $("onlineDecisionTimeline").classList.add("hidden");
   }
   $("onlineDecisionButtons").innerHTML=decision
-    ? `<button type="button" class="btn purple" onclick="onlineContinue()">▶ FORTSÄTT<br><small>Riskera ${(onlineMyPlayer.turn_cards||[]).length} olåsta kort</small></button>
-       <button type="button" class="btn green" onclick="onlineLockIn()">🔒 LÅS IN ${(onlineMyPlayer.turn_cards||[]).length} KORT</button>`
+    ? `<button type="button" class="btn purple continueBtn" onclick="onlineContinue()">▶ FORTSÄTT<br><small>Riskera ${(onlineMyPlayer.turn_cards||[]).length} olåsta kort</small></button>
+       <button type="button" class="btn green lockCardBtn" onclick="onlineLockIn()">🔒 LÅS IN ${(onlineMyPlayer.turn_cards||[]).length} KORT</button>`
     : ``;
 }
 function dismissOnlineLocalResult(){
@@ -10341,7 +10403,7 @@ async function onlineSwapSong(){
   finally{actionBusy=false}
 }
 
-// Startsidan är alltid online i V5.90.
+// Startsidan är alltid online i V5.91.
 function startOnlineHomeSync(){
   renderAccountUi();
   renderProfileName();
