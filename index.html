@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.36</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.38</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -22,7 +22,11 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.turn{font-size:26px;font-weight:950}.status{min-height:25px;margin:12px 0;color:var(--c);font-weight:800}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:#171a22;border:1px solid #2d313c;border-radius:13px;padding:10px;text-align:center}.stat b{display:block;font-size:21px}.stat small{color:var(--mut)}
 .music{background:linear-gradient(135deg,#10271a,#111b16);border:1px solid #25623c;border-radius:17px;padding:15px}.song{font-size:22px;font-weight:950}.artist{color:#c3c7ca;margin-top:3px}.hostButtons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.playbackBox{margin-top:14px;padding:12px;background:#0c1610;border:1px solid #245b38;border-radius:14px}
+.musicPlayer{margin:0 0 18px;padding:14px;background:linear-gradient(145deg,#111a18,#0c1212);border:1px solid #3b6950;border-radius:16px;box-shadow:0 10px 24px #0004}
+.musicPlayer .playbackBox{margin-top:0}
+.musicPlayer .hostButtons{margin-top:12px}
+.musicPlayer .hostButtons .btn{flex:1 1 190px}
+.playbackBox{padding:12px;background:#0c1610;border:1px solid #245b38;border-radius:14px}
 .playbackTimes{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-bottom:7px}
 .playbackTrack{height:10px;background:#26302a;border-radius:999px;overflow:hidden;border:1px solid #35483c}
 .playbackFill{height:100%;width:0%;background:linear-gradient(90deg,var(--g),var(--c));transition:width .35s linear}
@@ -2631,93 +2635,9 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 }
 </style>
 
-<style>
-/* V6.29 - tydlig Spotify-återställning */
-#spotifyRecoveryBox{
-  display:none;
-  margin:14px 0 0;
-  padding:14px 16px;
-  border:1px solid #3c6f88;
-  border-radius:14px;
-  background:#111a21;
-  box-sizing:border-box;
-}
-#spotifyRecoveryBox.show{display:block}
-#spotifyRecoveryBox .spotifyRecoveryTitle{
-  font-weight:950;
-  font-size:15px;
-  color:#fff;
-  margin-bottom:7px;
-}
-#spotifyRecoveryBox .spotifyRecoveryText{
-  color:#c5d2dc;
-  font-size:12px;
-  line-height:1.45;
-}
-#spotifyRecoveryBox .spotifyRecoverySteps{
-  margin:9px 0 0;
-  padding-left:19px;
-  color:#d8e3eb;
-  font-size:12px;
-  line-height:1.45;
-}
-#spotifyRecoveryBox .spotifyRecoveryActions{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-}
-#spotifyRecoveryBox .spotifyRecoveryActions .btn{
-  flex:1 1 0;
-  min-height:44px;
-}
-@media(max-width:650px){
-  #spotifyRecoveryBox{
-    padding:13px 14px;
-  }
-  #spotifyRecoveryBox .spotifyRecoveryTitle{
-    font-size:16px;
-  }
-  #spotifyRecoveryBox .spotifyRecoveryText,
-  #spotifyRecoveryBox .spotifyRecoverySteps{
-    font-size:13px;
-  }
-  #spotifyRecoveryBox .spotifyRecoveryActions{
-    flex-direction:column;
-  }
-  #spotifyRecoveryBox .spotifyRecoveryActions .btn{
-    width:100% !important;
-    min-height:50px !important;
-    font-size:14px !important;
-  }
-}
-</style>
-
-<style>
-/* V6.29 - kort instruktion innan Spotify-skrivbordsappen öppnas */
-#spotifyDesktopLaunchNotice{
-  display:none;
-  position:fixed;
-  left:50%;
-  bottom:22px;
-  transform:translateX(-50%);
-  z-index:99999;
-  width:min(520px,calc(100% - 28px));
-  padding:13px 16px;
-  border:1px solid #3c6f88;
-  border-radius:14px;
-  background:#111a21;
-  color:#fff;
-  box-sizing:border-box;
-  text-align:center;
-  font-size:13px;
-  font-weight:800;
-  line-height:1.35;
-}
-#spotifyDesktopLaunchNotice.show{display:block}
-</style>
 </head><body>
-<script>console.info("DIGIHITS_V6_36_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.36</small></button></div>
+<script>console.info("DIGIHITS_V6_38_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.38</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2954,7 +2874,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.36</span>
+        <span class="onlineGameBrandVersion">V6.38</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2967,22 +2887,6 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
         </div>
       </div>
       <div id="onlineGameStatus" class="status"></div>
-      <div id="spotifyRecoveryBox" role="status" aria-live="polite">
-        <div class="spotifyRecoveryTitle">Spotify behöver startas</div>
-        <div class="spotifyRecoveryText">
-          Digihits hittar ingen fungerande Spotify-uppspelning på den här enheten.
-        </div>
-        <ol class="spotifyRecoverySteps">
-          <li>Digihits försöker öppna Spotify-appen automatiskt.</li>
-          <li>På dator öppnas den installerade Spotify-skrivbordsappen – inte Spotify Web.</li>
-          <li>Låt Spotify vara igång och gå sedan tillbaka till Digihits. Om den inte öppnades, använd <b>ÖPPNA SPOTIFY</b> nedan.</li>
-        </ol>
-        <div class="spotifyRecoveryActions">
-          <button type="button" id="spotifyRecoveryPlayHereBtn" class="btn green" onclick="retrySpotifyRecoveryNow()">SPELA HÄR</button>
-          <button type="button" id="spotifyRecoveryOpenAppBtn" class="btn dark" onclick="openSpotifyForRecovery()">ÖPPNA SPOTIFY-APPEN (NÖDLÖSNING)</button>
-        </div>
-      </div>
-
       <div id="onlineWaitingScreen" class="hidden wait"></div>
 
       <div id="onlineReadyScreen" class="hidden">
@@ -2993,20 +2897,22 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 
       <div id="onlineListenScreen" class="hidden">
         <div id="onlineTurnStats" class="onlinePlayerStats"></div>
+        <div class="musicPlayer" aria-label="Musikspelare">
+          <div id="onlinePlaybackMini" class="playbackBox">
+            <div class="playbackTimes"><span id="onlinePlaybackPos">0:00</span><span id="onlinePlaybackDur">0:00</span></div>
+            <div class="playbackTrack"><div id="onlinePlaybackFill" class="playbackFill"></div></div>
+          </div>
+          <div class="hostButtons">
+            <button type="button" id="onlinePlayPauseBtn" class="btn dark" onclick="onlineTogglePlayback()">▶ SPELA LÅT</button>
+            <button type="button" class="btn dark" onclick="onlineRestartPlayback()">↺ SPELA LÅT FRÅN BÖRJAN</button>
+          </div>
+        </div>
         <div class="screenTitle">Vad vill du göra?</div>
         <div class="onlineChoice">
           <button type="button" class="choice guess" onclick="showOnlineGuess()">🎤 GISSA ARTIST & LÅTNAMN<small>Frivilligt. Båda rätt ger ett Byta-låt-kort.</small></button>
           <button type="button" class="choice place" onclick="requestOnlinePlace()">🃏 PLACERA KORT<small>Placera låten på din tidslinje.</small></button>
         </div>
         <button type="button" id="onlineSwapBtn" class="btn orange full" style="margin-top:12px" onclick="onlineSwapSong()">ANVÄND BYT-LÅT-KORT <span class="onlineSwapBtnCount">0/3</span></button>
-        <div id="onlinePlaybackMini" class="playbackBox hidden">
-          <div class="playbackTimes"><span id="onlinePlaybackPos">0:00</span><span id="onlinePlaybackDur">0:00</span></div>
-          <div class="playbackTrack"><div id="onlinePlaybackFill" class="playbackFill"></div></div>
-        </div>
-        <div class="hostButtons">
-          <button type="button" id="onlinePlayPauseBtn" class="btn dark" onclick="onlineTogglePlayback()">▶ SPELA LÅT</button>
-          <button type="button" class="btn dark" onclick="onlineRestartPlayback()">↺ SPELA LÅT FRÅN BÖRJAN</button>
-        </div>
       </div>
 
       <div id="onlineGuessScreen" class="hidden">
@@ -3898,8 +3804,8 @@ async function spotifyRestartTrack(trackId){
     hideSpotifyRecovery();
     return ok;
   }catch(e){
-    showSpotifyRecovery(id,"Låten kunde inte startas om. Tryck SPELA HÄR så spelas den i Digihits.");
-    setOnlineGameStatus("Tryck SPELA HÄR för att starta låten.",true);
+    showSpotifyRecovery(id,"Låten kunde inte startas om. Tryck SPELA LÅT så spelas den i Digihits.");
+    setOnlineGameStatus("Tryck SPELA LÅT för att starta låten.",true);
     throw e;
   }
 }
@@ -3945,11 +3851,11 @@ function showSpotifyRecovery(trackId,message=""){
       if(text){
         text.textContent=message&&!/Spotify-appen/i.test(message)
           ? message
-          : "Webbläsaren kräver en tryckning innan ljudet får starta. Tryck på SPELA HÄR så startar låten direkt i Digihits.";
+          : "Webbläsaren kräver en tryckning innan ljudet får starta. Tryck på SPELA LÅT så startar låten direkt i Digihits.";
       }
       if(steps)steps.style.display="none";
       if(openBtn)openBtn.style.display="none";
-      setOnlineGameStatus("Tryck SPELA HÄR för att starta låten.");
+      setOnlineGameStatus("Tryck SPELA LÅT för att starta låten.",true);
     }else{
       if(title)title.textContent="Spotify behöver startas";
       if(text)text.textContent=message||spotifyRecoveryPlatformText();
@@ -4275,7 +4181,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.36"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.38"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -9695,7 +9601,7 @@ async function startOnlineTurn(){
       }
       if(!recovered){
         showSpotifyRecovery(song.id,
-          "Låten kunde inte starta automatiskt. Tryck SPELA HÄR så startar den i Digihits.");
+          "Låten kunde inte starta automatiskt. Tryck SPELA LÅT så startar den i Digihits.");
       }
     }
     setOnlineGameStatus("");
@@ -10775,7 +10681,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_36_BUILD_20260812_C");
+console.info("DIGIHITS_V6_38_BUILD_20260812_E");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
