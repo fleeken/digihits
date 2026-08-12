@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.68</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.69</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2672,10 +2672,33 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   }
 }
 </style>
-
+<style>
+@media(max-width:650px){
+  #onlineGame .initialGuessActions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    width:min(100%,420px)!important;
+    margin:20px auto 0!important;
+    gap:10px!important;
+  }
+  #onlineGame .initialGuessActions .btn{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    min-height:54px!important;
+    margin:0!important;
+    padding:13px 8px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    white-space:normal!important;
+  }
+}
+</style>
 </head><body>
 <script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.68</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.69</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2910,7 +2933,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.68</span>
+        <span class="onlineGameBrandVersion">V6.69</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -4295,7 +4318,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.68"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.69"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -9593,7 +9616,7 @@ function renderOnlineGame(){
     // Bevara den delvy spelaren själv valt under hela samma låt.
     onlineHideScreens();
     $("onlineTurnPlayer")?.classList.remove("hidden");
-    if(onlineView==="guess" || !onlineGuessStepDone){
+    if(onlineView==="guess" || (onlineView!=="place" && !onlineGuessStepDone)){
       onlineView="guess";
       $("onlineGuessScreen").classList.remove("hidden");
     }else if(onlineView==="place"){
@@ -10918,7 +10941,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_68_BUILD_20260812_AI");
+console.info("DIGIHITS_V6_69_BUILD_20260812_AJ");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
