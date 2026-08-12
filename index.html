@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.53</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.54</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2659,8 +2659,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 </head><body>
-<script>console.info("DIGIHITS_V6_53_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.53</small></button></div>
+<script>console.info("DIGIHITS_V6_54_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.54</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2869,7 +2869,6 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
         </div>
 
       </div>
-      <h3>Motståndare</h3>
       <div id="onlineGamePlayers" class="players"></div>
 
       <div class="chatBtnWrap">
@@ -2898,7 +2897,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.53</span>
+        <span class="onlineGameBrandVersion">V6.54</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2913,6 +2912,17 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
       <div id="onlineGameStatus" class="status"></div>
       <div id="onlineWaitingScreen" class="hidden wait"></div>
 
+      <div id="onlineTurnPlayer" class="musicPlayer hidden" aria-label="Musikspelare">
+        <div id="onlinePlaybackMini" class="playbackBox">
+          <div class="playbackTimes"><span id="onlinePlaybackPos">0:00</span><span id="onlinePlaybackDur">0:00</span></div>
+          <div class="playbackTrack"><div id="onlinePlaybackFill" class="playbackFill"></div></div>
+        </div>
+        <div class="hostButtons">
+          <button type="button" id="onlinePlayPauseBtn" class="btn dark" onclick="onlineTogglePlayback()">▶ SPELA LÅT</button>
+          <button type="button" class="btn dark" onclick="onlineRestartPlayback()">↺ SPELA LÅT FRÅN BÖRJAN</button>
+        </div>
+      </div>
+
       <div id="onlineReadyScreen" class="hidden">
         <div class="screenTitle">Din tur</div>
         <button type="button" id="onlineReadyBtn" class="btn green full ready" onclick="startOnlineTurn()">KLICKA HÄR OM DU ÄR REDO</button>
@@ -2920,16 +2930,6 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 
       <div id="onlineListenScreen" class="hidden">
         <div id="onlineTurnStats" class="onlinePlayerStats"></div>
-        <div class="musicPlayer" aria-label="Musikspelare">
-          <div id="onlinePlaybackMini" class="playbackBox">
-            <div class="playbackTimes"><span id="onlinePlaybackPos">0:00</span><span id="onlinePlaybackDur">0:00</span></div>
-            <div class="playbackTrack"><div id="onlinePlaybackFill" class="playbackFill"></div></div>
-          </div>
-          <div class="hostButtons">
-            <button type="button" id="onlinePlayPauseBtn" class="btn dark" onclick="onlineTogglePlayback()">▶ SPELA LÅT</button>
-            <button type="button" class="btn dark" onclick="onlineRestartPlayback()">↺ SPELA LÅT FRÅN BÖRJAN</button>
-          </div>
-        </div>
         <div class="screenTitle">Placera låten på din tidslinje</div>
         <div class="onlineSecretDock">
           <div id="onlineSecretCard" class="onlineSecret">
@@ -4279,7 +4279,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.53"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.54"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -6623,7 +6623,7 @@ function setOnlineGameStatus(text,isError=false){
 }
 function onlineHideScreens(){
   setPlacementMode(false);
-  ["onlineWaitingScreen","onlineReadyScreen","onlineListenScreen","onlineGuessScreen","onlinePostPlacementGuessScreen","onlinePlaceScreen","onlineResultScreen","onlineOverviewScreen"].forEach(id=>{
+  ["onlineWaitingScreen","onlineReadyScreen","onlineListenScreen","onlineGuessScreen","onlinePostPlacementGuessScreen","onlinePlaceScreen","onlineResultScreen","onlineOverviewScreen","onlineTurnPlayer"].forEach(id=>{
     const el=$(id);if(el)el.classList.add("hidden");
   });
 }
@@ -9343,30 +9343,7 @@ function onlineIsMyTurn(){
 function updateOnlineGameSubtitle(){
   const el=$("onlineGameSub");
   if(!el)return;
-  if(!onlineMatch||!onlineMyPlayer){el.textContent="";return;}
-
-  const active=onlineMatch.status==="active";
-  const myTurn=onlineIsMyTurn();
-
-  if(!active){
-    el.textContent="";
-    return;
-  }
-
-  if(myTurn){
-    if(onlineMatch.phase==="listen")el.textContent="Din tur – lyssna på låten.";
-    else if(onlineMatch.phase==="place")el.textContent="Din tur – placera kortet på tidslinjen.";
-    else if(onlineMatch.phase==="result")el.textContent="Din tur – se resultatet.";
-    else if(onlineMatch.phase==="turn_ready"){el.textContent="";prefetchNextOnlineSong().catch(()=>{});}
-    else el.textContent="Din tur.";
-  }else{
-    const current=(onlinePlayers||[]).find(
-      p=>String(p.user_id||"")===String(onlineMatch.current_user_id||"")
-    );
-    el.textContent=current?.display_name
-      ? `Väntar på ${current.display_name}.`
-      : "Väntar på motspelaren.";
-  }
+  el.textContent="";
 }
 
 function onlineMatchIsLocked(){
@@ -9544,7 +9521,7 @@ function renderOnlineGame(){
     clearStaleSpotifyGameStatus();
     // A new active song always supersedes any previous locally held result.
     onlineLocalResultHold=null;
-    $("onlineGameSub").textContent="Din tur – lyssna på låten.";
+    $("onlineGameSub").textContent="";
     const locked=(onlineMyPlayer.locked_timeline||[]).length;
     const risk=(onlineMyPlayer.turn_cards||[]).length;
     $("onlineTurnStats").textContent=`${locked}/${onlineMatch.target_cards||10} låsta kort · ${risk} Olåsta kort · ${onlineMyPlayer.swap_cards||0}/3 Byta-låt-kort`;
@@ -9553,6 +9530,7 @@ function renderOnlineGame(){
 
     // Bevara den delvy spelaren själv valt under hela samma låt.
     onlineHideScreens();
+    $("onlineTurnPlayer")?.classList.remove("hidden");
     if(onlineView==="guess" || !onlineGuessSaved){
       onlineView="guess";
       $("onlineGuessScreen").classList.remove("hidden");
@@ -10027,12 +10005,14 @@ async function onlineRestartPlayback(){
 function showOnlineListen(){
   onlineView="listen";
   onlineHideScreens();
+  $("onlineTurnPlayer")?.classList.remove("hidden");
   $("onlineListenScreen").classList.remove("hidden");
 }
 function showOnlineGuess(){
   onlineView="guess";
   onlineViewSongId=onlineMatch?.current_song?.id||null;
   onlineHideScreens();
+  $("onlineTurnPlayer")?.classList.remove("hidden");
   $("onlineGuessScreen").classList.remove("hidden");
 }
 function saveOnlineGuess(){
@@ -10852,7 +10832,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_53_BUILD_20260812_T");
+console.info("DIGIHITS_V6_54_BUILD_20260812_U");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
