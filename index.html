@@ -18,6 +18,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .badge.bad{border-color:#bf4d5c;color:#ffabb4;background:#2a1318}
 .badge.checking{border-color:#c89431;color:#ffe09a;background:#2a210f}
 .panel{background:rgba(17,19,26,.98);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 18px 50px #0006}.hidden{display:none!important}.home{max-width:720px;margin:0 auto}.hero{text-align:center}.hero h1{font-size:40px;margin:8px 0}.mut{color:#b9c0cc;line-height:1.45}.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}.role{background:#171a22;border:1px solid #3b4250;border-radius:17px;padding:17px}.role h3{margin:0 0 5px}.btn{border:0;border-radius:14px;padding:14px 16px;font-weight:900}.full{width:100%}.green{background:var(--g);color:#06210f}.cyan{background:var(--c);color:#00151d}.purple{background:var(--v);color:#160025}.dark{background:#2a2d37;color:#fff}.orange{background:var(--o);color:#251300}.red{background:#55252c;color:#fff}select.input{appearance:auto}.input{width:100%;background:#0b0c11;color:#fff;border:1px solid #393d49;border-radius:12px;padding:13px;outline:none}.setup{margin-top:15px;padding-top:15px;border-top:1px solid var(--line)}.setupRow{display:grid;grid-template-columns:1fr auto;gap:8px;margin:7px 0}
+.waitingMatchCode{display:grid;gap:12px;justify-items:center;width:min(100%,360px);margin:22px auto 0;padding:22px 18px;background:#242832;border:1px solid #4a5260;border-radius:16px;text-align:center}.waitingMatchCodeLabel{font-size:11px;font-weight:950;letter-spacing:.12em;color:#c6cdd8}.waitingMatchCodeValue{font-size:34px;line-height:1;letter-spacing:.12em;font-weight:950;color:var(--c)}.waitingMatchCode .copyCodeBtn{font-size:10px;padding:9px 12px}
 .grid{display:grid;grid-template-columns:300px 1fr;gap:16px}.code{font-size:30px;letter-spacing:5px;font-weight:950;color:var(--c)}.players{display:grid;gap:8px}.prow{display:grid;grid-template-columns:1fr auto;gap:8px;background:#181b23;border:1px solid #2e323d;border-radius:13px;padding:11px}.prow.active{border-color:var(--c)}.pname{font-weight:850}.pmeta{font-size:11px;color:var(--mut);margin-top:3px}.swaps{color:var(--o);font-weight:900}
 .head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.turn{font-size:26px;font-weight:950}.status{min-height:25px;margin:12px 0;color:var(--c);font-weight:800}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:#171a22;border:1px solid #2d313c;border-radius:13px;padding:10px;text-align:center}.stat b{display:block;font-size:21px}.stat small{color:var(--mut)}
@@ -9505,7 +9506,11 @@ function renderOnlineGame(){
     onlineHideScreens();
     dhPrimeWebPlayerEarly();
     $("onlineWaitingScreen").classList.remove("hidden");
-    $("onlineWaitingScreen").textContent="Väntar på motspelare…";
+    $("onlineWaitingScreen").innerHTML=`<div class="waitingMatchCode">
+      <div class="waitingMatchCodeLabel">MATCHKOD</div>
+      <div class="waitingMatchCodeValue">${escapeHtml(onlineMatch.code||"–")}</div>
+      <button type="button" class="copyCodeBtn" onclick="copyMatchCode('${escapeHtml(String(onlineMatch.code||""))}',this)">KOPIERA KOD</button>
+    </div>`;
     return;
   }
 
