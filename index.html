@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.96</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.97</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2616,9 +2616,12 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   }
 }
 </style>
+<style>
+#onlineGameBrand{pointer-events:auto!important;cursor:pointer!important;}
+</style>
 </head><body>
 <script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.96</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.97</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2853,7 +2856,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <button type="button" id="onlineGameBrand" class="onlineGameBrand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.96</span>
+        <span class="onlineGameBrandVersion">V6.97</span>
       </button>
       <div class="onlineGameTop">
         <div>
@@ -4240,7 +4243,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.96"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.97"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -8877,7 +8880,7 @@ async function fetchOnlineGameState(){
       onlineViewSongId &&
       newSongId===onlineViewSongId
     );
-    if(newSongId && newSongId!==previousSongId && !keepPlacementView){
+    if(newSongId && newSongId!==previousSongId && !keepPlacementView && onlineView!=="place"){
       onlineMatchViewState=beginMatchSong(onlineMatchViewState,newSongId);
       onlineView="listen";
       onlineViewSongId=newSongId;
@@ -8892,7 +8895,7 @@ async function fetchOnlineGameState(){
     }
 
     // Om servern byter fas ska gamla lokala delvyer inte ligga kvar.
-    if(previousPhase!==onlineMatch.phase && onlineMatch.phase!=="listen" && !onlinePlacementMode){
+    if(previousPhase!==onlineMatch.phase && onlineMatch.phase!=="listen" && !onlinePlacementMode && onlineView!=="place"){
       onlineView="listen";
     }
     const ps=await db.from("online_players").select("*").eq("match_id",onlineMatch.id).eq("active",true).order("turn_order");
@@ -10636,7 +10639,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_96_BUILD_20260812_BK");
+console.info("DIGIHITS_V6_97_BUILD_20260812_BL");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 

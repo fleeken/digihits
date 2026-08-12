@@ -4,7 +4,12 @@ function renderOnlineGame(){
 }
 
 function renderStablePlacementView(){
-  if(!onlinePlacementMode||!onlineMatch?.current_song)return false;
+  const placementActive=!!(
+    onlinePlacementMode||
+    onlineView==="place"||
+    onlineMatchViewState?.view===MATCH_VIEWS.PLACE
+  );
+  if(!placementActive||!onlineMatch?.current_song)return false;
   onlineView="place";
   onlineHideScreens();
   $("onlineTurnPlayer")?.classList.remove("hidden");
