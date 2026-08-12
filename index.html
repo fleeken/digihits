@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.39</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.40</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -548,6 +548,11 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 
 .brandHomeBtn{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .spotifyAccountChangeBtn{display:block;margin:9px auto 0}
+
+@media(max-width:520px){
+  .app{padding-top:4px}
+  .appBrandRow{margin-top:0}
+}
 
 
 .signupNameHelp{font-size:10px;margin:5px 2px 0}
@@ -2636,8 +2641,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </style>
 
 </head><body>
-<script>console.info("DIGIHITS_V6_39_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.39</small></button></div>
+<script>console.info("DIGIHITS_V6_40_HTML_READY")</script>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.40</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2874,7 +2879,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.39</span>
+        <span class="onlineGameBrandVersion">V6.40</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -4174,7 +4179,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.39"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.40"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -10674,7 +10679,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_39_BUILD_20260812_F");
+console.info("DIGIHITS_V6_40_BUILD_20260812_G");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
