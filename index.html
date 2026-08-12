@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.62</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.63</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2671,7 +2671,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 
 </head><body>
 <script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.62</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.63</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2906,7 +2906,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.62</span>
+        <span class="onlineGameBrandVersion">V6.63</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -4288,7 +4288,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.62"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.63"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -6891,6 +6891,13 @@ async function copyMatchCode(code,sourceEl=null){
 
 
 function onlineCode(){return gen()}
+function onlinePlayerCompletedSecondTurn(player){
+  const roundsStarted=Number(player?.rounds_started||0);
+  const completedRound=Number(player?.last_round?.round_number||0);
+  // Older matches did not store round_number. Keep those conservatively locked
+  // once their second turn has started.
+  return roundsStarted>=2 && (completedRound>=2 || !player?.last_round?.round_number);
+}
 function spotifyLooksLikeMusic(track){
   if(!track?.id||!track?.name||!track?.artists?.length)return false;
 
@@ -8151,10 +8158,10 @@ async function joinOnlineMatch(){
     const list=existing.data||[];
     if(list.some(p=>String(p.user_id||"")===String(ensureOnlineUserId())))throw new Error("Du är redan med i matchen.");
 
-    // Nya spelare får bara gå med tills någon har påbörjat sin andra omgång.
-    const secondRoundStarted=list.some(p=>Number(p.rounds_started||0)>=2);
-    if(secondRoundStarted){
-      throw new Error("Andra omgången har tyvärr redan påbörjats.");
+    // Nya spelare får bara gå med tills någon har spelat klart sin andra omgång.
+    const secondRoundCompleted=list.some(onlinePlayerCompletedSecondTurn);
+    if(secondRoundCompleted){
+      throw new Error("En spelare har redan spelat klart sin andra omgång.");
     }
 
     if(list.some(p=>String(p.user_id||"")===String(ensureOnlineUserId()))){
@@ -8463,7 +8470,7 @@ async function loadOnlineMatches(options={}){
         String(m.current_user_id||"")===myId;
       const hasOpponent=activePlayers.some(p=>String(p.user_id||"")!==myId);
       const waitingForOpponent=!hasOpponent;
-      const locked=activePlayers.some(p=>Number(p.rounds_started||0)>=2);
+      const locked=activePlayers.some(onlinePlayerCompletedSecondTurn);
 
       const unreadChat=Number(homeUnreadChatByMatch[m.id]||0);
       const chatUnreadHtml=unreadChat>0
@@ -8967,16 +8974,6 @@ clearInterval(onlineGameTimer);
   if(!onlineMyPlayer){alert("Du är inte med i matchen.");return}
   try{await repairOnlineTurnIfNeeded()}catch(e){console.warn("Turn repair:",e)}
 
-  // A newly created match starts as waiting, but its creator already owns
-  // the first turn. Promote that local turn immediately so the code and
-  // ready screen are usable instead of leaving the view on "Synkar".
-  if(onlineIsMyTurn() && (onlineMatch.phase==="waiting"||!onlineMatch.phase)){
-    onlineMatch={...onlineMatch,phase:"turn_ready"};
-    try{
-      await db.from("online_matches").update({phase:"turn_ready",updated_at:new Date().toISOString()}).eq("id",onlineMatch.id);
-    }catch(e){console.warn("Initial turn promotion:",e)}
-  }
-
   // A match opened on the player's active turn must always start in the guess view.
   if((preferTurn||onlineIsMyTurn()) && onlineMatch.phase==="listen" && onlineMatch.current_song?.id){
     onlineView="guess";
@@ -9369,6 +9366,10 @@ function onlineIsMyTurn(){
   );
 }
 
+function onlinePlayerCompletedSecondTurn(player){
+  return Number(player?.last_round?.round_number||0)>=2;
+}
+
 function updateOnlineGameSubtitle(){
   const el=$("onlineGameSub");
   if(!el)return;
@@ -9376,9 +9377,8 @@ function updateOnlineGameSubtitle(){
 }
 
 function onlineMatchIsLocked(){
-  // Same rule as joining: once ANY active participant has started round 2,
-  // no more players may join this match.
-  return (onlinePlayers||[]).some(p=>Number(p.rounds_started||0)>=2);
+  // Joining closes only after a participant has completed round 2.
+  return (onlinePlayers||[]).some(onlinePlayerCompletedSecondTurn);
 }
 
 function updateOnlineMatchLockStatus(){
@@ -9498,9 +9498,14 @@ function renderOnlineGame(){
     onlineResultRenderKey="";
   }
 
-  if(onlineMatch.status==="waiting" && !myTurn){
+  // The creator owns the first turn in the data model, but must not see the
+  // ready action until a second active player has joined.
+  const activePlayerCount=onlinePlayers.filter(p=>p.active!==false).length;
+  if(onlineMatch.status==="waiting" || activePlayerCount<2){
     onlineHideScreens();
     dhPrimeWebPlayerEarly();
+    $("onlineWaitingScreen").classList.remove("hidden");
+    $("onlineWaitingScreen").textContent="Väntar på motspelare…";
     return;
   }
 
@@ -9539,7 +9544,7 @@ function renderOnlineGame(){
   }
 
 
-  if(onlineMatch.phase==="turn_ready"){
+  if(onlineMatch.phase==="turn_ready" && activePlayerCount>=2){
     onlineHideScreens();
     clearOnlineRoundLocal();
     $("onlineReadyScreen").classList.remove("hidden");
@@ -9662,6 +9667,10 @@ async function startOnlineTurn(){
   });
 
   if(actionBusy)return;
+  if(!onlineMatch || onlineMatch.status!=="active" || onlinePlayers.filter(p=>p.active!==false).length<2 || onlineMatch.phase!=="turn_ready"){
+    setOnlineGameStatus("Väntar på motspelare innan turen kan starta.",true);
+    return;
+  }
   actionBusy=true;
   normalizeMobileGameViewport();
   onlineLocalResultHold=null;
@@ -10452,6 +10461,7 @@ async function confirmOnlinePlacement(){
     if(!placeOk){
       playerPatch.last_round={
         ended_at:new Date().toISOString(),
+        round_number:Number(onlineMyPlayer.rounds_started||0),
         outcome:"wrong",
         locked:lockedBefore,
         unlocked:unlockedBefore,
@@ -10668,6 +10678,7 @@ async function onlineLockIn(){
     const locked=compactSongCards([...lockedBefore,...unlockedRound],30).sort((a,b)=>a.year-b.year);
     const lastRound={
       ended_at:new Date().toISOString(),
+      round_number:Number(onlineMyPlayer.rounds_started||0),
       outcome:"locked",
       locked:locked,
       unlocked:[],
@@ -10882,7 +10893,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_62_BUILD_20260812_AC");
+console.info("DIGIHITS_V6_63_BUILD_20260812_AD");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
