@@ -3226,7 +3226,7 @@ function spotifyFriendlyError(err){
   return raw||"Spotify kunde inte kontrolleras.";
 }
 
-async function spotifyApi(path,options={}){
+async function spotifyApi(path,options={},retriesLeft=3){
   const token=await getSpotifyToken();
   const r=await fetch("https://api.spotify.com/v1"+path,{
     ...options,
@@ -3236,6 +3236,25 @@ async function spotifyApi(path,options={}){
       ...(options.headers||{})
     }
   });
+
+  // Spotify rate limiting: honor Retry-After and back off instead of
+  // failing the whole song/match flow on the first 429.
+  if(r.status===429){
+    if(retriesLeft<=0){
+      const err=new Error("Spotify begränsar just nu antalet förfrågningar. Försök igen om en liten stund.");
+      err.status=429;
+      err.path=path;
+      throw err;
+    }
+    const retryAfterHeader=Number(r.headers?.get?.("Retry-After"));
+    const waitMs=Math.min(
+      8000,
+      (Number.isFinite(retryAfterHeader)&&retryAfterHeader>0?retryAfterHeader*1000:800)+Math.random()*250
+    );
+    await sleep(waitMs);
+    return spotifyApi(path,options,retriesLeft-1);
+  }
+
   if(r.status===204)return null;
   const text=await r.text();
   let d=null;try{d=text?JSON.parse(text):null}catch(_){d=text}
@@ -3689,14 +3708,12 @@ function getActiveSession(){
 }
 
 function activeMatchNeedsProtection(){
-  return !!(
-    code &&
-    role &&
-    match &&
-    match.status!=="ended" &&
-    match.phase!=="ended" &&
-    !intentionalLeave
-  );
+  // V5.96 använder bara online-matcher (onlineMatch/onlineMyPlayer). Det gamla
+  // lokala pass-and-play-minnet (code/role/match) togs bort i restoreActiveSession,
+  // men dessa event-lyssnare (beforeunload/pagehide/visibilitychange) anropade
+  // fortfarande denna funktion och kraschade med ReferenceError. Skyddet är inte
+  // relevant för online-matcher, som sköts av Supabase i realtid.
+  return false;
 }
 
 // Browser-native varning. Mobilwebbläsaren bestämmer själv exakt text
@@ -7816,6 +7833,9 @@ async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
       (await fetchPlaylistMusicCards(pl.id,seen,28)).forEach(add);
       if(out.length>=wanted)break;
     }
+    // Small stagger so a fresh/empty music pool does not burst Spotify's
+    // rate limiter with dozens of near-simultaneous search requests.
+    await sleep(60);
   }
 
   const trackQueries=[
@@ -7830,6 +7850,7 @@ async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
       let d=null;try{d=await spotifySearchTracksSweden(q,offset)}catch(e){break}
       for(const track of (d?.tracks?.items||[])){const card=spotifyTrackToCard(track);if(card)add(card);if(out.length>=wanted)break}
       if(out.length>=wanted)break;
+      await sleep(60);
     }
   }
 
