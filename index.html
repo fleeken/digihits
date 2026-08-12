@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.66</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.67</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -62,7 +62,7 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .playbackFill{height:100%;width:0%;background:linear-gradient(90deg,var(--g),var(--c));transition:width .35s linear}
 .playbackHint{text-align:center;color:var(--mut);font-size:11px;margin-top:7px}
 .bigChoice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.choice{min-height:170px;border:0;border-radius:20px;padding:20px;font-weight:950;font-size:22px;text-align:left}.choice small{display:block;font-size:12px;font-weight:500;margin-top:8px;opacity:.78}.guess{background:linear-gradient(145deg,#1b5470,#263c7d);color:#fff}.place{background:linear-gradient(145deg,#56358c,#773b85);color:#fff}
-.screenTitle{text-align:center;font-size:26px;font-weight:950;margin:5px 0 4px}.back{background:none;border:0;color:var(--c);font-weight:800;padding:8px 0}.guessFields{display:grid;gap:10px;max-width:520px;margin:20px auto}.timeline{display:flex;align-items:center;overflow-x:auto;padding:20px 10px;min-height:260px;border:2px solid var(--v);border-radius:18px;background:#0c0d12}.card{flex:0 0 130px;background:#1a1d25;border:1px solid #464b58;border-radius:14px;padding:10px;text-align:center}
+.screenTitle{text-align:center;font-size:26px;font-weight:950;margin:5px 0 4px}.back{background:none;border:0;color:var(--c);font-weight:800;padding:8px 0}.guessFields{display:grid;gap:10px;max-width:520px;margin:20px auto}.initialGuessActions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.initialGuessActions .btn{width:100%;min-width:0;margin:0}.timeline{display:flex;align-items:center;overflow-x:auto;padding:20px 10px;min-height:260px;border:2px solid var(--v);border-radius:18px;background:#0c0d12}.card{flex:0 0 130px;background:#1a1d25;border:1px solid #464b58;border-radius:14px;padding:10px;text-align:center}
 .pendingSlot{flex:0 0 155px;display:flex;flex-direction:column;gap:8px;margin:0 6px}
 .pendingPocket{border:3px dashed #a66cff;border-radius:18px;padding:8px;background:#a66cff18;box-shadow:0 0 25px #a66cff44;animation:snapIn .18s ease-out}
 .pendingCard{width:100%;box-sizing:border-box;background:linear-gradient(180deg,#14232b,#151821);border:1px solid #5d6575;border-radius:13px;padding:12px;text-align:center;box-shadow:0 6px 18px #0006}
@@ -2675,7 +2675,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 
 </head><body>
 <script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.66</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.67</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2910,7 +2910,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.66</span>
+        <span class="onlineGameBrandVersion">V6.67</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -2963,8 +2963,10 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
           <input id="onlineGuessArtist" class="input" placeholder="Artist">
           <input id="onlineGuessTitle" class="input" placeholder="Låtnamn">
           <div class="mut" style="font-size:11px">Små stavfel är okej.</div>
-          <button type="button" class="saveGuessBtn btn cyan full" onclick="saveOnlineGuess()">NÄSTA</button>
-          <button type="button" class="btn dark full" onclick="skipOnlineGuessWithoutSaving()">HOPPA ÖVER OCH INTE SPARA</button>
+          <div class="initialGuessActions">
+            <button type="button" class="saveGuessBtn btn cyan" onclick="saveOnlineGuess()">NÄSTA</button>
+            <button type="button" class="btn dark" onclick="skipOnlineGuessWithoutSaving()">HOPPA ÖVER</button>
+          </div>
         </div>
       </div>
 
@@ -4293,7 +4295,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.66"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.67"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -4659,6 +4661,7 @@ let onlinePlayers=[];
 let onlineMyPlayer=null;
 let onlineSelected=null;
 let onlineGuessSaved=false;
+let onlineGuessStepDone=false;
 let onlineSavedGuess={artist:"",title:""};
 let onlinePostPlacementGuessPending=false;
 let onlinePlacementResult=null;
@@ -8928,6 +8931,7 @@ async function fetchOnlineGameState(){
       onlineSelected=null;
       onlineTimelineScrollLeft=0;
       onlineGuessSaved=false;
+      onlineGuessStepDone=false;
       onlineSavedGuess={artist:"",title:""};
       if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
       if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
@@ -9589,7 +9593,7 @@ function renderOnlineGame(){
     // Bevara den delvy spelaren själv valt under hela samma låt.
     onlineHideScreens();
     $("onlineTurnPlayer")?.classList.remove("hidden");
-    if(onlineView==="guess" || !onlineGuessSaved){
+    if(onlineView==="guess" || !onlineGuessStepDone){
       onlineView="guess";
       $("onlineGuessScreen").classList.remove("hidden");
     }else if(onlineView==="place"){
@@ -9633,6 +9637,7 @@ function clearOnlineRoundLocal(){
   onlineResultRenderKey="";
   onlineSelected=null;
   onlineGuessSaved=false;
+  onlineGuessStepDone=false;
       onlineSavedGuess={artist:"",title:""};
   onlineView="listen";
       onlineLastPlayedSongId=null;
@@ -10083,6 +10088,7 @@ function saveOnlineGuess(){
     title:($("onlineGuessTitle")?.value||"").trim()
   };
   onlineGuessSaved=true;
+  onlineGuessStepDone=true;
   onlineView="listen";
   setOnlineGameStatus("");
   showOnlineListen();
@@ -10090,6 +10096,7 @@ function saveOnlineGuess(){
 function skipOnlineGuessWithoutSaving(){
   onlineSavedGuess={artist:"",title:""};
   onlineGuessSaved=false;
+  onlineGuessStepDone=true;
   if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
   if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
   onlineView="listen";
@@ -10160,7 +10167,7 @@ function toggleOverviewTimeline(playerId){
 
 function requestOnlinePlace(){
   setPlacementMode(true);
-  if(!onlineGuessSaved){
+  if(!onlineGuessStepDone){
     $("onlineGuessFirstModal").classList.remove("hidden");
     return;
   }
@@ -10911,7 +10918,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_66_BUILD_20260812_AG");
+console.info("DIGIHITS_V6_67_BUILD_20260812_AH");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
