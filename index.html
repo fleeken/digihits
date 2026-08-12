@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.57</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.58</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -41,6 +41,8 @@ body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#0303
 .overviewRoundTitle{font-size:11px;font-weight:950;margin-bottom:8px}
 .overviewRound .lastRoundScroll{overflow-x:auto}
 .overviewRound .lastRoundRail{min-height:190px}
+.overviewCode{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#111820;border:1px solid #35404d;border-radius:12px}
+.overviewCode .code{font-size:22px;letter-spacing:.08em}
 .overviewTimeline{margin-top:8px;padding:10px;border:1px solid #343c49;border-radius:12px;background:#0d0f14;overflow-x:auto}
 .overviewTimeline .onlineTimeline{min-height:190px;padding:10px 4px;border:0}
 .overviewTimelineBtn{margin-top:8px;width:100%;font-size:11px;padding:9px 10px}
@@ -2663,7 +2665,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 
 </head><body>
 <script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.57</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.58</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2898,7 +2900,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.57</span>
+        <span class="onlineGameBrandVersion">V6.58</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -4280,7 +4282,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.57"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.58"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -10089,7 +10091,7 @@ function renderOnlineOverview(){
     const roundContent=round
       ? `<div class="overviewRound"><div class="overviewRoundTitle">MOTSTÅNDARENS SENASTE OMGÅNG</div><div class="lastRoundScroll"><div class="lastRoundRail">${lastRoundTimelineHtml(round)}</div></div></div>`
       : `<div class="overviewRound"><div class="overviewRoundTitle">MOTSTÅNDARENS SENASTE OMGÅNG</div><div class="mut">Ingen tidigare omgång finns ännu.</div></div>`;
-    el.innerHTML=`<div class="matchOverview"><div class="screenTitle">Matchöversikt</div><div class="overviewStats"><div class="overviewStat"><b>${players.length}</b><span>SPELARE</span></div><div class="overviewStat"><b>${onlineMatch.phase==="turn_ready"?"REDO":"PÅGÅR"}</b><span>OMGÅNG</span></div><div class="overviewStat"><b>${target}</b><span>MÅL KORT</span></div></div><div class="overviewPlayers">${rows||"<div class=\"mut\">Inga spelare ännu.</div>"}</div>${roundContent}</div>`;
+    el.innerHTML=`<div class="matchOverview"><div class="overviewCode"><span class="matchCodeLabel">MATCHKOD</span><strong class="code">${escapeHtml(onlineMatch.code||"–")}</strong><button type="button" class="copyCodeBtn" onclick="copyMatchCode('${escapeHtml(String(onlineMatch.code||""))}',this)">KOPIERA KOD</button></div><div class="overviewStats"><div class="overviewStat"><b>${players.length}</b><span>SPELARE</span></div><div class="overviewStat"><b>${onlineMatch.phase==="turn_ready"?"REDO":"PÅGÅR"}</b><span>OMGÅNG</span></div><div class="overviewStat"><b>${target}</b><span>MÅL KORT</span></div></div><div class="overviewPlayers">${rows||"<div class=\"mut\">Inga spelare ännu.</div>"}</div>${roundContent}</div>`;
     $("onlineGameTitle").textContent="Matchöversikt";
     $("onlineGameSub").textContent="";
     onlineHideScreens();
@@ -10852,7 +10854,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_57_BUILD_20260812_X");
+console.info("DIGIHITS_V6_58_BUILD_20260812_Y");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
