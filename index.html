@@ -4,7 +4,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>Digihits V5.96</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V5.99</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -2579,7 +2579,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 }
 </style>
 </head><body>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.96</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V5.99</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2816,7 +2816,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     <main class="panel main">
       <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V5.96</span>
+        <span class="onlineGameBrandVersion">V5.99</span>
       </div>
       <div class="onlineGameTop">
         <div>
@@ -3226,7 +3226,19 @@ function spotifyFriendlyError(err){
   return raw||"Spotify kunde inte kontrolleras.";
 }
 
-async function spotifyApi(path,options={},retriesLeft=3){
+// Global rate-limit "cooldown": när Spotify svarat 429 och vi gett upp,
+// stoppa alla nya Spotify-anrop en kort stund istället för att varje
+// enskild sökning kör sina egna återförsök rakt in i samma vägg.
+let spotifyRateLimitCooldownUntil=0;
+
+async function spotifyApi(path,options={},retriesLeft=1){
+  if(Date.now()<spotifyRateLimitCooldownUntil){
+    const err=new Error("Spotify begränsar just nu antalet förfrågningar. Försök igen om en liten stund.");
+    err.status=429;
+    err.path=path;
+    throw err;
+  }
+
   const token=await getSpotifyToken();
   const r=await fetch("https://api.spotify.com/v1"+path,{
     ...options,
@@ -3240,18 +3252,19 @@ async function spotifyApi(path,options={},retriesLeft=3){
   // Spotify rate limiting: honor Retry-After and back off instead of
   // failing the whole song/match flow on the first 429.
   if(r.status===429){
+    const retryAfterHeader=Number(r.headers?.get?.("Retry-After"));
+    const retryAfterMs=Number.isFinite(retryAfterHeader)&&retryAfterHeader>0?retryAfterHeader*1000:3000;
+
     if(retriesLeft<=0){
+      // Give up for this call AND stop hammering Spotify with further
+      // requests from other queries in the same batch for a while.
+      spotifyRateLimitCooldownUntil=Date.now()+Math.min(30000,Math.max(3000,retryAfterMs));
       const err=new Error("Spotify begränsar just nu antalet förfrågningar. Försök igen om en liten stund.");
       err.status=429;
       err.path=path;
       throw err;
     }
-    const retryAfterHeader=Number(r.headers?.get?.("Retry-After"));
-    const waitMs=Math.min(
-      8000,
-      (Number.isFinite(retryAfterHeader)&&retryAfterHeader>0?retryAfterHeader*1000:800)+Math.random()*250
-    );
-    await sleep(waitMs);
+    await sleep(Math.min(6000,retryAfterMs)+Math.random()*250);
     return spotifyApi(path,options,retriesLeft-1);
   }
 
@@ -3811,7 +3824,7 @@ async function resumeSavedMatch(){
     render();
 
     const badge=$("online");
-    if(badge)badge.textContent="Återansluten · V5.96";
+    if(badge)badge.textContent="Återansluten · V5.99";
   }catch(err){
     console.error("Resume error",err);
     alert("Kunde inte återansluta till matchen: "+err.message);
@@ -3830,7 +3843,7 @@ function requireDb(){
   return true;
 }
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.96"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V5.99"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 function setCreateStatus(text, isError=false){
@@ -4049,7 +4062,7 @@ function showOnlineMode(){
   loadOnlineMatches();
   setupOnlineRealtimeList();
 }
-function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.96":"Ingen internetanslutning";
+function hostSetup(){ const onlineEl=$("online");if(onlineEl)onlineEl.textContent=navigator.onLine?"Redo · V5.99":"Ingen internetanslutning";
   $("hs").classList.remove("hidden");
   $("js").classList.add("hidden");
   renderNames();
@@ -7776,6 +7789,7 @@ async function spotifySearchPlaylistsSweden(query){
     return await spotifyApi(`/search?q=${encodeURIComponent(query)}&type=playlist&market=SE&limit=10`);
   }catch(e){
     console.warn("Spotify playlist search failed:",query,e);
+    if(Number(e?.status)===429)throw e; // let caller stop the whole batch instead of retrying every remaining query
     return null;
   }
 }
@@ -7812,6 +7826,36 @@ async function fetchPlaylistMusicCards(playlistId,excludeIds,maxItems=40,sourceQ
   return out;
 }
 
+async function fetchQuickSpotifyCandidates(excludeIds,wanted=20){
+  const out=[];
+  const seen=new Set(excludeIds||[]);
+  const add=card=>{if(!card?.id||seen.has(String(card.id)))return;seen.add(String(card.id));out.push(card);};
+
+  // Fast cold-start path: a couple of broad, high-yield searches (limit 50
+  // each) instead of crawling many playlists/queries one by one. This is
+  // what keeps "starta match" fast (a few seconds) even the very first time,
+  // when the local Sweden music pool cache is still empty. The elaborate
+  // decade/curated crawl (fetchSwedenMainstreamCandidates) stays available
+  // for enriching the pool later, off the critical path of match creation.
+  const queries=["svenska hits","greatest hits","top hits sverige"];
+  for(const q of queries){
+    if(out.length>=wanted)break;
+    let d=null;
+    try{
+      d=await spotifyApi(`/search?q=${encodeURIComponent(q)}&type=track&market=SE&limit=50`);
+    }catch(e){
+      if(Number(e?.status)===429)break;
+      continue;
+    }
+    for(const track of (d?.tracks?.items||[])){
+      const card=spotifyTrackToCard(track);
+      if(card && isVeryRecognizableHit(card))add(card);
+      if(out.length>=wanted)break;
+    }
+  }
+  return out;
+}
+
 async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
   const out=[];
   const seen=new Set(excludeIds||[]);
@@ -7827,7 +7871,13 @@ async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
   ];
   for(const q of playlistQueries.sort(()=>Math.random()-.5)){
     if(out.length>=wanted)break;
-    const d=await spotifySearchPlaylistsSweden(q);
+    let d=null;
+    try{
+      d=await spotifySearchPlaylistsSweden(q);
+    }catch(e){
+      if(Number(e?.status)===429)break; // Spotify is rate limited right now: stop the whole batch, don't hammer the next 15 queries too.
+      continue;
+    }
     for(const pl of (d?.playlists?.items||[]).slice(0,2)){
       if(!pl?.id)continue;
       (await fetchPlaylistMusicCards(pl.id,seen,28)).forEach(add);
@@ -7846,12 +7896,14 @@ async function fetchSwedenMainstreamCandidates(excludeIds,wanted=90){
   ];
   for(const q of trackQueries.sort(()=>Math.random()-.5)){
     if(out.length>=wanted)break;
+    let rateLimited=false;
     for(const offset of [0,10]){
-      let d=null;try{d=await spotifySearchTracksSweden(q,offset)}catch(e){break}
+      let d=null;try{d=await spotifySearchTracksSweden(q,offset)}catch(e){if(Number(e?.status)===429)rateLimited=true;break}
       for(const track of (d?.tracks?.items||[])){const card=spotifyTrackToCard(track);if(card)add(card);if(out.length>=wanted)break}
       if(out.length>=wanted)break;
       await sleep(60);
     }
+    if(rateLimited)break; // Spotify is rate limited right now: stop instead of hammering the remaining queries too.
   }
 
   // Popularitet ar en stark signal, men inte enda signalen eftersom aldre
@@ -7907,9 +7959,12 @@ async function fetchSpotifyTrackBatch(excludeIds,wanted=30){
   }
 
   if(picked.length<wanted){
-    const fresh=await fetchSwedenMainstreamCandidates(
+    // Fast path only - see fetchQuickSpotifyCandidates. This is what makes
+    // "starta match" complete in a few seconds instead of crawling many
+    // Spotify playlist/track queries one after another.
+    const fresh=await fetchQuickSpotifyCandidates(
       new Set([...exclude,...pickedIds]),
-      Math.max(40,wanted*3)
+      Math.max(20,wanted-picked.length+10)
     );
     mergeSwedenMusicPool(fresh);
     for(const c of fresh){
@@ -8108,7 +8163,13 @@ async function createOnlineMatch(){
 
     stage="songs";
     setOnlineStatus("Hämtar låtar från Spotify…");
-    let deck=await fetchSpotifyTrackBatch(new Set(),18);
+    // Hard cap so match creation never hangs: a few seconds of Spotify
+    // searching, then proceed with whatever was found (still needs >=4).
+    let deck=await withTimeout(fetchSpotifyTrackBatch(new Set(),12),5000).catch(e=>{
+      throw new Error(/tidsgränsen/i.test(e?.message||"")
+        ? "Spotify svarade för långsamt. Försök igen."
+        : (e?.message||"Spotify-fel."));
+    });
     if(deck.length<4){
       throw new Error("Spotify kunde inte hämta tillräckligt många låtar. Försök igen.");
     }
