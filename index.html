@@ -3004,8 +3004,8 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
           <div class="playbackTrack"><div id="onlinePlaybackFill" class="playbackFill"></div></div>
         </div>
         <div class="hostButtons">
-          <button type="button" id="onlinePlayPauseBtn" class="btn dark" onclick="onlineTogglePlayback()">❚❚ PAUSA</button>
-          <button type="button" class="btn dark" onclick="onlineRestartPlayback()">↺ SPELA FRÅN BÖRJAN</button>
+          <button type="button" id="onlinePlayPauseBtn" class="btn dark" onclick="onlineTogglePlayback()">▶ SPELA LÅT</button>
+          <button type="button" class="btn dark" onclick="onlineRestartPlayback()">↺ SPELA LÅT FRÅN BÖRJAN</button>
         </div>
       </div>
 
@@ -8944,6 +8944,8 @@ clearInterval(onlineGameTimer);
   if($("matchChatPanel"))$("matchChatPanel").classList.add("hidden");
 
   renderOnlineGame();
+  // Förbered Spotify-webbspelaren innan användaren trycker "Jag är redo".
+  dhPrimeWebPlayerEarly();
 
   // Warm reserve only after the match UI is idle.
   if((onlineMatch?.deck||[]).length<6){
@@ -9461,6 +9463,7 @@ function renderOnlineGame(){
 
   if(onlineMatch.status==="waiting"){
     onlineHideScreens();
+    dhPrimeWebPlayerEarly();
     return;
   }
 
@@ -9490,6 +9493,8 @@ function renderOnlineGame(){
     onlineHideScreens();
     clearOnlineRoundLocal();
     $("onlineReadyScreen").classList.remove("hidden");
+    // Förbered webbspelaren innan redo-knappens användargest låser upp ljudet.
+    dhPrimeWebPlayerEarly();
     prefetchNextOnlineSong().catch(()=>{});
     $("onlineGameSub").textContent="";
     return;
@@ -9724,7 +9729,7 @@ async function autoPlayOnlineSong(){
     setOnlineGameStatus("");
   }catch(e){
     if(onlineIsMyTurn() && onlineMatch?.phase==="listen" && onlineMatch?.current_song?.id){
-      setOnlineGameStatus("Spotify startade inte. Tryck SPELA eller SPELA FRÅN BÖRJAN.",true);
+      setOnlineGameStatus("Spotify startade inte. Tryck SPELA LÅT eller SPELA LÅT FRÅN BÖRJAN.",true);
     }
   }
 }
@@ -9744,7 +9749,7 @@ function paintOnlinePlayback(pos,dur,playing){
 
   const btn=$("onlinePlayPauseBtn");
   if(btn&&!btn.disabled){
-    btn.textContent=playing?"❚❚ PAUSA":"▶ SPELA";
+  btn.textContent=playing?"❚❚ PAUSA LÅT":"▶ SPELA LÅT";
   }
 
   if(playing){
@@ -9811,7 +9816,7 @@ async function syncOnlinePlaybackButtonFromSpotify(){
     const correctTrack=!!expectedId && currentId===expectedId;
     const playing=!!state?.is_playing && correctTrack;
 
-    btn.textContent=playing ? "❚❚ PAUSA" : "▶ SPELA";
+    btn.textContent=playing ? "❚❚ PAUSA LÅT" : "▶ SPELA LÅT";
     spotifyExpectedPlaying=playing;
     if(correctTrack)spotifyExpectedTrackId=expectedId;
 
@@ -9822,7 +9827,7 @@ async function syncOnlinePlaybackButtonFromSpotify(){
 
     return playing;
   }catch(_){
-    btn.textContent="▶ SPELA";
+    btn.textContent="▶ SPELA LÅT";
     spotifyExpectedPlaying=false;
     return false;
   }
@@ -9886,7 +9891,7 @@ async function onlineTogglePlayback(){
     // Snabbvag: webbspelaren kan pausa/starta direkt.
     if(await dhWebPlayerCommand("toggle",trackId)){
       const now=dhWebPlayerPosition();
-      if(btn)btn.textContent=now&&!now.paused?"❚❚ PAUSA":"▶ SPELA";
+      if(btn)btn.textContent=now&&!now.paused?"❚❚ PAUSA LÅT":"▶ SPELA LÅT";
       spotifyExpectedPlaying=!!(now&&!now.paused);
       setOnlineGameStatus("");
       startOnlinePlaybackPolling();
@@ -9897,12 +9902,12 @@ async function onlineTogglePlayback(){
     const sameTrack=String(state?.item?.id||"")===trackId;
 
     if(sameTrack && state?.is_playing){
-      if(btn)btn.textContent="PAUSAR…";
+      if(btn)btn.textContent="PAUSAR LÅT…";
       await ensureSpotifyPaused("spelknapp");
-      if(btn)btn.textContent="▶ SPELA";
+      if(btn)btn.textContent="▶ SPELA LÅT";
       spotifyExpectedPlaying=false;
     }else{
-      if(btn)btn.textContent="STARTAR…";
+      if(btn)btn.textContent="STARTAR LÅT…";
       try{
         await ensureSpotifyPlayingTrack(trackId,{restart:false});
       }catch(e){
@@ -9928,7 +9933,7 @@ async function onlineTogglePlayback(){
       }
 
       hideSpotifyRecovery();
-      if(btn)btn.textContent="❚❚ PAUSA";
+      if(btn)btn.textContent="❚❚ PAUSA LÅT";
       spotifyExpectedPlaying=true;
     }
 
@@ -9961,7 +9966,7 @@ async function onlineRestartPlayback(){
     if(!(await dhWebPlayerCommand("restart",trackId))){
       await spotifyRestartTrack(trackId);
     }
-    if(btn)btn.textContent="❚❚ PAUSA";
+    if(btn)btn.textContent="❚❚ PAUSA LÅT";
     setOnlineGameStatus("");
     startOnlinePlaybackPolling();
   }catch(e){
@@ -10247,7 +10252,7 @@ async function pauseSpotifyAfterConfirmedPlacement(){
       spotifyExpectedTrackId="";
       spotifyExpectedPlaying=false;
       const btn=$("onlinePlayPauseBtn");
-      if(btn)btn.textContent="▶ FORTSÄTT SPELA";
+      if(btn)btn.textContent="▶ SPELA LÅT";
       return true;
     }
   }catch(e){
