@@ -9,7 +9,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Digihits V6.97</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
+<title>Digihits V6.68</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#08090d">
 <style>
 *{box-sizing:border-box} :root{--bg:#07080b;--p:#11131a;--p2:#181b24;--line:#303440;--txt:#f7f9fc;--mut:#b5bbc8;--c:#4ed3ff;--v:#a66cff;--g:#35db7b;--r:#ff6475;--o:#ffad42;--y:#ffd166;--okbg:#0f2a19;--waitbg:#1a1d25;--cardbg:#171a22;--cardborder:#3b4250}
 body{margin:0;background:radial-gradient(circle at top,#1b1d29,#090a0e 45%,#030304);color:#fff;font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer}
@@ -265,7 +265,87 @@ input.input:focus{outline:none;border-color:#4ed3ff;box-shadow:0 0 0 2px #4ed3ff
 .lastRoundGuessItem{background:#151922;border:1px solid #353d49;border-radius:11px;padding:8px 9px}
 .lastRoundGuessSong{font-size:11px;font-weight:950;color:#fff;margin-bottom:5px}
 .lastRoundGuessRow{display:flex;gap:8px;flex-wrap:wrap;font-size:10px}
+.lastRoundGuessOk{color:#8ff0ad}
+.lastRoundGuessBad{color:#ff9aa6}
+.lastRoundGuessNone{color:#aab2bf}
+.lastRoundCard.newlocked{border:2px solid #35db7b;box-shadow:0 0 15px #35db7b33}
+.lastRoundCard.newlocked .state{color:#8ff0ad}
+.lastRoundSectionLabel{font-size:9px;font-weight:950;color:#9fa8b6;letter-spacing:.05em;margin:8px 0 5px}
+
+.onlinePlaced .txt,.lastRoundCard .txt,.playerInlineTimeline .mini .txt{
+  min-height:58px;max-height:58px;overflow:hidden;display:block;line-height:1.25
+}
+.onlinePlaced .year,.lastRoundCard .year,.playerInlineTimeline .mini .year{flex:0 0 auto}
+.onlinePlaced .state,.lastRoundCard .state,.playerInlineTimeline .mini .state{
+  margin-top:auto;min-height:18px;display:flex;align-items:flex-end;justify-content:center
+}
+
+.onlineTimeline{min-height:208px;align-items:flex-end}
+
+#onlineSwapBtn{display:flex;align-items:center;justify-content:center;gap:9px}
+#onlineSwapBtn .onlineSwapBtnCount{font-weight:1000;white-space:nowrap}
+
+.swapWinMessage{margin-top:9px;padding:9px 12px;border-radius:11px;background:#173522;border:1px solid #35db7b;color:#9af4b8;font-size:12px;font-weight:950;text-align:center}
+
 @media(max-width:800px){
+  body.placementMode{
+    overflow:hidden;
+    overscroll-behavior:none;
+    touch-action:manipulation;
+  }
+  body.placementMode #onlineGame{
+    position:fixed;
+    inset:0;
+    z-index:9998;
+    width:100vw;
+    height:100dvh;
+    overflow:hidden;
+    background:#0f1117;
+  }
+  body.placementMode #onlineGame .grid{
+    display:block;
+    width:100%;
+    height:100%;
+  }
+  body.placementMode #onlineGame .side{
+    display:none !important;
+  }
+  body.placementMode #onlineGame .main{
+    width:100%;
+    height:100%;
+    max-width:none;
+    border-radius:0;
+    padding:10px 10px 12px;
+    overflow:hidden;
+    box-sizing:border-box;
+  }
+  body.placementMode .onlineGameTop,
+  body.placementMode #onlineGameStatus{
+    display:none !important;
+  }
+  body.placementMode #onlinePlaceScreen{
+    display:flex !important;
+    flex-direction:column;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+  }
+  body.placementMode #onlinePlaceScreen .screenTitle{
+    margin:2px 0 4px;
+    font-size:24px;
+  }
+  body.placementMode #onlinePlaceScreen > .mut{
+    margin:0 0 6px !important;
+    font-size:11px;
+    line-height:1.25;
+  }
+  body.placementMode .onlineSecretDock{
+    position:relative;
+    top:auto;
+    flex:0 0 auto;
+    padding:2px 0 6px;
+    background:none;
+  }
   body.placementMode .onlineSecretDock .onlineSecret{
     width:min(150px,42vw);
     margin:0 auto;
@@ -2592,36 +2672,10 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
   }
 }
 </style>
-<style>
-@media(max-width:650px){
-  #onlineGame .initialGuessActions{
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    width:min(100%,420px)!important;
-    margin:20px auto 0!important;
-    gap:10px!important;
-  }
-  #onlineGame .initialGuessActions .btn{
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-    min-height:54px!important;
-    margin:0!important;
-    padding:13px 8px!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    text-align:center!important;
-    white-space:normal!important;
-  }
-}
-</style>
-<style>
-#onlineGameBrand{pointer-events:auto!important;cursor:pointer!important;}
-</style>
+
 </head><body>
 <script>console.info("DIGIHITS_V6_56_HTML_READY")</script>
-<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.97</small></button></div>
+<div class="app"><div class="top appBrandRow"><button type="button" id="digihitsBrand" class="brand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">Digi<span>hits</span> <small style="font-size:12px;color:#a5a9b5">V6.68</small></button></div>
 <section id="home" class="panel home">
   <div id="onlineMode">
 
@@ -2854,10 +2908,10 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
     </aside>
 
     <main class="panel main">
-      <button type="button" id="onlineGameBrand" class="onlineGameBrand brandHomeBtn" onclick="goDigihitsHome()" aria-label="Till startsidan">
+      <div id="onlineGameBrand" class="onlineGameBrand" aria-label="Digihits version">
         <span class="onlineGameBrandName"><span class="brandDigi">Digi</span><span class="brandHits">hits</span></span>
-        <span class="onlineGameBrandVersion">V6.97</span>
-      </button>
+        <span class="onlineGameBrandVersion">V6.68</span>
+      </div>
       <div class="onlineGameTop">
         <div>
           <div id="onlineGameTitle" class="turn">Online-match</div>
@@ -2903,7 +2957,7 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
       </div>
 
       <div id="onlineGuessScreen" class="hidden">
-        <button type="button" class="back" onclick="showOnlinePlace()">← Tillbaka</button>
+        <button type="button" class="back" onclick="showOnlineListen()">← Tillbaka</button>
         <div class="screenTitle">Gissa artist & låtnamn</div>
         <div class="guessFields">
           <input id="onlineGuessArtist" class="input" placeholder="Artist">
@@ -2948,8 +3002,6 @@ body:has(#onlineGame:not(.hidden)) #digihitsBrand{
 </section>
 
 </div>
-<script src="./match-state.js"></script>
-<script src="./match-render.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 // Realtime kraver supabase-js ovan. Laddas det inte (offline, blockerare) faller
@@ -4243,7 +4295,7 @@ async function restoreActiveSession(){
 }
 
 
-window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.97"});
+window.addEventListener("online",()=>{const e=$("online");if(e)e.textContent="Redo · V6.68"});
 window.addEventListener("offline",()=>{const e=$("online");if(e)e.textContent="Ingen internetanslutning"});
 
 
@@ -4610,13 +4662,11 @@ let onlineMyPlayer=null;
 let onlineSelected=null;
 let onlineGuessSaved=false;
 let onlineGuessStepDone=false;
-let onlinePlacementMode=false;
 let onlineSavedGuess={artist:"",title:""};
 let onlinePostPlacementGuessPending=false;
 let onlinePlacementResult=null;
 let onlineDecisionOpen=false;
 let onlineView="listen";
-let onlineMatchViewState=createMatchViewState();
 let onlineViewSongId=null;
 let onlineLocalResultHold=null;
 let onlinePreferredTurnOpen=false;
@@ -8875,27 +8925,20 @@ async function fetchOnlineGameState(){
 
     // En ny låt ska alltid börja på huvudvalet, men vanlig polling får
     // aldrig kasta spelaren ur Gissa- eller Placera-vyn.
-    const keepPlacementView=!!(
-      onlineView==="place" &&
-      onlineViewSongId &&
-      newSongId===onlineViewSongId
-    );
-    if(newSongId && newSongId!==previousSongId && !keepPlacementView && onlineView!=="place"){
-      onlineMatchViewState=beginMatchSong(onlineMatchViewState,newSongId);
+    if(newSongId && newSongId!==previousSongId){
       onlineView="listen";
       onlineViewSongId=newSongId;
       onlineSelected=null;
       onlineTimelineScrollLeft=0;
       onlineGuessSaved=false;
       onlineGuessStepDone=false;
-      onlinePlacementMode=false;
       onlineSavedGuess={artist:"",title:""};
       if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
       if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
     }
 
     // Om servern byter fas ska gamla lokala delvyer inte ligga kvar.
-    if(previousPhase!==onlineMatch.phase && onlineMatch.phase!=="listen" && !onlinePlacementMode && onlineView!=="place"){
+    if(previousPhase!==onlineMatch.phase && onlineMatch.phase!=="listen"){
       onlineView="listen";
     }
     const ps=await db.from("online_players").select("*").eq("match_id",onlineMatch.id).eq("active",true).order("turn_order");
@@ -8923,7 +8966,6 @@ clearInterval(onlineGameTimer);
   const mr=await db.from("online_matches").select("*").eq("id",id).maybeSingle();
   if(mr.error||!mr.data){alert("Matchen kunde inte öppnas.");return}
   onlineMatch=mr.data;
-  onlineMatchViewState=resetMatchViewState();
   onlinePreferredTurnOpen=!!preferTurn;
   onlinePlayerTimelineOpen={};
   onlineLastRoundOpen={};
@@ -8934,8 +8976,6 @@ clearInterval(onlineGameTimer);
   onlineLocalResultHold=null;
   onlineSelected=null;
   onlineGuessSaved=false;
-  onlineGuessStepDone=false;
-  onlinePlacementMode=false;
       onlineSavedGuess={artist:"",title:""};
   const ps=await db.from("online_players").select("*").eq("match_id",id).eq("active",true).order("turn_order");
   onlinePlayers=ps.data||[];
@@ -8947,8 +8987,6 @@ clearInterval(onlineGameTimer);
   if((preferTurn||onlineIsMyTurn()) && onlineMatch.current_song?.id){
     onlineView="guess";
     onlineGuessSaved=false;
-    onlineGuessStepDone=false;
-    onlinePlacementMode=false;
     onlineSavedGuess={artist:"",title:""};
   }
 
@@ -9108,11 +9146,94 @@ function onlineOpponents(){
   return onlinePlayers.filter(p=>String(p.id||"")!==String(onlineMyPlayer.id||""));
 }
 
+function onlineAllTimeline(p){
+  return [...(p?.locked_timeline||[]),...(p?.turn_cards||[])].sort((a,b)=>a.year-b.year);
+}
 let onlinePlayerTimelineOpen={};
 let onlinePlayerTimelineScroll={};
 let onlineLastRoundOpen={};
 let onlineLastRoundScroll={};
 let onlinePlayersRenderKey="";
+
+function roundGuessHtml(entry){
+  if(!entry)return "";
+  const song=entry.song||entry.card||entry;
+  const guess=entry.guess||song?._round_guess||null;
+  const title=song?.title||"Okänd låt";
+  const artistGuess=(guess?.artist||"").trim();
+  const titleGuess=(guess?.title||"").trim();
+  const artistOk=!!guess?.artistOk;
+  const titleOk=!!guess?.titleOk;
+  const guessed=!!guess?.guessed;
+
+  const artistHtml=guessed
+    ? `<span class="${artistOk?"lastRoundGuessOk":"lastRoundGuessBad"}">${artistOk?"✓":"✕"} Artist: ${escapeHtml(artistGuess||"—")}</span>`
+    : `<span class="lastRoundGuessNone">Artist: ingen gissning</span>`;
+
+  const titleHtml=guessed
+    ? `<span class="${titleOk?"lastRoundGuessOk":"lastRoundGuessBad"}">${titleOk?"✓":"✕"} Låtnamn: ${escapeHtml(titleGuess||"—")}</span>`
+    : `<span class="lastRoundGuessNone">Låtnamn: ingen gissning</span>`;
+
+  return `<div class="lastRoundGuessItem">
+    <div class="lastRoundGuessSong">${escapeHtml(title)} · ${escapeHtml(song?.artist||"")}</div>
+    <div class="lastRoundGuessRow">${artistHtml}${titleHtml}</div>
+  </div>`;
+}
+
+function roundGuessListHtml(round){
+  const attempts=round?.attempts||[];
+  if(!attempts.length)return `<div class="mut" style="font-size:10px;margin-bottom:8px">Inga sparade gissningar från omgången.</div>`;
+  return `<div class="lastRoundGuessList">${attempts.map(roundGuessHtml).join("")}</div>`;
+}
+
+function lastRoundCardHtml(card,state){
+  if(!card)return "";
+  const cls=state==="wrong"?"wrong":state==="unlocked"?"unlocked":state==="newlocked"?"newlocked":"";
+  const label=state==="wrong"
+    ?"FEL PLACERAT"
+    :state==="unlocked"
+      ?"OLÅST"
+      :state==="newlocked"
+        ?"LÅST DENNA OMGÅNG"
+        :"LÅST";
+  return `<div class="lastRoundCard ${cls}">
+    <div class="year">${card.year}</div>
+    <div class="txt"><strong>${card.title}</strong><br>${card.artist||""}</div>
+    <div class="state">${label}</div>
+  </div>`;
+}
+
+function lastRoundTimelineHtml(round){
+  if(!round)return `<div class="mut" style="font-size:11px">Ingen avslutad omgång ännu.</div>`;
+
+  const attemptsHtml=roundGuessListHtml(round);
+
+  if(round.outcome==="wrong"){
+    const locked=(round.locked||[]).map(c=>({card:c,state:"locked"}));
+    const unlocked=(round.unlocked||[]).map(c=>({card:c,state:"unlocked"}));
+    const wrong=round.wrong_card?{card:round.wrong_card,state:"wrong",index:Number(round.wrong_index)}:null;
+
+    const base=[...locked,...unlocked].sort((a,b)=>a.card.year-b.card.year);
+    if(wrong){
+      const idx=Math.max(0,Math.min(base.length,wrong.index));
+      base.splice(idx,0,wrong);
+    }
+
+    return `${attemptsHtml}
+      <div class="lastRoundSectionLabel">TIDSLINJEN NÄR OOMGÅNGEN MISSLYCKADES</div>
+      <div class="lastRoundRail">${base.map(x=>lastRoundCardHtml(x.card,x.state)).join("")}</div>`;
+  }
+
+  const newlyLockedIds=new Set((round.newly_locked||[]).map(c=>String(c.id||c.title)));
+  const cards=(round.locked||[]).map(c=>({
+    card:c,
+    state:newlyLockedIds.has(String(c.id||c.title))?"newlocked":"locked"
+  })).sort((a,b)=>a.card.year-b.card.year);
+
+  return `${attemptsHtml}
+    <div class="lastRoundSectionLabel">TIDSLINJEN EFTER LÅS IN</div>
+    <div class="lastRoundRail">${cards.map(x=>lastRoundCardHtml(x.card,x.state)).join("")}</div>`;
+}
 
 function toggleOnlineLastRound(playerId){
   onlineLastRoundOpen[playerId]=!onlineLastRoundOpen[playerId];
@@ -9121,7 +9242,30 @@ function toggleOnlineLastRound(playerId){
 }
 
 
-function renderOnlinePlayersLegacy(force=false){
+function rememberOnlinePlayerTimelineScroll(playerId){
+  const el=document.querySelector(`[data-player-timeline="${playerId}"]`);
+  if(el)onlinePlayerTimelineScroll[playerId]=el.scrollLeft;
+}
+
+
+function onlinePlayersKey(){
+  const current=onlineMatch?.current_user_id||"";
+  const target=onlineMatch?.target_cards||10;
+  const rows=onlinePlayers.map(p=>({
+    id:p.id,
+    user_id:p.user_id,
+    name:p.display_name,
+    current:p.user_id===current,
+    locked:(p.locked_timeline||[]).map(x=>[x.id||x.title,x.year,x.title,x.artist]),
+    risk:(p.turn_cards||[]).map(x=>[x.id||x.title,x.year,x.title,x.artist]),
+    swaps:p.swap_cards||0,
+    last_round:p.last_round||null,
+    open:false
+  }));
+  return JSON.stringify({current,target,rows});
+}
+
+function renderOnlinePlayers(force=false){
   if(!$("onlineGamePlayers"))return;
   const current=onlineMatch?.current_user_id;
 
@@ -9175,6 +9319,21 @@ if(onlineLastRoundOpen[p.id]){
       }
     });
   });
+}
+
+function updateOnlineSwapButton(){
+  const btn=$("onlineSwapBtn");
+  if(!btn)return;
+  const count=Math.max(0,Number(onlineMyPlayer?.swap_cards||0));
+  if(count<1){
+    btn.innerHTML=`DU HAR INGA BYT-LÅT-KORT <span class="onlineSwapBtnCount">0/3</span>`;
+    btn.disabled=true;
+    btn.classList.remove("hidden");
+  }else{
+    btn.innerHTML=`BYT LÅT <span class="onlineSwapBtnCount">${count}/3</span>`;
+    btn.disabled=false;
+    btn.classList.remove("hidden");
+  }
 }
 
 function setPlacementMode(active){
@@ -9294,7 +9453,7 @@ function clearStaleSpotifyGameStatus(){
   }catch(_){}
 }
 
-function renderOnlineGameLegacy(){
+function renderOnlineGame(){
   const turnFocus=!!(onlineMyPlayer&&onlineIsMyTurn()&&(
     onlineMatch?.phase==="listen"||
     onlineMatch?.phase==="decision"&&onlinePostPlacementGuessPending||
@@ -9311,8 +9470,6 @@ function renderOnlineGameLegacy(){
   updateOnlineGameSubtitle();
   updateOnlineBackButton();
   if(!onlineMatch||!onlineMyPlayer)return;
-
-  if(renderStablePlacementView())return;
 
   if(onlineMatchIdentityWarning()){
     console.error("IDENTITY COLLISION: flera spelarrader använder samma konto-ID i match",onlineMatch?.id);
@@ -9356,7 +9513,12 @@ function renderOnlineGameLegacy(){
   if(onlineMatch.status==="waiting" || activePlayerCount<2){
     onlineHideScreens();
     dhPrimeWebPlayerEarly();
-    renderWaitingMatchScreen(onlineMatch);
+    $("onlineWaitingScreen").classList.remove("hidden");
+    $("onlineWaitingScreen").innerHTML=`<div class="waitingMatchCode">
+      <div class="waitingMatchCodeLabel">MATCHKOD</div>
+      <div class="waitingMatchCodeValue">${escapeHtml(onlineMatch.code||"–")}</div>
+      <button type="button" class="copyCodeBtn" onclick="copyMatchCode('${escapeHtml(String(onlineMatch.code||""))}',this)">KOPIERA KOD</button>
+    </div>`;
     return;
   }
 
@@ -9431,18 +9593,7 @@ function renderOnlineGameLegacy(){
     // Bevara den delvy spelaren själv valt under hela samma låt.
     onlineHideScreens();
     $("onlineTurnPlayer")?.classList.remove("hidden");
-    const resolvedMatchView=resolveMatchView({
-      stateView:onlineMatchViewState.view,
-      placementMode:onlinePlacementMode,
-      view:onlineView,
-      guessStepDone:onlineGuessStepDone
-    });
-    if(resolvedMatchView===MATCH_VIEWS.PLACE){
-      onlineView="place";
-      $("onlinePlaceScreen").classList.remove("hidden");
-      renderOnlineTimeline();
-      requestAnimationFrame(bindOnlineSecretDrag);
-    }else if(resolvedMatchView===MATCH_VIEWS.GUESS){
+    if(onlineView==="guess" || !onlineGuessStepDone){
       onlineView="guess";
       $("onlineGuessScreen").classList.remove("hidden");
     }else if(onlineView==="place"){
@@ -9487,8 +9638,6 @@ function clearOnlineRoundLocal(){
   onlineSelected=null;
   onlineGuessSaved=false;
   onlineGuessStepDone=false;
-  onlinePlacementMode=false;
-  onlineMatchViewState=resetMatchViewState();
       onlineSavedGuess={artist:"",title:""};
   onlineView="listen";
       onlineLastPlayedSongId=null;
@@ -9921,14 +10070,12 @@ async function onlineRestartPlayback(){
 
 
 function showOnlineListen(){
-  onlineMatchViewState=setMatchView(onlineMatchViewState,MATCH_VIEWS.LISTEN,onlineMatch?.current_song?.id);
   onlineView="listen";
   onlineHideScreens();
   $("onlineTurnPlayer")?.classList.remove("hidden");
   $("onlineListenScreen").classList.remove("hidden");
 }
 function showOnlineGuess(){
-  onlineMatchViewState=showMatchGuess(onlineMatchViewState,onlineMatch?.current_song?.id);
   onlineView="guess";
   onlineViewSongId=onlineMatch?.current_song?.id||null;
   onlineHideScreens();
@@ -9941,9 +10088,7 @@ function saveOnlineGuess(){
     title:($("onlineGuessTitle")?.value||"").trim()
   };
   onlineGuessSaved=true;
-  onlineMatchViewState=finishMatchGuess(onlineMatchViewState,{saveGuess:true});
-  onlineGuessStepDone=onlineMatchViewState.guessStepDone;
-  onlinePlacementMode=true;
+  onlineGuessStepDone=true;
   onlineView="place";
   setOnlineGameStatus("");
   showOnlinePlace();
@@ -9951,9 +10096,7 @@ function saveOnlineGuess(){
 function skipOnlineGuessWithoutSaving(){
   onlineSavedGuess={artist:"",title:""};
   onlineGuessSaved=false;
-  onlineMatchViewState=finishMatchGuess(onlineMatchViewState,{saveGuess:false});
-  onlineGuessStepDone=onlineMatchViewState.guessStepDone;
-  onlinePlacementMode=true;
+  onlineGuessStepDone=true;
   if($("onlineGuessArtist"))$("onlineGuessArtist").value="";
   if($("onlineGuessTitle"))$("onlineGuessTitle").value="";
   onlineView="place";
@@ -9995,7 +10138,7 @@ function skipOnlinePostPlacementGuess(){
     const title=$("onlinePostGuessTitle")?.value||"";
     finishOnlinePostPlacementGuess(artist,title);
 }
-function renderOnlineOverviewLegacy(){
+function renderOnlineOverview(){
     const el=$("onlineOverviewScreen");
     if(!el||!onlineMatch)return;
     const players=onlinePlayers||[];
@@ -10040,8 +10183,6 @@ function onlineChoosePlaceAnyway(){
 }
 function showOnlinePlace(){
   normalizeMobileGameViewport();
-  onlineMatchViewState=showMatchPlace(onlineMatchViewState);
-  onlinePlacementMode=true;
   onlineView="place";
   onlineViewSongId=onlineMatch?.current_song?.id||null;
   onlineHideScreens();
@@ -10058,7 +10199,69 @@ function showOnlinePlace(){
   requestAnimationFrame(bindOnlineSecretDrag);
 }
 
-function renderOnlineTimelineLegacy(force=false){
+function onlineCardMarkup(card,risk=false){
+  const c=card||{};
+
+  return `<div class="onlinePlaced ${risk?"risk":""}">
+    <div class="year">${c.year??""}</div>
+    <div class="title"><strong>${escapeHtml(c.title||"")}</strong><br>${escapeHtml(c.artist||"")}</div>
+    <div class="mut" style="font-size:9px;margin-top:5px">${risk?"OLÅST":"LÅST"}</div>
+  </div>`;
+}
+
+
+function rememberOnlineTimelineScroll(){
+  const el=$("onlineTimeline");
+  if(el)onlineTimelineScrollLeft=el.scrollLeft;
+}
+function restoreOnlineTimelineScroll(){
+  const el=$("onlineTimeline");
+  if(!el)return;
+  requestAnimationFrame(()=>{
+    el.scrollLeft=onlineTimelineScrollLeft;
+  });
+}
+function bindOnlineTimelineScroll(){
+  const el=$("onlineTimeline");
+  if(!el||el.dataset.scrollBound==="1")return;
+  el.dataset.scrollBound="1";
+  el.addEventListener("scroll",()=>{
+    onlineTimelineScrollLeft=el.scrollLeft;
+  },{passive:true});
+}
+
+function onlineTimelineKey(){
+  if(!onlineMyPlayer)return "";
+  const locked=(onlineMyPlayer.locked_timeline||[]).map(x=>`${x.id||x.title}:${x.year}`).join("|");
+  const risk=(onlineMyPlayer.turn_cards||[]).map(x=>`${x.id||x.title}:${x.year}`).join("|");
+  return [onlineMatch?.current_song?.id||"",onlineSelected===null?"none":String(onlineSelected),locked,risk].join("::");
+}
+
+function bindInstantAction(button,handler){
+  if(!button)return;
+  let lastTouch=0;
+
+  button.addEventListener("touchend",e=>{
+    // Direct touch activation avoids iOS delayed/cancelled click after horizontal scrolling.
+    if(button.disabled)return;
+    lastTouch=Date.now();
+    e.preventDefault();
+    e.stopPropagation();
+    handler(e);
+  },{passive:false});
+
+  button.addEventListener("click",e=>{
+    // Ignore the synthetic click generated immediately after touchend.
+    if(Date.now()-lastTouch<700){
+      e.preventDefault();
+      return;
+    }
+    if(button.disabled)return;
+    handler(e);
+  });
+}
+
+function renderOnlineTimeline(force=false){
   const el=$("onlineTimeline");
   if(!el||!onlineMyPlayer)return;
 
@@ -10119,6 +10322,18 @@ function renderOnlineTimelineLegacy(force=false){
   bindOnlineTimelineScroll();
   restoreOnlineTimelineScroll();
 }
+function normalizeOnlinePlacementIndex(i){
+  const cards=onlineAllTimeline(onlineMyPlayer);
+  let idx=Math.max(0,Math.min(cards.length,Number(i)||0));
+
+  // A stale DOM/drag coordinate must never create a slot inside equal years.
+  if(idx>0 && idx<cards.length && Number(cards[idx-1]?.year)===Number(cards[idx]?.year)){
+    const year=Number(cards[idx]?.year);
+    while(idx<cards.length && Number(cards[idx]?.year)===year)idx++;
+  }
+  return idx;
+}
+
 function selectOnlinePlacement(i){
   onlineSelected=normalizeOnlinePlacementIndex(i);
   resetOnlineDrag();
@@ -10146,6 +10361,48 @@ function clearOnlinePlacement(){
   renderOnlineTimeline(true);
   const source=$("onlineSecretCard");
   if(source)source.classList.remove("hidden");
+}
+
+function findOnlineDrop(x,y){
+  return [...document.querySelectorAll("#onlineTimeline .onlineDrop")].find(z=>{
+    const r=z.getBoundingClientRect();
+    return x>=r.left-22&&x<=r.right+22&&y>=r.top-20&&y<=r.bottom+20;
+  })||null;
+}
+function resetOnlineDrag(){
+  const card=$("onlineSecretCard");
+  if(!card)return;
+  onlineDragging=false;
+  card.classList.remove("dragging");
+  ["position","left","top","width","margin","zIndex"].forEach(k=>card.style[k]="");
+  if(onlineDragZone){onlineDragZone.classList.remove("selected");onlineDragZone=null}
+}
+function bindOnlineSecretDrag(){
+  const card=$("onlineSecretCard");
+  if(!card||card.dataset.onlineBound==="1")return;
+  card.dataset.onlineBound="1";
+  card.addEventListener("pointerdown",e=>{
+    if(!onlineMatch?.current_song)return;
+    const r=card.getBoundingClientRect();
+    onlineDragging=true;onlineDragOffsetX=e.clientX-r.left;onlineDragOffsetY=e.clientY-r.top;
+    card.style.position="fixed";card.style.left=r.left+"px";card.style.top=r.top+"px";card.style.width=r.width+"px";card.style.margin="0";card.style.zIndex="99999";
+    card.classList.add("dragging");card.setPointerCapture(e.pointerId);e.preventDefault();
+  });
+  card.addEventListener("pointermove",e=>{
+    if(!onlineDragging)return;
+    card.style.left=(e.clientX-onlineDragOffsetX)+"px";
+    card.style.top=(e.clientY-onlineDragOffsetY)+"px";
+    const z=findOnlineDrop(e.clientX,e.clientY);
+    if(onlineDragZone&&onlineDragZone!==z)onlineDragZone.classList.remove("selected");
+    onlineDragZone=z;if(z)z.classList.add("selected");
+  });
+  card.addEventListener("pointerup",e=>{
+    if(!onlineDragging)return;
+    const z=onlineDragZone||findOnlineDrop(e.clientX,e.clientY);
+    resetOnlineDrag();
+    if(z)selectOnlinePlacement(Number(z.dataset.index));
+  });
+  card.addEventListener("pointercancel",resetOnlineDrag);
 }
 
 async function pauseSpotifyAfterConfirmedPlacement(){
@@ -10319,7 +10576,7 @@ function onlineResultKey(r,decision){
   ].join("::");
 }
 
-function renderWrongPlacementTimelineLegacy(r){
+function renderWrongPlacementTimeline(r){
   const panel=$("onlineDecisionTimeline");
   if(!panel)return;
   const locked=(r.locked_before||[]).map(c=>({card:c,state:"locked"}));
@@ -10331,7 +10588,7 @@ function renderWrongPlacementTimelineLegacy(r){
   panel.classList.remove("hidden");
 }
 
-function showOnlineLocalResultLegacy(r,decision,held=false){
+function showOnlineLocalResult(r,decision,held=false){
   const decisionButtonsEl=$("onlineDecisionButtons");
   const decisionTimelineEl=$("onlineDecisionTimeline");
   if(
@@ -10391,6 +10648,28 @@ function showOnlineResult(decision=true){
   if(!r)return;
   showOnlineLocalResult(r,decision);
 }
+function renderOnlineDecisionTimeline(){
+  const panel=$("onlineDecisionTimeline");
+  if(!panel)return;
+
+  const existingRail=panel.querySelector(".onlineTimeline");
+  if(existingRail)onlineDecisionScrollLeft=existingRail.scrollLeft;
+
+  const cards=onlineAllTimeline(onlineMyPlayer);
+  panel.innerHTML=`<div class="onlineTimeline">${cards.map(c=>{
+    const risk=(onlineMyPlayer.turn_cards||[]).some(x=>x.id===c.id);
+    return onlineCardMarkup(c,risk);
+  }).join("")}</div>`;
+
+  const rail=panel.querySelector(".onlineTimeline");
+  if(rail){
+    requestAnimationFrame(()=>{rail.scrollLeft=onlineDecisionScrollLeft});
+    rail.addEventListener("scroll",()=>{
+      onlineDecisionScrollLeft=rail.scrollLeft;
+    },{passive:true});
+  }
+}
+
 async function onlineContinue(){
   if(actionBusy)return;
   actionBusy=true;
@@ -10639,7 +10918,7 @@ window.addEventListener("error",event=>{
 </script>
 
 <script>
-console.info("DIGIHITS_V6_97_BUILD_20260812_BL");
+console.info("DIGIHITS_V6_68_BUILD_20260812_AI");
 console.info("Digihits build loaded:", location.href, new Date().toISOString());
 </script>
 
