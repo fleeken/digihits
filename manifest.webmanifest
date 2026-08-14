@@ -1,8 +1,0 @@
-{
-  "name": "Digihits",
-  "short_name": "Digihits",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#07080b",
-  "theme_color": "#08090d"
-}
