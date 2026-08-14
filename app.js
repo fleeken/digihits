@@ -59,7 +59,11 @@ async function playCurrentTrack() {
 }
 function setPlayButton(playing) { spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
 function stopCurrentTrack() { spotifyPlayer?.pause(); clearInterval(songTimer); loadedSpotifyCardId = null; setPlayButton(false); }
-function startCurrentTrack() { stopCurrentTrack(); if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
+async function startCurrentTrack() {
+  clearInterval(songTimer); loadedSpotifyCardId = null; setPlayButton(false);
+  try { await spotifyPlayer?.pause(); await spotifyPlayer?.seek(0); } catch { /* ny uppspelning startar ändå från vald låt */ }
+  if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {});
+}
 
 const $ = (selector) => document.querySelector(selector);
 $("#guess-form button[type=submit]").textContent = "NÄSTA";
@@ -231,8 +235,8 @@ async function syncMatches() {
 function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {})); }
 async function createOnlineMatch() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); const matchCode = code();
-  const deck = testDeck;
-  const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: ["starter-1983"], target_cards: 10, current_user_id: user.id, phase: "waiting", updated_at: new Date().toISOString() }, "POST");
+  const starter = testDeck[Math.floor(Math.random() * testDeck.length)], deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
+  const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
   await syncMatches(); openLobby(matchCode);
 }
@@ -242,8 +246,11 @@ async function joinOnlineMatch(matchCode) {
   if (!match || match.status !== "waiting") throw new Error("Matchkoden hittades inte eller matchen är redan startad.");
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=*`);
   if (players.some((player) => player.user_id === user.id)) throw new Error("Du är redan med i matchen.");
-  await supabaseAuth.dataRequest("online_players", { match_id: match.id, user_id: user.id, display_name: state.playerName, turn_order: players.length, locked_timeline: match.deck?.slice(0, 1) || [], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
-  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, updated_at: new Date().toISOString() }, "PATCH");
+  const available = (match.deck?.length ? match.deck : testDeck).filter((card) => !(match.used_track_ids || []).includes(card.id));
+  if (!available.length) throw new Error("Det finns inget ledigt startkort i matchen.");
+  const starter = available[Math.floor(Math.random() * available.length)];
+  await supabaseAuth.dataRequest("online_players", { match_id: match.id, user_id: user.id, display_name: state.playerName, turn_order: players.length, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
+  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
   await syncMatches();
 }
 
