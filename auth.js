@@ -99,7 +99,7 @@ const supabaseAuth = (() => {
       location.assign(`https://accounts.spotify.com/authorize?${params}`);
     },
     async consumeSpotify() {
-      const params = new URLSearchParams(location.search), code = params.get("code"), saved = JSON.parse(localStorage.getItem("digihits-spotify-pkce") || "null"), clean = () => history.replaceState({}, "", location.pathname);
+      const params = new URLSearchParams(location.search), code = params.get("code"), saved = JSON.parse(localStorage.getItem("digihits-spotify-pkce") || "null"), clean = () => { history.replaceState({}, "", location.pathname); document.documentElement.classList.remove("spotify-callback"); };
       if (!code) return null;
       if (!saved || !/^[A-Za-z0-9._~-]{43,128}$/.test(saved.verifier || "") || params.get("state") !== saved.state) { localStorage.removeItem("digihits-spotify-pkce"); clean(); return null; }
       try {
