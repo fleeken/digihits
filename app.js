@@ -123,11 +123,12 @@ function render() {
   $("#change-track-area").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box"; $("#lock-placement").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box";
   const matches = $("#matches");
   const renderCard = (match) => {
-    const label = match.status === "active" ? "DIN TUR – ÖPPNA MATCH HÄR" : match.status === "opponent" ? "MOTSTÅNDARES TUR – VISA MATCH HÄR" : "VISA MATCH HÄR";
+    const label = match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
+    const status = match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
     const players = match.status === "waiting" ? "1 spelare · Omgång 1" : "2 spelare · Omgång 1";
     const lock = match.locked ? "🔒" : "🔓";
     const lockLabel = match.locked ? "Match låst" : "Match olåst";
-    return `<article class="match ${match.status}"><button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button><div class="match-top"><strong>${match.title}</strong></div><small>${players}</small><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div><div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
+    return `<article class="match ${match.status}"><button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button><div class="match-top"><strong>${match.title}</strong></div><small>${players}</small><div class="match-status">● ${status}</div><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div><div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
   };
   const active = state.matches.filter((match) => match.status === "active" || match.status === "opponent");
   const waitingMatches = state.matches.filter((match) => match.status === "waiting");
@@ -192,6 +193,7 @@ function showLatestRound(round) {
   const playedCard = (round.cards || []).at(-1);
   if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`;
   const latestTimeline = (round.timeline || round.cards || []).slice();
+  if (round.outcome !== "wrong") latestTimeline.sort((a, b) => a.year - b.year);
   round.timeline = latestTimeline;
   let wrongButton = $("#wrong-matches");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
