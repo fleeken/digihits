@@ -111,7 +111,7 @@ function render() {
   $("#connect-spotify").textContent = spotify ? spotify.name : "ANSLUT DITT SPOTIFY PREMIUM HÄR";
   $("#connect-spotify").className = `button ${spotify ? "button-green" : "button-red"} spotify-button`;
   $("#switch-spotify").hidden = !spotify;
-  const waiting = state.matches.filter((match) => match.status === "waiting").length;
+  const waiting = state.matches.filter((match) => match.status === "opponent").length;
   const turns = state.matches.filter((match) => match.status === "active").length;
   $("#waiting-count").textContent = `Väntar på ${waiting}`;
   $("#turn-count").textContent = `Din tur ${turns}`;
