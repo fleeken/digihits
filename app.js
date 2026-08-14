@@ -286,7 +286,7 @@ async function dealCard() {
   if (!match?.id) throw new Error("Matchdata saknas.");
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const rows = await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=deck,used_track_ids`);
-  const matchData = rows[0], used = new Set(matchData.used_track_ids || []), available = (matchData.deck?.length ? matchData.deck : testDeck).filter((card) => !used.has(card.id));
+  const matchData = rows[0], used = new Set(matchData.used_track_ids || []), available = (matchData.deck?.length > 1 ? matchData.deck : testDeck).filter((card) => !used.has(card.id));
   if (!available.length) throw new Error("Alla testlåtar i matchen är använda.");
   const card = available[Math.floor(Math.random() * available.length)];
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
