@@ -370,7 +370,7 @@ $("#reset-password-form").addEventListener("submit", async (event) => {
   catch (error) { alert(error.message); }
 });
 $("#connect-spotify").addEventListener("click", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)));
-$("#switch-spotify").addEventListener("click", () => supabaseAuth.connectSpotify(true).catch((error) => alert(error.message)));
+$("#switch-spotify").addEventListener("click", () => { supabaseAuth.disconnectSpotify(); render(); supabaseAuth.connectSpotify(true).catch((error) => alert(error.message)); });
 document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view, button.classList.contains("lobby-back"))));
 document.querySelectorAll("[data-accordion]").forEach((section) => {
   section.querySelector(".accordion-toggle").addEventListener("click", () => {

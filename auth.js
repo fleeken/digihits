@@ -7,7 +7,7 @@ const supabaseAuth = (() => {
 
   async function fetchWithTimeout(url, options) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15000);
+    const timer = setTimeout(() => controller.abort(), 30000);
     try { return await fetch(url, { ...options, signal: controller.signal, cache: "no-store" }); }
     catch (error) { throw new Error(error.name === "AbortError" ? "Inloggningen tog fÃ¶r lÃ¥ng tid. Kontrollera nÃ¤tet och fÃ¶rsÃ¶k igen." : "Kunde inte ansluta till servern. Kontrollera nÃ¤tet och fÃ¶rsÃ¶k igen."); }
     finally { clearTimeout(timer); }
@@ -89,6 +89,7 @@ const supabaseAuth = (() => {
     },
     signOut() { this.unsubscribeMatches(); localStorage.removeItem(sessionKey); }
     ,spotify() { try { return JSON.parse(localStorage.getItem(spotifyKey)); } catch { return null; } },
+    disconnectSpotify() { localStorage.removeItem(spotifyKey); },
     async connectSpotify(showAccountPicker = false) {
       const verifier = Array.from(crypto.getRandomValues(new Uint8Array(64)), (value) => value.toString(16).padStart(2, "0")).join("");
       const challenge = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
