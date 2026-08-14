@@ -89,17 +89,18 @@ const supabaseAuth = (() => {
     },
     signOut() { this.unsubscribeMatches(); localStorage.removeItem(sessionKey); }
     ,spotify() { try { return JSON.parse(localStorage.getItem(spotifyKey)); } catch { return null; } },
-    async connectSpotify() {
+    async connectSpotify(showAccountPicker = false) {
       const verifier = Array.from(crypto.getRandomValues(new Uint8Array(64)), (value) => value.toString(16).padStart(2, "0")).join("");
       const challenge = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
       const state = crypto.randomUUID(); localStorage.setItem("digihits-spotify-pkce", JSON.stringify({ verifier, state }));
       const params = new URLSearchParams({ client_id: spotifyClientId, response_type: "code", redirect_uri: spotifyRedirect, code_challenge_method: "S256", code_challenge: challenge, state, scope: "user-read-private user-read-email streaming user-modify-playback-state" });
+      if (showAccountPicker) params.set("show_dialog", "true");
       location.assign(`https://accounts.spotify.com/authorize?${params}`);
     },
     async consumeSpotify() {
       const params = new URLSearchParams(location.search), code = params.get("code"), saved = JSON.parse(localStorage.getItem("digihits-spotify-pkce") || "null"), clean = () => history.replaceState({}, "", location.pathname);
       if (!code) return null;
-      if (!saved || params.get("state") !== saved.state) { localStorage.removeItem("digihits-spotify-pkce"); clean(); return null; }
+      if (!saved || !/^[A-Za-z0-9._~-]{43,128}$/.test(saved.verifier || "") || params.get("state") !== saved.state) { localStorage.removeItem("digihits-spotify-pkce"); clean(); return null; }
       try {
         const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "authorization_code", code, redirect_uri: spotifyRedirect, code_verifier: saved.verifier });
         const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
