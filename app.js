@@ -28,6 +28,7 @@ const testDeck = [
 const activeCard = () => state.currentCard || testDeck[5];
 
 const $ = (selector) => document.querySelector(selector);
+if (document.documentElement.classList.contains("spotify-callback")) $("#spotify-connecting").hidden = false;
 let currentView = "welcome";
 let resultIsLocked = false;
 const code = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
