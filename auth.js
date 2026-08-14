@@ -90,7 +90,7 @@ const supabaseAuth = (() => {
     signOut() { this.unsubscribeMatches(); localStorage.removeItem(sessionKey); }
     ,spotify() { try { return JSON.parse(localStorage.getItem(spotifyKey)); } catch { return null; } },
     async connectSpotify() {
-      const verifier = Array.from(crypto.getRandomValues(new Uint8Array(64)), (value) => String.fromCharCode(value)).join("");
+      const verifier = Array.from(crypto.getRandomValues(new Uint8Array(64)), (value) => value.toString(16).padStart(2, "0")).join("");
       const challenge = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
       const state = crypto.randomUUID(); localStorage.setItem("digihits-spotify-pkce", JSON.stringify({ verifier, state }));
       const params = new URLSearchParams({ client_id: spotifyClientId, response_type: "code", redirect_uri: spotifyRedirect, code_challenge_method: "S256", code_challenge: challenge, state, scope: "user-read-private user-read-email streaming user-modify-playback-state" });
