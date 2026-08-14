@@ -14,7 +14,7 @@ state.currentCard ||= null;
 let currentPlacementCorrect = true;
 let viewingLatestRound = false;
 const latestRounds = {};
-let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, loadedSpotifyCardId = null;
+let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
 const testDeck = [
   { id: "starter-1983", year: 1983, artist: "The Police", title: "Every Breath You Take" },
@@ -29,6 +29,11 @@ const testDeck = [
   { id: "track-2023", year: 2023, artist: "Miley Cyrus", title: "Flowers" }
 ];
 const activeCard = () => state.currentCard || testDeck[5];
+const songTime = (milliseconds) => `${Math.floor(milliseconds / 60000)}:${String(Math.floor(milliseconds / 1000) % 60).padStart(2, "0")}`;
+function updateSongTimeline(position, duration, playing) {
+  songPosition = position; songDuration = duration || songDuration; $("#song-timeline").hidden = !songDuration; $("#song-current").textContent = songTime(songPosition); $("#song-duration").textContent = songTime(songDuration); $("#song-progress").style.width = `${songDuration ? Math.min(100, songPosition / songDuration * 100) : 0}%`;
+  clearInterval(songTimer); if (playing) songTimer = setInterval(() => updateSongTimeline(Math.min(songDuration, songPosition + 500), songDuration, true), 500);
+}
 async function ensureSpotifyPlayer() {
   if (spotifyDeviceId) return spotifyDeviceId;
   if (spotifyPlayerReady) return spotifyPlayerReady;
@@ -36,6 +41,7 @@ async function ensureSpotifyPlayer() {
     if (!window.Spotify) await new Promise((ready, fail) => { window.onSpotifyWebPlaybackSDKReady = ready; setTimeout(() => fail(new Error("Spotify-spelaren kunde inte laddas.")), 10000); });
     spotifyPlayer = new window.Spotify.Player({ name: "Digihits", getOAuthToken: (callback) => supabaseAuth.spotifyToken().then(callback).catch(() => callback("")), volume: 0.7 });
     spotifyPlayer.addListener("ready", ({ device_id }) => { spotifyDeviceId = device_id; resolve(device_id); });
+    spotifyPlayer.addListener("player_state_changed", (playerState) => playerState && updateSongTimeline(playerState.position, playerState.duration, !playerState.paused));
     spotifyPlayer.addListener("account_error", ({ message }) => reject(new Error(message)));
     spotifyPlayer.connect();
   });
@@ -49,10 +55,10 @@ async function playCurrentTrack() {
   await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
   const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri] }) });
   if (!play.ok) throw new Error("Spotify kunde inte starta låten.");
-  loadedSpotifyCardId = card.id; setPlayButton(true);
+  loadedSpotifyCardId = card.id; updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
 }
 function setPlayButton(playing) { spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
-function stopCurrentTrack() { spotifyPlayer?.pause(); loadedSpotifyCardId = null; setPlayButton(false); }
+function stopCurrentTrack() { spotifyPlayer?.pause(); clearInterval(songTimer); loadedSpotifyCardId = null; setPlayButton(false); }
 function startCurrentTrack() { loadedSpotifyCardId = null; setPlayButton(false); if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
 
 const $ = (selector) => document.querySelector(selector);
@@ -77,7 +83,8 @@ function renderRoundResult(correct, card = activeCard()) {
   const cards = [...state.roundUnlocked, { ...card, status: correct ? "OLÅST" : "FELPLACERAT" }];
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
   $("#placement-result").textContent = correct ? "☑  Rätt placering" : "✕  Fel placering";
-  $("#result-timeline").innerHTML = `<article class="year-card locked-card"><strong>1983</strong><small>Every Breath You Take<br>The Police<br>LÅST</small></article>${cards.map((item) => `<article class="year-card ${item.status === "FELPLACERAT" ? "misplaced-card" : "unlocked-card"}"><strong>${item.year}</strong><small>${item.title}<br>${item.artist}<br>${item.status}</small></article>`).join("")}`;
+  const timeline = [...state.lockedTimeline.map((item) => ({ ...item, status: "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
+  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "FELPLACERAT" ? "misplaced-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small>${item.title}<br>${item.artist}<br>${item.status}</small></article>`).join("");
   $("#result-continue").hidden = !correct;
   $("#result-lock").hidden = !correct; $("#change-track-area").hidden = !correct;
   $("#result-back").hidden = true; wrongButton.hidden = correct;
@@ -264,7 +271,7 @@ $("#lobby-leave").addEventListener("click", () => showView("home"));
 $("#next-round").addEventListener("click", async () => { state.roundUnlocked = []; save(); try { await dealCard(); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 $("#play-sample").addEventListener("click", async () => { try { if (spotifyPlaying) { await spotifyPlayer.pause(); setPlayButton(false); } else if (spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.resume(); setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
-$("#replay-track").addEventListener("click", () => playCurrentTrack().catch((error) => alert(error.message)));
+$("#replay-track").addEventListener("click", async () => { try { if (spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.activateElement(); await spotifyPlayer.seek(0); await spotifyPlayer.resume(); updateSongTimeline(0, songDuration, true); setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
 $("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); $("#change-track-area").hidden = false; showView("timeline"); });
 $("#skip-guess").addEventListener("click", () => { $("#change-track-area").hidden = false; showView("timeline"); });
 let dragTarget = null;
