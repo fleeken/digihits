@@ -62,6 +62,7 @@ function stopCurrentTrack() { spotifyPlayer?.pause(); clearInterval(songTimer); 
 function startCurrentTrack() { loadedSpotifyCardId = null; setPlayButton(false); if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
 
 const $ = (selector) => document.querySelector(selector);
+$("#guess-form button[type=submit]").textContent = "SPARA & NÄSTA";
 if (document.documentElement.classList.contains("spotify-callback")) $("#spotify-connecting").hidden = false;
 let currentView = "welcome";
 let resultIsLocked = false;
@@ -202,7 +203,7 @@ function placementIsCorrect() {
   return (!cards[position - 1] || cards[position - 1].year <= activeCard().year) && (!cards[position] || activeCard().year <= cards[position].year);
 }
 function resetTurnInput() {
-  $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = "";
+  state.currentGuess = null; $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = "";
   const cards = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked].sort((a, b) => a.year - b.year);
   const slot = (index) => `<div class="slot" data-slot="${index}">PLACERA<br>HÄR</div>`;
   $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small>${card.title}<br>${card.artist}<br>${card.status}</small></article>`).join("") + slot(cards.length);
@@ -215,7 +216,7 @@ function addMatch(matchCode) {
 async function syncMatches() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,current_user_id)`);
-  state.matches = rows.map((row) => { const match = row.online_matches; return { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, motståndare`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent" }; });
+  state.matches = rows.map((row) => { const match = row.online_matches; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, motståndare`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent" }; }).filter(Boolean);
   save(); render();
 }
 function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {})); }
@@ -259,7 +260,7 @@ $("#matches").addEventListener("click", (event) => {
   if (openButton) { openMatch(openButton.dataset.openMatch); return; }
   const deleteButton = event.target.closest("[data-delete-match]");
   if (deleteButton) {
-    dialog("Vill du verkligen lämna matchen?", () => { const match = state.matches.find((item) => item.code === deleteButton.dataset.deleteMatch); if (match) state.history.unshift({ ...match, leaveReason: match.status === "waiting" ? "DU LÄMNADE INNAN MATCHSTART" : "DU LÄMNADE - WALK OVER" }); state.matches = state.matches.filter((match) => match.code !== deleteButton.dataset.deleteMatch); save(); render(); }, true);
+    dialog("Vill du verkligen lämna matchen?", async () => { const match = state.matches.find((item) => item.code === deleteButton.dataset.deleteMatch); if (!match) return; try { await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "finished", updated_at: new Date().toISOString() }, "PATCH"); state.history.unshift({ ...match, leaveReason: match.status === "waiting" ? "DU LÄMNADE INNAN MATCHSTART" : "DU LÄMNADE - WALK OVER" }); await syncMatches(); } catch (error) { alert(error.message); } }, true);
   }
 });
 $("#copy-lobby-code").addEventListener("click", async () => {
@@ -270,11 +271,11 @@ $("#copy-lobby-code").addEventListener("click", async () => {
   button.classList.add("is-copied");
 });
 $("#lobby-leave").addEventListener("click", () => showView("home"));
-$("#next-round").addEventListener("click", async () => { state.roundUnlocked = []; save(); try { await dealCard(); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); });
+$("#next-round").addEventListener("click", async () => { try { await restoreRoundUnlocked(); state.roundUnlocked = []; save(); await dealCard(); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 $("#play-sample").addEventListener("click", async () => { try { if (spotifyPlaying) { await spotifyPlayer.pause(); setPlayButton(false); } else if (spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.resume(); setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { if (spotifyPlayer && loadedSpotifyCardId === activeCard().id) { if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer.pause(); await spotifyPlayer.seek(0); await spotifyPlayer.resume(); updateSongTimeline(0, songDuration, true); setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
-$("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); $("#change-track-area").hidden = false; showView("timeline"); });
+$("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; save(); $("#change-track-area").hidden = false; showView("timeline"); });
 $("#skip-guess").addEventListener("click", () => { $("#change-track-area").hidden = false; showView("timeline"); });
 let dragTarget = null;
 function startDrag(card, event) {
