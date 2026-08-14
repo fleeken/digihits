@@ -404,7 +404,6 @@ $("#signup-form").addEventListener("submit", async (event) => {
   finally { $("#signup-progress").hidden = true; }
 });
 
-supabaseAuth.consumeSpotify().then((spotify) => { if (spotify) { render(); dialog(`Spotify Premium är anslutet som ${spotify.name}.`); } }).catch((error) => alert(error.message));
 render();
 $("#timeline-row").after($("#change-track-area"));
 $("#change-track-area").after($("#lock-placement"));
@@ -426,6 +425,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
   supabaseAuth.user(supabaseAuth.session().access_token).then(async (user) => {
     $("#player-email").textContent = user.email; state.playerName = user.user_metadata?.display_name || state.playerName; save(); render();
     await syncMatches(); await restoreRoundUnlocked(); startRealtime();
+    try { const spotify = await supabaseAuth.consumeSpotify(); if (spotify) { render(); dialog(`Spotify Premium är anslutet som ${spotify.name}.`); } } catch (error) { alert(error.message); }
     const view = location.hash.slice(1) || "home";
     if (view === "match" && state.activeMatchCode) openMatch(state.activeMatchCode);
     else if (view === "lobby" && state.activeMatchCode) openLobby(state.activeMatchCode);
