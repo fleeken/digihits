@@ -14,7 +14,7 @@ state.currentCard ||= null;
 let currentPlacementCorrect = true;
 let viewingLatestRound = false;
 const latestRounds = {};
-let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false;
+let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, loadedSpotifyCardId = null;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
 const testDeck = [
   { id: "starter-1983", year: 1983, artist: "The Police", title: "Every Breath You Take" },
@@ -49,9 +49,11 @@ async function playCurrentTrack() {
   await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
   const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri] }) });
   if (!play.ok) throw new Error("Spotify kunde inte starta låten.");
-  spotifyPlaying = true; $("#play-sample").textContent = "⏸ PAUSA LÅT";
+  loadedSpotifyCardId = card.id; setPlayButton(true);
 }
-function startCurrentTrack() { spotifyPlaying = false; $("#play-sample").textContent = "▶ SPELA LÅT"; if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
+function setPlayButton(playing) { spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
+function stopCurrentTrack() { spotifyPlayer?.pause(); loadedSpotifyCardId = null; setPlayButton(false); }
+function startCurrentTrack() { loadedSpotifyCardId = null; setPlayButton(false); if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
 
 const $ = (selector) => document.querySelector(selector);
 if (document.documentElement.classList.contains("spotify-callback")) $("#spotify-connecting").hidden = false;
@@ -69,10 +71,9 @@ function save() { localStorage.setItem(storageKey, JSON.stringify(state)); }
 function closeHomeAccordions() {
   document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
 }
-function renderRoundResult(correct) {
+function renderRoundResult(correct, card = activeCard()) {
   let wrongButton = $("#wrong-matches");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "GÅ TILLBAKA TILL DINA MATCHER"; wrongButton.addEventListener("click", () => { state.roundUnlocked = []; save(); showView("home", true); }); $("#result-back").after(wrongButton); }
-  const card = activeCard();
   const cards = [...state.roundUnlocked, { ...card, status: correct ? "OLÅST" : "FELPLACERAT" }];
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
   $("#placement-result").textContent = correct ? "☑  Rätt placering" : "✕  Fel placering";
@@ -262,7 +263,7 @@ $("#copy-lobby-code").addEventListener("click", async () => {
 $("#lobby-leave").addEventListener("click", () => showView("home"));
 $("#next-round").addEventListener("click", async () => { state.roundUnlocked = []; save(); try { await dealCard(); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
-$("#play-sample").addEventListener("click", async () => { try { if (spotifyPlaying) { await spotifyPlayer.togglePlay(); spotifyPlaying = false; $("#play-sample").textContent = "▶ SPELA LÅT"; } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
+$("#play-sample").addEventListener("click", async () => { try { if (spotifyPlaying) { await spotifyPlayer.pause(); setPlayButton(false); } else if (spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.resume(); setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
 $("#replay-track").addEventListener("click", () => playCurrentTrack().catch((error) => alert(error.message)));
 $("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); $("#change-track-area").hidden = false; showView("timeline"); });
 $("#skip-guess").addEventListener("click", () => { $("#change-track-area").hidden = false; showView("timeline"); });
@@ -337,7 +338,7 @@ async function restoreRoundUnlocked() {
   state.currentCard = rows[0]?.current_card || null;
   save(); resetTurnInput();
 }
-$("#lock-placement").addEventListener("click", async () => { viewingLatestRound = false; currentPlacementCorrect = placementIsCorrect(); resultIsLocked = true; $("#result-back").hidden = true; $("#placed-message").textContent = "PLACERING LÅST"; if (!currentPlacementCorrect) { try { await handoverTurn(); } catch (error) { alert(error.message); return; } } renderRoundResult(currentPlacementCorrect); showView("result"); if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare."); });
+$("#lock-placement").addEventListener("click", async () => { viewingLatestRound = false; const resultCard = activeCard(); currentPlacementCorrect = placementIsCorrect(); stopCurrentTrack(); resultIsLocked = true; $("#result-back").hidden = true; $("#placed-message").textContent = "PLACERING LÅST"; if (!currentPlacementCorrect) { try { await handoverTurn(); } catch (error) { alert(error.message); return; } } renderRoundResult(currentPlacementCorrect, resultCard); showView("result"); if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare."); });
 $("#result-continue").addEventListener("click", async () => { state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#change-track-area").addEventListener("click", async (event) => {
   if (!event.target.closest("#use-change-track")) return;
