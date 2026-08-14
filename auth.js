@@ -90,6 +90,15 @@ const supabaseAuth = (() => {
     signOut() { this.unsubscribeMatches(); localStorage.removeItem(sessionKey); }
     ,spotify() { try { return JSON.parse(localStorage.getItem(spotifyKey)); } catch { return null; } },
     disconnectSpotify() { localStorage.removeItem(spotifyKey); },
+    async spotifyToken() {
+      const session = this.spotify(); if (!session) throw new Error("Anslut Spotify Premium först.");
+      if (session.expires_at > Date.now() + 30000) return session.access_token;
+      const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "refresh_token", refresh_token: session.refresh_token });
+      const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      const token = await response.json(); if (!response.ok) throw new Error("Spotify-sessionen har gått ut. Anslut kontot igen.");
+      const refreshed = { ...session, ...token, refresh_token: token.refresh_token || session.refresh_token, expires_at: Date.now() + token.expires_in * 1000 };
+      localStorage.setItem(spotifyKey, JSON.stringify(refreshed)); return refreshed.access_token;
+    },
     async connectSpotify(showAccountPicker = false) {
       const verifier = Array.from(crypto.getRandomValues(new Uint8Array(64)), (value) => value.toString(16).padStart(2, "0")).join("");
       const challenge = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");

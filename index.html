@@ -9,7 +9,7 @@
   </head>
   <body>
     <main class="app-shell">
-      <header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v1.21</small></button></header>
+      <header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v1.23</small></button></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
@@ -70,7 +70,7 @@
       </section>
 
       <section class="view" data-view-panel="guess">
-        <section class="guess-view panel"><div class="guess-top"><button class="back-link" data-view="match">← Tillbaka</button><h1>Gissa artist &amp; låtnamn</h1><p>Full pott ger byt-låt-kort</p></div><div class="replay-row"><button class="button button-green" id="play-sample" type="button">▶ SPELA LÅT FRÅN BÖRJAN</button></div><form id="guess-form" class="guess-form"><input id="guess-artist" placeholder="Artist" autocomplete="off" /><input id="guess-track" placeholder="Låtnamn" autocomplete="off" /><small>Små stavfel är okej.</small><div><button class="button button-primary" type="submit">NÄSTA</button><button class="button button-secondary" id="skip-guess" type="button">HOPPA ÖVER</button></div></form></section>
+        <section class="guess-view panel"><div class="guess-top"><button class="back-link" data-view="match">← Tillbaka</button><h1>Gissa artist &amp; låtnamn</h1><p>Full pott ger byt-låt-kort</p></div><div class="replay-row"><button class="button button-green" id="play-sample" type="button">▶ SPELA LÅT</button><button class="button button-secondary" id="replay-track" type="button">↻ SPELA LÅT FRÅN BÖRJAN</button></div><form id="guess-form" class="guess-form"><input id="guess-artist" placeholder="Artist" autocomplete="off" /><input id="guess-track" placeholder="Låtnamn" autocomplete="off" /><small>Små stavfel är okej.</small><div><button class="button button-primary" type="submit">NÄSTA</button><button class="button button-secondary" id="skip-guess" type="button">HOPPA ÖVER</button></div></form></section>
       </section>
 
       <section class="view" data-view-panel="timeline">
@@ -103,6 +103,7 @@
       </section>
     </main><div class="spotify-connecting" id="spotify-connecting" hidden><div><strong>ANSLUTER TILL SPOTIFY…</strong><span>Väntar på Spotify. Det kan ta några sekunder.</span><i></i></div></div><div class="modal" id="app-dialog" hidden><div class="modal-card dialog-card"><div class="dialog-icon">✦</div><h2 id="dialog-title">Digihits</h2><p id="dialog-message"></p><div class="modal-actions"><button class="button button-secondary" id="dialog-cancel" type="button" hidden>AVBRYT</button><button class="button button-primary" id="dialog-confirm" type="button">OK</button></div></div></div><div class="modal" id="delete-modal" hidden><div class="modal-card"><h2>Radera konto</h2><p>Detta kan inte ångras. Skriv <strong>RADERA</strong> för att fortsätta.</p><form id="delete-account-form" class="auth-form"><input id="delete-confirmation" autocomplete="off" placeholder="Skriv RADERA" /><p class="delete-error" id="delete-error" hidden>Kontot har inte raderats. Skriv exakt RADERA med stora bokstäver.</p><div class="signup-progress" id="delete-progress" hidden><span>RADERAR KONTO…</span><i></i></div><div class="modal-actions"><button class="button button-secondary" id="delete-cancel" type="button">AVBRYT</button><button class="button button-leave" id="delete-submit" type="submit">RADERA KONTO</button></div></form></div></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
     <script src="auth.js"></script>
     <script src="app.js"></script>
   </body>
