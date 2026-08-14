@@ -55,6 +55,11 @@ function renderRoundResult(correct) {
 
 function render() {
   $("#player-name").textContent = state.playerName;
+  const spotify = supabaseAuth.spotify();
+  $("#spotify-status").textContent = spotify ? "Spotify Premium är anslutet." : "Premium krävs för uppspelning.";
+  $("#connect-spotify").textContent = spotify ? spotify.name : "ANSLUT DITT SPOTIFY PREMIUM HÄR";
+  $("#connect-spotify").className = `button ${spotify ? "button-green" : "button-red"} spotify-button`;
+  $("#switch-spotify").hidden = !spotify;
   const waiting = state.matches.filter((match) => match.status === "waiting").length;
   const turns = state.matches.filter((match) => match.status === "active").length;
   $("#waiting-count").textContent = `Väntar på ${waiting}`;
@@ -361,12 +366,8 @@ $("#reset-password-form").addEventListener("submit", async (event) => {
   try { await supabaseAuth.updatePassword(supabaseAuth.session()?.access_token, next); alert("Lösenordet är ändrat."); showView("login"); }
   catch (error) { alert(error.message); }
 });
-$("#connect-spotify").addEventListener("click", () => {
-  $("#spotify-status").textContent = "Spotify-inloggning kopplas in i nästa steg.";
-});
-$("#switch-spotify").addEventListener("click", () => {
-  $("#spotify-status").textContent = "Byt Spotifykonto kopplas in tillsammans med Spotify-inloggningen.";
-});
+$("#connect-spotify").addEventListener("click", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)));
+$("#switch-spotify").addEventListener("click", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)));
 document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view, button.classList.contains("lobby-back"))));
 document.querySelectorAll("[data-accordion]").forEach((section) => {
   section.querySelector(".accordion-toggle").addEventListener("click", () => {
@@ -400,6 +401,7 @@ $("#signup-form").addEventListener("submit", async (event) => {
   finally { $("#signup-progress").hidden = true; }
 });
 
+supabaseAuth.consumeSpotify().then((spotify) => { if (spotify) { render(); dialog(`Spotify Premium är anslutet som ${spotify.name}.`); } }).catch((error) => alert(error.message));
 render();
 $("#timeline-row").after($("#change-track-area"));
 $("#change-track-area").after($("#lock-placement"));

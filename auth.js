@@ -2,6 +2,7 @@ const supabaseAuth = (() => {
   const root = "https://zttkujhoyuxerdewofkb.supabase.co";
   const key = "sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
   const sessionKey = "digihits-auth-session";
+  const spotifyKey = "digihits-spotify-session", spotifyClientId = "096b8f046aba41759da21ada77d8f920", spotifyRedirect = "https://fleeken.github.io/digihits/";
   let realtimeChannel;
 
   async function fetchWithTimeout(url, options) {
@@ -87,5 +88,25 @@ const supabaseAuth = (() => {
       return { session, type: values.get("type") };
     },
     signOut() { this.unsubscribeMatches(); localStorage.removeItem(sessionKey); }
+    ,spotify() { try { return JSON.parse(localStorage.getItem(spotifyKey)); } catch { return null; } },
+    async connectSpotify() {
+      const verifier = Array.from(crypto.getRandomValues(new Uint8Array(64)), (value) => String.fromCharCode(value)).join("");
+      const challenge = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+      const state = crypto.randomUUID(); localStorage.setItem("digihits-spotify-pkce", JSON.stringify({ verifier, state }));
+      const params = new URLSearchParams({ client_id: spotifyClientId, response_type: "code", redirect_uri: spotifyRedirect, code_challenge_method: "S256", code_challenge: challenge, state, scope: "user-read-private user-read-email streaming user-modify-playback-state" });
+      location.assign(`https://accounts.spotify.com/authorize?${params}`);
+    },
+    async consumeSpotify() {
+      const code = new URLSearchParams(location.search).get("code"), saved = JSON.parse(localStorage.getItem("digihits-spotify-pkce") || "null");
+      if (!code || !saved || new URLSearchParams(location.search).get("state") !== saved.state) return null;
+      const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "authorization_code", code, redirect_uri: spotifyRedirect, code_verifier: saved.verifier });
+      const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      const token = await response.json(); if (!response.ok) throw new Error(token.error_description || "Spotify-inloggningen misslyckades.");
+      const profileResponse = await fetch("https://api.spotify.com/v1/me", { headers: { Authorization: `Bearer ${token.access_token}` } });
+      const profile = await profileResponse.json(); if (!profileResponse.ok || profile.product !== "premium") throw new Error("Ett Spotify Premium-konto krävs.");
+      const session = { ...token, name: profile.display_name || profile.id, id: profile.id, expires_at: Date.now() + token.expires_in * 1000 };
+      localStorage.setItem(spotifyKey, JSON.stringify(session)); localStorage.removeItem("digihits-spotify-pkce"); history.replaceState({}, "", location.pathname);
+      return session;
+    }
   };
 })();
