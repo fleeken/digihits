@@ -123,7 +123,7 @@ function render() {
   $("#change-track-area").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box"; $("#lock-placement").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box";
   const matches = $("#matches");
   const renderCard = (match) => {
-    const label = match.status === "active" ? "DIN TUR – ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
+    const label = match.status === "active" ? "DIN TUR – ÖPPNA MATCH HÄR" : match.status === "opponent" ? "MOTSTÅNDARES TUR – VISA MATCH HÄR" : "VISA MATCH HÄR";
     const players = match.status === "waiting" ? "1 spelare · Omgång 1" : "2 spelare · Omgång 1";
     const lock = match.locked ? "🔒" : "🔓";
     const lockLabel = match.locked ? "Match låst" : "Match olåst";
@@ -189,6 +189,8 @@ async function loadOverviewPlayers(matchId, isYourTurn) {
 function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
+  const playedCard = (round.cards || []).at(-1);
+  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`;
   const latestTimeline = (round.timeline || round.cards || []).slice();
   round.timeline = latestTimeline;
   let wrongButton = $("#wrong-matches");
@@ -231,6 +233,8 @@ async function syncMatches() {
   const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,current_user_id)`);
   state.matches = rows.map((row) => { const match = row.online_matches; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, motståndare`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent" }; }).filter(Boolean);
   save(); render();
+  const lobbyMatch = state.matches.find((match) => match.code === state.activeMatchCode);
+  if (currentView === "lobby" && lobbyMatch && lobbyMatch.status !== "waiting") openMatch(lobbyMatch.code);
 }
 function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {})); }
 async function createOnlineMatch() {
