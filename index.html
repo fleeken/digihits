@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Digihits</title>
-    <script>document.documentElement.classList.add("booting");if(new URLSearchParams(location.search).has("code"))document.documentElement.classList.add("spotify-callback")</script>
+    <script>document.documentElement.classList.add("booting");const p=new URLSearchParams(location.search),s=JSON.parse(localStorage.getItem("digihits-spotify-pkce")||"null");if(p.has("code")&&s&&p.get("state")===s.state&&Date.now()-s.startedAt<60000)document.documentElement.classList.add("spotify-callback")</script>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="app-shell">
-      <header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v1.18</small></button></header>
+      <header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v1.19</small></button></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
