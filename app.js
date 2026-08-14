@@ -233,7 +233,8 @@ function addMatch(matchCode) {
 async function syncMatches() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,current_user_id)`);
-  state.matches = rows.map((row) => { const match = row.online_matches; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, motståndare`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent" }; }).filter(Boolean);
+  let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
+  state.matches = rows.map((row) => { const match = row.online_matches, opponent = players.find((player) => player.match_id === row.match_id && player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent" }; }).filter(Boolean);
   save(); render();
   const lobbyMatch = state.matches.find((match) => match.code === state.activeMatchCode);
   if (currentView === "lobby" && lobbyMatch && lobbyMatch.status !== "waiting") openMatch(lobbyMatch.code);
