@@ -276,8 +276,6 @@ $("#join-match").addEventListener("click", async () => {
   const value = $("#match-code").value.trim().toUpperCase();
   if (!/^[A-Z0-9]{6}$/.test(value)) { $("#match-code").focus(); return; } try { await joinOnlineMatch(value); $("#match-code").value = ""; } catch (error) { alert(error.message); }
 });
-$("#add-test-matches").addEventListener("click", addTestMatches);
-$("#clear-test-matches").addEventListener("click", () => { state.matches = state.matches.filter((match) => !match.isTest); save(); render(); });
 $("#matches").addEventListener("click", (event) => {
   const openButton = event.target.closest("[data-open-match]");
   if (openButton) { openMatch(openButton.dataset.openMatch); return; }
