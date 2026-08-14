@@ -39,6 +39,9 @@ function dialog(message, action, danger = false) {
 window.alert = (message) => dialog(String(message));
 
 function save() { localStorage.setItem(storageKey, JSON.stringify(state)); }
+function closeHomeAccordions() {
+  document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
+}
 function renderRoundResult(correct) {
   let wrongButton = $("#wrong-matches");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "GÅ TILLBAKA TILL DINA MATCHER"; wrongButton.addEventListener("click", () => { state.roundUnlocked = []; save(); showView("home", true); }); $("#result-back").after(wrongButton); }
@@ -382,7 +385,7 @@ $("#login-form").addEventListener("submit", async (event) => {
     const data = await supabaseAuth.signIn($("#login-email").value.trim(), $("#login-password").value);
     $("#player-email").textContent = data.user.email;
     state.playerName = data.user.user_metadata?.display_name || state.playerName;
-    save(); render(); showView("home"); startRealtime(); syncMatches().catch(() => {});
+    save(); render(); closeHomeAccordions(); showView("home"); startRealtime(); syncMatches().catch(() => {});
   } catch (error) { alert(error.message); }
   finally { submit.disabled = false; $("#login-progress").hidden = true; }
 });

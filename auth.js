@@ -97,16 +97,18 @@ const supabaseAuth = (() => {
       location.assign(`https://accounts.spotify.com/authorize?${params}`);
     },
     async consumeSpotify() {
-      const code = new URLSearchParams(location.search).get("code"), saved = JSON.parse(localStorage.getItem("digihits-spotify-pkce") || "null");
-      if (!code || !saved || new URLSearchParams(location.search).get("state") !== saved.state) return null;
-      const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "authorization_code", code, redirect_uri: spotifyRedirect, code_verifier: saved.verifier });
-      const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-      const token = await response.json(); if (!response.ok) throw new Error(token.error_description || "Spotify-inloggningen misslyckades.");
-      const profileResponse = await fetch("https://api.spotify.com/v1/me", { headers: { Authorization: `Bearer ${token.access_token}` } });
-      const profile = await profileResponse.json(); if (!profileResponse.ok || profile.product !== "premium") throw new Error("Ett Spotify Premium-konto krävs.");
-      const session = { ...token, name: profile.display_name || profile.id, id: profile.id, expires_at: Date.now() + token.expires_in * 1000 };
-      localStorage.setItem(spotifyKey, JSON.stringify(session)); localStorage.removeItem("digihits-spotify-pkce"); history.replaceState({}, "", location.pathname);
-      return session;
+      const params = new URLSearchParams(location.search), code = params.get("code"), saved = JSON.parse(localStorage.getItem("digihits-spotify-pkce") || "null"), clean = () => history.replaceState({}, "", location.pathname);
+      if (!code) return null;
+      if (!saved || params.get("state") !== saved.state) { localStorage.removeItem("digihits-spotify-pkce"); clean(); return null; }
+      try {
+        const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "authorization_code", code, redirect_uri: spotifyRedirect, code_verifier: saved.verifier });
+        const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+        const token = await response.json(); if (!response.ok) throw new Error(token.error_description || "Spotify-inloggningen misslyckades.");
+        const profileResponse = await fetch("https://api.spotify.com/v1/me", { headers: { Authorization: `Bearer ${token.access_token}` } });
+        const profile = await profileResponse.json(); if (!profileResponse.ok || profile.product !== "premium") throw new Error("Ett Spotify Premium-konto krävs.");
+        const session = { ...token, name: profile.display_name || profile.id, id: profile.id, expires_at: Date.now() + token.expires_in * 1000 };
+        localStorage.setItem(spotifyKey, JSON.stringify(session)); return session;
+      } finally { localStorage.removeItem("digihits-spotify-pkce"); clean(); }
     }
   };
 })();
