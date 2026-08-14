@@ -59,7 +59,7 @@ async function playCurrentTrack() {
 }
 function setPlayButton(playing) { spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
 function stopCurrentTrack() { spotifyPlayer?.pause(); clearInterval(songTimer); loadedSpotifyCardId = null; setPlayButton(false); }
-function startCurrentTrack() { loadedSpotifyCardId = null; setPlayButton(false); if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
+function startCurrentTrack() { stopCurrentTrack(); if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
 
 const $ = (selector) => document.querySelector(selector);
 $("#guess-form button[type=submit]").textContent = "NÄSTA";
@@ -92,7 +92,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   });
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
   $("#placement-result").textContent = correct ? "☑  Rätt placering" : "✕  Fel placering";
-  const timeline = [...locked.map((item) => ({ ...item, status: "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
+  const timeline = snapshot?.timeline || [...locked.map((item) => ({ ...item, status: "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
   $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "FELPLACERAT" ? "misplaced-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small>${item.title}<br>${item.artist}<br>${item.status}</small></article>`).join("");
   $("#result-continue").hidden = !correct;
   $("#result-lock").hidden = !correct; $("#change-track-area").hidden = !correct;
@@ -138,6 +138,7 @@ function render() {
 
 function showView(view, focusMatches = false, fromHistory = false) {
   document.documentElement.classList.remove("booting");
+  if (view !== "guess" && view !== "timeline") stopCurrentTrack();
   currentView = view;
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
@@ -184,7 +185,7 @@ async function loadOverviewPlayers(matchId, isYourTurn) {
 function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
-  const latestTimeline = (round.timeline || round.cards || []).slice().sort((a, b) => a.year - b.year);
+  const latestTimeline = (round.timeline || round.cards || []).slice();
   round.timeline = latestTimeline;
   let wrongButton = $("#wrong-matches");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
@@ -315,7 +316,7 @@ document.addEventListener("pointerup", () => {
   if (dragTarget) placeCard(dragTarget.dataset.slot);
   dragTarget = null;
 });
-async function handoverTurn() {
+async function handoverTurn(savedTimeline = null) {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match?.id) return;
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
@@ -323,7 +324,7 @@ async function handoverTurn() {
   const mine = players.findIndex((player) => player.user_id === user.id), minePlayer = players[mine], next = players[(mine + 1) % players.length];
   const currentCard = activeCard(), cardsToLock = currentPlacementCorrect ? [...state.roundUnlocked, currentCard] : [];
   const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" })), { ...currentCard, status: "FELPLACERAT" }];
-  const lastRound = { ended_at: new Date().toISOString(), outcome: currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: [...(minePlayer.locked_timeline || []).map((card) => ({ ...card, status: "LÅST" })), ...roundCards] };
+  const lastRound = { ended_at: new Date().toISOString(), outcome: currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card) => ({ ...card, status: "LÅST" })), ...roundCards] };
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { current_user_id: next.user_id, phase: "turn_ready", last_result: { ...lastRound, player_id: user.id }, updated_at: new Date().toISOString() }, "PATCH");
   state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.currentCard = null; save(); syncMatches().catch(() => {});
@@ -356,7 +357,7 @@ async function restoreRoundUnlocked() {
   state.currentCard = rows[0]?.current_card || null;
   save(); resetTurnInput();
 }
-$("#lock-placement").addEventListener("click", async () => { viewingLatestRound = false; const resultCard = activeCard(), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } }; currentPlacementCorrect = placementIsCorrect(); stopCurrentTrack(); resultIsLocked = true; $("#result-back").hidden = true; $("#placed-message").textContent = "PLACERING LÅST"; if (!currentPlacementCorrect) { try { await handoverTurn(); } catch (error) { alert(error.message); return; } } renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result"); if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare."); });
+$("#lock-placement").addEventListener("click", async () => { viewingLatestRound = false; const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } }; currentPlacementCorrect = placementIsCorrect(); if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(placedAt, 0, { ...resultCard, status: "FELPLACERAT" }); } stopCurrentTrack(); resultIsLocked = true; $("#result-back").hidden = true; $("#placed-message").textContent = "PLACERING LÅST"; if (!currentPlacementCorrect) { try { await handoverTurn(resultSnapshot.timeline); } catch (error) { alert(error.message); return; } } renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result"); if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare."); });
 $("#result-continue").addEventListener("click", async () => { state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#change-track-area").addEventListener("click", async (event) => {
   if (!event.target.closest("#use-change-track")) return;
