@@ -31,7 +31,7 @@ const testDeck = [
 const activeCard = () => state.currentCard || testDeck[5];
 const songTime = (milliseconds) => `${Math.floor(milliseconds / 60000)}:${String(Math.floor(milliseconds / 1000) % 60).padStart(2, "0")}`;
 function updateSongTimeline(position, duration, playing) {
-  songPosition = position; songDuration = duration || songDuration; $("#song-timeline").hidden = !songDuration; $("#song-current").textContent = songTime(songPosition); $("#song-duration").textContent = songTime(songDuration); $("#song-progress").style.width = `${songDuration ? Math.min(100, songPosition / songDuration * 100) : 0}%`;
+  songPosition = position; songDuration = duration || songDuration; $("#song-timeline").hidden = !songDuration; if (songDuration) $("#song-timeline").removeAttribute("hidden"); $("#song-current").textContent = songTime(songPosition); $("#song-duration").textContent = songTime(songDuration); $("#song-progress").style.width = `${songDuration ? Math.min(100, songPosition / songDuration * 100) : 0}%`;
   clearInterval(songTimer); if (playing) songTimer = setInterval(() => updateSongTimeline(Math.min(songDuration, songPosition + 500), songDuration, true), 500);
 }
 async function ensureSpotifyPlayer() {
@@ -175,6 +175,8 @@ async function loadOverviewPlayers(matchId, isYourTurn) {
 function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
+  const latestTimeline = (round.timeline || round.cards || []).slice().sort((a, b) => a.year - b.year);
+  round.timeline = latestTimeline;
   let wrongButton = $("#wrong-matches");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
   const wrong = round.outcome === "wrong"; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; wrongButton.hidden = true; $("#placement-result").className = `result-check ${wrong ? "bad" : "good"}`; $("#placement-result").textContent = wrong ? "✕  Fel placering" : "☑  Rätt placering";
@@ -271,7 +273,7 @@ $("#lobby-leave").addEventListener("click", () => showView("home"));
 $("#next-round").addEventListener("click", async () => { state.roundUnlocked = []; save(); try { await dealCard(); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 $("#play-sample").addEventListener("click", async () => { try { if (spotifyPlaying) { await spotifyPlayer.pause(); setPlayButton(false); } else if (spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.resume(); setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
-$("#replay-track").addEventListener("click", async () => { try { if (spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.activateElement(); await spotifyPlayer.seek(0); await spotifyPlayer.resume(); updateSongTimeline(0, songDuration, true); setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
+$("#replay-track").addEventListener("click", async () => { try { if (spotifyPlayer && loadedSpotifyCardId === activeCard().id) { if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer.pause(); await spotifyPlayer.seek(0); await spotifyPlayer.resume(); updateSongTimeline(0, songDuration, true); setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
 $("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); $("#change-track-area").hidden = false; showView("timeline"); });
 $("#skip-guess").addEventListener("click", () => { $("#change-track-area").hidden = false; showView("timeline"); });
 let dragTarget = null;
