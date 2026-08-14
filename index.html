@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digihits</title>
+    <script>document.documentElement.classList.add("booting")</script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v1.08</small></button></header>
+
+      <section class="view active" data-view-panel="welcome">
+        <div class="panel welcome-card">
+          <div class="inner-panel welcome-inner">
+            <h1>Välkommen till Digihits</h1>
+            <p>Logga in eller skapa ett konto för att spela.</p>
+            <div class="welcome-actions">
+              <button class="button button-primary" data-view="login">LOGGA IN</button>
+              <button class="button button-secondary" data-view="signup">SKAPA KONTO</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view-panel="login">
+        <div class="panel auth-card"><div class="inner-panel">
+          <button class="back-link" data-view="welcome">← STARTSIDAN</button>
+          <h1>Logga in</h1>
+          <p class="form-intro">Logga in med e-postadressen och lösenordet för ditt Digihits-konto.</p>
+          <form id="login-form" class="auth-form">
+            <label class="sr-only" for="login-email">E-post</label><input id="login-email" type="email" placeholder="E-post *" required />
+            <label class="sr-only" for="login-password">Lösenord</label><input id="login-password" type="password" placeholder="Lösenord *" required />
+            <button class="button button-primary" id="login-submit" type="submit">LOGGA IN</button><div class="signup-progress" id="login-progress" hidden><span>LOGGAR IN…</span><i></i></div>
+          </form>
+          <button class="text-button" id="forgot-password" type="button">GLÖMT LÖSENORD?</button>
+        </div></div>
+      </section>
+
+      <section class="view" data-view-panel="change-password"><div class="panel auth-card"><div class="inner-panel"><button class="back-link" data-view="home">← Tillbaka</button><h1>Byt lösenord</h1><form id="change-password-form" class="auth-form"><input id="current-password" type="password" placeholder="Nuvarande lösenord" required /><input id="new-password" type="password" minlength="6" placeholder="Nytt lösenord" required /><input id="confirm-password" type="password" minlength="6" placeholder="Bekräfta nytt lösenord" required /><button class="button button-green" id="change-submit" type="submit">SPARA NYTT LÖSENORD</button></form><div class="signup-progress" id="change-progress" hidden><span>SPARAR NYTT LÖSENORD…</span><i></i></div></div></div></section>
+      <section class="view" data-view-panel="forgot-password"><div class="panel auth-card"><div class="inner-panel"><button class="back-link" data-view="login">← Tillbaka</button><h1>Glömt lösenord</h1><form id="forgot-password-form" class="auth-form"><input id="forgot-email" type="email" placeholder="E-post *" required /><button class="button button-green" id="forgot-submit" type="submit">SKICKA ÅTERSTÄLLNINGSLÄNK</button></form><div class="signup-progress" id="forgot-progress" hidden><span>SKICKAR ÅTERSTÄLLNINGSLÄNK…</span><i></i></div><p class="auth-success" id="forgot-success" hidden>Återställningslänken har skickats till din e-post. Kontrollera även skräpposten.</p></div></div></section>
+      <section class="view" data-view-panel="reset-password"><div class="panel auth-card"><div class="inner-panel"><h1>Välj nytt lösenord</h1><form id="reset-password-form" class="auth-form"><input id="reset-new-password" type="password" minlength="6" placeholder="Nytt lösenord" required /><input id="reset-confirm-password" type="password" minlength="6" placeholder="Bekräfta nytt lösenord" required /><button class="button button-green" type="submit">SPARA NYTT LÖSENORD</button></form></div></div></section>
+
+      <section class="view" data-view-panel="signup">
+        <div class="panel auth-card"><div class="inner-panel">
+          <button class="back-link" data-view="welcome">← STARTSIDAN</button>
+          <h1>Skapa konto</h1>
+          <p class="form-intro">Alla fält är obligatoriska. E-postadressen behöver verifieras.</p>
+          <form id="signup-form" class="auth-form">
+            <label class="sr-only" for="signup-name">Spelarnamn</label><input id="signup-name" maxlength="18" placeholder="Spelarnamn *" required />
+            <small>Spelarnamnet är unikt och kan inte ändras efteråt.</small>
+            <label class="sr-only" for="signup-email">E-post</label><input id="signup-email" type="email" placeholder="E-post *" required />
+            <label class="sr-only" for="signup-password">Lösenord</label><input id="signup-password" type="password" minlength="8" placeholder="Lösenord *" required />
+            <button class="button button-green" type="submit">SKAPA KONTO</button>
+          </form>
+          <div class="signup-progress" id="signup-progress" hidden><span>SKAPAR KONTO…</span><i></i></div>
+        </div></div>
+      </section>
+
+      <section class="view" data-view-panel="lobby">
+        <section class="lobby-layout">
+          <aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-primary" id="lobby-chat" type="button">VISA CHATT</button><button class="button button-leave" id="lobby-leave" type="button">LÄMNA MATCHEN</button></aside>
+          <section class="panel lobby-main"><div class="lobby-title-row"><h1>Väntar på motspelare</h1><button class="lobby-unlock" type="button">🔓 OLÅST MATCH</button></div><div class="lobby-stage"><div class="lobby-code-card"><small>MATCHKOD</small><strong id="lobby-code">------</strong><button class="copy-code" id="copy-lobby-code" type="button">KOPIERA KOD</button></div></div></section>
+        </section>
+      </section>
+
+      <section class="view" data-view-panel="match">
+        <section class="lobby-layout"><aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-green next-round" id="next-round" type="button">STARTA NÄSTA OMGÅNG</button><button class="button button-primary" type="button">VISA CHATT</button><button class="button button-leave" type="button">LÄMNA MATCHEN</button></aside><section class="panel match-view"><div class="lobby-title-row"><h1>Matchöversikt</h1></div><p class="turn-message" id="turn-message">DIN TUR</p><div class="match-summary"><small>MATCHKOD</small><strong id="overview-code">------</strong></div><div class="match-metrics"><div><strong>2</strong><small>SPELARE</small></div><div><strong id="overview-round">REDO</strong><small>OMGÅNG</small></div><div><strong>10</strong><small>MÅL KORT</small></div></div><div id="overview-players" class="overview-players"></div></section></section>
+      </section>
+
+      <section class="view" data-view-panel="guess">
+        <section class="guess-view panel"><div class="guess-top"><button class="back-link" data-view="match">← Tillbaka</button><h1>Gissa artist &amp; låtnamn</h1><p>Full pott ger byt-låt-kort</p></div><div class="replay-row"><button class="button button-green" id="play-sample" type="button">▶ SPELA LÅT FRÅN BÖRJAN</button></div><form id="guess-form" class="guess-form"><input id="guess-artist" placeholder="Artist" autocomplete="off" /><input id="guess-track" placeholder="Låtnamn" autocomplete="off" /><small>Små stavfel är okej.</small><div><button class="button button-primary" type="submit">NÄSTA</button><button class="button button-secondary" id="skip-guess" type="button">HOPPA ÖVER</button></div></form></section>
+      </section>
+
+      <section class="view" data-view-panel="timeline">
+        <section class="timeline-view panel"><div class="timeline-head"><button class="back-link" data-view="guess">← Tillbaka</button><h1>Placera kortet</h1><p>Välj var kortet ska placeras i tidslinjen.</p></div><div class="secret-card" id="secret-card"><span>♫</span><strong>HEMLIGT KORT</strong><small>År: ????</small></div><p class="timeline-hint">DRA KORTET TILL EN PLATS I DIN TIDSLINJE</p><div class="timeline-row" id="timeline-row"><div class="slot" data-slot="0">PLACERA<br>HÄR</div><article class="year-card"><strong>1983</strong><small>Every Breath You Take<br>The Police<br>LÅST</small></article><div class="slot" data-slot="1">PLACERA<br>HÄR</div></div><button class="button button-green lock-placement" id="lock-placement" type="button">LÅS IN PLACERING</button><p class="placed-message" id="placed-message"></p></section>
+      </section>
+
+      <section class="view" data-view-panel="result">
+        <section class="result-view panel"><button class="back-link" id="result-back" type="button">← Tillbaka</button><div class="result-head"><p id="result-song">The Way It Is - Remastered – Bruce Hornsby and the Range (2004)</p></div><div class="result-checks"><div class="result-check good" id="placement-result">☑ &nbsp; Rätt placering</div><div class="result-check bad">✕ &nbsp; Fel artist <small>Du skrev: as</small></div><div class="result-check bad">✕ &nbsp; Fel låtnamn <small>Du skrev: s</small></div></div><div class="result-actions"><button class="button button-purple" id="result-continue" type="button">▶ FORTSÄTT</button><button class="button button-green" id="result-lock" type="button">🔒 LÅS IN 2 KORT</button></div><div id="change-track-area" class="change-track-area"></div><div class="result-timeline" id="result-timeline"></div></section>
+      </section>
+
+      <section class="view" data-view-panel="home">
+        <section class="hero panel"><h1>När släpptes låten?</h1><div class="account-row"><div class="account-row-top"><div><span class="status-dot"></span><strong> INLOGGAD</strong><p id="player-email">spelare@digihits.se</p></div><div class="account-actions"><button class="account-button" id="change-password">BYT LÖSENORD</button><button class="account-button" id="logout">LOGGA UT</button><button class="account-button account-danger" id="delete-account">RADERA KONTO</button></div></div><div class="player-name"><span>SPELARNAMN</span><strong id="player-name">Spelare</strong></div></div></section>
+        <section class="panel spotify-connect"><p id="spotify-status">Premium krävs för uppspelning.</p><div class="spotify-actions"><button class="button button-red spotify-button" id="connect-spotify">ANSLUT DITT SPOTIFY PREMIUM HÄR</button><button class="spotify-switch" id="switch-spotify" type="button">BYT SPOTIFYKONTO</button></div></section>
+        <section class="panel accordion is-open" data-accordion>
+          <button class="accordion-toggle" type="button" aria-expanded="true"><span class="accordion-label">Skapa eller gå med i match</span><span class="accordion-mark">⌄</span></button>
+          <div class="accordion-content"><div class="match-actions"><article class="action-card"><h3>Starta en ny match</h3><p>Du får en matchkod att skicka till personen du vill spela mot.</p><button class="button button-green" id="create-match">STARTA NY MATCH</button></article><article class="action-card"><h3>Har du fått en matchkod?</h3><p>Skriv koden du fått av din vän.</p><label class="sr-only" for="match-code">Matchkod</label><input id="match-code" maxlength="6" placeholder="SKRIV MATCHKOD" autocomplete="off" /><button class="button button-green" id="join-match">GÅ MED I MATCHEN</button></article></div></div>
+        </section>
+        <section class="panel accordion is-open" data-accordion id="my-matches-section">
+          <button class="accordion-toggle" type="button" aria-expanded="true"><span class="accordion-label">Mina matcher</span><span class="match-badges"><span class="badge badge-waiting" id="waiting-count">Väntar på 0</span><span class="badge badge-turn" id="turn-count">Din tur 0</span></span></button>
+          <div class="accordion-content"><p class="muted">Dina matcher sparas lokalt tills Supabase kopplas in.</p><div id="matches" class="matches" aria-live="polite"></div><div class="test-controls"><button class="test-button" id="add-test-matches" type="button">VISA TESTSTATUS</button><button class="test-button" id="clear-test-matches" type="button">RENSA TESTSTATUS</button></div></div>
+        </section>
+        <section class="panel accordion" data-accordion>
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Statistik</span><span class="accordion-mark">›</span></button>
+          <div class="accordion-content"><div class="reset-row"><button class="reset-button" id="reset-stats">NOLLSTÄLL ALL STATISTIK</button></div><div class="stat-grid"><div><small>VINSTER</small><strong id="stat-wins">0 st</strong></div><div><small>FÖRLUSTER</small><strong id="stat-losses">0 st</strong></div><div><small>WALK OVER</small><strong id="stat-walkovers">0 st</strong></div><div><small>FLEST VINSTER I RAD</small><strong id="stat-streak">0 st</strong></div></div></div>
+        </section>
+        <section class="panel accordion" data-accordion>
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Historik</span><span class="accordion-mark">›</span></button>
+          <div class="accordion-content"><div class="reset-row"><button class="reset-button" id="reset-history">NOLLSTÄLL ALL HISTORIK</button></div><p class="muted">Slutförda och lämnade matcher visas här.</p><div id="history" class="history-list"></div></div>
+        </section>
+      </section>
+    </main><div class="modal" id="app-dialog" hidden><div class="modal-card dialog-card"><div class="dialog-icon">✦</div><h2 id="dialog-title">Digihits</h2><p id="dialog-message"></p><div class="modal-actions"><button class="button button-secondary" id="dialog-cancel" type="button" hidden>AVBRYT</button><button class="button button-primary" id="dialog-confirm" type="button">OK</button></div></div></div><div class="modal" id="delete-modal" hidden><div class="modal-card"><h2>Radera konto</h2><p>Detta kan inte ångras. Skriv <strong>RADERA</strong> för att fortsätta.</p><form id="delete-account-form" class="auth-form"><input id="delete-confirmation" autocomplete="off" placeholder="Skriv RADERA" /><p class="delete-error" id="delete-error" hidden>Kontot har inte raderats. Skriv exakt RADERA med stora bokstäver.</p><div class="signup-progress" id="delete-progress" hidden><span>RADERAR KONTO…</span><i></i></div><div class="modal-actions"><button class="button button-secondary" id="delete-cancel" type="button">AVBRYT</button><button class="button button-leave" id="delete-submit" type="submit">RADERA KONTO</button></div></form></div></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
