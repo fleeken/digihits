@@ -97,7 +97,7 @@ const supabaseAuth = (() => {
       const session = this.spotify(); if (!session) throw new Error("Anslut Spotify Premium först.");
       if (session.expires_at > Date.now() + 30000) return session.access_token;
       const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "refresh_token", refresh_token: session.refresh_token });
-      const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
       const token = await response.json(); if (!response.ok) throw new Error("Spotify-sessionen har gått ut. Anslut kontot igen.");
       const refreshed = { ...session, ...token, refresh_token: token.refresh_token || session.refresh_token, expires_at: Date.now() + token.expires_in * 1000 };
       localStorage.setItem(this.spotifyStorageKey(), JSON.stringify(refreshed)); return refreshed.access_token;
@@ -116,7 +116,7 @@ const supabaseAuth = (() => {
       if (!saved || Date.now() - saved.startedAt > 60000 || !/^[A-Za-z0-9._~-]{43,128}$/.test(saved.verifier || "") || params.get("state") !== saved.state) { localStorage.removeItem(pkceKey); clean(); return null; }
       try {
         const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "authorization_code", code, redirect_uri: spotifyRedirect, code_verifier: saved.verifier });
-        const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+        const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
         const token = await response.json(); if (!response.ok) throw new Error(token.error_description || "Spotify-inloggningen misslyckades.");
         const profileResponse = await fetch("https://api.spotify.com/v1/me", { headers: { Authorization: `Bearer ${token.access_token}` } });
         const profile = await profileResponse.json(); if (!profileResponse.ok || profile.product !== "premium") throw new Error("Ett Spotify Premium-konto krävs.");
