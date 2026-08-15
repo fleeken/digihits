@@ -12,6 +12,10 @@ const supabaseAuth = (() => {
     catch (error) { throw new Error(error.name === "AbortError" ? "Inloggningen tog fÃ¶r lÃ¥ng tid. Kontrollera nÃ¤tet och fÃ¶rsÃ¶k igen." : "Kunde inte ansluta till servern. Kontrollera nÃ¤tet och fÃ¶rsÃ¶k igen."); }
     finally { clearTimeout(timer); }
   }
+  async function spotifyJson(response, fallback) {
+    const text = await response.text();
+    try { return JSON.parse(text); } catch { throw new Error(`${fallback} (HTTP ${response.status || "okänd"}).`); }
+  }
 
   async function request(path, body, method = "POST", accessToken = key) {
     const response = await fetchWithTimeout(`${root}/auth/v1${path}`, {
@@ -98,7 +102,7 @@ const supabaseAuth = (() => {
       if (session.expires_at > Date.now() + 30000) return session.access_token;
       const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "refresh_token", refresh_token: session.refresh_token });
       const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
-      const token = await response.json(); if (!response.ok) throw new Error("Spotify-sessionen har gått ut. Anslut kontot igen.");
+      const token = await spotifyJson(response, "Spotify svarade inte korrekt"); if (!response.ok) throw new Error("Spotify-sessionen har gått ut. Anslut kontot igen.");
       const refreshed = { ...session, ...token, refresh_token: token.refresh_token || session.refresh_token, expires_at: Date.now() + token.expires_in * 1000 };
       localStorage.setItem(this.spotifyStorageKey(), JSON.stringify(refreshed)); return refreshed.access_token;
     },
@@ -117,9 +121,9 @@ const supabaseAuth = (() => {
       try {
         const body = new URLSearchParams({ client_id: spotifyClientId, grant_type: "authorization_code", code, redirect_uri: spotifyRedirect, code_verifier: saved.verifier });
         const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
-        const token = await response.json(); if (!response.ok) throw new Error(token.error_description || "Spotify-inloggningen misslyckades.");
+        const token = await spotifyJson(response, "Spotify-inloggningen kunde inte slutföras"); if (!response.ok) throw new Error(token.error_description || "Spotify-inloggningen misslyckades.");
         const profileResponse = await fetch("https://api.spotify.com/v1/me", { headers: { Authorization: `Bearer ${token.access_token}` } });
-        const profile = await profileResponse.json(); if (!profileResponse.ok || profile.product !== "premium") throw new Error("Ett Spotify Premium-konto krävs.");
+        const profile = await spotifyJson(profileResponse, "Spotify kunde inte läsa kontot"); if (!profileResponse.ok || profile.product !== "premium") throw new Error("Ett Spotify Premium-konto krävs.");
         const session = { ...token, name: profile.display_name || profile.id, id: profile.id, expires_at: Date.now() + token.expires_in * 1000 };
         localStorage.setItem(this.spotifyStorageKey(), JSON.stringify(session)); return session;
       } finally { localStorage.removeItem(pkceKey); clean(); }

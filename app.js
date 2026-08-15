@@ -110,7 +110,7 @@ function render() {
   $("#spotify-status").textContent = spotify ? "Spotify Premium är anslutet." : "Premium krävs för uppspelning.";
   $("#connect-spotify").textContent = spotify ? spotify.name : "ANSLUT DITT SPOTIFY PREMIUM HÄR";
   $("#connect-spotify").className = `button ${spotify ? "button-green" : "button-red"} spotify-button`;
-  $("#switch-spotify").hidden = !spotify;
+  $("#switch-spotify").hidden = false;
   const waiting = state.matches.filter((match) => match.status === "opponent").length;
   const turns = state.matches.filter((match) => match.status === "active").length;
   $("#waiting-count").textContent = `Väntar på ${waiting}`;
