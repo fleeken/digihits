@@ -21,6 +21,10 @@ let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, 
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
 const testDeck = window.DIGIHITS_TRACKS;
 const activeCard = () => state.currentCard || testDeck[5];
+function expandedMatchDeck(deck = []) {
+  const existing = new Set(deck.map((card) => `${normaliseTrackText(card.artist)}:${normaliseTrackText(card.title)}`));
+  return [...deck, ...testDeck.filter((card) => !existing.has(`${normaliseTrackText(card.artist)}:${normaliseTrackText(card.title)}`))];
+}
 function pickFreshTrack(cards, used = []) {
   const available = cards.filter((card) => !used.includes(card.id));
   const fresh = available.filter((card) => !state.recentTrackIds.includes(card.id));
@@ -298,11 +302,11 @@ async function joinOnlineMatch(matchCode) {
   if (match.status !== "waiting") throw new Error("Matchkoden hittades inte eller matchen är redan startad.");
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=*`);
   if (players.some((player) => player.user_id === user.id)) throw new Error("Du är redan med i matchen.");
-  const available = (match.deck?.length ? match.deck : testDeck).filter((card) => !(match.used_track_ids || []).includes(card.id));
+  const deck = expandedMatchDeck(match.deck || []), available = deck.filter((card) => !(match.used_track_ids || []).includes(card.id));
   if (!available.length) throw new Error("Det finns inget ledigt startkort i matchen.");
   const starter = pickFreshTrack(available);
   await supabaseAuth.dataRequest("online_players", { match_id: match.id, user_id: user.id, display_name: state.playerName, turn_order: players.length, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
-  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
+  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, deck, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 
@@ -394,10 +398,10 @@ async function dealCard() {
   if (!match?.id) throw new Error("Matchdata saknas.");
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const rows = await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=deck,used_track_ids`);
-  const matchData = rows[0], used = new Set(matchData.used_track_ids || []), available = (matchData.deck?.length > 1 ? matchData.deck : testDeck).filter((card) => !used.has(card.id));
+  const matchData = rows[0], deck = expandedMatchDeck(matchData.deck || []), used = new Set(matchData.used_track_ids || []), available = deck.filter((card) => !used.has(card.id));
   if (!available.length) throw new Error("Alla testlåtar i matchen är använda.");
   const card = pickFreshTrack(available);
-  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
+  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { deck, used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}`, { current_card: card, updated_at: new Date().toISOString() }, "PATCH");
   state.currentCard = card; state.currentCardMatchCode = match.code; rememberTrack(card); save();
 }
