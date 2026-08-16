@@ -126,7 +126,8 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const correctCards = locked.length + (correct ? 1 : 0);
   $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
   $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------";
-  $("#solo-result-score").hidden = !solo; $("#solo-result-score").textContent = `RÄTT PLACERADE KORT: ${correctCards}`;
+  $("#result-code").classList.toggle("solo-mistake-count", solo);
+  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong>${correctCards}</strong>`;
   $(".result-actions").classList.toggle("solo-result-actions", solo);
   const cards = [...unlocked, { ...card, status: solo ? (correct ? "RÄTT PLACERAT" : "FEL PLACERAT") : correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.title} – ${card.artist} (${card.year})`;
@@ -256,7 +257,7 @@ function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
   const playedCard = (round.cards || []).at(-1);
-  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`; const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = (round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------";
+  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`; const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = (round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------"; $("#result-code").classList.toggle("solo-mistake-count", solo); $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong>${correctCards}</strong>`;
   const latestTimeline = (round.timeline || round.cards || []).slice();
   if (round.outcome !== "wrong") latestTimeline.sort((a, b) => a.year - b.year);
   round.timeline = latestTimeline;
