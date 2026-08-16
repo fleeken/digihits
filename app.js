@@ -152,7 +152,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#result-code").textContent = solo ? String(score.mistakes) : state.activeMatchCode || "------";
   $("#result-code").style.color = solo ? "#ff8b9d" : "";
   $("#result-code").classList.toggle("solo-mistake-count", solo);
-  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong style="color:#72ffad">${score.correct}</strong>`;
+  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong style="color:#72ffad">${score.correct}/10</strong>`;
   $(".result-actions").classList.toggle("solo-result-actions", solo);
   const cards = [...unlocked, { ...card, status: solo ? (correct ? "RÄTT PLACERAT" : "FEL PLACERAT") : correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.title} – ${card.artist} (${card.year})`;
@@ -267,7 +267,7 @@ function openMatch(matchCode) {
   const score = soloMatch ? soloProgress(match) : null;
   $("#overview-round").textContent = soloMatch ? String(score.mistakes) : "1";
   $("#overview-round-label").textContent = soloMatch ? "FELPLACERADE" : "OMGÅNG";
-  $("#overview-target").textContent = soloMatch ? String(score.correct) : "10";
+  $("#overview-target").textContent = soloMatch ? `${score.correct}/10` : "10";
   $("#overview-target-label").textContent = soloMatch ? "RÄTT PLACERADE" : "FÖRST TILL";
   $("#turn-message").hidden = soloMatch;
   $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
@@ -292,7 +292,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
       const score = match ? soloProgress(match, player.locked_timeline || []) : { correct, mistakes };
       $("#overview-round").textContent = String(score.mistakes);
       $("#overview-round-label").textContent = "FELPLACERADE";
-      $("#overview-target").textContent = String(score.correct);
+      $("#overview-target").textContent = `${score.correct}/10`;
       $("#overview-target-label").textContent = "RÄTT PLACERADE";
     } else {
       $("#overview-round").textContent = String(Math.max(1, ...players.map((player) => player.rounds_started || 0)));
@@ -307,7 +307,7 @@ function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
   const playedCard = (round.cards || []).at(-1);
-  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`; const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = (round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------"; $("#result-code").classList.toggle("solo-mistake-count", solo); $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong>${correctCards}</strong>`;
+  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`; const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = (round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------"; $("#result-code").classList.toggle("solo-mistake-count", solo); $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong style="color:#72ffad">${correctCards}/10</strong>`;
   const latestTimeline = (round.timeline || round.cards || []).slice();
   if (round.outcome !== "wrong") latestTimeline.sort((a, b) => a.year - b.year);
   round.timeline = latestTimeline;
