@@ -142,6 +142,9 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${/FEL ?PLACERAT/.test(item.status) ? "misplaced-card" : solo ? "correct-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${item.status}</span></small></article>`).join("");
   $("#result-continue").hidden = !correct && !solo;
   $("#result-lock").hidden = !correct || solo; $("#change-track-area").hidden = !correct || solo;
+  const onlyContinue = !$("#result-continue").hidden && $("#result-lock").hidden;
+  $(".result-actions").style.gridTemplateColumns = onlyContinue ? "minmax(0,300px)" : "";
+  $(".result-actions").style.justifyContent = onlyContinue ? "center" : "";
   $("#result-back").hidden = true; wrongButton.hidden = correct || solo; overviewButton.hidden = correct || solo;
   $("#result-lock").textContent = `🔒 LÅS IN ${unlocked.length + (correct ? 1 : 0)} KORT`;
 }
