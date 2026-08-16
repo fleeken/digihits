@@ -116,7 +116,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "TILLBAKA TILL DINA MATCHER"; wrongButton.addEventListener("click", () => { state.roundUnlocked = []; save(); showView("home", true); }); $("#result-back").after(wrongButton); }
   if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.className = "lobby-back wrong-match-button"; overviewButton.type = "button"; overviewButton.textContent = "TILL MATCHÖVERSIKT"; overviewButton.addEventListener("click", () => openMatch(state.activeMatchCode)); wrongButton.after(overviewButton); }
-  $("#result-code").textContent = "MATCHKOD " + (state.activeMatchCode || "------");
+  $("#result-code").textContent = state.activeMatchCode || "------";
   const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const cards = [...unlocked, { ...card, status: correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.title} – ${card.artist} (${card.year})`;
@@ -227,7 +227,7 @@ function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
   const playedCard = (round.cards || []).at(-1);
-  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`; $("#result-code").textContent = "MATCHKOD " + (state.activeMatchCode || "------");
+  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`; $("#result-code").textContent = state.activeMatchCode || "------";
   const latestTimeline = (round.timeline || round.cards || []).slice();
   if (round.outcome !== "wrong") latestTimeline.sort((a, b) => a.year - b.year);
   round.timeline = latestTimeline;
@@ -437,6 +437,19 @@ async function markRoundStarted() {
   const player = players[0];
   if (player) await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: (player.rounds_started || 0) + 1, updated_at: new Date().toISOString() }, "PATCH");
 }
+async function restoreResultView() {
+  const match = state.matches.find((item) => item.code === state.activeMatchCode);
+  if (!match?.id) { showView("home", true); return; }
+  if (state.pendingResult?.matchCode === match.code) { currentPlacementCorrect = true; renderRoundResult(true, state.pendingResult.card, state.pendingResult.snapshot); showView("result", false, true); return; }
+  const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
+  const player = (await supabaseAuth.dataRequest("online_players?match_id=eq." + match.id + "&user_id=eq." + user.id + "&select=last_round"))[0], round = player?.last_round;
+  if (!round) { openMatch(match.code); return; }
+  if (round.outcome === "wrong") {
+    const card = (round.cards || []).at(-1);
+    if (card) { currentPlacementCorrect = false; renderRoundResult(false, card, { timeline: round.timeline, guess: round.guess, unlocked: (round.cards || []).slice(0, -1), locked: [] }); showView("result", false, true); return; }
+  }
+  showLatestRound(round);
+}
 $("#lock-placement").addEventListener("click", async () => { viewingLatestRound = false; const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } }; currentPlacementCorrect = placementIsCorrect(); if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(placedAt, 0, { ...resultCard, status: "FELPLACERAT" }); } else { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot }; save(); } stopCurrentTrack(); resultIsLocked = true; $("#result-back").hidden = true; if (!currentPlacementCorrect) { try { await handoverTurn(resultSnapshot.timeline); } catch (error) { alert(error.message); return; } } renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result"); if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare."); });
 $("#result-continue").addEventListener("click", async () => { state.pendingResult = null; state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#change-track-area").addEventListener("click", async (event) => {
@@ -559,6 +572,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
     const view = location.hash.slice(1) || "home";
     if (view === "match" && state.activeMatchCode) openMatch(state.activeMatchCode);
     else if (view === "lobby" && state.activeMatchCode) openLobby(state.activeMatchCode);
+    else if (view === "result" && state.activeMatchCode) await restoreResultView();
     else showView(view === "welcome" ? "home" : view, false, true);
   }).catch(() => { supabaseAuth.signOut(); showView("welcome"); });
 } else document.documentElement.classList.remove("booting");
