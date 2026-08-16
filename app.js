@@ -16,7 +16,7 @@ state.currentCard ||= null;
 let currentPlacementCorrect = true;
 let viewingLatestRound = false;
 const latestRounds = {};
-let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, wasPausedByUser = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer;
+let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, wasPausedByUser = false, pausedForNavigation = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
 const testDeck = [
   { id: "starter-1983", year: 1983, artist: "The Police", title: "Every Breath You Take" },
@@ -32,7 +32,7 @@ const testDeck = [
 ];
 const activeCard = () => state.currentCard || testDeck[5];
 const songTime = (milliseconds) => `${Math.floor(milliseconds / 60000)}:${String(Math.floor(milliseconds / 1000) % 60).padStart(2, "0")}`;
-function resetSpotifyPlayer() { spotifyDeviceId = null; spotifyPlayerReady = null; loadedSpotifyCardId = null; spotifyPlaying = false; wasPausedByUser = false; }
+function resetSpotifyPlayer() { spotifyDeviceId = null; spotifyPlayerReady = null; loadedSpotifyCardId = null; spotifyPlaying = false; wasPausedByUser = false; pausedForNavigation = false; }
 function updateSongTimeline(position, duration, playing) {
   songPosition = position; songDuration = duration || songDuration; $("#song-timeline").hidden = !songDuration; if (songDuration) $("#song-timeline").removeAttribute("hidden"); $("#song-current").textContent = songTime(songPosition); $("#song-duration").textContent = songTime(songDuration); $("#song-progress").style.width = `${songDuration ? Math.min(100, songPosition / songDuration * 100) : 0}%`;
   clearInterval(songTimer); if (playing) songTimer = setInterval(() => updateSongTimeline(Math.min(songDuration, songPosition + 500), songDuration, true), 500);
@@ -60,11 +60,12 @@ async function playCurrentTrack(retry = true) {
   const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri], position_ms: 0 }) });
   if (!play.ok && retry) { resetSpotifyPlayer(); return playCurrentTrack(false); }
   if (!play.ok) throw new Error("Spotify kunde inte starta låten.");
-  loadedSpotifyCardId = card.id; wasPausedByUser = false; updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
+  loadedSpotifyCardId = card.id; wasPausedByUser = false; pausedForNavigation = false; updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
 }
 function setPlayButton(playing) { spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
-function stopCurrentTrack() { spotifyPlayer?.pause(); clearInterval(songTimer); loadedSpotifyCardId = null; setPlayButton(false); }
-function startCurrentTrack() { clearInterval(songTimer); loadedSpotifyCardId = null; wasPausedByUser = false; setPlayButton(false); spotifyPlayer?.pause().catch(() => {}); if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
+function stopCurrentTrack(keepForResume = false) { Promise.resolve(spotifyPlayer?.pause()).catch(() => {}); clearInterval(songTimer); pausedForNavigation = keepForResume && Boolean(state.currentCard && loadedSpotifyCardId); if (!keepForResume) { loadedSpotifyCardId = null; pausedForNavigation = false; } setPlayButton(false); }
+function startCurrentTrack() { clearInterval(songTimer); loadedSpotifyCardId = null; wasPausedByUser = false; pausedForNavigation = false; setPlayButton(false); spotifyPlayer?.pause().catch(() => {}); if (!mobileBrowser && supabaseAuth.spotify()) playCurrentTrack().catch(() => {}); }
+function resumeRoundTrack() { if (!pausedForNavigation || !state.currentCard || mobileBrowser) return; if (spotifyPlayer && loadedSpotifyCardId === state.currentCard.id) spotifyPlayer.resume().then(() => { pausedForNavigation = false; setPlayButton(true); }).catch(() => playCurrentTrack().catch(() => {})); else startCurrentTrack(); }
 
 const $ = (selector) => document.querySelector(selector);
 $("#guess-form button[type=submit]").textContent = "NÄSTA";
@@ -151,11 +152,13 @@ function render() {
 
 function showView(view, focusMatches = false, fromHistory = false) {
   document.documentElement.classList.remove("booting");
-  if (view !== "guess" && view !== "timeline") stopCurrentTrack();
+  const gameView = view === "guess" || view === "timeline";
+  if (!gameView) stopCurrentTrack(true);
   currentView = view;
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
   });
+  if (gameView) resumeRoundTrack();
   if (!fromHistory) history.pushState({ view }, "", `#${view}`);
   requestAnimationFrame(() => {
     if (focusMatches) $("#my-matches-section").scrollIntoView({ block: "start" });
@@ -182,7 +185,9 @@ function openMatch(matchCode) {
   $("#overview-round").textContent = "1";
   $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
   $("#turn-message").classList.toggle("waiting", !isYourTurn);
+  const pendingRound = state.pendingResult?.matchCode === matchCode || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === matchCode));
   $("#next-round").classList.toggle("is-visible", isYourTurn);
+  $("#next-round").textContent = pendingRound ? "ÅTERUPPTA OMGÅNG" : "STARTA NÄSTA OMGÅNG";
   $("#overview-players").innerHTML = `<article class="overview-player ${isYourTurn ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">1</span><strong>${state.playerName}</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article><article class="overview-player"><div class="overview-player-header"><span class="turn-order">2</span><strong>Testspelare</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`;
   showView("match");
   if (match.id) loadOverviewPlayers(match.id, isYourTurn);
@@ -302,9 +307,9 @@ $("#copy-lobby-code").addEventListener("click", async () => {
   button.classList.add("is-copied");
 });
 $("#lobby-leave").addEventListener("click", () => showView("home"));
-$("#next-round").addEventListener("click", async () => { try { await restoreRoundUnlocked(); state.roundUnlocked = []; save(); await dealCard(); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); });
+$("#next-round").addEventListener("click", async () => { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = true; resultIsLocked = true; renderRoundResult(true, pending.card, pending.snapshot); showView("result"); return; } let existingCard; try { await restoreRoundUnlocked(); existingCard = Boolean(state.currentCard); if (!existingCard) { state.roundUnlocked = []; save(); await dealCard(); } } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); if (existingCard) { pausedForNavigation = true; resumeRoundTrack(); } else startCurrentTrack(); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
-$("#play-sample").addEventListener("click", async () => { try { if (spotifyPlaying) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if (wasPausedByUser && spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.resume(); wasPausedByUser = false; setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
+$("#play-sample").addEventListener("click", async () => { try { if (spotifyPlaying) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { loadedSpotifyCardId = null; await playCurrentTrack(); } catch (error) { alert(error.message); } });
 $("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; save(); $("#change-track-area").hidden = false; showView("timeline"); });
 $("#skip-guess").addEventListener("click", () => { $("#change-track-area").hidden = false; showView("timeline"); });
@@ -350,7 +355,7 @@ async function handoverTurn(savedTimeline = null) {
   const lastRound = { ended_at: new Date().toISOString(), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card) => ({ ...card, status: "LÅST" })), ...roundCards] };
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: user.id, type: "win" } : {}) }, updated_at: new Date().toISOString() }, "PATCH");
-  state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.currentCard = null; save(); syncMatches().catch(() => {});
+  state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.currentCard = null; state.currentCardMatchCode = null; save(); syncMatches().catch(() => {});
   return won;
 }
 async function dealCard() {
@@ -363,7 +368,7 @@ async function dealCard() {
   const card = available[Math.floor(Math.random() * available.length)];
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}`, { current_card: card, updated_at: new Date().toISOString() }, "PATCH");
-  state.currentCard = card; save();
+  state.currentCard = card; state.currentCardMatchCode = match.code; save();
 }
 async function saveRoundUnlocked() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
@@ -378,18 +383,18 @@ async function restoreRoundUnlocked() {
   const rows = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=turn_cards,current_card,locked_timeline`);
   state.roundUnlocked = rows[0]?.turn_cards || [];
   state.lockedTimeline = rows[0]?.locked_timeline || state.lockedTimeline;
-  state.currentCard = rows[0]?.current_card || null;
+  state.currentCard = rows[0]?.current_card || null; state.currentCardMatchCode = state.currentCard ? match.code : null;
   save(); resetTurnInput();
 }
-$("#lock-placement").addEventListener("click", async () => { viewingLatestRound = false; const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } }; currentPlacementCorrect = placementIsCorrect(); if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(placedAt, 0, { ...resultCard, status: "FELPLACERAT" }); } stopCurrentTrack(); resultIsLocked = true; $("#result-back").hidden = true; $("#placed-message").textContent = "PLACERING LÅST"; if (!currentPlacementCorrect) { try { await handoverTurn(resultSnapshot.timeline); } catch (error) { alert(error.message); return; } } renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result"); if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare."); });
-$("#result-continue").addEventListener("click", async () => { state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
+$("#lock-placement").addEventListener("click", async () => { viewingLatestRound = false; const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } }; currentPlacementCorrect = placementIsCorrect(); if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(placedAt, 0, { ...resultCard, status: "FELPLACERAT" }); } else { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot }; save(); } stopCurrentTrack(); resultIsLocked = true; $("#result-back").hidden = true; $("#placed-message").textContent = "PLACERING LÅST"; if (!currentPlacementCorrect) { try { await handoverTurn(resultSnapshot.timeline); } catch (error) { alert(error.message); return; } } renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result"); if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare."); });
+$("#result-continue").addEventListener("click", async () => { state.pendingResult = null; state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#change-track-area").addEventListener("click", async (event) => {
   if (!event.target.closest("#use-change-track")) return;
   try { await dealCard(); } catch (error) { alert(error.message); return; } state.changeTrackCards--; save(); render(); resetTurnInput(); showView("guess"); startCurrentTrack();
 });
 $("#result-lock").addEventListener("click", async () => {
   try {
-    const won = await handoverTurn();
+    state.pendingResult = null; save(); const won = await handoverTurn();
     resultIsLocked = true; $("#result-back").hidden = true; showView("home", true); dialog(won ? "Du vann matchen!" : "Korten är låsta. Turen har gått vidare till nästa spelare.");
   } catch (error) { alert(error.message); }
 });
