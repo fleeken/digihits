@@ -268,6 +268,21 @@ async function syncMatches() {
   if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
 }
 function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {})); }
+async function refreshActiveRound() {
+  if (!["guess", "timeline"].includes(currentView)) return;
+  const match = state.matches.find((item) => item.code === state.activeMatchCode && item.status === "active");
+  if (!match?.id) return;
+  const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
+  const player = (await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=current_card,turn_cards,locked_timeline`))[0];
+  if (!player?.current_card) return;
+  state.currentCard = player.current_card; state.currentCardMatchCode = match.code; state.roundUnlocked = player.turn_cards || []; state.lockedTimeline = player.locked_timeline || state.lockedTimeline; save();
+}
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState === "visible" && supabaseAuth.session()?.access_token) {
+    await syncMatches().catch(() => {});
+    await refreshActiveRound().catch(() => {});
+  }
+});
 async function createOnlineMatch() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); const matchCode = code();
   const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
