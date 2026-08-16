@@ -163,7 +163,7 @@ function render() {
     const players = `${match.solo || match.status === "waiting" ? "1" : "2"} spelare · Omgång ${match.round || 1}`;
     const lock = match.locked ? "🔒" : "🔓";
     const lockLabel = match.locked ? "Match låst" : "Match olåst";
-    return `<article class="match ${match.status}"><button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button><div class="match-top"><strong>${match.title}</strong></div><small>${players}</small><div class="match-status">● ${status}</div><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div><div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
+    return `<article class="match ${match.status}"><button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button><div class="match-top"><strong>${match.title}</strong></div><small>${players}</small><div class="match-status">● ${status}</div>${match.solo ? "" : `<div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
   };
   const soloMatches = state.matches.filter((match) => match.solo);
   const active = state.matches.filter((match) => !match.solo && (match.status === "active" || match.status === "opponent"));
@@ -212,7 +212,8 @@ function openMatch(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
   state.activeMatchCode = matchCode; save();
-  $("#overview-code").textContent = match.code;
+  $("#overview-code").textContent = match.solo ? "SOLOMATCH" : match.code;
+  $("#overview-code").previousElementSibling.textContent = match.solo ? "SPELTYP" : "MATCHKOD";
   $("#overview-players-count").textContent = match.solo ? "1" : "2";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
   $("#overview-round").textContent = "1";
