@@ -177,7 +177,7 @@ function render() {
   $("#stat-streak").textContent = `${state.stats.streak} st`;
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
   $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
-  $("#change-track-area").innerHTML = state.changeTrackCards ? `<button class="button change-track-button" id="use-change-track" type="button">ANVÄND ETT BYT-LÅT-KORT ${state.changeTrackCards}/3</button>` : `<p class="no-change-cards">Du har inga byt-låt-kort 0/3.</p>`;
+  $("#change-track-area").innerHTML = `<button class="button change-track-button" id="use-change-track" type="button"${state.changeTrackCards ? "" : " disabled"}>ANVÄND ETT BYT-LÅT-KORT ${state.changeTrackCards}/3</button>${state.changeTrackCards ? "" : `<p class="no-change-cards">Du har inga byt-låt-kort.</p>`}`;
   $("#change-track-area").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box"; $("#lock-placement").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box";
   const matches = $("#matches");
   const renderCard = (match) => {

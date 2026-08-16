@@ -188,3 +188,4 @@ h1{font-size:31px;}
 .locked-card{background:#202632;}
 .action-card .button + .button{margin-top:8px;}.section-subtitle{font-size:12px;margin:14px 16px 7px;color:#dce4f2;}.history-match.solo-win{border-color:#25854e;border-left-color:#72ffad;}.history-match.solo-win span{border-color:#25854e;color:#72ffad;}
 .match-metrics.solo-metrics{grid-template-columns:repeat(2,1fr);}.match-metrics.solo-metrics>div:first-child{display:none!important;}
+.change-track-button:disabled{opacity:.55;cursor:not-allowed;}
