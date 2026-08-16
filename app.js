@@ -313,7 +313,7 @@ async function syncMatches() {
   save(); render();
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode);
   if ((currentView === "lobby" || currentView === "match") && activeMatch) openMatch(activeMatch.code);
-  if (["guess", "timeline"].includes(currentView) && activeMatch && activeMatch.status !== "active") openMatch(activeMatch.code);
+  if (["guess", "timeline"].includes(currentView) && !resultIsLocked && activeMatch && activeMatch.status !== "active") openMatch(activeMatch.code);
   if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
 }
 function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {})); }
@@ -451,7 +451,7 @@ async function handoverTurn(savedTimeline = null) {
     state.soloStats.fewestMistakes = state.soloStats.fewestMistakes === null || state.soloStats.fewestMistakes === undefined ? mistakes : Math.min(state.soloStats.fewestMistakes, mistakes);
     state.history.unshift({ title: "Solomatch", mode: "solo", leaveReason: `VINST – ${rounds} OMGÅNGAR` });
   }
-  state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.changeTrackCards = earnedSwapCard ? (minePlayer.swap_cards || 0) + 1 : minePlayer.swap_cards || 0; state.currentCard = null; state.currentCardMatchCode = null; save(); syncMatches().catch(() => {});
+  state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.changeTrackCards = earnedSwapCard ? (minePlayer.swap_cards || 0) + 1 : minePlayer.swap_cards || 0; state.currentCard = null; state.currentCardMatchCode = null; save();
   return { won, earnedSwapCard };
 }
 async function dealCard() {
