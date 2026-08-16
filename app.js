@@ -125,7 +125,7 @@ function closeHomeAccordions() {
   document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
 }
 function renderRoundResult(correct, card = activeCard(), snapshot = null) {
-  const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo);
+  const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo || String(state.activeMatchCode || "").startsWith("S0"));
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "TILLBAKA TILL DINA MATCHER"; wrongButton.addEventListener("click", () => { state.roundUnlocked = []; save(); showView("home", true); }); $("#result-back").after(wrongButton); }
   if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.className = "lobby-back wrong-match-button"; overviewButton.type = "button"; overviewButton.textContent = "TILL MATCHÖVERSIKT"; overviewButton.addEventListener("click", () => openMatch(state.activeMatchCode)); wrongButton.after(overviewButton); }
@@ -546,7 +546,7 @@ async function restoreResultView() {
 }
 $("#lock-placement").addEventListener("click", async () => {
   viewingLatestRound = false;
-  const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo);
+  const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo || String(state.activeMatchCode || "").startsWith("S0"));
   const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } };
   currentPlacementCorrect = placementIsCorrect();
   if (solo) { const score = soloProgress(state.matches.find((match) => match.code === state.activeMatchCode)); currentPlacementCorrect ? score.correct += 1 : score.mistakes += 1; save(); }
@@ -571,6 +571,7 @@ $("#change-track-area").addEventListener("click", async (event) => {
 });
 $("#result-lock").addEventListener("click", async () => {
   try {
+    if (String(state.activeMatchCode || "").startsWith("S0")) return;
     state.pendingResult = null; save(); const outcome = await handoverTurn();
     resultIsLocked = true; $("#result-back").hidden = true; showView("home", true); dialog(outcome.earnedSwapCard ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!" : outcome.won ? "Du vann matchen!" : "Korten är låsta. Turen har gått vidare till nästa spelare.");
   } catch (error) { alert(error.message); }
