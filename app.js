@@ -211,6 +211,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
   document.documentElement.classList.remove("booting");
   const gameView = view === "guess" || view === "timeline";
   if (!gameView) stopCurrentTrack(true);
+  if (view === "timeline") $("#change-track-area").hidden = false;
   currentView = view;
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
