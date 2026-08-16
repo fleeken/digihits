@@ -61,6 +61,12 @@ async function ensureSpotifyPlayer() {
   return spotifyPlayerReady;
 }
 const normaliseTrackText = (value) => String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const answerText = (value) => String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(/\s+/).filter((word, index) => !(index === 0 && ["the", "a", "an", "en", "ett", "den", "det", "de"].includes(word))).join("");
+function editDistance(left, right) { const row = Array.from({ length: right.length + 1 }, (_, index) => index); for (let i = 1; i <= left.length; i += 1) { let previous = row[0]; row[0] = i; for (let j = 1; j <= right.length; j += 1) { const saved = row[j]; row[j] = Math.min(row[j] + 1, row[j - 1] + 1, previous + (left[i - 1] === right[j - 1] ? 0 : 1)); previous = saved; } } return row[right.length]; }
+function closeAnswer(answer, expected) { const left = answerText(answer), right = answerText(expected); if (!left || !right) return false; if (left === right) return true; return editDistance(left, right) <= (right.length <= 5 ? 1 : Math.max(1, Math.floor(right.length * 0.18))); }
+const artistAliases = Object.fromEntries(Object.entries({ "The Beatles": ["John Lennon", "Paul McCartney", "George Harrison", "Ringo Starr"], Queen: ["Freddie Mercury"], ABBA: ["Agnetha Fältskog", "Anni-Frid Lyngstad", "Frida"], Roxette: ["Marie Fredriksson", "Per Gessle"], "The Police": ["Sting"], Eagles: ["Don Henley"], Nirvana: ["Kurt Cobain"], Oasis: ["Liam Gallagher", "Noel Gallagher"], Metallica: ["James Hetfield"], Coldplay: ["Chris Martin"], U2: ["Bono"], "The Rolling Stones": ["Mick Jagger", "Keith Richards"], "Fleetwood Mac": ["Stevie Nicks", "Lindsey Buckingham", "Christine McVie"], "Bee Gees": ["Barry Gibb", "Robin Gibb", "Maurice Gibb"], "Destiny's Child": ["Beyoncé", "Beyonce"], "Ace of Base": ["Jenny Berggren", "Linn Berggren", "Ulf Ekberg"], "Gyllene Tider": ["Per Gessle"], Kent: ["Joakim Berg"] }).map(([artist, aliases]) => [answerText(artist), aliases]));
+artistAliases[answerText("Jackson 5")] = ["Michael Jackson"];
+function artistAnswerMatches(answer, expected) { const aliases = artistAliases[answerText(expected)] || [], parts = String(answer).split(/\s*(?:,|&|\/|\boch\b|\band\b)\s*/i).map((part) => part.trim()).filter(Boolean); if (closeAnswer(answer, expected)) return true; if (parts.length === 1) return aliases.some((alias) => closeAnswer(parts[0], alias)); return parts.length <= 3 && parts.every((part) => aliases.some((alias) => closeAnswer(part, alias))); }
 const unsuitableSpotifyVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 async function resolveSpotifyTrack(token, card) {
   const cached = state.selectedTracks[card.id];
@@ -134,7 +140,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#result-song").textContent = `${card.title} – ${card.artist} (${card.year})`;
   const answers = document.querySelectorAll(".result-checks .result-check");
   [["artist", "Artist"], ["title", "Låtnamn"]].forEach(([key, label], index) => {
-    const right = String(guess[key] || "").toLowerCase() === String(card[key]).toLowerCase();
+    const right = key === "artist" ? artistAnswerMatches(guess[key], card[key]) : closeAnswer(guess[key], card[key]);
     answers[index + 1].className = `result-check ${right ? "good" : "bad"}`;
     answers[index + 1].innerHTML = `${right ? "☑" : "✕"} &nbsp; ${right ? "Rätt" : "Fel"} ${label.toLowerCase()}<small>Du skrev: ${guess[key] || "–"}</small>`;
   });
@@ -305,7 +311,7 @@ async function updateSwapCards(delta) {
 }
 function hasCorrectSongGuess(card) {
   const guess = state.currentGuess || {};
-  return normaliseTrackText(guess.artist) === normaliseTrackText(card.artist) && normaliseTrackText(guess.title) === normaliseTrackText(card.title);
+  return artistAnswerMatches(guess.artist, card.artist) && closeAnswer(guess.title, card.title);
 }
 function addMatch(matchCode) {
   state.matches.unshift({ code: matchCode, title: `${state.playerName}, väntar på motspelare`, status: "waiting" });
