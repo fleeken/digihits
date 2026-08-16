@@ -54,7 +54,7 @@ async function ensureSpotifyPlayer() {
   if (spotifyDeviceId) return spotifyDeviceId;
   if (spotifyPlayerReady) return spotifyPlayerReady;
   spotifyPlayerReady = new Promise(async (resolve, reject) => {
-    if (!window.Spotify) await new Promise((ready, fail) => { window.onSpotifyWebPlaybackSDKReady = ready; setTimeout(() => fail(new Error("Spotify-spelaren kunde inte laddas.")), 10000); });
+    if (!window.Spotify) await new Promise((ready, fail) => { window.addEventListener("digihits-spotify-ready", ready, { once: true }); setTimeout(() => fail(new Error("Spotify-spelaren kunde inte laddas.")), 10000); });
     spotifyPlayer = new window.Spotify.Player({ name: "Digihits", getOAuthToken: (callback) => supabaseAuth.spotifyToken().then(callback).catch(() => callback("")), volume: 0.7 });
     spotifyPlayer.addListener("ready", ({ device_id }) => { spotifyDeviceId = device_id; resolve(device_id); });
     spotifyPlayer.addListener("not_ready", resetSpotifyPlayer);
@@ -75,7 +75,8 @@ const unsuitableSpotifyVersion = /(cover|karaoke|instrumental|tribute|live|sped 
 async function resolveSpotifyTrack(token, card) {
   const cached = state.selectedTracks[card.id];
   if (cached?.uri) return cached;
-  const search = await fetch(`https://api.spotify.com/v1/search?type=track&limit=50&market=SE&q=${encodeURIComponent(`track:${card.title} artist:${card.artist}`)}`, { headers: { Authorization: `Bearer ${token}` } });
+  const search = await fetch(`https://api.spotify.com/v1/search?type=track&limit=10&market=SE&q=${encodeURIComponent(`${card.title} ${card.artist}`)}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!search.ok) { const error = new Error("Spotify kunde inte söka efter låten."); error.code = "SPOTIFY_SEARCH"; throw error; }
   const items = (await search.json()).tracks?.items || [];
   const title = normaliseTrackText(card.title), artist = normaliseTrackText(card.artist);
   const usable = items.filter((item) => item.type === "track" && item.is_playable !== false && !unsuitableSpotifyVersion.test(`${item.name} ${item.album?.name || ""}`));
@@ -95,22 +96,18 @@ async function playableSpotifyTrack(token, replacements = 0) {
     return playableSpotifyTrack(token, replacements + 1);
   }
 }
-async function playCurrentTrack(reconnect = true, replacements = 0) {
-  try {
-    const token = await supabaseAuth.spotifyToken(), track = await playableSpotifyTrack(token), card = activeCard();
-    const device = await ensureSpotifyPlayer(); if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer?.pause().catch(() => {}); await spotifyPlayer?.seek(0).catch(() => {});
-    const transfer = await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
-    if (!transfer.ok) throw new Error("Spotify kunde inte ansluta spelaren.");
-    await new Promise((resolve) => setTimeout(resolve, 180));
-    const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri], position_ms: 0 }) });
-    if (!play.ok) throw new Error("Spotify kunde inte starta låten.");
-    setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 250); setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 750);
-    loadedSpotifyCardId = card.id; wasPausedByUser = false; pausedForNavigation = false; updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
-  } catch (error) {
-    if (reconnect) { resetSpotifyPlayer(); return playCurrentTrack(false, replacements); }
-    if (replacements < 10) { await dealCard(); resetSpotifyPlayer(); return playCurrentTrack(true, replacements + 1); }
-    throw error;
-  }
+async function playCurrentTrack(retry = true) {
+  const token = await supabaseAuth.spotifyToken(), track = await playableSpotifyTrack(token), card = activeCard();
+  const device = await ensureSpotifyPlayer(); if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer?.pause().catch(() => {}); await spotifyPlayer?.seek(0).catch(() => {});
+  const transfer = await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
+  if (!transfer.ok && retry) { resetSpotifyPlayer(); return playCurrentTrack(false); }
+  if (!transfer.ok) throw new Error("Spotify kunde inte ansluta spelaren.");
+  await new Promise((resolve) => setTimeout(resolve, 180));
+  const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri], position_ms: 0 }) });
+  if (!play.ok && retry) { resetSpotifyPlayer(); return playCurrentTrack(false); }
+  if (!play.ok) throw new Error("Spotify kunde inte starta låten.");
+  setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 250); setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 750);
+  loadedSpotifyCardId = card.id; wasPausedByUser = false; pausedForNavigation = false; updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
 }
 function setPlayButton(playing) { spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
 function stopCurrentTrack(keepForResume = false) { Promise.resolve(spotifyPlayer?.pause()).catch(() => {}); clearInterval(songTimer); pausedForNavigation = keepForResume && Boolean(state.currentCard && loadedSpotifyCardId); if (!keepForResume) { loadedSpotifyCardId = null; pausedForNavigation = false; } setPlayButton(false); }
