@@ -238,7 +238,9 @@ function openMatch(matchCode) {
   state.activeMatchCode = matchCode; save();
   $("#overview-code").textContent = match.solo ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = match.solo ? "SPELTYP" : "MATCHKOD";
-  $("#overview-players-count").parentElement.hidden = match.solo;
+  const playersMetric = $("#overview-players-count").parentElement;
+  playersMetric.hidden = match.solo;
+  playersMetric.style.display = match.solo ? "none" : "";
   $("#next-round").nextElementSibling.hidden = match.solo;
   $("#overview-players-count").textContent = match.solo ? "1" : "2";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
