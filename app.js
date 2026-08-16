@@ -177,7 +177,7 @@ function render() {
   $("#stat-streak").textContent = `${state.stats.streak} st`;
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
   $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
-  $("#change-track-area").innerHTML = `<button class="button change-track-button" id="use-change-track" type="button"${state.changeTrackCards ? "" : " disabled"}>ANVÄND ETT BYT-LÅT-KORT ${state.changeTrackCards}/3</button>${state.changeTrackCards ? "" : `<p class="no-change-cards">Du har inga byt-låt-kort.</p>`}`;
+  $("#change-track-area").innerHTML = `<button class="button change-track-button" id="use-change-track" type="button" aria-disabled="${!state.changeTrackCards}">ANVÄND ETT BYT-LÅT-KORT ${state.changeTrackCards}/3</button>${state.changeTrackCards ? "" : `<p class="no-change-cards">Du har inga byt-låt-kort.</p>`}`;
   $("#change-track-area").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box"; $("#lock-placement").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box";
   const matches = $("#matches");
   const renderCard = (match) => {
@@ -568,6 +568,7 @@ $("#lock-placement").addEventListener("click", async () => {
 $("#result-continue").addEventListener("click", async () => { const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { if (solo) await markRoundStarted(); else await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#change-track-area").addEventListener("click", async (event) => {
   if (!event.target.closest("#use-change-track")) return;
+  if (!state.changeTrackCards) { dialog("Du har inga byt-låt-kort."); return; }
   dialog("Är du säker på att du vill använda ett av dina byt-låt-kort?", async () => { try { await dealCard(); await updateSwapCards(-1); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); }, false, "ANVÄND BYT-LÅT-KORT");
 });
 $("#result-lock").addEventListener("click", async () => {
