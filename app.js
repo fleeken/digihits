@@ -394,6 +394,7 @@ $("#result-lock").addEventListener("click", async () => {
 });
 $("#result-back").addEventListener("click", () => { if (viewingLatestRound) { viewingLatestRound = false; showView("match"); } else if (!currentPlacementCorrect) { state.roundUnlocked = []; save(); showView("home", true); } else showView("match"); });
 $("#brand-home").addEventListener("click", () => showView(currentView === "welcome" ? "welcome" : "home"));
+$("#install-app").addEventListener("click", () => dialog("I Safari: tryck på Dela-knappen längst ned, välj Lägg till på hemskärmen och bekräfta."));
 window.addEventListener("popstate", (event) => {
   if (resultIsLocked && currentView === "result") { history.pushState({ view: "result" }, "", "#result"); return; }
   showView(event.state?.view || "welcome", false, true);
