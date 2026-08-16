@@ -235,12 +235,13 @@ function openLobby(matchCode) {
 function openMatch(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
+  const soloMatch = Boolean(match.solo || String(match.code || "").startsWith("S0") || match.title === "Solomatch");
   state.activeMatchCode = matchCode; save();
   $("#overview-code").textContent = match.solo ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = match.solo ? "SPELTYP" : "MATCHKOD";
   const playersMetric = $("#overview-players-count").parentElement;
-  playersMetric.hidden = match.solo;
-  playersMetric.style.display = match.solo ? "none" : "";
+  playersMetric.hidden = soloMatch;
+  playersMetric.style.display = soloMatch ? "none" : "";
   $("#next-round").nextElementSibling.hidden = match.solo;
   $("#overview-players-count").textContent = match.solo ? "1" : "2";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
@@ -269,10 +270,10 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
       const correct = Math.max(1, (player.locked_timeline || []).length);
       const mistakes = Math.max(0, (player.rounds_started || 0) - Math.max(0, correct - 1));
       const match = state.matches.find((item) => item.id === matchId);
-      if (match) state.soloProgress[match.code] = { correct, mistakes };
-      $("#overview-round").textContent = String(mistakes);
+      const score = match ? (state.soloProgress[match.code] ||= { correct, mistakes }) : { correct, mistakes };
+      $("#overview-round").textContent = String(score.mistakes);
       $("#overview-round-label").textContent = "FELPLACERADE";
-      $("#overview-target").textContent = String(correct);
+      $("#overview-target").textContent = String(score.correct);
       $("#overview-target-label").textContent = "RÄTT PLACERADE";
     } else {
       $("#overview-round").textContent = String(Math.max(1, ...players.map((player) => player.rounds_started || 0)));
@@ -516,7 +517,7 @@ async function restoreRoundUnlocked() {
   const rows = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=turn_cards,current_card,locked_timeline,swap_cards,rounds_started`);
   state.roundUnlocked = rows[0]?.turn_cards || [];
   state.lockedTimeline = rows[0]?.locked_timeline || state.lockedTimeline;
-  state.currentCard = rows[0]?.current_card || null; state.currentCardMatchCode = state.currentCard ? match.code : null; state.changeTrackCards = rows[0]?.swap_cards || 0; if (match.solo) state.soloProgress[match.code] = { correct: state.lockedTimeline.length, mistakes: Math.max(0, (rows[0]?.rounds_started || 0) - Math.max(0, state.lockedTimeline.length - 1)) };
+  state.currentCard = rows[0]?.current_card || null; state.currentCardMatchCode = state.currentCard ? match.code : null; state.changeTrackCards = rows[0]?.swap_cards || 0; if (match.solo) state.soloProgress[match.code] ||= { correct: state.lockedTimeline.length, mistakes: Math.max(0, (rows[0]?.rounds_started || 0) - Math.max(0, state.lockedTimeline.length - 1)) };
   save(); resetTurnInput();
 }
 async function markRoundStarted() {
