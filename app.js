@@ -75,17 +75,28 @@ const unsuitableSpotifyVersion = /(cover|karaoke|instrumental|tribute|live|sped 
 async function resolveSpotifyTrack(token, card) {
   const cached = state.selectedTracks[card.id];
   if (cached?.uri) return cached;
-  const search = await fetch(`https://api.spotify.com/v1/search?type=track&limit=10&market=SE&q=${encodeURIComponent(`track:${card.title} artist:${card.artist}`)}`, { headers: { Authorization: `Bearer ${token}` } });
+  const search = await fetch(`https://api.spotify.com/v1/search?type=track&limit=50&market=SE&q=${encodeURIComponent(`track:${card.title} artist:${card.artist}`)}`, { headers: { Authorization: `Bearer ${token}` } });
   const items = (await search.json()).tracks?.items || [];
   const title = normaliseTrackText(card.title), artist = normaliseTrackText(card.artist);
-  const track = items.find((item) => item.type === "track" && item.is_playable !== false && !unsuitableSpotifyVersion.test(`${item.name} ${item.album?.name || ""}`) && normaliseTrackText(item.name).startsWith(title) && item.artists.some((entry) => normaliseTrackText(entry.name) === artist));
-  if (!track) throw new Error("Spotify kunde inte verifiera rätt originalversion av låten.");
+  const usable = items.filter((item) => item.type === "track" && item.is_playable !== false && !unsuitableSpotifyVersion.test(`${item.name} ${item.album?.name || ""}`));
+  const titleMatch = (item) => { const value = normaliseTrackText(item.name); return value === title || value.startsWith(title) || title.startsWith(value); };
+  const artistMatch = (item) => item.artists.some((entry) => { const value = normaliseTrackText(entry.name); return value === artist || value.includes(artist) || artist.includes(value); });
+  const track = usable.find((item) => titleMatch(item) && artistMatch(item));
+  if (!track) { const error = new Error("Spotify kunde inte verifiera rätt originalversion av låten."); error.code = "TRACK_NOT_FOUND"; throw error; }
   const resolved = { uri: track.uri, duration_ms: track.duration_ms };
   state.selectedTracks[card.id] = resolved; save();
   return resolved;
 }
+async function playableSpotifyTrack(token, replacements = 0) {
+  try { return await resolveSpotifyTrack(token, activeCard()); }
+  catch (error) {
+    if (error?.code !== "TRACK_NOT_FOUND" || replacements >= 3) throw error;
+    await dealCard();
+    return playableSpotifyTrack(token, replacements + 1);
+  }
+}
 async function playCurrentTrack(retry = true) {
-  const token = await supabaseAuth.spotifyToken(), card = activeCard(), track = await resolveSpotifyTrack(token, card);
+  const token = await supabaseAuth.spotifyToken(), track = await playableSpotifyTrack(token), card = activeCard();
   const device = await ensureSpotifyPlayer(); if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer?.pause().catch(() => {}); await spotifyPlayer?.seek(0).catch(() => {});
   const transfer = await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
   if (!transfer.ok && retry) { resetSpotifyPlayer(); return playCurrentTrack(false); }
