@@ -126,8 +126,9 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const correctCards = locked.length + (correct ? 1 : 0);
   $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
   $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------";
+  $("#result-code").style.color = solo ? "#ff8b9d" : "";
   $("#result-code").classList.toggle("solo-mistake-count", solo);
-  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong>${correctCards}</strong>`;
+  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong style="color:#72ffad">${correctCards}</strong>`;
   $(".result-actions").classList.toggle("solo-result-actions", solo);
   const cards = [...unlocked, { ...card, status: solo ? (correct ? "RÄTT PLACERAT" : "FEL PLACERAT") : correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.title} – ${card.artist} (${card.year})`;
@@ -140,7 +141,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
   $("#placement-result").textContent = solo ? (correct ? "☑  Rätt placerat" : "✕  Fel placerat") : correct ? "☑  Rätt placering" : "✕  Fel placering";
   const timeline = snapshot?.timeline || [...locked.map((item, index) => ({ ...item, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
-  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${/FEL ?PLACERAT/.test(item.status) ? "misplaced-card" : solo ? "correct-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${item.status}</span></small></article>`).join("");
+  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(item.status) ? "misplaced-card" : solo ? "correct-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${item.status}</span></small></article>`).join("");
   $("#result-continue").hidden = !correct && !solo;
   $("#result-lock").hidden = !correct || solo; $("#change-track-area").hidden = !correct || solo;
   const onlyContinue = !$("#result-continue").hidden && $("#result-lock").hidden;
@@ -265,7 +266,7 @@ function showLatestRound(round) {
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
   const wrong = round.outcome === "wrong"; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; wrongButton.hidden = true; $("#placement-result").className = `result-check ${wrong ? "bad" : "good"}`; $("#placement-result").textContent = solo ? (wrong ? "✕  Fel placerat" : "☑  Rätt placerat") : wrong ? "✕  Fel placering" : "☑  Rätt placering";
   const overviewButton = $("#wrong-overview"); if (overviewButton) overviewButton.hidden = true;
-  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${/FEL ?PLACERAT/.test(card.status) ? "misplaced-card" : solo ? "correct-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</span></small></article>`).join("");
+  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${card.status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(card.status) ? "misplaced-card" : solo ? "correct-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</span></small></article>`).join("");
   $("#result-continue").hidden = true; $("#result-lock").hidden = true; showView("result");
 }
 
@@ -290,7 +291,7 @@ function resetTurnInput() {
   state.currentGuess = null; $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = "";
   const cards = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...state.roundUnlocked].sort((a, b) => a.year - b.year);
   const slot = (index) => `<div class="slot" data-slot="${index}">PLACERA<br>HÄR</div>`;
-  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status}</span></small></article>`).join("") + slot(cards.length);
+  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "STARTKORT" ? "locked-card" : card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status}</span></small></article>`).join("") + slot(cards.length);
 }
 
 async function updateSwapCards(delta) {
