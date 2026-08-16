@@ -9,7 +9,7 @@ state.stats ||= { wins: 0, losses: 0, walkovers: 0, streak: 0 };
 state.stats.currentStreak ||= 0;
 state.settledResults ||= [];
 state.selectedTracks ||= {};
-state.changeTrackCards ??= 1;
+state.changeTrackCards ??= 0;
 state.roundUnlocked ||= [];
 state.lockedTimeline ||= [{ id: "starter-1983", year: 1983, artist: "The Police", title: "Every Breath You Take" }];
 state.currentCard ||= null;
@@ -177,11 +177,10 @@ function openMatch(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
   state.activeMatchCode = matchCode; save();
-  if (match.status === "waiting") { openLobby(matchCode); return; }
   $("#overview-code").textContent = match.code;
-  const isYourTurn = match.status === "active";
+  const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
   $("#overview-round").textContent = "1";
-  $("#turn-message").textContent = isYourTurn ? "DIN TUR" : "VÄNTAR PÅ TESTSPELARE";
+  $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
   $("#turn-message").classList.toggle("waiting", !isYourTurn);
   $("#next-round").classList.toggle("is-visible", isYourTurn);
   $("#overview-players").innerHTML = `<article class="overview-player ${isYourTurn ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">1</span><strong>${state.playerName}</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article><article class="overview-player"><div class="overview-player-header"><span class="turn-order">2</span><strong>Testspelare</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`;
@@ -245,8 +244,10 @@ async function syncMatches() {
   let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
   state.matches = rows.map((row) => { const match = row.online_matches, opponent = players.find((player) => player.match_id === row.match_id && player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent" }; }).filter(Boolean);
   save(); render();
-  const lobbyMatch = state.matches.find((match) => match.code === state.activeMatchCode);
-  if (currentView === "lobby" && lobbyMatch && lobbyMatch.status !== "waiting") openMatch(lobbyMatch.code);
+  const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode);
+  if ((currentView === "lobby" || currentView === "match") && activeMatch) openMatch(activeMatch.code);
+  if (["guess", "timeline"].includes(currentView) && activeMatch && activeMatch.status !== "active") openMatch(activeMatch.code);
+  if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
 }
 function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {})); }
 async function createOnlineMatch() {
@@ -254,7 +255,7 @@ async function createOnlineMatch() {
   const starter = testDeck[Math.floor(Math.random() * testDeck.length)], deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
   const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
-  await syncMatches(); openLobby(matchCode);
+  state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 async function joinOnlineMatch(matchCode) {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
@@ -267,7 +268,7 @@ async function joinOnlineMatch(matchCode) {
   const starter = available[Math.floor(Math.random() * available.length)];
   await supabaseAuth.dataRequest("online_players", { match_id: match.id, user_id: user.id, display_name: state.playerName, turn_order: players.length, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
-  await syncMatches();
+  state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 
 function addTestMatches() {
