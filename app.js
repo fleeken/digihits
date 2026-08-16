@@ -6,6 +6,8 @@ const state = JSON.parse(localStorage.getItem(storageKey) || "null") || {
 };
 state.history ||= [];
 state.stats ||= { wins: 0, losses: 0, walkovers: 0, streak: 0 };
+state.stats.currentStreak ||= 0;
+state.settledResults ||= [];
 state.selectedTracks ||= {};
 state.changeTrackCards ??= 1;
 state.roundUnlocked ||= [];
@@ -78,6 +80,13 @@ function dialog(message, action, danger = false) {
 window.alert = (message) => dialog(String(message));
 
 function save() { localStorage.setItem(storageKey, JSON.stringify(state)); }
+function settleResult(match, userId) {
+  const result = match.last_result;
+  if (!result?.winner_id || state.settledResults.includes(match.id)) return;
+  const won = result.winner_id === userId;
+  state.stats.wins += won ? 1 : 0; state.stats.losses += won ? 0 : 1; state.stats.walkovers += won && result.type === "walkover" ? 1 : 0; state.stats.currentStreak = won ? state.stats.currentStreak + 1 : 0; state.stats.streak = Math.max(state.stats.streak, state.stats.currentStreak);
+  state.settledResults.push(match.id); save();
+}
 function closeHomeAccordions() {
   document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
 }
@@ -231,7 +240,8 @@ function addMatch(matchCode) {
 }
 async function syncMatches() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
-  const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,current_user_id)`);
+  const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,current_user_id,last_result)`);
+  rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id); });
   let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
   state.matches = rows.map((row) => { const match = row.online_matches, opponent = players.find((player) => player.match_id === row.match_id && player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent" }; }).filter(Boolean);
   save(); render();
@@ -280,7 +290,7 @@ $("#matches").addEventListener("click", (event) => {
   if (openButton) { openMatch(openButton.dataset.openMatch); return; }
   const deleteButton = event.target.closest("[data-delete-match]");
   if (deleteButton) {
-    dialog("Vill du verkligen lämna matchen?", async () => { const match = state.matches.find((item) => item.code === deleteButton.dataset.deleteMatch); if (!match) return; try { await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "finished", updated_at: new Date().toISOString() }, "PATCH"); state.history.unshift({ ...match, leaveReason: match.status === "waiting" ? "DU LÄMNADE INNAN MATCHSTART" : "DU LÄMNADE - WALK OVER" }); await syncMatches(); } catch (error) { alert(error.message); } }, true);
+    dialog("Vill du verkligen lämna matchen?", async () => { const match = state.matches.find((item) => item.code === deleteButton.dataset.deleteMatch); if (!match) return; try { const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=user_id`), winner = players.find((player) => player.user_id !== user.id)?.user_id; await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "finished", last_result: winner ? { winner_id: winner, type: "walkover" } : null, updated_at: new Date().toISOString() }, "PATCH"); state.history.unshift({ ...match, leaveReason: match.status === "waiting" ? "DU LÄMNADE INNAN MATCHSTART" : "DU LÄMNADE - WALK OVER" }); await syncMatches(); } catch (error) { alert(error.message); } }, true);
   }
 });
 $("#copy-lobby-code").addEventListener("click", async () => {
@@ -334,11 +344,13 @@ async function handoverTurn(savedTimeline = null) {
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=id,user_id,turn_order,locked_timeline&order=turn_order`);
   const mine = players.findIndex((player) => player.user_id === user.id), minePlayer = players[mine], next = players[(mine + 1) % players.length];
   const currentCard = activeCard(), cardsToLock = currentPlacementCorrect ? [...state.roundUnlocked, currentCard] : [];
+  const target = (await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=target_cards`))[0]?.target_cards || 10, won = currentPlacementCorrect && (minePlayer.locked_timeline || []).length + cardsToLock.length >= target;
   const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" })), { ...currentCard, status: "FELPLACERAT" }];
-  const lastRound = { ended_at: new Date().toISOString(), outcome: currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card) => ({ ...card, status: "LÅST" })), ...roundCards] };
+  const lastRound = { ended_at: new Date().toISOString(), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card) => ({ ...card, status: "LÅST" })), ...roundCards] };
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, updated_at: new Date().toISOString() }, "PATCH");
-  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { current_user_id: next.user_id, phase: "turn_ready", last_result: { ...lastRound, player_id: user.id }, updated_at: new Date().toISOString() }, "PATCH");
+  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: user.id, type: "win" } : {}) }, updated_at: new Date().toISOString() }, "PATCH");
   state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.currentCard = null; save(); syncMatches().catch(() => {});
+  return won;
 }
 async function dealCard() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
@@ -376,8 +388,8 @@ $("#change-track-area").addEventListener("click", async (event) => {
 });
 $("#result-lock").addEventListener("click", async () => {
   try {
-    await handoverTurn();
-    resultIsLocked = true; $("#result-back").hidden = true; showView("home", true); dialog("Korten är låsta. Turen har gått vidare till nästa spelare.");
+    const won = await handoverTurn();
+    resultIsLocked = true; $("#result-back").hidden = true; showView("home", true); dialog(won ? "Du vann matchen!" : "Korten är låsta. Turen har gått vidare till nästa spelare.");
   } catch (error) { alert(error.message); }
 });
 $("#result-back").addEventListener("click", () => { if (viewingLatestRound) { viewingLatestRound = false; showView("match"); } else if (!currentPlacementCorrect) { state.roundUnlocked = []; save(); showView("home", true); } else showView("match"); });
@@ -387,7 +399,7 @@ window.addEventListener("popstate", (event) => {
   showView(event.state?.view || "welcome", false, true);
 });
 $("#reset-history").addEventListener("click", () => dialog("Vill du nollställa all historik?", () => { state.history = []; save(); render(); }, true));
-$("#reset-stats").addEventListener("click", () => dialog("Vill du nollställa all statistik?", () => { state.stats = { wins: 0, losses: 0, walkovers: 0, streak: 0 }; save(); render(); }, true));
+$("#reset-stats").addEventListener("click", () => dialog("Vill du nollställa all statistik?", () => { state.stats = { wins: 0, losses: 0, walkovers: 0, streak: 0, currentStreak: 0 }; save(); render(); }, true));
 $("#change-password").addEventListener("click", () => showView("change-password"));
 $("#logout").addEventListener("click", () => { supabaseAuth.signOut(); showView("welcome"); });
 $("#delete-account").addEventListener("click", () => { $("#delete-confirmation").value = ""; $("#delete-error").hidden = true; $("#delete-modal").hidden = false; $("#delete-confirmation").focus(); });
