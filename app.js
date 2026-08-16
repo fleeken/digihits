@@ -42,7 +42,7 @@ function rememberTrack(card) {
   state.recentTrackIds = [card.id, ...state.recentTrackIds.filter((id) => id !== card.id)].slice(0, 6);
 }
 const songTime = (milliseconds) => `${Math.floor(milliseconds / 60000)}:${String(Math.floor(milliseconds / 1000) % 60).padStart(2, "0")}`;
-function resetSpotifyPlayer() { spotifyDeviceId = null; spotifyPlayerReady = null; loadedSpotifyCardId = null; spotifyPlaying = false; wasPausedByUser = false; pausedForNavigation = false; }
+function resetSpotifyPlayer() { spotifyPlayer?.disconnect?.().catch(() => {}); spotifyPlayer = null; spotifyDeviceId = null; spotifyPlayerReady = null; loadedSpotifyCardId = null; spotifyPlaying = false; wasPausedByUser = false; pausedForNavigation = false; }
 function updateSongTimeline(position, duration, playing) {
   songPosition = position; songDuration = duration || songDuration; $("#song-timeline").hidden = !songDuration; if (songDuration) $("#song-timeline").removeAttribute("hidden"); $("#song-current").textContent = songTime(songPosition); $("#song-duration").textContent = songTime(songDuration); $("#song-progress").style.width = `${songDuration ? Math.min(100, songPosition / songDuration * 100) : 0}%`;
   clearInterval(songTimer); if (playing) songTimer = setInterval(() => updateSongTimeline(Math.min(songDuration, songPosition + 500), songDuration, true), 500);
@@ -85,6 +85,7 @@ async function playCurrentTrack(retry = true) {
   const token = await supabaseAuth.spotifyToken(), card = activeCard(), track = await resolveSpotifyTrack(token, card);
   const device = await ensureSpotifyPlayer(); if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer?.pause().catch(() => {}); await spotifyPlayer?.seek(0).catch(() => {});
   const transfer = await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
+  if (!transfer.ok && retry) { resetSpotifyPlayer(); return playCurrentTrack(false); }
   if (!transfer.ok) throw new Error("Spotify kunde inte ansluta spelaren.");
   await new Promise((resolve) => setTimeout(resolve, 180));
   const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri], position_ms: 0 }) });
@@ -104,8 +105,8 @@ if (document.documentElement.classList.contains("spotify-callback")) $("#spotify
 let currentView = "welcome";
 let resultIsLocked = false;
 const code = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
-function dialog(message, action, danger = false) {
-  $("#dialog-message").textContent = message; $("#dialog-cancel").hidden = !action; $("#dialog-confirm").textContent = action ? "FORTSÄTT" : "OK"; $("#dialog-confirm").className = `button ${danger ? "button-leave" : "button-primary"}`; $("#app-dialog").hidden = false;
+function dialog(message, action, danger = false, confirmText = "FORTSÄTT") {
+  $("#dialog-message").textContent = message; $("#dialog-cancel").hidden = !action; $("#dialog-confirm").textContent = action ? confirmText : "OK"; $("#dialog-confirm").className = `button ${danger ? "button-leave" : "button-primary"}`; $("#app-dialog").hidden = false;
   $("#dialog-cancel").onclick = () => { $("#app-dialog").hidden = true; };
   $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; action?.(); };
 }
@@ -367,6 +368,7 @@ async function refreshActiveRound() {
 }
 document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState === "visible" && supabaseAuth.session()?.access_token) {
+    if (spotifyPlayer && !(await spotifyPlayer.getCurrentState().catch(() => null))) resetSpotifyPlayer();
     await syncMatches().catch(() => {});
     await refreshActiveRound().catch(() => {});
   }
@@ -580,8 +582,10 @@ window.addEventListener("popstate", (event) => {
   if (resultIsLocked && currentView === "result") { history.pushState({ view: "result" }, "", "#result"); return; }
   showView(event.state?.view || "welcome", false, true);
 });
-$("#reset-history").addEventListener("click", () => dialog("Vill du nollställa all historik?", () => { state.history = []; save(); render(); }, true));
-$("#reset-stats").addEventListener("click", () => dialog("Vill du nollställa all statistik?", () => { state.stats = { wins: 0, losses: 0, walkovers: 0, streak: 0, currentStreak: 0 }; state.soloStats = { bestRounds: null, fewestMistakes: null }; save(); render(); }, true));
+$("#reset-solo-stats").addEventListener("click", () => dialog("Nollställ statistik för solomatcher?", () => { state.soloStats = { bestRounds: null, fewestMistakes: null }; save(); render(); }, true, "NOLLSTÄLL"));
+$("#reset-online-stats").addEventListener("click", () => dialog("Nollställ statistik för onlinematcher?", () => { state.stats = { wins: 0, losses: 0, walkovers: 0, streak: 0, currentStreak: 0 }; save(); render(); }, true, "NOLLSTÄLL"));
+$("#reset-solo-history").addEventListener("click", () => dialog("Nollställ avslutade solomatcher?", () => { state.history = state.history.filter((match) => match.mode !== "solo"); save(); render(); }, true, "NOLLSTÄLL"));
+$("#reset-online-history").addEventListener("click", () => dialog("Nollställ avslutade onlinematcher?", () => { state.history = state.history.filter((match) => match.mode === "solo"); save(); render(); }, true, "NOLLSTÄLL"));
 $("#change-password").addEventListener("click", () => showView("change-password"));
 $("#logout").addEventListener("click", () => { supabaseAuth.signOut(); showView("welcome"); });
 $("#delete-account").addEventListener("click", () => { $("#delete-confirmation").value = ""; $("#delete-error").hidden = true; $("#delete-modal").hidden = false; $("#delete-confirmation").focus(); });

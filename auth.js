@@ -27,9 +27,9 @@ const supabaseAuth = (() => {
     if (!response.ok) throw new Error(data.msg || data.message || "Kunde inte kontakta kontotjänsten.");
     return data;
   }
+  const tokenExpiresSoon = (token) => { try { return JSON.parse(atob(token.split(".")[1].replaceAll("-", "+").replaceAll("_", "/"))).exp * 1000 < Date.now() + 60000; } catch { return true; } };
   async function dataRequest(path, body, method = "GET") {
-    const token = supabaseAuth.session()?.access_token;
-    if (!token) throw new Error("Logga in igen.");
+    const token = (await supabaseAuth.refreshSession()).access_token;
     const response = await fetch(`${root}/rest/v1/${path}`, { method, headers: { apikey: key, Authorization: `Bearer ${token}`, "Content-Type": "application/json", Prefer: "return=representation" }, ...(body ? { body: JSON.stringify(body) } : {}) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.message || "Kunde inte kontakta matchservern.");
@@ -45,6 +45,16 @@ const supabaseAuth = (() => {
       const data = await request("/token?grant_type=password", { email, password });
       localStorage.setItem(sessionKey, JSON.stringify(data));
       return data;
+    },
+    async refreshSession(force = false) {
+      const session = this.session();
+      if (!session?.access_token) throw new Error("Logga in igen.");
+      if (!force && !tokenExpiresSoon(session.access_token)) return session;
+      if (!session.refresh_token) throw new Error("Logga in igen.");
+      const refreshed = await request("/token?grant_type=refresh_token", { refresh_token: session.refresh_token });
+      const next = { ...session, ...refreshed, refresh_token: refreshed.refresh_token || session.refresh_token };
+      localStorage.setItem(sessionKey, JSON.stringify(next));
+      return next;
     },
     verify(email, password) { return request("/token?grant_type=password", { email, password }); },
     async playerNameTaken(name) {
@@ -79,6 +89,7 @@ const supabaseAuth = (() => {
     },
     async user(accessToken) {
       const response = await fetch(`${root}/auth/v1/user`, { headers: { apikey: key, Authorization: `Bearer ${accessToken}` } });
+      if (!response.ok && accessToken === this.session()?.access_token) return this.user((await this.refreshSession(true)).access_token);
       if (!response.ok) throw new Error("Kunde inte läsa kontot.");
       return response.json();
     },
