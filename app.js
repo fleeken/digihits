@@ -203,8 +203,11 @@ function render() {
   matches.innerHTML = state.matches.length ? `<h3 class="match-group-title">Mina solomatcher</h3>${soloMatches.length ? soloMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga solomatcher.</p>`}<h3 class="match-group-title">Mina onlinematcher</h3>${onlineMatches.length ? onlineMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga onlinematcher.</p>`}` : `<p class="muted">Du har inga matcher än.</p>`;
   const historyCard = (match) => `<article class="history-match ${match.mode === "solo" && match.leaveReason.includes("VINST") ? "solo-win" : match.leaveReason === "DU LÄMNADE INNAN MATCHSTART" ? "early-leave" : "walkover"}"><strong>${match.title}</strong><span>${match.leaveReason}</span></article>`;
   const soloHistory = state.history.filter((match) => match.mode === "solo"), onlineHistory = state.history.filter((match) => match.mode !== "solo");
-  $("#solo-history").innerHTML = soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`;
-  $("#online-history").innerHTML = onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`;
+  const soloHistoryElement = $("#solo-history"), onlineHistoryElement = $("#online-history");
+  if (soloHistoryElement && onlineHistoryElement) {
+    soloHistoryElement.innerHTML = soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`;
+    onlineHistoryElement.innerHTML = onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`;
+  }
 }
 
 function showView(view, focusMatches = false, fromHistory = false) {
