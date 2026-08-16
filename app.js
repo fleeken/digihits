@@ -163,7 +163,7 @@ function render() {
   $("#change-track-area").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box"; $("#lock-placement").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box";
   const matches = $("#matches");
   const renderCard = (match) => {
-    const label = match.solo ? "ÖPPNA SOLOMATCH" : match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
+    const label = match.solo ? "ÖPPNA SOLOMATCH HÄR" : match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
     const status = match.solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
     const players = `${match.status === "waiting" ? "1" : "2"} spelare · Omgång ${match.round || 1}`;
     const lock = match.locked ? "🔒" : "🔓";
