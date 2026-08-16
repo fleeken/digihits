@@ -165,10 +165,10 @@ function render() {
   const renderCard = (match) => {
     const label = match.solo ? "ÖPPNA SOLOMATCH" : match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
     const status = match.solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
-    const players = `${match.solo || match.status === "waiting" ? "1" : "2"} spelare · Omgång ${match.round || 1}`;
+    const players = `${match.status === "waiting" ? "1" : "2"} spelare · Omgång ${match.round || 1}`;
     const lock = match.locked ? "🔒" : "🔓";
     const lockLabel = match.locked ? "Match låst" : "Match olåst";
-    return `<article class="match ${match.status}"><button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button><div class="match-top"><strong>${match.title}</strong></div><small>${players}</small><div class="match-status">● ${status}</div>${match.solo ? "" : `<div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
+    return `<article class="match ${match.solo ? "solo" : match.status}"><button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button><div class="match-top"><strong>${match.title}</strong></div>${match.solo ? "" : `<small>${players}</small><div class="match-status">● ${status}</div><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
   };
   const soloMatches = state.matches.filter((match) => match.solo);
   const active = state.matches.filter((match) => !match.solo && (match.status === "active" || match.status === "opponent"));
@@ -221,10 +221,12 @@ function openMatch(matchCode) {
   state.activeMatchCode = matchCode; save();
   $("#overview-code").textContent = match.solo ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = match.solo ? "SPELTYP" : "MATCHKOD";
+  $("#overview-players-count").parentElement.hidden = match.solo;
   $("#next-round").nextElementSibling.hidden = match.solo;
   $("#overview-players-count").textContent = match.solo ? "1" : "2";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
   $("#overview-round").textContent = "1";
+  $("#turn-message").hidden = match.solo;
   $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
   $("#turn-message").classList.toggle("waiting", !isYourTurn);
   const pendingRound = state.pendingResult?.matchCode === matchCode || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === matchCode));

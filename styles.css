@@ -142,6 +142,7 @@ input{width:100%;margin-top:7px;height:42px;border-radius:10px;border:1px solid 
 .match{border:1px solid #2fcd75;background:#0d2a1c;border-radius:14px;padding:14px;position:relative;}
 .match.waiting{border-color:#4fc9ee;background:#102b3a;}
 .match.opponent{border-color:#d6a916;background:#30260f;}
+.match.solo{border-color:#a764f5;background:#27153f;}
 
 .match-top,.match-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;}
 .match-code{margin-top:12px;padding-top:10px;border-top:1px solid #46604f;color:#bdc9d8;font-size:11px;font-weight:800;}
@@ -150,6 +151,7 @@ input{width:100%;margin-top:7px;height:42px;border-radius:10px;border:1px solid 
 .match-footer{display:flex;align-items:center;gap:9px;margin-top:10px;}.match-open{flex:1;border:1px solid #2fcd75;background:#092517;color:#8fffc0;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:900;text-align:left;cursor:pointer;}.match-card-actions{display:flex;gap:6px;}.match-icon{width:32px;height:30px;border-radius:8px;font-size:14px;cursor:pointer;}.lock-icon{border:1px solid #2fcd75;background:#092517;}.delete-icon{border:1px solid #b94856;background:#30151a;}
 .match-footer{display:flex;align-items:center;gap:9px;margin-top:10px;}.match-open{flex:1;border:1px solid #2fcd75;background:#092517;color:#8fffc0;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:900;text-align:left;cursor:pointer;}.match-card-actions{display:flex;gap:6px;}.match-icon{width:32px;height:30px;border-radius:8px;font-size:14px;cursor:pointer;}.delete-icon{border:1px solid #b94856;background:#30151a;}.match-lock-top{position:absolute;right:12px;top:11px;width:32px;height:30px;border:1px solid #2fcd75;background:#092517;border-radius:8px;font-size:14px;line-height:1;cursor:pointer;}.match-lock-top.is-unlocked{font-size:17px;}
 .match.waiting .match-open{border-color:#4fc9ee;background:#102b3a;color:#83ddfb;}.match.opponent .match-open{border-color:#d6a916;background:#30260f;color:#ffdb62;}
+.match.solo .match-open{border-color:#a764f5;background:#21102f;color:#e2c5ff;}
 .waiting .match-status{color:#ffdb62;}
 .waiting .match-status{color:#83ddfb;}.opponent .match-status{color:#ffdb62;}
 
