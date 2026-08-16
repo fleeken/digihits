@@ -76,12 +76,14 @@ async function resolveSpotifyTrack(token, card) {
 }
 async function playCurrentTrack(retry = true) {
   const token = await supabaseAuth.spotifyToken(), card = activeCard(), track = await resolveSpotifyTrack(token, card);
-  const device = await ensureSpotifyPlayer(); if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer?.pause().catch(() => {});
-  await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
+  const device = await ensureSpotifyPlayer(); if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer?.pause().catch(() => {}); await spotifyPlayer?.seek(0).catch(() => {});
+  const transfer = await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
+  if (!transfer.ok) throw new Error("Spotify kunde inte ansluta spelaren.");
+  await new Promise((resolve) => setTimeout(resolve, 180));
   const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri], position_ms: 0 }) });
   if (!play.ok && retry) { resetSpotifyPlayer(); return playCurrentTrack(false); }
   if (!play.ok) throw new Error("Spotify kunde inte starta låten.");
-  setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 180);
+  setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 250); setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 750);
   loadedSpotifyCardId = card.id; wasPausedByUser = false; pausedForNavigation = false; updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
 }
 function setPlayButton(playing) { spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
@@ -119,11 +121,11 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "TILLBAKA TILL DINA MATCHER"; wrongButton.addEventListener("click", () => { state.roundUnlocked = []; save(); showView("home", true); }); $("#result-back").after(wrongButton); }
   if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.className = "lobby-back wrong-match-button"; overviewButton.type = "button"; overviewButton.textContent = "TILL MATCHÖVERSIKT"; overviewButton.addEventListener("click", () => openMatch(state.activeMatchCode)); wrongButton.after(overviewButton); }
+  const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
   const correctCards = locked.length + (correct ? 1 : 0);
   $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
   $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------";
-  const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const cards = [...unlocked, { ...card, status: solo ? (correct ? "RÄTT PLACERAT" : "FEL PLACERAT") : correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.title} – ${card.artist} (${card.year})`;
   const answers = document.querySelectorAll(".result-checks .result-check");
@@ -394,7 +396,7 @@ $("#copy-lobby-code").addEventListener("click", async () => {
 $("#lobby-leave").addEventListener("click", () => showView("home"));
 $("#next-round").addEventListener("click", async () => { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = true; resultIsLocked = true; renderRoundResult(true, pending.card, pending.snapshot); showView("result"); return; } let existingCard; try { await restoreRoundUnlocked(); existingCard = Boolean(state.currentCard); if (!existingCard) { state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard(); } } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); if (existingCard) { pausedForNavigation = true; resumeRoundTrack(); } else startCurrentTrack(); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
-$("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } if (spotifyPlaying) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } catch (error) { alert(error.message); } });
+$("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } if (spotifyPlaying) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else { const playerState = await spotifyPlayer?.getCurrentState().catch(() => null), expected = state.selectedTracks[activeCard().id]?.uri, sameTrack = expected && playerState?.track_window?.current_track?.uri === expected; if ((wasPausedByUser || pausedForNavigation) && sameTrack) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } } catch (error) { alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { loadedSpotifyCardId = null; await playCurrentTrack(); } catch (error) { alert(error.message); } });
 $("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; save(); $("#change-track-area").hidden = false; showView("timeline"); });
 $("#skip-guess").addEventListener("click", () => { $("#change-track-area").hidden = false; showView("timeline"); });
