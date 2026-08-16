@@ -161,7 +161,7 @@ dialog{border:1px solid #4a5870;border-radius:16px;background:#151a23;color:#fff
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
 
 @media(max-width:640px){
-  .brand{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px 12px;}.install-home{display:block;border:1px solid #4bd3ff;background:#102b3a;color:#83ddfb;border-radius:8px;padding:7px 9px;font:800 9px/1 inherit;}
+  .brand{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px 12px;}.install-home{display:block;border:1px solid #4bd3ff;background:#102b3a;color:#83ddfb;border-radius:8px;padding:6px 8px;font:800 8px/1 inherit;}
 .app-shell{width:min(100% - 18px,860px);}
 h1{font-size:31px;}
 .hero{padding:18px;}

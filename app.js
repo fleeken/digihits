@@ -106,7 +106,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
   $("#placement-result").textContent = correct ? "☑  Rätt placering" : "✕  Fel placering";
   const timeline = snapshot?.timeline || [...locked.map((item) => ({ ...item, status: "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
-  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "FELPLACERAT" ? "misplaced-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small>${item.title}<br>${item.artist}<br>${item.status}</small></article>`).join("");
+  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "FELPLACERAT" ? "misplaced-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small>${item.title}<br>${item.artist}<br><br>${item.status}</small></article>`).join("");
   $("#result-continue").hidden = !correct;
   $("#result-lock").hidden = !correct; $("#change-track-area").hidden = !correct;
   $("#result-back").hidden = true; wrongButton.hidden = correct;
@@ -134,7 +134,7 @@ function render() {
   const renderCard = (match) => {
     const label = match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
     const status = match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
-    const players = match.status === "waiting" ? "1 spelare · Omgång 1" : "2 spelare · Omgång 1";
+    const players = `${match.status === "waiting" ? "1" : "2"} spelare · Omgång ${match.round || 1}`;
     const lock = match.locked ? "🔒" : "🔓";
     const lockLabel = match.locked ? "Match låst" : "Match olåst";
     return `<article class="match ${match.status}"><button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button><div class="match-top"><strong>${match.title}</strong></div><small>${players}</small><div class="match-status">● ${status}</div><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div><div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
@@ -194,8 +194,9 @@ function openMatch(matchCode) {
 }
 async function loadOverviewPlayers(matchId, isYourTurn) {
   try {
-    const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,display_name,turn_order,locked_timeline,last_round&order=turn_order`);
+    const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,display_name,turn_order,locked_timeline,last_round,rounds_started&order=turn_order`);
     players.forEach((player) => { latestRounds[player.id] = player.last_round; });
+    $("#overview-round").textContent = String(Math.max(1, ...players.map((player) => player.rounds_started || 0)));
     $("#overview-players").innerHTML = players.map((player, index) => `<article class="overview-player ${isYourTurn && index === 0 ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">${player.turn_order + 1}</span><strong>${player.display_name}</strong></div><small>${(player.locked_timeline || []).length}/10 låsta kort · ${player.last_round?.outcome === "locked" ? (player.last_round.cards || []).length : 0} olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" data-player-round="${player.id}" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`).join("");
   } catch { /* matchvyn behåller sin lokala reservvy */ }
 }
@@ -210,7 +211,7 @@ function showLatestRound(round) {
   let wrongButton = $("#wrong-matches");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
   const wrong = round.outcome === "wrong"; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; wrongButton.hidden = true; $("#placement-result").className = `result-check ${wrong ? "bad" : "good"}`; $("#placement-result").textContent = wrong ? "✕  Fel placering" : "☑  Rätt placering";
-  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${card.status === "FELPLACERAT" ? "misplaced-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${card.year}</strong><small>${card.title}<br>${card.artist}<br>${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</small></article>`).join("");
+  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${card.status === "FELPLACERAT" ? "misplaced-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${card.year}</strong><small>${card.title}<br>${card.artist}<br><br>${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</small></article>`).join("");
   $("#result-continue").hidden = true; $("#result-lock").hidden = true; showView("result");
 }
 
@@ -235,7 +236,7 @@ function resetTurnInput() {
   state.currentGuess = null; $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = "";
   const cards = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked].sort((a, b) => a.year - b.year);
   const slot = (index) => `<div class="slot" data-slot="${index}">PLACERA<br>HÄR</div>`;
-  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small>${card.title}<br>${card.artist}<br>${card.status}</small></article>`).join("") + slot(cards.length);
+  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small>${card.title}<br>${card.artist}<br><br>${card.status}</small></article>`).join("") + slot(cards.length);
 }
 
 function addMatch(matchCode) {
@@ -244,10 +245,10 @@ function addMatch(matchCode) {
 }
 async function syncMatches() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
-  const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,current_user_id,last_result)`);
+  const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,phase,current_user_id,last_result)`);
   rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id); });
-  let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
-  state.matches = rows.map((row) => { const match = row.online_matches, opponent = players.find((player) => player.match_id === row.match_id && player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent" }; }).filter(Boolean);
+  let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name,rounds_started`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
+  state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => player.match_id === row.match_id), opponent = matchPlayers.find((player) => player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent", locked: match.phase === "locked", round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)) }; }).filter(Boolean);
   save(); render();
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode);
   if ((currentView === "lobby" || currentView === "match") && activeMatch) openMatch(activeMatch.code);
@@ -265,7 +266,9 @@ async function createOnlineMatch() {
 async function joinOnlineMatch(matchCode) {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const found = await supabaseAuth.dataRequest(`online_matches?code=eq.${matchCode}&select=*`); const match = found[0];
-  if (!match || match.status !== "waiting") throw new Error("Matchkoden hittades inte eller matchen är redan startad.");
+  if (!match) throw new Error("Matchkoden hittades inte.");
+  if (match.phase === "locked") throw new Error("Matchen är låst eftersom andra omgången redan är påbörjad.");
+  if (match.status !== "waiting") throw new Error("Matchkoden hittades inte eller matchen är redan startad.");
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=*`);
   if (players.some((player) => player.user_id === user.id)) throw new Error("Du är redan med i matchen.");
   const available = (match.deck?.length ? match.deck : testDeck).filter((card) => !(match.used_track_ids || []).includes(card.id));
@@ -307,7 +310,7 @@ $("#copy-lobby-code").addEventListener("click", async () => {
   button.classList.add("is-copied");
 });
 $("#lobby-leave").addEventListener("click", () => showView("home"));
-$("#next-round").addEventListener("click", async () => { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = true; resultIsLocked = true; renderRoundResult(true, pending.card, pending.snapshot); showView("result"); return; } let existingCard; try { await restoreRoundUnlocked(); existingCard = Boolean(state.currentCard); if (!existingCard) { state.roundUnlocked = []; save(); await dealCard(); } } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); if (existingCard) { pausedForNavigation = true; resumeRoundTrack(); } else startCurrentTrack(); });
+$("#next-round").addEventListener("click", async () => { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = true; resultIsLocked = true; renderRoundResult(true, pending.card, pending.snapshot); showView("result"); return; } let existingCard; try { await restoreRoundUnlocked(); existingCard = Boolean(state.currentCard); if (!existingCard) { state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard(); } } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); if (existingCard) { pausedForNavigation = true; resumeRoundTrack(); } else startCurrentTrack(); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 $("#play-sample").addEventListener("click", async () => { try { if (spotifyPlaying) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && spotifyPlayer && loadedSpotifyCardId === activeCard().id) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { loadedSpotifyCardId = null; await playCurrentTrack(); } catch (error) { alert(error.message); } });
@@ -347,14 +350,15 @@ async function handoverTurn(savedTimeline = null) {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match?.id) return;
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
-  const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=id,user_id,turn_order,locked_timeline&order=turn_order`);
+  const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=id,user_id,turn_order,locked_timeline,rounds_started&order=turn_order`);
   const mine = players.findIndex((player) => player.user_id === user.id), minePlayer = players[mine], next = players[(mine + 1) % players.length];
   const currentCard = activeCard(), cardsToLock = currentPlacementCorrect ? [...state.roundUnlocked, currentCard] : [];
   const target = (await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=target_cards`))[0]?.target_cards || 10, won = currentPlacementCorrect && (minePlayer.locked_timeline || []).length + cardsToLock.length >= target;
   const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" })), { ...currentCard, status: "FELPLACERAT" }];
   const lastRound = { ended_at: new Date().toISOString(), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card) => ({ ...card, status: "LÅST" })), ...roundCards] };
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, updated_at: new Date().toISOString() }, "PATCH");
-  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: user.id, type: "win" } : {}) }, updated_at: new Date().toISOString() }, "PATCH");
+  const lockMatch = match.locked || (minePlayer.rounds_started || 0) >= 2;
+  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : lockMatch ? "locked" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: user.id, type: "win" } : {}) }, updated_at: new Date().toISOString() }, "PATCH");
   state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.currentCard = null; state.currentCardMatchCode = null; save(); syncMatches().catch(() => {});
   return won;
 }
@@ -385,6 +389,14 @@ async function restoreRoundUnlocked() {
   state.lockedTimeline = rows[0]?.locked_timeline || state.lockedTimeline;
   state.currentCard = rows[0]?.current_card || null; state.currentCardMatchCode = state.currentCard ? match.code : null;
   save(); resetTurnInput();
+}
+async function markRoundStarted() {
+  const match = state.matches.find((item) => item.code === state.activeMatchCode);
+  if (!match?.id) return;
+  const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
+  const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=id,rounds_started`);
+  const player = players[0];
+  if (player) await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: (player.rounds_started || 0) + 1, updated_at: new Date().toISOString() }, "PATCH");
 }
 $("#lock-placement").addEventListener("click", async () => { viewingLatestRound = false; const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } }; currentPlacementCorrect = placementIsCorrect(); if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(placedAt, 0, { ...resultCard, status: "FELPLACERAT" }); } else { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot }; save(); } stopCurrentTrack(); resultIsLocked = true; $("#result-back").hidden = true; $("#placed-message").textContent = "PLACERING LÅST"; if (!currentPlacementCorrect) { try { await handoverTurn(resultSnapshot.timeline); } catch (error) { alert(error.message); return; } } renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result"); if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare."); });
 $("#result-continue").addEventListener("click", async () => { state.pendingResult = null; state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
