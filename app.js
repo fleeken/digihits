@@ -7,7 +7,7 @@ const state = JSON.parse(localStorage.getItem(storageKey) || "null") || {
 state.history ||= [];
 state.stats ||= { wins: 0, losses: 0, walkovers: 0, streak: 0 };
 state.stats.currentStreak ||= 0;
-state.soloStats ||= { bestRounds: null };
+state.soloStats ||= { bestRounds: null, fewestMistakes: null };
 state.settledResults ||= [];
 state.selectedTracks ||= {};
 state.recentTrackIds ||= [];
@@ -115,12 +115,16 @@ function closeHomeAccordions() {
   document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
 }
 function renderRoundResult(correct, card = activeCard(), snapshot = null) {
+  const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo);
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "TILLBAKA TILL DINA MATCHER"; wrongButton.addEventListener("click", () => { state.roundUnlocked = []; save(); showView("home", true); }); $("#result-back").after(wrongButton); }
   if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.className = "lobby-back wrong-match-button"; overviewButton.type = "button"; overviewButton.textContent = "TILL MATCHÖVERSIKT"; overviewButton.addEventListener("click", () => openMatch(state.activeMatchCode)); wrongButton.after(overviewButton); }
-  $("#result-code").textContent = state.activeMatchCode || "------";
+  const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
+  const correctCards = locked.length + (correct ? 1 : 0);
+  $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
+  $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------";
   const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
-  const cards = [...unlocked, { ...card, status: correct ? "OLÅST" : "FELPLACERAT" }];
+  const cards = [...unlocked, { ...card, status: solo ? (correct ? "RÄTT PLACERAT" : "FEL PLACERAT") : correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.title} – ${card.artist} (${card.year})`;
   const answers = document.querySelectorAll(".result-checks .result-check");
   [["artist", "Artist"], ["title", "Låtnamn"]].forEach(([key, label], index) => {
@@ -129,12 +133,12 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
     answers[index + 1].innerHTML = `${right ? "☑" : "✕"} &nbsp; ${right ? "Rätt" : "Fel"} ${label.toLowerCase()}<small>Du skrev: ${guess[key] || "–"}</small>`;
   });
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
-  $("#placement-result").textContent = correct ? "☑  Rätt placering" : "✕  Fel placering";
-  const timeline = snapshot?.timeline || [...locked.map((item) => ({ ...item, status: "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
-  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "FELPLACERAT" ? "misplaced-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${item.status}</span></small></article>`).join("");
-  $("#result-continue").hidden = !correct;
-  $("#result-lock").hidden = !correct; $("#change-track-area").hidden = !correct;
-  $("#result-back").hidden = true; wrongButton.hidden = correct; overviewButton.hidden = correct;
+  $("#placement-result").textContent = solo ? (correct ? "☑  Rätt placerat" : "✕  Fel placerat") : correct ? "☑  Rätt placering" : "✕  Fel placering";
+  const timeline = snapshot?.timeline || [...locked.map((item) => ({ ...item, status: solo ? "RÄTT PLACERAT" : "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
+  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${/FEL ?PLACERAT/.test(item.status) ? "misplaced-card" : solo ? "correct-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${item.status}</span></small></article>`).join("");
+  $("#result-continue").hidden = !correct && !solo;
+  $("#result-lock").hidden = !correct || solo; $("#change-track-area").hidden = !correct || solo;
+  $("#result-back").hidden = true; wrongButton.hidden = correct || solo; overviewButton.hidden = correct || solo;
   $("#result-lock").textContent = `🔒 LÅS IN ${unlocked.length + (correct ? 1 : 0)} KORT`;
 }
 
@@ -154,6 +158,7 @@ function render() {
   $("#stat-walkovers").textContent = `${state.stats.walkovers} st`;
   $("#stat-streak").textContent = `${state.stats.streak} st`;
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
+  $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
   $("#change-track-area").innerHTML = state.changeTrackCards ? `<button class="button change-track-button" id="use-change-track" type="button">ANVÄND BYT-LÅT-KORT ${state.changeTrackCards}/3</button>` : `<p class="no-change-cards">Du har inga byt-låt-kort.</p>`;
   $("#change-track-area").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box"; $("#lock-placement").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box";
   const matches = $("#matches");
@@ -216,6 +221,7 @@ function openMatch(matchCode) {
   state.activeMatchCode = matchCode; save();
   $("#overview-code").textContent = match.solo ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = match.solo ? "SPELTYP" : "MATCHKOD";
+  $("#next-round").nextElementSibling.hidden = match.solo;
   $("#overview-players-count").textContent = match.solo ? "1" : "2";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
   $("#overview-round").textContent = "1";
@@ -241,15 +247,15 @@ function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
   const playedCard = (round.cards || []).at(-1);
-  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`; $("#result-code").textContent = state.activeMatchCode || "------";
+  if (playedCard) $("#result-song").textContent = `${playedCard.title} – ${playedCard.artist} (${playedCard.year})`; const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = (round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------";
   const latestTimeline = (round.timeline || round.cards || []).slice();
   if (round.outcome !== "wrong") latestTimeline.sort((a, b) => a.year - b.year);
   round.timeline = latestTimeline;
   let wrongButton = $("#wrong-matches");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
-  const wrong = round.outcome === "wrong"; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; wrongButton.hidden = true; $("#placement-result").className = `result-check ${wrong ? "bad" : "good"}`; $("#placement-result").textContent = wrong ? "✕  Fel placering" : "☑  Rätt placering";
+  const wrong = round.outcome === "wrong"; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; wrongButton.hidden = true; $("#placement-result").className = `result-check ${wrong ? "bad" : "good"}`; $("#placement-result").textContent = solo ? (wrong ? "✕  Fel placerat" : "☑  Rätt placerat") : wrong ? "✕  Fel placering" : "☑  Rätt placering";
   const overviewButton = $("#wrong-overview"); if (overviewButton) overviewButton.hidden = true;
-  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${card.status === "FELPLACERAT" ? "misplaced-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</span></small></article>`).join("");
+  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${/FEL ?PLACERAT/.test(card.status) ? "misplaced-card" : solo ? "correct-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</span></small></article>`).join("");
   $("#result-continue").hidden = true; $("#result-lock").hidden = true; showView("result");
 }
 
@@ -429,14 +435,16 @@ async function handoverTurn(savedTimeline = null) {
   const mine = players.findIndex((player) => player.user_id === user.id), minePlayer = players[mine], next = players[(mine + 1) % players.length];
   const currentCard = activeCard(), cardsToLock = currentPlacementCorrect ? [...state.roundUnlocked, currentCard] : [], earnedSwapCard = false;
   const target = (await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=target_cards`))[0]?.target_cards || 10, won = currentPlacementCorrect && (minePlayer.locked_timeline || []).length + cardsToLock.length >= target;
-  const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" })), { ...currentCard, status: "FELPLACERAT" }];
-  const lastRound = { ended_at: new Date().toISOString(), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card) => ({ ...card, status: "LÅST" })), ...roundCards] };
+  const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" })), { ...currentCard, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }];
+  const lastRound = { ended_at: new Date().toISOString(), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "LÅST" })), ...roundCards] };
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, swap_cards: earnedSwapCard ? (minePlayer.swap_cards || 0) + 1 : minePlayer.swap_cards || 0, updated_at: new Date().toISOString() }, "PATCH");
   const lockMatch = match.locked || (minePlayer.rounds_started || 0) >= 2;
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : solo ? (lockMatch ? "solo_locked" : "solo") : lockMatch ? "locked" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: user.id, type: solo ? "solo" : "win" } : {}) }, updated_at: new Date().toISOString() }, "PATCH");
   if (won && solo) {
     const rounds = Math.max(1, minePlayer.rounds_started || 1);
+    const mistakes = Math.max(0, rounds - (target - 1));
     state.soloStats.bestRounds = state.soloStats.bestRounds ? Math.min(state.soloStats.bestRounds, rounds) : rounds;
+    state.soloStats.fewestMistakes = state.soloStats.fewestMistakes === null || state.soloStats.fewestMistakes === undefined ? mistakes : Math.min(state.soloStats.fewestMistakes, mistakes);
     state.history.unshift({ title: "Solomatch", mode: "solo", leaveReason: `VINST – ${rounds} OMGÅNGAR` });
   }
   state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.changeTrackCards = earnedSwapCard ? (minePlayer.swap_cards || 0) + 1 : minePlayer.swap_cards || 0; state.currentCard = null; state.currentCardMatchCode = null; save(); syncMatches().catch(() => {});
@@ -476,7 +484,7 @@ async function markRoundStarted() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=id,rounds_started`);
   const player = players[0];
-  if (player) await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: (player.rounds_started || 0) + 1, updated_at: new Date().toISOString() }, "PATCH");
+  if (player) { const rounds = (player.rounds_started || 0) + 1; await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: rounds, updated_at: new Date().toISOString() }, "PATCH"); const local = state.matches.find((match) => match.code === state.activeMatchCode); if (local) { local.round = rounds; save(); } }
 }
 async function restoreResultView() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
@@ -493,21 +501,24 @@ async function restoreResultView() {
 }
 $("#lock-placement").addEventListener("click", async () => {
   viewingLatestRound = false;
-  const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } };
+  const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo);
+  const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } };
   currentPlacementCorrect = placementIsCorrect();
   let earnedSwapCard = false;
   if (hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) {
     try { await updateSwapCards(1); earnedSwapCard = true; } catch (error) { alert(error.message); return; }
   }
-  if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(placedAt, 0, { ...resultCard, status: "FELPLACERAT" }); }
-  else { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot }; save(); }
+  if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(placedAt, 0, { ...resultCard, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
+  else if (!solo) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot }; save(); }
   stopCurrentTrack(); resultIsLocked = true; $("#result-back").hidden = true;
-  if (!currentPlacementCorrect) { try { await handoverTurn(resultSnapshot.timeline); } catch (error) { alert(error.message); return; } }
+  let soloOutcome;
+  if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); } catch (error) { alert(error.message); return; } }
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
-  if (earnedSwapCard) dialog("Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
+  if (soloOutcome?.won) $("#result-continue").hidden = true;
+  if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
   else if (!currentPlacementCorrect) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare.");
 });
-$("#result-continue").addEventListener("click", async () => { state.pendingResult = null; state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
+$("#result-continue").addEventListener("click", async () => { const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { if (!solo) await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#change-track-area").addEventListener("click", async (event) => {
   if (!event.target.closest("#use-change-track")) return;
   try { await dealCard(); await updateSwapCards(-1); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack();
@@ -526,7 +537,7 @@ window.addEventListener("popstate", (event) => {
   showView(event.state?.view || "welcome", false, true);
 });
 $("#reset-history").addEventListener("click", () => dialog("Vill du nollställa all historik?", () => { state.history = []; save(); render(); }, true));
-$("#reset-stats").addEventListener("click", () => dialog("Vill du nollställa all statistik?", () => { state.stats = { wins: 0, losses: 0, walkovers: 0, streak: 0, currentStreak: 0 }; state.soloStats = { bestRounds: null }; save(); render(); }, true));
+$("#reset-stats").addEventListener("click", () => dialog("Vill du nollställa all statistik?", () => { state.stats = { wins: 0, losses: 0, walkovers: 0, streak: 0, currentStreak: 0 }; state.soloStats = { bestRounds: null, fewestMistakes: null }; save(); render(); }, true));
 $("#change-password").addEventListener("click", () => showView("change-password"));
 $("#logout").addEventListener("click", () => { supabaseAuth.signOut(); showView("welcome"); });
 $("#delete-account").addEventListener("click", () => { $("#delete-confirmation").value = ""; $("#delete-error").hidden = true; $("#delete-modal").hidden = false; $("#delete-confirmation").focus(); });
@@ -536,7 +547,7 @@ $("#delete-account-form").addEventListener("submit", (event) => {
   if (confirmation !== "RADERA") { $("#delete-error").hidden = false; return; }
   $("#delete-error").hidden = true; $("#delete-progress").hidden = false; $("#delete-submit").disabled = true;
   supabaseAuth.deleteAccount(confirmation).then(() => {
-    state.playerName = "Spelare"; state.matches = []; state.history = []; state.stats = { wins: 0, losses: 0, walkovers: 0, streak: 0 }; state.soloStats = { bestRounds: null };
+    state.playerName = "Spelare"; state.matches = []; state.history = []; state.stats = { wins: 0, losses: 0, walkovers: 0, streak: 0 }; state.soloStats = { bestRounds: null, fewestMistakes: null };
     save(); supabaseAuth.signOut(); $("#delete-modal").hidden = true; showView("welcome"); alert("Kontot är raderat.");
   }).catch((error) => { $("#delete-error").textContent = error.message; $("#delete-error").hidden = false; }).finally(() => { $("#delete-progress").hidden = true; $("#delete-submit").disabled = false; });
 });
