@@ -178,3 +178,4 @@ h1{font-size:31px;}
 .year-card small{display:block;min-height:0;}
 .card-song{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;}
 .card-status{display:block;margin-top:6px;}
+.result-code{display:block;color:#4fc9ee;font-size:9px;font-weight:900;margin:4px 0 2px;}
