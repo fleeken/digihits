@@ -99,5 +99,26 @@ window.DIGIHITS_TRACKS = [
   [2013,"Robin Thicke","Blurred Lines"],[2014,"Hozier","Take Me to Church"],[2015,"Omi","Cheerleader"],
   [2016,"Sia","The Greatest"],[2017,"Camila Cabello","Havana"],[2018,"Lady Gaga","Shallow"],
   [2019,"Meduza","Piece Of Your Heart"],[2020,"Måneskin","Beggin'"],[2021,"Ed Sheeran","Bad Habits"],
-  [2022,"Sam Smith","Unholy"],[2023,"Miley Cyrus","Used To Be Young"],[2024,"Chappell Roan","Good Luck, Babe!"]
-].map(([year, artist, title], index) => ({ id: `digi-${String(index + 1).padStart(3, "0")}`, year, artist, title }));
+  [2022,"Sam Smith","Unholy"],[2023,"Miley Cyrus","Used To Be Young"],[2024,"Chappell Roan","Good Luck, Babe!"],
+  [1974,"ABBA","Waterloo","SE"],[1975,"ABBA","Mamma Mia","SE"],[1976,"ABBA","Fernando","SE"],
+  [1977,"ABBA","Take a Chance on Me","SE"],[1979,"ABBA","Gimme! Gimme! Gimme! (A Man After Midnight)","SE"],[1980,"ABBA","The Winner Takes It All","SE"],
+  [1980,"ABBA","Super Trouper","SE"],[1981,"Gyllene Tider","När vi två blir en","SE"],[1982,"Gyllene Tider","Sommartider","SE"],
+  [1982,"Tomas Ledin","Vi är på gång","SE"],[1983,"Carola","Främling","SE"],[1991,"Carola","Fångad av en stormvind","SE"],
+  [1986,"Europe","The Final Countdown","SE"],[1987,"Europe","Carrie","SE"],[1988,"Roxette","Listen to Your Heart","SE"],
+  [1989,"Roxette","The Look","SE"],[1990,"Roxette","It Must Have Been Love","SE"],[1991,"Roxette","Joyride","SE"],
+  [1992,"Dr. Alban","It's My Life","SE"],[1993,"Ace of Base","All That She Wants","SE"],[1993,"Ace of Base","The Sign","SE"],
+  [1994,"E-Type","This Is the Way","SE"],[1994,"Roxette","Sleeping in My Car","SE"],[1995,"Rednex","Cotton Eye Joe","SE"],
+  [1996,"The Cardigans","Lovefool","SE"],[1997,"Robyn","Show Me Love","SE"],[1998,"Ace of Base","Life Is a Flower","SE"],
+  [2000,"Alcazar","Crying at the Discoteque","SE"],[2000,"Kent","Musik non stop","SE"],[2000,"Håkan Hellström","Känn ingen sorg för mig Göteborg","SE"],
+  [2001,"Peaches","Rosa helikopter","SE"],[2002,"Kent","Dom andra","SE"],[2002,"Kent","Sverige","SE"],
+  [2003,"The Sounds","Living in America","SE"],[2004,"Eric Prydz","Call on Me","SE"],[2005,"September","Satellites","SE"],
+  [2006,"Basshunter","Boten Anna","SE"],[2006,"Carola","Evighet","SE"],[2007,"Mando Diao","Dance with Somebody","SE"],
+  [2011,"Lykke Li","I Follow Rivers","SE"],[2009,"Agnes","Release Me","SE"],[2010,"Robyn","Dancing On My Own","SE"],
+  [2010,"Oskar Linnros","Från och med du","SE"],[2011,"Veronica Maggio","Jag kommer","SE"],[2011,"Swedish House Mafia","Save the World","SE"],
+  [2011,"Avicii","Levels","SE"],[2012,"Loreen","Euphoria","SE"],[2012,"Swedish House Mafia","Don't You Worry Child","SE"],
+  [2013,"Avicii","Hey Brother","SE"],[2014,"Tove Lo","Habits (Stay High)","SE"],[2015,"Zara Larsson","Lush Life","SE"],
+  [2015,"Måns Zelmerlöw","Heroes","SE"],[2016,"Darin","Ta mig tillbaka","SE"],[2017,"Avicii","Without You","SE"],
+  [2017,"Zara Larsson","Symphony","SE"],[2018,"Benjamin Ingrosso","Dance You Off","SE"],[2019,"Molly Sandén","Rosa himmel","SE"],
+  [2020,"Victor Leksell","Svag","SE"],[2021,"Miss Li","Komplicerad","SE"],[2022,"Medina","In i dimman","SE"],
+  [2023,"Loreen","Tattoo","SE"],[2024,"Bolaget","Ikväll igen","SE"]
+].map(([year, artist, title, country], index) => ({ id: `digi-${String(index + 1).padStart(3, "0")}`, year, artist, title, country }));

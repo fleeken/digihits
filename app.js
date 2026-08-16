@@ -19,7 +19,10 @@ let viewingLatestRound = false;
 const latestRounds = {};
 let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, wasPausedByUser = false, pausedForNavigation = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer, trackStartPromise = null;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
-const testDeck = window.DIGIHITS_TRACKS;
+const testDeck = [...window.DIGIHITS_TRACKS.reduce((tracks, card) => {
+  tracks.set(`${card.artist}:${card.title}`.toLowerCase(), card);
+  return tracks;
+}, new Map()).values()];
 const activeCard = () => state.currentCard || testDeck[5];
 function expandedMatchDeck(deck = []) {
   const existing = new Set(deck.map((card) => `${normaliseTrackText(card.artist)}:${normaliseTrackText(card.title)}`));
@@ -29,7 +32,9 @@ function pickFreshTrack(cards, used = []) {
   const available = cards.filter((card) => !used.includes(card.id));
   const fresh = available.filter((card) => !state.recentTrackIds.includes(card.id));
   const pool = fresh.length ? fresh : available;
-  return pool[Math.floor(Math.random() * pool.length)];
+  const swedish = pool.filter((card) => card.country === "SE"), international = pool.filter((card) => card.country !== "SE");
+  const selection = swedish.length && (Math.random() < 0.3 || !international.length) ? swedish : international.length ? international : pool;
+  return selection[Math.floor(Math.random() * selection.length)];
 }
 function rememberTrack(card) {
   state.recentTrackIds = [card.id, ...state.recentTrackIds.filter((id) => id !== card.id)].slice(0, 6);
@@ -122,7 +127,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
   $("#placement-result").textContent = correct ? "☑  Rätt placering" : "✕  Fel placering";
   const timeline = snapshot?.timeline || [...locked.map((item) => ({ ...item, status: "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
-  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "FELPLACERAT" ? "misplaced-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small>${item.title}<br>${item.artist}<br><br>${item.status}</small></article>`).join("");
+  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "FELPLACERAT" ? "misplaced-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${item.status}</span></small></article>`).join("");
   $("#result-continue").hidden = !correct;
   $("#result-lock").hidden = !correct; $("#change-track-area").hidden = !correct;
   $("#result-back").hidden = true; wrongButton.hidden = correct;
@@ -227,7 +232,7 @@ function showLatestRound(round) {
   let wrongButton = $("#wrong-matches");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
   const wrong = round.outcome === "wrong"; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; wrongButton.hidden = true; $("#placement-result").className = `result-check ${wrong ? "bad" : "good"}`; $("#placement-result").textContent = wrong ? "✕  Fel placering" : "☑  Rätt placering";
-  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${card.status === "FELPLACERAT" ? "misplaced-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${card.year}</strong><small>${card.title}<br>${card.artist}<br><br>${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</small></article>`).join("");
+  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${card.status === "FELPLACERAT" ? "misplaced-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</span></small></article>`).join("");
   $("#result-continue").hidden = true; $("#result-lock").hidden = true; showView("result");
 }
 
@@ -252,7 +257,7 @@ function resetTurnInput() {
   state.currentGuess = null; $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = "";
   const cards = [...state.lockedTimeline.map((card) => ({ ...card, status: "LÅST" })), ...state.roundUnlocked].sort((a, b) => a.year - b.year);
   const slot = (index) => `<div class="slot" data-slot="${index}">PLACERA<br>HÄR</div>`;
-  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small>${card.title}<br>${card.artist}<br><br>${card.status}</small></article>`).join("") + slot(cards.length);
+  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status}</span></small></article>`).join("") + slot(cards.length);
 }
 
 function addMatch(matchCode) {

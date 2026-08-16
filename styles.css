@@ -174,3 +174,7 @@ h1{font-size:31px;}
 .spotify-connect{align-items:stretch;flex-direction:column;}.spotify-button{width:100%;}
 }
 .timeline-row{min-height:154px;padding-top:20px;padding-bottom:4px;}
+.timeline-row .year-card,.result-timeline .year-card{height:170px;box-sizing:border-box;}
+.year-card small{display:block;min-height:0;}
+.card-song{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;}
+.card-status{display:block;margin-top:6px;}
