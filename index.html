@@ -9,7 +9,7 @@
   </head>
   <body>
     <main class="app-shell">
-<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v1.70</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
+<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v1.71</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
@@ -66,7 +66,7 @@
       </section>
 
       <section class="view" data-view-panel="match">
-        <section class="lobby-layout"><aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-green next-round" id="next-round" type="button">STARTA NÄSTA OMGÅNG</button><button class="button button-primary" type="button">VISA CHATT</button><button class="button button-leave" type="button">LÄMNA MATCHEN</button></aside><section class="panel match-view"><div class="lobby-title-row"><h1>Matchöversikt</h1></div><p class="turn-message" id="turn-message">DIN TUR</p><div class="match-summary"><small>MATCHKOD</small><strong id="overview-code">------</strong></div><div class="match-metrics"><div><strong>2</strong><small>SPELARE</small></div><div><strong id="overview-round">REDO</strong><small>OMGÅNG</small></div><div><strong>10</strong><small>FÖRST TILL</small></div></div><div id="overview-players" class="overview-players"></div></section></section>
+        <section class="lobby-layout"><aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-green next-round" id="next-round" type="button">STARTA NÄSTA OMGÅNG</button><button class="button button-primary" type="button">VISA CHATT</button><button class="button button-leave" type="button">LÄMNA MATCHEN</button></aside><section class="panel match-view"><div class="lobby-title-row"><h1>Matchöversikt</h1></div><p class="turn-message" id="turn-message">DIN TUR</p><div class="match-summary"><small>MATCHKOD</small><strong id="overview-code">------</strong></div><div class="match-metrics"><div><strong id="overview-players-count">2</strong><small>SPELARE</small></div><div><strong id="overview-round">REDO</strong><small>OMGÅNG</small></div><div><strong>10</strong><small>FÖRST TILL</small></div></div><div id="overview-players" class="overview-players"></div></section></section>
       </section>
 
       <section class="view" data-view-panel="guess">
@@ -86,18 +86,18 @@
         <section class="panel spotify-connect"><p id="spotify-status">Premium krävs för uppspelning.</p><div class="spotify-actions"><button class="button button-red spotify-button" id="connect-spotify">ANSLUT DITT SPOTIFY PREMIUM HÄR</button><button class="spotify-switch" id="switch-spotify" type="button">BYT SPOTIFYKONTO</button></div></section>
         <section class="panel accordion" data-accordion>
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Skapa eller gå med i match</span><span class="accordion-mark">›</span></button>
-          <div class="accordion-content"><div class="match-actions"><article class="action-card"><h3>Starta en ny match</h3><p>Du får en matchkod att skicka till personen du vill spela mot.</p><button class="button button-green" id="create-match">STARTA NY MATCH</button></article><article class="action-card"><h3>Har du fått en matchkod?</h3><p>Skriv koden du fått av din vän.</p><label class="sr-only" for="match-code">Matchkod</label><input id="match-code" maxlength="6" placeholder="SKRIV MATCHKOD" autocomplete="off" /><button class="button button-green" id="join-match">GÅ MED I MATCHEN</button></article></div></div>
+          <div class="accordion-content"><div class="match-actions"><article class="action-card"><h3>Skapa en ny match</h3><p>Spela själv eller skicka en matchkod till en vän.</p><button class="button button-green" id="create-solo-match">SKAPA NY SOLOMATCH</button><button class="button button-green" id="create-match">SKAPA NY ONLINEMATCH</button></article><article class="action-card"><h3>Har du fått en matchkod?</h3><p>Skriv koden du fått av din vän.</p><label class="sr-only" for="match-code">Matchkod</label><input id="match-code" maxlength="6" placeholder="SKRIV MATCHKOD" autocomplete="off" /><button class="button button-green" id="join-match">GÅ MED I MATCHEN</button></article></div></div>
         </section>
         <section class="panel accordion" data-accordion id="my-matches-section">
-          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina matcher</span><span class="match-badges"><span class="badge badge-waiting" id="waiting-count">Väntar på 0</span><span class="badge badge-turn" id="turn-count">Din tur 0</span></span></button>
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Matcher</span><span class="match-badges"><span class="badge badge-waiting" id="waiting-count">Väntar på 0</span><span class="badge badge-turn" id="turn-count">Din tur 0</span></span></button>
           <div class="accordion-content"><div id="matches" class="matches" aria-live="polite"></div></div>
         </section>
         <section class="panel accordion" data-accordion>
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Statistik</span><span class="accordion-mark">›</span></button>
-          <div class="accordion-content"><div class="reset-row"><button class="reset-button" id="reset-stats">NOLLSTÄLL ALL STATISTIK</button></div><div class="stat-grid"><div><small>VINSTER</small><strong id="stat-wins">0 st</strong></div><div><small>FÖRLUSTER</small><strong id="stat-losses">0 st</strong></div><div><small>WALK OVER</small><strong id="stat-walkovers">0 st</strong></div><div><small>FLEST VINSTER I RAD</small><strong id="stat-streak">0 st</strong></div></div></div>
+          <div class="accordion-content"><div class="reset-row"><button class="reset-button" id="reset-stats">NOLLSTÄLL ALL STATISTIK</button></div><h3 class="section-subtitle">Solomatcher</h3><div class="stat-grid"><div><small>BÄSTA VINST</small><strong id="solo-best-rounds">–</strong><small>OMGÅNGAR</small></div></div><h3 class="section-subtitle">Onlinematcher</h3><div class="stat-grid"><div><small>VINSTER</small><strong id="stat-wins">0 st</strong></div><div><small>FÖRLUSTER</small><strong id="stat-losses">0 st</strong></div><div><small>WALK OVER</small><strong id="stat-walkovers">0 st</strong></div><div><small>FLEST VINSTER I RAD</small><strong id="stat-streak">0 st</strong></div></div></div>
         </section>
         <section class="panel accordion" data-accordion>
-          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Historik</span><span class="accordion-mark">›</span></button>
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Avslutade matcher</span><span class="accordion-mark">›</span></button>
           <div class="accordion-content"><div class="reset-row"><button class="reset-button" id="reset-history">NOLLSTÄLL ALL HISTORIK</button></div><p class="muted">Slutförda och lämnade matcher visas här.</p><div id="history" class="history-list"></div></div>
         </section>
       </section>
