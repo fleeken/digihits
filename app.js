@@ -8,6 +8,7 @@ state.history ||= [];
 state.stats ||= { wins: 0, losses: 0, walkovers: 0, streak: 0 };
 state.stats.currentStreak ||= 0;
 state.soloStats ||= { bestRounds: null, fewestMistakes: null };
+state.soloProgress ||= {};
 state.settledResults ||= [];
 state.selectedTracks ||= {};
 state.recentTrackIds ||= [];
@@ -130,11 +131,12 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
   const correctCards = locked.length + (correct ? 1 : 0);
+  const score = solo ? soloProgress(state.matches.find((match) => match.code === state.activeMatchCode), locked) : null;
   $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
-  $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------";
+  $("#result-code").textContent = solo ? String(score.mistakes) : state.activeMatchCode || "------";
   $("#result-code").style.color = solo ? "#ff8b9d" : "";
   $("#result-code").classList.toggle("solo-mistake-count", solo);
-  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong style="color:#72ffad">${correctCards}</strong>`;
+  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong style="color:#72ffad">${score.correct}</strong>`;
   $(".result-actions").classList.toggle("solo-result-actions", solo);
   const cards = [...unlocked, { ...card, status: solo ? (correct ? "RÄTT PLACERAT" : "FEL PLACERAT") : correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.title} – ${card.artist} (${card.year})`;
@@ -240,7 +242,11 @@ function openMatch(matchCode) {
   $("#next-round").nextElementSibling.hidden = match.solo;
   $("#overview-players-count").textContent = match.solo ? "1" : "2";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
-  $("#overview-round").textContent = "1";
+  const score = match.solo ? soloProgress(match) : null;
+  $("#overview-round").textContent = match.solo ? String(score.mistakes) : "1";
+  $("#overview-round-label").textContent = match.solo ? "FELPLACERADE" : "OMGÅNG";
+  $("#overview-target").textContent = match.solo ? String(score.correct) : "10";
+  $("#overview-target-label").textContent = match.solo ? "RÄTT PLACERADE" : "FÖRST TILL";
   $("#turn-message").hidden = match.solo;
   $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
   $("#turn-message").classList.toggle("waiting", !isYourTurn);
@@ -249,14 +255,29 @@ function openMatch(matchCode) {
   $("#next-round").textContent = pendingRound ? "ÅTERUPPTA OMGÅNG" : "STARTA NÄSTA OMGÅNG";
   $("#overview-players").innerHTML = `<article class="overview-player ${isYourTurn ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">1</span><strong>${state.playerName}</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>${match.solo ? "" : `<article class="overview-player"><div class="overview-player-header"><span class="turn-order">2</span><strong>Testspelare</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`}`;
   showView("match");
-  if (match.id) loadOverviewPlayers(match.id, isYourTurn);
+  if (match.id) loadOverviewPlayers(match.id, isYourTurn, match.solo);
 }
-async function loadOverviewPlayers(matchId, isYourTurn) {
+async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
     const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,display_name,turn_order,locked_timeline,last_round,rounds_started&order=turn_order`);
     $("#overview-players-count").textContent = String(players.length);
     players.forEach((player) => { latestRounds[player.id] = player.last_round; });
-    $("#overview-round").textContent = String(Math.max(1, ...players.map((player) => player.rounds_started || 0)));
+    if (solo) {
+      const player = players[0] || {};
+      const correct = Math.max(1, (player.locked_timeline || []).length);
+      const mistakes = Math.max(0, (player.rounds_started || 0) - Math.max(0, correct - 1));
+      const match = state.matches.find((item) => item.id === matchId);
+      if (match) state.soloProgress[match.code] = { correct, mistakes };
+      $("#overview-round").textContent = String(mistakes);
+      $("#overview-round-label").textContent = "FELPLACERADE";
+      $("#overview-target").textContent = String(correct);
+      $("#overview-target-label").textContent = "RÄTT PLACERADE";
+    } else {
+      $("#overview-round").textContent = String(Math.max(1, ...players.map((player) => player.rounds_started || 0)));
+      $("#overview-round-label").textContent = "OMGÅNG";
+      $("#overview-target").textContent = "10";
+      $("#overview-target-label").textContent = "FÖRST TILL";
+    }
     $("#overview-players").innerHTML = players.map((player, index) => `<article class="overview-player ${isYourTurn && index === 0 ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">${player.turn_order + 1}</span><strong>${player.display_name}</strong></div><small>${(player.locked_timeline || []).length}/10 låsta kort · ${player.last_round?.outcome === "locked" ? (player.last_round.cards || []).length : 0} olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" data-player-round="${player.id}" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`).join("");
   } catch { /* matchvyn behåller sin lokala reservvy */ }
 }
@@ -313,6 +334,7 @@ function hasCorrectSongGuess(card) {
   const guess = state.currentGuess || {};
   return artistAnswerMatches(guess.artist, card.artist) && closeAnswer(guess.title, card.title);
 }
+function soloProgress(match, locked = state.lockedTimeline) { return state.soloProgress[match.code] ||= { correct: locked.length, mistakes: Math.max(0, (match.round || 0) - Math.max(0, locked.length - 1)) }; }
 function addMatch(matchCode) {
   state.matches.unshift({ code: matchCode, title: `${state.playerName}, väntar på motspelare`, status: "waiting" });
   save(); render(); openLobby(matchCode);
@@ -357,7 +379,7 @@ async function createSoloMatch() {
   const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
   const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "active", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "solo", updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
-  rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
+  rememberTrack(starter); state.changeTrackCards = 0; state.soloProgress[matchCode] = { correct: 1, mistakes: 0 }; save(); await syncMatches(); openMatch(matchCode);
 }
 async function joinOnlineMatch(matchCode) {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
@@ -489,10 +511,10 @@ async function restoreRoundUnlocked() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match?.id) return;
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
-  const rows = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=turn_cards,current_card,locked_timeline,swap_cards`);
+  const rows = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=turn_cards,current_card,locked_timeline,swap_cards,rounds_started`);
   state.roundUnlocked = rows[0]?.turn_cards || [];
   state.lockedTimeline = rows[0]?.locked_timeline || state.lockedTimeline;
-  state.currentCard = rows[0]?.current_card || null; state.currentCardMatchCode = state.currentCard ? match.code : null; state.changeTrackCards = rows[0]?.swap_cards || 0;
+  state.currentCard = rows[0]?.current_card || null; state.currentCardMatchCode = state.currentCard ? match.code : null; state.changeTrackCards = rows[0]?.swap_cards || 0; if (match.solo) state.soloProgress[match.code] = { correct: state.lockedTimeline.length, mistakes: Math.max(0, (rows[0]?.rounds_started || 0) - Math.max(0, state.lockedTimeline.length - 1)) };
   save(); resetTurnInput();
 }
 async function markRoundStarted() {
@@ -521,6 +543,7 @@ $("#lock-placement").addEventListener("click", async () => {
   const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo);
   const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } };
   currentPlacementCorrect = placementIsCorrect();
+  if (solo) { const score = soloProgress(state.matches.find((match) => match.code === state.activeMatchCode)); currentPlacementCorrect ? score.correct += 1 : score.mistakes += 1; save(); }
   let earnedSwapCard = false;
   if (hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) {
     try { await updateSwapCards(1); earnedSwapCard = true; } catch (error) { alert(error.message); return; }
