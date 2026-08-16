@@ -276,7 +276,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
       const correct = Math.max(1, (player.locked_timeline || []).length);
       const mistakes = Math.max(0, (player.rounds_started || 0) - Math.max(0, correct - 1));
       const match = state.matches.find((item) => item.id === matchId);
-      const score = match ? (state.soloProgress[match.code] ||= { correct, mistakes }) : { correct, mistakes };
+      const score = match ? soloProgress(match, player.locked_timeline || []) : { correct, mistakes };
       $("#overview-round").textContent = String(score.mistakes);
       $("#overview-round-label").textContent = "FELPLACERADE";
       $("#overview-target").textContent = String(score.correct);
@@ -343,7 +343,7 @@ function hasCorrectSongGuess(card) {
   const guess = state.currentGuess || {};
   return artistAnswerMatches(guess.artist, card.artist) && closeAnswer(guess.title, card.title);
 }
-function soloProgress(match, locked = state.lockedTimeline) { return state.soloProgress[match.code] ||= { correct: locked.length, mistakes: Math.max(0, (match.round || 0) - Math.max(0, locked.length - 1)) }; }
+function soloProgress(match, locked = state.lockedTimeline) { const code = match?.code || state.activeMatchCode; const fallback = { correct: Math.max(1, locked.length || 0), mistakes: Math.max(0, (match?.round || 0) - Math.max(0, (locked.length || 0) - 1)) }; const saved = state.soloProgress?.[code]; if (!saved || typeof saved !== "object") state.soloProgress[code] = fallback; else { saved.correct = Math.max(1, Number(saved.correct) || fallback.correct); saved.mistakes = Math.max(0, Number(saved.mistakes) || 0); } return state.soloProgress[code]; }
 function addMatch(matchCode) {
   state.matches.unshift({ code: matchCode, title: `${state.playerName}, väntar på motspelare`, status: "waiting" });
   save(); render(); openLobby(matchCode);
@@ -353,7 +353,7 @@ async function syncMatches() {
   const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,phase,current_user_id,last_result,updated_at)`);
   rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id); });
   let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name,rounds_started`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
-  state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => player.match_id === row.match_id), solo = String(match?.code || "").startsWith("S0") || String(match?.phase || "").startsWith("solo") || (match?.status === "active" && matchPlayers.length === 1), opponent = matchPlayers.find((player) => player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent", solo, locked: match.phase === "locked" || match.phase === "solo_locked", round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), updatedAt: match.updated_at }; }).filter(Boolean).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+  state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => player.match_id === row.match_id), solo = String(match?.code || "").startsWith("S0") || String(match?.phase || "").startsWith("solo"), opponent = matchPlayers.find((player) => player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent", solo, locked: match.phase === "locked" || match.phase === "solo_locked", round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), updatedAt: match.updated_at }; }).filter(Boolean).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
   save(); render();
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode);
   if ((currentView === "lobby" || currentView === "match") && activeMatch) openMatch(activeMatch.code);
