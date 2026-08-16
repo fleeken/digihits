@@ -242,6 +242,7 @@ function openMatch(matchCode) {
   const playersMetric = $("#overview-players-count").parentElement;
   playersMetric.hidden = soloMatch;
   playersMetric.style.display = soloMatch ? "none" : "";
+  playersMetric.parentElement.classList.toggle("solo-metrics", soloMatch);
   $("#next-round").nextElementSibling.hidden = match.solo;
   $("#overview-players-count").textContent = match.solo ? "1" : "2";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
