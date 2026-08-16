@@ -9,28 +9,27 @@ state.stats ||= { wins: 0, losses: 0, walkovers: 0, streak: 0 };
 state.stats.currentStreak ||= 0;
 state.settledResults ||= [];
 state.selectedTracks ||= {};
+state.recentTrackIds ||= [];
 state.changeTrackCards ??= 0;
 state.roundUnlocked ||= [];
-state.lockedTimeline ||= [{ id: "starter-1983", year: 1983, artist: "The Police", title: "Every Breath You Take" }];
+state.lockedTimeline ||= [{ id: "digi-001", year: 1956, artist: "Elvis Presley", title: "Hound Dog" }];
 state.currentCard ||= null;
 let currentPlacementCorrect = true;
 let viewingLatestRound = false;
 const latestRounds = {};
 let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, wasPausedByUser = false, pausedForNavigation = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer, trackStartPromise = null;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
-const testDeck = [
-  { id: "starter-1983", year: 1983, artist: "The Police", title: "Every Breath You Take" },
-  { id: "track-1978", year: 1978, artist: "Earth, Wind & Fire", title: "September" },
-  { id: "track-1982", year: 1982, artist: "Toto", title: "Africa" },
-  { id: "track-1990", year: 1990, artist: "Roxette", title: "It Must Have Been Love" },
-  { id: "track-1998", year: 1998, artist: "Britney Spears", title: "...Baby One More Time" },
-  { id: "track-2004", year: 2004, artist: "Usher", title: "Yeah!" },
-  { id: "track-2011", year: 2011, artist: "Adele", title: "Rolling in the Deep" },
-  { id: "track-2017", year: 2017, artist: "Ed Sheeran", title: "Shape of You" },
-  { id: "track-2020", year: 2020, artist: "The Weeknd", title: "Blinding Lights" },
-  { id: "track-2023", year: 2023, artist: "Miley Cyrus", title: "Flowers" }
-];
+const testDeck = window.DIGIHITS_TRACKS;
 const activeCard = () => state.currentCard || testDeck[5];
+function pickFreshTrack(cards, used = []) {
+  const available = cards.filter((card) => !used.includes(card.id));
+  const fresh = available.filter((card) => !state.recentTrackIds.includes(card.id));
+  const pool = fresh.length ? fresh : available;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function rememberTrack(card) {
+  state.recentTrackIds = [card.id, ...state.recentTrackIds.filter((id) => id !== card.id)].slice(0, 6);
+}
 const songTime = (milliseconds) => `${Math.floor(milliseconds / 60000)}:${String(Math.floor(milliseconds / 1000) % 60).padStart(2, "0")}`;
 function resetSpotifyPlayer() { spotifyDeviceId = null; spotifyPlayerReady = null; loadedSpotifyCardId = null; spotifyPlaying = false; wasPausedByUser = false; pausedForNavigation = false; }
 function updateSongTimeline(position, duration, playing) {
@@ -51,10 +50,22 @@ async function ensureSpotifyPlayer() {
   });
   return spotifyPlayerReady;
 }
+const normaliseTrackText = (value) => String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const unsuitableSpotifyVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
+async function resolveSpotifyTrack(token, card) {
+  const cached = state.selectedTracks[card.id];
+  if (cached?.uri) return cached;
+  const search = await fetch(`https://api.spotify.com/v1/search?type=track&limit=10&market=SE&q=${encodeURIComponent(`track:${card.title} artist:${card.artist}`)}`, { headers: { Authorization: `Bearer ${token}` } });
+  const items = (await search.json()).tracks?.items || [];
+  const title = normaliseTrackText(card.title), artist = normaliseTrackText(card.artist);
+  const track = items.find((item) => item.type === "track" && item.is_playable !== false && !unsuitableSpotifyVersion.test(`${item.name} ${item.album?.name || ""}`) && normaliseTrackText(item.name).startsWith(title) && item.artists.some((entry) => normaliseTrackText(entry.name) === artist));
+  if (!track) throw new Error("Spotify kunde inte verifiera rätt originalversion av låten.");
+  const resolved = { uri: track.uri, duration_ms: track.duration_ms };
+  state.selectedTracks[card.id] = resolved; save();
+  return resolved;
+}
 async function playCurrentTrack(retry = true) {
-  const token = await supabaseAuth.spotifyToken(), card = activeCard();
-  const search = await fetch(`https://api.spotify.com/v1/search?type=track&limit=1&q=${encodeURIComponent(`track:${card.title} artist:${card.artist}`)}`, { headers: { Authorization: `Bearer ${token}` } });
-  const track = (await search.json()).tracks?.items?.[0]; if (!track) throw new Error("Låten hittades inte på Spotify.");
+  const token = await supabaseAuth.spotifyToken(), card = activeCard(), track = await resolveSpotifyTrack(token, card);
   const device = await ensureSpotifyPlayer(); if (mobileBrowser) await spotifyPlayer.activateElement(); await spotifyPlayer?.pause().catch(() => {});
   await fetch("https://api.spotify.com/v1/me/player", { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ device_ids: [device], play: false }) });
   const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri], position_ms: 0 }) });
@@ -259,10 +270,10 @@ async function syncMatches() {
 function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {})); }
 async function createOnlineMatch() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); const matchCode = code();
-  const starter = testDeck[Math.floor(Math.random() * testDeck.length)], deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
+  const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
   const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
-  state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
+  rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 async function joinOnlineMatch(matchCode) {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
@@ -274,10 +285,10 @@ async function joinOnlineMatch(matchCode) {
   if (players.some((player) => player.user_id === user.id)) throw new Error("Du är redan med i matchen.");
   const available = (match.deck?.length ? match.deck : testDeck).filter((card) => !(match.used_track_ids || []).includes(card.id));
   if (!available.length) throw new Error("Det finns inget ledigt startkort i matchen.");
-  const starter = available[Math.floor(Math.random() * available.length)];
+  const starter = pickFreshTrack(available);
   await supabaseAuth.dataRequest("online_players", { match_id: match.id, user_id: user.id, display_name: state.playerName, turn_order: players.length, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
-  state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
+  rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 
 function addTestMatches() {
@@ -370,10 +381,10 @@ async function dealCard() {
   const rows = await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=deck,used_track_ids`);
   const matchData = rows[0], used = new Set(matchData.used_track_ids || []), available = (matchData.deck?.length > 1 ? matchData.deck : testDeck).filter((card) => !used.has(card.id));
   if (!available.length) throw new Error("Alla testlåtar i matchen är använda.");
-  const card = available[Math.floor(Math.random() * available.length)];
+  const card = pickFreshTrack(available);
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}`, { current_card: card, updated_at: new Date().toISOString() }, "PATCH");
-  state.currentCard = card; state.currentCardMatchCode = match.code; save();
+  state.currentCard = card; state.currentCardMatchCode = match.code; rememberTrack(card); save();
 }
 async function saveRoundUnlocked() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
