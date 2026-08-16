@@ -26,6 +26,9 @@ const testDeck = [...window.DIGIHITS_TRACKS.reduce((tracks, card) => {
   return tracks;
 }, new Map()).values()];
 const activeCard = () => state.currentCard || testDeck[5];
+// Enda källan för matchtyp: S0 är reserverat för solomatcher.
+// Därmed kan en onlinematch aldrig hamna i solo-flöde eller solostatistik.
+const isSoloMatch = (match) => String(match?.code || "").startsWith("S0");
 function expandedMatchDeck(deck = []) {
   const existing = new Set(deck.map((card) => `${normaliseTrackText(card.artist)}:${normaliseTrackText(card.title)}`));
   return [...deck, ...testDeck.filter((card) => !existing.has(`${normaliseTrackText(card.artist)}:${normaliseTrackText(card.title)}`))];
@@ -125,14 +128,14 @@ function closeHomeAccordions() {
   document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
 }
 function renderRoundResult(correct, card = activeCard(), snapshot = null) {
-  const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo || String(state.activeMatchCode || "").startsWith("S0"));
+  const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode));
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "TILLBAKA TILL DINA MATCHER"; wrongButton.addEventListener("click", () => { state.roundUnlocked = []; save(); showView("home", true); }); $("#result-back").after(wrongButton); }
   if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.className = "lobby-back wrong-match-button"; overviewButton.type = "button"; overviewButton.textContent = "TILL MATCHÖVERSIKT"; overviewButton.addEventListener("click", () => openMatch(state.activeMatchCode)); wrongButton.after(overviewButton); }
   const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
   const correctCards = locked.length + (correct ? 1 : 0);
-  const score = solo ? soloProgress(state.matches.find((match) => match.code === state.activeMatchCode), locked) : null;
+  const score = solo ? soloProgress(state.matches.find((match) => match.code === state.activeMatchCode), locked) : { correct: 0, mistakes: 0 };
   $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
   $("#result-code").textContent = solo ? String(score.mistakes) : state.activeMatchCode || "------";
   $("#result-code").style.color = solo ? "#ff8b9d" : "";
@@ -167,8 +170,8 @@ function render() {
   $("#connect-spotify").textContent = spotify ? spotify.name : "ANSLUT DITT SPOTIFY PREMIUM HÄR";
   $("#connect-spotify").className = `button ${spotify ? "button-green" : "button-red"} spotify-button`;
   $("#switch-spotify").hidden = false;
-  const waiting = state.matches.filter((match) => !match.solo && match.status === "opponent").length;
-  const turns = state.matches.filter((match) => !match.solo && match.status === "active").length;
+  const waiting = state.matches.filter((match) => !isSoloMatch(match) && match.status === "opponent").length;
+  const turns = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length;
   $("#waiting-count").textContent = `Väntar på ${waiting}`;
   $("#turn-count").textContent = `Din tur ${turns}`;
   $("#stat-wins").textContent = `${state.stats.wins} st`;
@@ -181,16 +184,17 @@ function render() {
   $("#change-track-area").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box"; $("#lock-placement").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box";
   const matches = $("#matches");
   const renderCard = (match) => {
-    const label = match.solo ? "ÖPPNA SOLOMATCH HÄR" : match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
-    const status = match.solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
+    const solo = isSoloMatch(match);
+    const label = solo ? "ÖPPNA SOLOMATCH HÄR" : match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
+    const status = solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
     const players = `${match.status === "waiting" ? "1" : "2"} spelare · Omgång ${match.round || 1}`;
     const lock = match.locked ? "🔒" : "🔓";
     const lockLabel = match.locked ? "Match låst" : "Match olåst";
-    return `<article class="match ${match.solo ? "solo" : match.status}">${match.solo ? "" : `<button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button>`}<div class="match-top"><strong>${match.title}</strong></div>${match.solo ? "" : `<small>${players}</small><div class="match-status">● ${status}</div><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
+    return `<article class="match ${solo ? "solo" : match.status}">${solo ? "" : `<button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button>`}<div class="match-top"><strong>${match.title}</strong></div>${solo ? "" : `<small>${players}</small><div class="match-status">● ${status}</div><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
   };
-  const soloMatches = state.matches.filter((match) => match.solo);
-  const active = state.matches.filter((match) => !match.solo && (match.status === "active" || match.status === "opponent"));
-  const waitingMatches = state.matches.filter((match) => !match.solo && match.status === "waiting");
+  const soloMatches = state.matches.filter(isSoloMatch);
+  const active = state.matches.filter((match) => !isSoloMatch(match) && (match.status === "active" || match.status === "opponent"));
+  const waitingMatches = state.matches.filter((match) => !isSoloMatch(match) && match.status === "waiting");
   matches.innerHTML = state.matches.length ? `
     <h3 class="match-group-title">Mina solomatcher</h3>
     ${soloMatches.length ? soloMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga solomatcher.</p>`}
@@ -199,7 +203,7 @@ function render() {
     ${active.length ? active.map(renderCard).join("") : `<p class="match-empty">Inga pågående matcher.</p>`}
     <h3 class="match-group-title">Väntar på motspelare</h3>
     ${waitingMatches.length ? waitingMatches.map(renderCard).join("") : `<p class="match-empty">Inga matcher väntar på motspelare.</p>`}` : `<p class="muted">Du har inga matcher ännu.</p>`;
-  const onlineMatches = state.matches.filter((match) => !match.solo).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+  const onlineMatches = state.matches.filter((match) => !isSoloMatch(match)).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
   matches.innerHTML = state.matches.length ? `<h3 class="match-group-title">Mina solomatcher</h3>${soloMatches.length ? soloMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga solomatcher.</p>`}<h3 class="match-group-title">Mina onlinematcher</h3>${onlineMatches.length ? onlineMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga onlinematcher.</p>`}` : `<p class="muted">Du har inga matcher än.</p>`;
   const historyCard = (match) => `<article class="history-match ${match.mode === "solo" && match.leaveReason.includes("VINST") ? "solo-win" : match.leaveReason === "DU LÄMNADE INNAN MATCHSTART" ? "early-leave" : "walkover"}"><strong>${match.title}</strong><span>${match.leaveReason}</span></article>`;
   const soloHistory = state.history.filter((match) => match.mode === "solo"), onlineHistory = state.history.filter((match) => match.mode !== "solo");
@@ -237,31 +241,31 @@ function openLobby(matchCode) {
 function openMatch(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
-  const soloMatch = Boolean(match.solo || String(match.code || "").startsWith("S0") || match.title === "Solomatch");
+  const soloMatch = isSoloMatch(match);
   state.activeMatchCode = matchCode; save();
-  $("#overview-code").textContent = match.solo ? "SOLOMATCH" : match.code;
-  $("#overview-code").previousElementSibling.textContent = match.solo ? "SPELTYP" : "MATCHKOD";
+  $("#overview-code").textContent = soloMatch ? "SOLOMATCH" : match.code;
+  $("#overview-code").previousElementSibling.textContent = soloMatch ? "SPELTYP" : "MATCHKOD";
   const playersMetric = $("#overview-players-count").parentElement;
   playersMetric.hidden = soloMatch;
   playersMetric.style.display = soloMatch ? "none" : "";
   playersMetric.parentElement.classList.toggle("solo-metrics", soloMatch);
-  $("#next-round").nextElementSibling.hidden = match.solo;
-  $("#overview-players-count").textContent = match.solo ? "1" : "2";
+  $("#next-round").nextElementSibling.hidden = soloMatch;
+  $("#overview-players-count").textContent = soloMatch ? "1" : "2";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
-  const score = match.solo ? soloProgress(match) : null;
-  $("#overview-round").textContent = match.solo ? String(score.mistakes) : "1";
-  $("#overview-round-label").textContent = match.solo ? "FELPLACERADE" : "OMGÅNG";
-  $("#overview-target").textContent = match.solo ? String(score.correct) : "10";
-  $("#overview-target-label").textContent = match.solo ? "RÄTT PLACERADE" : "FÖRST TILL";
-  $("#turn-message").hidden = match.solo;
+  const score = soloMatch ? soloProgress(match) : null;
+  $("#overview-round").textContent = soloMatch ? String(score.mistakes) : "1";
+  $("#overview-round-label").textContent = soloMatch ? "FELPLACERADE" : "OMGÅNG";
+  $("#overview-target").textContent = soloMatch ? String(score.correct) : "10";
+  $("#overview-target-label").textContent = soloMatch ? "RÄTT PLACERADE" : "FÖRST TILL";
+  $("#turn-message").hidden = soloMatch;
   $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
   $("#turn-message").classList.toggle("waiting", !isYourTurn);
   const pendingRound = state.pendingResult?.matchCode === matchCode || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === matchCode));
   $("#next-round").classList.toggle("is-visible", isYourTurn);
   $("#next-round").textContent = pendingRound ? "ÅTERUPPTA OMGÅNG" : "STARTA NÄSTA OMGÅNG";
-  $("#overview-players").innerHTML = `<article class="overview-player ${isYourTurn ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">1</span><strong>${state.playerName}</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>${match.solo ? "" : `<article class="overview-player"><div class="overview-player-header"><span class="turn-order">2</span><strong>Testspelare</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`}`;
+  $("#overview-players").innerHTML = `<article class="overview-player ${isYourTurn ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">1</span><strong>${state.playerName}</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>${soloMatch ? "" : `<article class="overview-player"><div class="overview-player-header"><span class="turn-order">2</span><strong>Testspelare</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`}`;
   showView("match");
-  if (match.id) loadOverviewPlayers(match.id, isYourTurn, match.solo);
+  if (match.id) loadOverviewPlayers(match.id, isYourTurn, soloMatch);
 }
 async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
@@ -350,7 +354,7 @@ async function syncMatches() {
   const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,phase,current_user_id,last_result,updated_at)`);
   rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id); });
   let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name,rounds_started`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
-  state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => player.match_id === row.match_id), solo = String(match?.code || "").startsWith("S0") || String(match?.phase || "").startsWith("solo"), opponent = matchPlayers.find((player) => player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent", solo, locked: match.phase === "locked" || match.phase === "solo_locked", round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), updatedAt: match.updated_at }; }).filter(Boolean).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+  state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => player.match_id === row.match_id), solo = isSoloMatch(match), opponent = matchPlayers.find((player) => player.user_id !== user.id)?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : match.current_user_id === user.id ? "active" : "opponent", solo, locked: match.phase === "locked" || (solo && match.phase === "solo_locked"), round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), updatedAt: match.updated_at }; }).filter(Boolean).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
   save(); render();
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode);
   if ((currentView === "lobby" || currentView === "match") && activeMatch) openMatch(activeMatch.code);
@@ -477,7 +481,7 @@ document.addEventListener("pointerup", () => {
 async function handoverTurn(savedTimeline = null) {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match?.id) return;
-  const solo = Boolean(match.solo);
+  const solo = isSoloMatch(match);
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=id,user_id,turn_order,locked_timeline,rounds_started,swap_cards&order=turn_order`);
   const mine = players.findIndex((player) => player.user_id === user.id), minePlayer = players[mine], next = players[(mine + 1) % players.length];
@@ -523,7 +527,7 @@ async function restoreRoundUnlocked() {
   const rows = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=turn_cards,current_card,locked_timeline,swap_cards,rounds_started`);
   state.roundUnlocked = rows[0]?.turn_cards || [];
   state.lockedTimeline = rows[0]?.locked_timeline || state.lockedTimeline;
-  state.currentCard = rows[0]?.current_card || null; state.currentCardMatchCode = state.currentCard ? match.code : null; state.changeTrackCards = rows[0]?.swap_cards || 0; if (match.solo) state.soloProgress[match.code] ||= { correct: state.lockedTimeline.length, mistakes: Math.max(0, (rows[0]?.rounds_started || 0) - Math.max(0, state.lockedTimeline.length - 1)) };
+  state.currentCard = rows[0]?.current_card || null; state.currentCardMatchCode = state.currentCard ? match.code : null; state.changeTrackCards = rows[0]?.swap_cards || 0; if (isSoloMatch(match)) state.soloProgress[match.code] ||= { correct: state.lockedTimeline.length, mistakes: Math.max(0, (rows[0]?.rounds_started || 0) - Math.max(0, state.lockedTimeline.length - 1)) };
   save(); resetTurnInput();
 }
 async function markRoundStarted() {
@@ -549,7 +553,7 @@ async function restoreResultView() {
 }
 $("#lock-placement").addEventListener("click", async () => {
   viewingLatestRound = false;
-  const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo || String(state.activeMatchCode || "").startsWith("S0"));
+  const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode));
   const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } };
   currentPlacementCorrect = placementIsCorrect();
   if (solo) { const score = soloProgress(state.matches.find((match) => match.code === state.activeMatchCode)); currentPlacementCorrect ? score.correct += 1 : score.mistakes += 1; save(); }
@@ -567,7 +571,7 @@ $("#lock-placement").addEventListener("click", async () => {
   if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
   else if (!currentPlacementCorrect && !solo) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare.");
 });
-$("#result-continue").addEventListener("click", async () => { const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { if (solo) await markRoundStarted(); else await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
+$("#result-continue").addEventListener("click", async () => { const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode)); state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { if (solo) await markRoundStarted(); else await saveRoundUnlocked(); await dealCard(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); showView("guess"); startCurrentTrack(); });
 $("#change-track-area").addEventListener("click", async (event) => {
   if (!event.target.closest("#use-change-track")) return;
   if (!state.changeTrackCards) { dialog("Du har inga byt-låt-kort."); return; }
