@@ -203,11 +203,8 @@ function render() {
   matches.innerHTML = state.matches.length ? `<h3 class="match-group-title">Mina solomatcher</h3>${soloMatches.length ? soloMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga solomatcher.</p>`}<h3 class="match-group-title">Mina onlinematcher</h3>${onlineMatches.length ? onlineMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga onlinematcher.</p>`}` : `<p class="muted">Du har inga matcher än.</p>`;
   const historyCard = (match) => `<article class="history-match ${match.mode === "solo" && match.leaveReason.includes("VINST") ? "solo-win" : match.leaveReason === "DU LÄMNADE INNAN MATCHSTART" ? "early-leave" : "walkover"}"><strong>${match.title}</strong><span>${match.leaveReason}</span></article>`;
   const soloHistory = state.history.filter((match) => match.mode === "solo"), onlineHistory = state.history.filter((match) => match.mode !== "solo");
-  const soloHistoryElement = $("#solo-history"), onlineHistoryElement = $("#online-history");
-  if (soloHistoryElement && onlineHistoryElement) {
-    soloHistoryElement.innerHTML = soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`;
-    onlineHistoryElement.innerHTML = onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`;
-  }
+  const history = $("#history");
+  if (history) history.innerHTML = `<h3 class="section-subtitle">Solomatcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="solo">NOLLSTÄLL SOLOMATCHER</button></div>${soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`}<h3 class="section-subtitle">Onlinematcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="online">NOLLSTÄLL ONLINEMATCHER</button></div>${onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`}`;
 }
 
 function showView(view, focusMatches = false, fromHistory = false) {
@@ -431,6 +428,7 @@ $("#matches").addEventListener("click", (event) => {
     dialog("Vill du verkligen lämna matchen?", async () => { const match = state.matches.find((item) => item.code === deleteButton.dataset.deleteMatch); if (!match) return; try { const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=user_id`), winner = players.find((player) => player.user_id !== user.id)?.user_id; await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "finished", last_result: winner ? { winner_id: winner, type: "walkover" } : null, updated_at: new Date().toISOString() }, "PATCH"); state.history.unshift({ ...match, ...(match.solo ? { mode: "solo" } : {}), leaveReason: match.solo ? "RADERAD SOLOMATCH" : match.status === "waiting" ? "DU LÄMNADE INNAN MATCHSTART" : "DU LÄMNADE - WALK OVER" }); await syncMatches(); } catch (error) { alert(error.message); } }, true);
   }
 });
+$("#history")?.addEventListener("click", (event) => { const scope = event.target.closest("[data-reset-history]")?.dataset.resetHistory; if (!scope) return; const solo = scope === "solo"; dialog(`Nollställ avslutade ${solo ? "solomatcher" : "onlinematcher"}?`, () => { state.history = state.history.filter((match) => solo ? match.mode !== "solo" : match.mode === "solo"); save(); render(); }, true, "NOLLSTÄLL"); });
 $("#copy-lobby-code").addEventListener("click", async () => {
   const value = $("#lobby-code").textContent;
   try { await navigator.clipboard.writeText(value); } catch { /* local file mode can block clipboard */ }
