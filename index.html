@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Digihits</title>
     <script>document.documentElement.classList.add("booting");if(localStorage.getItem("digihits-auth-session")&&new URLSearchParams(location.search).has("code")&&sessionStorage.getItem("digihits-spotify-pending"))document.documentElement.classList.add("spotify-callback")</script>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
-<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v2.20</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
+<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v2.21</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
@@ -74,7 +74,7 @@
       </section>
 
       <section class="view" data-view-panel="timeline">
-        <section class="timeline-view panel"><div class="timeline-head"><button class="back-link" data-view="guess">← Tillbaka</button><h1>Dra kortet till rätt plats på tidslinjen.</h1></div><div class="secret-card" id="secret-card"><span>♫</span><strong>HEMLIGT KORT</strong><small>År: ????</small></div><div class="timeline-row" id="timeline-row"><div class="slot" data-slot="0">PLACERA<br>HÄR</div><article class="year-card"><strong>1983</strong><small><span class="card-song">Every Breath You Take<br>The Police</span><span class="card-status">LÅST</span></small></article><div class="slot" data-slot="1">PLACERA<br>HÄR</div></div><div id="change-track-area" class="change-track-area placement-change-track"></div><button class="button button-green lock-placement" id="lock-placement" type="button">LÅS IN PLACERING</button><p class="placed-message" id="placed-message"></p></section>
+        <section class="timeline-view panel"><div class="timeline-head"><button class="back-link" data-view="guess">← Tillbaka</button><h1>Dra det hemliga kortet till rätt plats på tidslinjen.</h1></div><div class="secret-card" id="secret-card"><span>♫</span><strong>HEMLIGT KORT</strong><small>År: ????</small></div><div class="timeline-row" id="timeline-row"><div class="slot" data-slot="0">PLACERA<br>HÄR</div><article class="year-card"><strong>1983</strong><small><span class="card-song">Every Breath You Take<br>The Police</span><span class="card-status">LÅST</span></small></article><div class="slot" data-slot="1">PLACERA<br>HÄR</div></div><div id="change-track-area" class="change-track-area placement-change-track"></div><button class="button button-green lock-placement" id="lock-placement" type="button">LÅS IN PLACERING</button><p class="placed-message" id="placed-message"></p></section>
       </section>
 
       <section class="view" data-view-panel="result">
