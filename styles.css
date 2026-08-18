@@ -188,4 +188,4 @@ h1{font-size:31px;}
 .locked-card{background:#202632;}
 .action-card .button + .button{margin-top:8px;}.section-subtitle{font-size:12px;margin:14px 16px 7px;color:#dce4f2;}.history-match.solo-win{border-color:#25854e;border-left-color:#72ffad;}.history-match.solo-win span{border-color:#25854e;color:#72ffad;}
 .match-metrics.solo-metrics{grid-template-columns:repeat(3,1fr);}.match-metrics.solo-metrics>div:nth-child(3){order:1;}.match-metrics.solo-metrics>div:nth-child(2){order:2;}.match-metrics.solo-metrics>div:first-child{order:3;}
-.change-track-button[aria-disabled="true"]{opacity:.7;}.no-change-cards{display:none!important;}
+.change-track-button[aria-disabled="true"]{opacity:.7;}.no-change-cards{display:none!important;}.match-view.solo-match-view{min-height:0;}

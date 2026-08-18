@@ -260,6 +260,7 @@ function openMatch(matchCode) {
   $("#overview-code").textContent = soloMatch ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = soloMatch ? "SPELTYP" : "MATCHKOD";
   const playersMetric = $("#overview-players-count").parentElement;
+  $(".match-view").classList.toggle("solo-match-view", soloMatch);
   playersMetric.hidden = false;
   playersMetric.style.display = "";
   playersMetric.parentElement.classList.toggle("solo-metrics", soloMatch);

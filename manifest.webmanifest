@@ -5,5 +5,5 @@
   "display": "standalone",
   "background_color": "#111927",
   "theme_color": "#111927",
-  "icons": [{ "src": "icon-ios-257.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }]
+  "icons": [{ "src": "icon-ios-261.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }]
 }
