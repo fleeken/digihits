@@ -57,15 +57,16 @@ async function ensureSpotifyPlayer() {
   spotifyPlayerReady = new Promise(async (resolve, reject) => {
     if (!window.Spotify) await new Promise((ready, fail) => { window.addEventListener("digihits-spotify-ready", ready, { once: true }); setTimeout(() => fail(new Error("Spotify-spelaren kunde inte laddas.")), 10000); });
     spotifyPlayer = new window.Spotify.Player({ name: "Digihits", getOAuthToken: (callback) => supabaseAuth.spotifyToken().then(callback).catch(() => callback("")), volume: 0.7 });
-    const playerFailure = ({ message }) => { spotifyPlaying = false; setPlayButton(false); reject(new Error(message || "Spotify-spelaren tappade anslutningen.")); };
-    spotifyPlayer.addListener("ready", ({ device_id }) => { spotifyDeviceId = device_id; resolve(device_id); });
-    spotifyPlayer.addListener("not_ready", () => { spotifyDeviceId = null; spotifyPlaying = false; setPlayButton(false); });
-    spotifyPlayer.addListener("player_state_changed", (playerState) => { if (playerState && loadedSpotifyCardId === state.currentCard?.id) updateSongTimeline(playerState.position, playerState.duration, !playerState.paused); });
-    spotifyPlayer.addListener("initialization_error", playerFailure);
-    spotifyPlayer.addListener("authentication_error", playerFailure);
-    spotifyPlayer.addListener("account_error", playerFailure);
-    spotifyPlayer.addListener("playback_error", ({ message }) => { spotifyPlaying = false; setPlayButton(false); console.warn("Spotify playback:", message); });
-    spotifyPlayer.connect();
+    const player = spotifyPlayer, isCurrentPlayer = () => spotifyPlayer === player;
+    const playerFailure = ({ message }) => { if (!isCurrentPlayer()) return; spotifyPlaying = false; setPlayButton(false); reject(new Error(message || "Spotify-spelaren tappade anslutningen.")); };
+    player.addListener("ready", ({ device_id }) => { if (!isCurrentPlayer()) return; spotifyDeviceId = device_id; resolve(device_id); });
+    player.addListener("not_ready", () => { if (!isCurrentPlayer()) return; spotifyDeviceId = null; spotifyPlaying = false; setPlayButton(false); });
+    player.addListener("player_state_changed", (playerState) => { if (isCurrentPlayer() && playerState && loadedSpotifyCardId === state.currentCard?.id) { updateSongTimeline(playerState.position, playerState.duration, !playerState.paused); setPlayButton(!playerState.paused); } });
+    player.addListener("initialization_error", playerFailure);
+    player.addListener("authentication_error", playerFailure);
+    player.addListener("account_error", playerFailure);
+    player.addListener("playback_error", ({ message }) => { if (!isCurrentPlayer()) return; spotifyPlaying = false; setPlayButton(false); console.warn("Spotify playback:", message); });
+    player.connect();
   });
   try { return await spotifyPlayerReady; }
   catch (error) { resetSpotifyPlayer(); throw error; }
