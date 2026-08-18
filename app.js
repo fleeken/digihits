@@ -165,9 +165,9 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $(".result-actions").classList.toggle("solo-result-actions", solo);
   const cards = [...unlocked, { ...card, status: solo ? (correct ? "RÄTT PLACERAT" : "FEL PLACERAT") : correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.artist} – ${card.title} (${card.year})`;
-  const answers = document.querySelectorAll(".result-checks .result-check");
+  const answers = document.querySelectorAll(".result-checks .result-check"), completeSongGuess = hasCorrectSongGuess(card);
   [["artist", "Artist"], ["title", "Låtnamn"]].forEach(([key, label], index) => {
-    const right = key === "artist" ? artistAnswerMatches(guess[key], card[key]) : closeAnswer(guess[key], card[key]);
+    const right = completeSongGuess || (key === "artist" ? artistAnswerMatches(guess[key], card[key]) : closeAnswer(guess[key], card[key]));
     answers[index + 1].className = `result-check ${right ? "good" : "bad"}`;
     answers[index + 1].innerHTML = `${right ? "☑" : "✕"} &nbsp; ${right ? "Rätt" : "Fel"} ${label.toLowerCase()}<small>Du skrev: ${guess[key] || "–"}</small>`;
   });
