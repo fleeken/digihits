@@ -4,12 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Digihits</title>
+    <meta name="theme-color" content="#111927" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="icon.svg" />
+    <link rel="apple-touch-icon" href="icon.svg" />
     <script>document.documentElement.classList.add("booting");if(localStorage.getItem("digihits-auth-session")&&new URLSearchParams(location.search).has("code")&&sessionStorage.getItem("digihits-spotify-pending"))document.documentElement.classList.add("spotify-callback")</script>
     <link rel="stylesheet" href="styles.css" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
-<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v2.53</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
+<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v2.55</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
@@ -107,6 +113,6 @@
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
     <script src="auth.js?v=2.33"></script>
     <script src="tracks.js"></script>
-    <script src="app.js?v=2.53"></script>
+    <script src="app.js?v=2.55"></script>
   </body>
 </html>

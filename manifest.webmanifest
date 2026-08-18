@@ -1,0 +1,9 @@
+{
+  "name": "Digihits",
+  "short_name": "Digihits",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#111927",
+  "theme_color": "#111927",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
