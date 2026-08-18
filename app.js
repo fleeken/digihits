@@ -549,7 +549,7 @@ async function restoreRoundUnlocked() {
   save(); resetTurnInput();
   if (savedGuess) state.currentGuess = savedGuess;
   if (savedDraft) { state.guessDraft = savedDraft; $("#guess-artist").value = savedDraft.artist || ""; $("#guess-track").value = savedDraft.title || ""; }
-  if (savedPlacement?.cardId === state.currentCard?.id && Number.isInteger(savedPlacement.position)) placeCard(savedPlacement.position);
+  if (savedPlacement && state.currentCard && savedPlacement.cardId === state.currentCard.id && Number.isInteger(savedPlacement.position)) placeCard(savedPlacement.position);
   save();
 }
 async function markRoundStarted() {
