@@ -5,6 +5,7 @@ const state = JSON.parse(localStorage.getItem(storageKey) || "null") || {
   history: []
 };
 state.history ||= [];
+state.matches = state.matches.filter((match) => !match.isTest);
 state.stats ||= { wins: 0, losses: 0, walkovers: 0, streak: 0 };
 state.stats.currentStreak ||= 0;
 state.soloStats ||= { bestRounds: null, fewestMistakes: null };
@@ -285,7 +286,8 @@ function openMatch(matchCode) {
   const pendingRound = state.pendingResult?.matchCode === matchCode || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === matchCode));
   $("#next-round").classList.toggle("is-visible", isYourTurn);
   $("#next-round").textContent = pendingRound ? "ÅTERUPPTA OMGÅNG" : "STARTA NÄSTA OMGÅNG";
-  $("#overview-players").innerHTML = soloMatch ? `<button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : `<article class="overview-player ${isYourTurn ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">1</span><strong>${state.playerName}</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article><article class="overview-player"><div class="overview-player-header"><span class="turn-order">2</span><strong>Testspelare</strong></div><small>1/10 låsta kort · 0 olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`;
+  $("#overview-players").hidden = true;
+  $("#overview-players").innerHTML = soloMatch ? `<button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : "";
   showView("match");
   if (match.id) loadOverviewPlayers(match.id, isYourTurn, soloMatch);
 }
@@ -311,6 +313,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
       $("#overview-target-label").textContent = "FÖRST TILL";
     }
     $("#overview-players").innerHTML = solo ? `<button class="timeline-button show-player-round" data-player-round="${players[0]?.id || ""}" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : players.map((player, index) => `<article class="overview-player ${isYourTurn && index === 0 ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">${player.turn_order + 1}</span><strong>${player.display_name}</strong></div><small>${(player.locked_timeline || []).length}/10 låsta kort · ${player.last_round?.outcome === "locked" ? (player.last_round.cards || []).length : 0} olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" data-player-round="${player.id}" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`).join("");
+    $("#overview-players").hidden = false;
   } catch { /* matchvyn behåller sin lokala reservvy */ }
 }
 function showLatestRound(round) {
@@ -429,16 +432,6 @@ async function joinOnlineMatch(matchCode) {
   await supabaseAuth.dataRequest("online_players", { match_id: match.id, user_id: user.id, display_name: state.playerName, turn_order: players.length, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, deck, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
-}
-
-function addTestMatches() {
-  state.matches = state.matches.filter((match) => !match.isTest);
-  state.matches.push(
-    { code: "GRON01", title: `${state.playerName}, Testspelare`, status: "active", locked: false, isTest: true },
-    { code: "GUL001", title: `Testspelare, ${state.playerName}`, status: "opponent", locked: true, isTest: true },
-    { code: "BLA001", title: `${state.playerName}, väntar på motspelare`, status: "waiting", locked: false, isTest: true }
-  );
-  save(); render();
 }
 
 $("#create-match").addEventListener("click", async () => { try { await createOnlineMatch(); } catch (error) { alert(error.message); } });
@@ -664,6 +657,7 @@ $("#reset-password-form").addEventListener("submit", async (event) => {
 });
 $("#connect-spotify").addEventListener("click", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)));
 $("#switch-spotify").addEventListener("click", () => { supabaseAuth.disconnectSpotify(); render(); supabaseAuth.connectSpotify(true).catch((error) => alert(error.message)); });
+document.querySelectorAll("input, textarea").forEach((field) => { if (field.type === "password") field.autocomplete = /login|current/.test(field.id) ? "current-password" : "new-password"; else if (field.type === "email") field.autocomplete = "email"; else field.autocomplete = "off"; field.setAttribute("autocorrect", "off"); field.setAttribute("autocapitalize", "off"); field.spellcheck = false; });
 document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view, button.classList.contains("lobby-back"))));
 document.querySelectorAll("[data-accordion]").forEach((section) => {
   section.querySelector(".accordion-toggle").addEventListener("click", () => {
