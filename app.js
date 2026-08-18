@@ -219,7 +219,7 @@ function render() {
     ${waitingMatches.length ? waitingMatches.map(renderCard).join("") : `<p class="match-empty">Inga matcher väntar på motspelare.</p>`}` : `<p class="muted">Du har inga matcher ännu.</p>`;
   const onlineMatches = state.matches.filter((match) => !isSoloMatch(match)).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
   matches.innerHTML = state.matches.length ? `<h3 class="match-group-title">Mina solomatcher</h3>${soloMatches.length ? soloMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga solomatcher.</p>`}<h3 class="match-group-title">Mina onlinematcher</h3>${onlineMatches.length ? onlineMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga onlinematcher.</p>`}` : `<p class="muted">Du har inga matcher än.</p>`;
-  const historyCard = (match) => `<article class="history-match ${match.mode === "solo" && match.leaveReason.includes("VINST") ? "solo-win" : match.leaveReason === "DU LÄMNADE INNAN MATCHSTART" ? "early-leave" : "walkover"}"><strong>${match.title}</strong><span>${match.leaveReason}</span></article>`;
+  const historyCard = (match) => `<article class="history-match ${match.mode === "solo" ? "solo-win" : match.leaveReason === "DU LÄMNADE INNAN MATCHSTART" ? "early-leave" : "walkover"}"><strong>${match.title}</strong><span>${match.mode === "solo" && match.rounds ? `OMGÅNGAR: ${match.rounds} · FELPLACERADE: ${match.mistakes} · RÄTT PLACERADE: ${match.correct}/10` : match.leaveReason}</span></article>`;
   const soloHistory = state.history.filter((match) => match.mode === "solo"), onlineHistory = state.history.filter((match) => match.mode !== "solo");
   const history = $("#history");
   if (history) history.innerHTML = `<h3 class="section-subtitle">Solomatcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="solo">NOLLSTÄLL SOLOMATCHER</button></div>${soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`}<h3 class="section-subtitle">Onlinematcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="online">NOLLSTÄLL ONLINEMATCHER</button></div>${onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`}`;
@@ -260,11 +260,12 @@ function openMatch(matchCode) {
   $("#overview-code").textContent = soloMatch ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = soloMatch ? "SPELTYP" : "MATCHKOD";
   const playersMetric = $("#overview-players-count").parentElement;
-  playersMetric.hidden = soloMatch;
-  playersMetric.style.display = soloMatch ? "none" : "";
+  playersMetric.hidden = false;
+  playersMetric.style.display = "";
   playersMetric.parentElement.classList.toggle("solo-metrics", soloMatch);
   $("#next-round").nextElementSibling.hidden = soloMatch;
-  $("#overview-players-count").textContent = soloMatch ? "1" : "2";
+  $("#overview-players-count").textContent = soloMatch ? String(match.round || 1) : "2";
+  playersMetric.querySelector("small").textContent = soloMatch ? "OMGÅNG" : "SPELARE";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
   const score = soloMatch ? soloProgress(match) : null;
   $("#overview-round").textContent = soloMatch ? String(score.mistakes) : "1";
@@ -284,7 +285,7 @@ function openMatch(matchCode) {
 async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
     const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,display_name,turn_order,locked_timeline,last_round,rounds_started&order=turn_order`);
-    $("#overview-players-count").textContent = String(players.length);
+    if (!solo) $("#overview-players-count").textContent = String(players.length);
     players.forEach((player) => { latestRounds[player.id] = player.last_round; });
     if (solo) {
       const player = players[0] || {};
@@ -514,7 +515,7 @@ async function handoverTurn(savedTimeline = null) {
     state.soloStats.bestRounds = state.soloStats.bestRounds ? Math.min(state.soloStats.bestRounds, rounds) : rounds;
     state.soloStats.fewestMistakes = state.soloStats.fewestMistakes === null || state.soloStats.fewestMistakes === undefined ? mistakes : Math.min(state.soloStats.fewestMistakes, mistakes);
     soloSummary = { rounds, mistakes, correct: target };
-    state.history.unshift({ title: "Solomatch", mode: "solo", leaveReason: `VINST – ${rounds} OMGÅNGAR · ${mistakes} FELPLACERADE · ${target} RÄTT PLACERADE` });
+    state.history.unshift({ title: "Solomatch", mode: "solo", rounds, mistakes, correct: target, leaveReason: `${rounds} OMGÅNGAR · ${mistakes} FELPLACERADE · ${target} RÄTT PLACERADE` });
   }
   state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.changeTrackCards = earnedSwapCard ? (minePlayer.swap_cards || 0) + 1 : minePlayer.swap_cards || 0; state.currentCard = null; state.currentCardMatchCode = null; save();
   return { won, earnedSwapCard, soloSummary };
