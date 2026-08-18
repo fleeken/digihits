@@ -78,6 +78,7 @@ function closeAnswer(answer, expected) { const left = answerText(answer), right 
 const artistAliases = Object.fromEntries(Object.entries({ "The Beatles": ["John Lennon", "Paul McCartney", "George Harrison", "Ringo Starr"], Queen: ["Freddie Mercury"], ABBA: ["Agnetha Fältskog", "Anni-Frid Lyngstad", "Frida"], Roxette: ["Marie Fredriksson", "Per Gessle"], "The Police": ["Sting"], Eagles: ["Don Henley"], Nirvana: ["Kurt Cobain"], Oasis: ["Liam Gallagher", "Noel Gallagher"], Metallica: ["James Hetfield"], Coldplay: ["Chris Martin"], U2: ["Bono"], "The Rolling Stones": ["Mick Jagger", "Keith Richards"], "Fleetwood Mac": ["Stevie Nicks", "Lindsey Buckingham", "Christine McVie"], "Bee Gees": ["Barry Gibb", "Robin Gibb", "Maurice Gibb"], "Destiny's Child": ["Beyoncé", "Beyonce"], "Ace of Base": ["Jenny Berggren", "Linn Berggren", "Ulf Ekberg"], "Gyllene Tider": ["Per Gessle"], Kent: ["Joakim Berg"] }).map(([artist, aliases]) => [answerText(artist), aliases]));
 artistAliases[answerText("Jackson 5")] = ["Michael Jackson"];
 function artistAnswerMatches(answer, expected) { const cleanAnswer = String(answer || "").trim(); if (!cleanAnswer) return false; const aliases = artistAliases[answerText(expected)] || [], parts = cleanAnswer.split(/\s*(?:,|&|\/|\boch\b|\band\b)\s*/i).map((part) => part.trim()).filter(Boolean), lastName = (value) => String(value).trim().split(/\s+/).at(-1); if (closeAnswer(cleanAnswer, expected) || closeAnswer(cleanAnswer, lastName(expected))) return true; if (parts.length === 1) return aliases.some((alias) => closeAnswer(parts[0], alias) || closeAnswer(parts[0], lastName(alias))); return parts.length > 0 && parts.length <= 3 && parts.every((part) => aliases.some((alias) => closeAnswer(part, alias) || closeAnswer(part, lastName(alias)))); }
+function soloResultStats(correct, mistakes, rounds) { return `<span>RÄTT PLACERADE KORT: <strong class="solo-correct">${correct}/10</strong></span><span>FELPLACERADE KORT: <strong class="solo-mistakes">${mistakes}</strong></span><span>${rounds === 1 ? "OMGÅNG" : "OMGÅNGAR"}: <strong class="solo-rounds">${rounds}</strong></span>`; }
 const unsuitableSpotifyVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 async function resolveSpotifyTrack(token, card) {
   const cached = state.selectedTracks[card.id];
@@ -156,11 +157,11 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
   const correctCards = locked.length + (correct ? 1 : 0);
   const score = solo ? soloProgress(state.matches.find((match) => match.code === state.activeMatchCode), locked) : { correct: 0, mistakes: 0 };
-  $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
+  $(".result-match-code").hidden = solo; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
   $("#result-code").textContent = solo ? String(score.mistakes) : state.activeMatchCode || "------";
   $("#result-code").style.color = solo ? "#ff8b9d" : "";
   $("#result-code").classList.toggle("solo-mistake-count", solo);
-  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `OMGÅNG: <strong style="color:#55cfff">${attempts}</strong> · RÄTT PLACERADE KORT: <strong style="color:#72ffad">${score.correct}/10</strong>`;
+  $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = soloResultStats(score.correct, score.mistakes, attempts);
   $(".result-actions").classList.toggle("solo-result-actions", solo);
   const cards = [...unlocked, { ...card, status: solo ? (correct ? "RÄTT PLACERAT" : "FEL PLACERAT") : correct ? "OLÅST" : "FELPLACERAT" }];
   $("#result-song").textContent = `${card.artist} – ${card.title} (${card.year})`;
@@ -321,7 +322,7 @@ function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
   const playedCard = (round.cards || []).at(-1);
-  if (playedCard) $("#result-song").textContent = `${playedCard.artist} – ${playedCard.title} (${playedCard.year})`; const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = (round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(Math.max(0, attempts - Math.max(0, correctCards - 1))) : state.activeMatchCode || "------"; $("#result-code").classList.toggle("solo-mistake-count", solo); $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = `RÄTT PLACERADE KORT: <strong style="color:#72ffad">${correctCards}/10</strong>`;
+  if (playedCard) $("#result-song").textContent = `${playedCard.artist} – ${playedCard.title} (${playedCard.year})`; const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = (round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length, mistakes = Math.max(0, attempts - Math.max(0, correctCards - 1)); $(".result-match-code").hidden = solo; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(mistakes) : state.activeMatchCode || "------"; $("#result-code").classList.toggle("solo-mistake-count", solo); $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = soloResultStats(correctCards, mistakes, attempts);
   const latestTimeline = (round.timeline || round.cards || []).slice();
   if (round.outcome !== "wrong") latestTimeline.sort((a, b) => a.year - b.year);
   round.timeline = latestTimeline;

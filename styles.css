@@ -183,7 +183,7 @@ h1{font-size:31px;}
 .card-status{display:block;margin-top:6px;}
 .result-code{display:block;color:#4fc9ee;font-size:9px;font-weight:900;margin:4px 0 2px;}
 .result-match-code{display:flex;justify-content:center;align-items:center;gap:7px;margin:4px 0 10px;font-size:9px;font-weight:900;color:#fff;}.result-match-code strong{color:#4fc9ee;font-size:18px;letter-spacing:3px;}
-.solo-result-score{text-align:center;margin:-5px 0 10px;color:#fff;font-size:10px;font-weight:900;}.solo-result-score strong{color:#72ffad;font-size:16px;}.result-code.solo-mistake-count,#result-code.solo-mistake-count{color:#ff8b9d;}.result-actions.solo-result-actions{display:flex;justify-content:center;}.result-actions.solo-result-actions #result-continue{width:min(100%,300px);}
+.solo-result-score{text-align:center;margin:-5px 0 10px;color:#fff;font-size:10px;font-weight:900;display:grid;gap:5px;}.solo-result-score span{display:block;}.solo-result-score strong{font-size:16px;}.solo-result-score .solo-correct{color:#72ffad;}.solo-result-score .solo-mistakes{color:#ff8b9d;}.solo-result-score .solo-rounds{color:#55cfff;}.result-code.solo-mistake-count,#result-code.solo-mistake-count{color:#ff8b9d;}.result-actions.solo-result-actions{display:flex;justify-content:center;}.result-actions.solo-result-actions #result-continue{width:min(100%,300px);}
 .correct-card{border-color:#38db82;background:#103321;}.correct-card strong{color:#72ffad;}
 .locked-card{background:#202632;}
 .action-card .button + .button{margin-top:8px;}.section-subtitle{font-size:12px;margin:14px 16px 7px;color:#dce4f2;}.history-match.solo-win{border-color:#25854e;border-left-color:#72ffad;}.history-match.solo-win span{border-color:#25854e;color:#72ffad;}
