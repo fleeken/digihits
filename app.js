@@ -722,5 +722,5 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
     else if (view === "lobby" && state.activeMatchCode) openLobby(state.activeMatchCode);
     else if (view === "result" && state.activeMatchCode) await restoreResultView();
     else showView(view === "welcome" ? "home" : view, false, true);
-  }).catch(() => { supabaseAuth.signOut(); showView("welcome"); });
+  }).catch((error) => { if (error?.message === "SESSION_EXPIRED") { supabaseAuth.signOut(); showView("welcome"); return; } showView(location.hash.slice(1) || "home", false, true); });
 } else document.documentElement.classList.remove("booting");

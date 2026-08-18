@@ -89,8 +89,11 @@ const supabaseAuth = (() => {
     },
     async user(accessToken) {
       const response = await fetch(`${root}/auth/v1/user`, { headers: { apikey: key, Authorization: `Bearer ${accessToken}` } });
-      if (!response.ok && accessToken === this.session()?.access_token) return this.user((await this.refreshSession(true)).access_token);
-      if (!response.ok) throw new Error("Kunde inte läsa kontot.");
+      if (!response.ok && accessToken === this.session()?.access_token) {
+        try { return await this.user((await this.refreshSession(true)).access_token); }
+        catch (error) { if (response.status === 401 || response.status === 403) throw new Error("SESSION_EXPIRED"); throw error; }
+      }
+      if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "SESSION_EXPIRED" : "Kunde inte läsa kontot.");
       return response.json();
     },
     consumeVerification() {
