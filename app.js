@@ -243,7 +243,7 @@ function render() {
   matches.innerHTML = state.matches.length ? `<h3 class="match-group-title">Mina solomatcher</h3>${soloMatches.length ? soloMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga solomatcher.</p>`}<h3 class="match-group-title">Mina onlinematcher</h3>${onlineMatches.length ? onlineMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga onlinematcher.</p>`}` : `<p class="muted">Du har inga matcher än.</p>`;
   const historyCard = (match) => `<article class="history-match ${match.mode === "solo" ? "solo-win" : match.leaveReason === "DU LÄMNADE INNAN MATCHSTART" ? "early-leave" : "walkover"}"><strong>${match.title}</strong>${match.mode === "solo" && match.rounds ? `<div class="solo-card-stats"><div><strong>${match.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${match.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.rounds}</strong><small>${match.rounds === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<span>${match.leaveReason}</span>`}</article>`;
   const soloHistory = state.history.filter((match) => match.mode === "solo"), onlineHistory = state.history.filter((match) => match.mode !== "solo");
-  matches.querySelectorAll("[data-open-match]").forEach((button) => { const unread = Number(state.chatUnread[button.dataset.openMatch] || 0); if (unread) button.closest(".match")?.querySelector(".match-card-actions")?.insertAdjacentHTML("afterbegin", `<span class="match-chat-alert" title="${unread} nya chattmeddelanden">✉<b>${unread}</b></span>`); });
+  matches.querySelectorAll("[data-open-match]").forEach((button) => { const unread = Number(state.chatUnread[button.dataset.openMatch] || 0); if (unread) button.closest(".match")?.querySelector(".match-lock-top")?.insertAdjacentHTML("beforebegin", `<button class="match-chat-alert" data-open-chat="${button.dataset.openMatch}" title="Öppna chatt: ${unread} nya meddelanden" aria-label="Öppna chatt" type="button">✉<b>${unread}</b></button>`); });
   const history = $("#history");
   if (history) history.innerHTML = `<h3 class="section-subtitle">Solomatcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="solo">NOLLSTÄLL SOLOMATCHER</button></div>${soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`}<h3 class="section-subtitle">Onlinematcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="online">NOLLSTÄLL ONLINEMATCHER</button></div>${onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`}`;
 }
@@ -292,8 +292,8 @@ async function loadChat() {
   $("#chat-messages").scrollTop = $("#chat-messages").scrollHeight;
   state.chatUnread[match.code] = 0; save(); render(); refreshChatButtons(match);
 }
-async function openChat() {
-  const match = state.matches.find((item) => item.code === state.activeMatchCode);
+async function openChat(matchCode = state.activeMatchCode) {
+  const match = state.matches.find((item) => item.code === matchCode);
   if (!match || isSoloMatch(match)) { dialog("Chatt finns bara i onlinematcher."); return; }
   state.chatMatchCode = match.code; state.chatReturnView = currentView; state.chatUnread[match.code] = 0; save();
   $("#chat-title").textContent = match.title; $("#chat-input").value = ""; showView("chat"); await loadChat(); clearInterval(chatPoll); chatPoll = setInterval(() => { if (currentView === "chat") loadChat().catch(() => {}); }, 2500);
@@ -486,6 +486,8 @@ $("#join-match").addEventListener("click", async () => {
   if (!/^[A-Z0-9]{6}$/.test(value)) { $("#match-code").focus(); return; } try { await joinOnlineMatch(value); $("#match-code").value = ""; } catch (error) { alert(error.message); }
 });
 $("#matches").addEventListener("click", (event) => {
+  const chatButton = event.target.closest("[data-open-chat]");
+  if (chatButton) { openChat(chatButton.dataset.openChat).catch((error) => alert(error.message)); return; }
   const openButton = event.target.closest("[data-open-match]");
   if (openButton) { openMatch(openButton.dataset.openMatch); return; }
   const deleteButton = event.target.closest("[data-delete-match]");
@@ -780,7 +782,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.22";
+$(".brand small").textContent = "v3.26";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
