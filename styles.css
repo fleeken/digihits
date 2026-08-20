@@ -196,3 +196,6 @@ h1{font-size:31px;}
 .match-lock-top.is-locked{font-size:17px;}.match-lock-top.is-unlocked{font-size:20px;}.match-lock-top.is-locked::before,.match-lock-top.is-locked::after,.match-lock-top.is-unlocked::before,.match-lock-top.is-unlocked::after{display:none;}
 .match-open .chat-badge{display:none;}
 @media (display-mode:standalone){.install-home{display:none;}#enable-notifications{display:block;}}
+/* Låt fingret bläddra på hela tidslinjen, även över de streckade placeringsytorna. */
+.timeline-row{overflow-x:auto;overflow-y:hidden;justify-content:flex-start;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;}
+.timeline-row .slot{touch-action:pan-x;}
