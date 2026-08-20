@@ -193,7 +193,9 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#result-lock").textContent = `🔒 LÅS IN ${unlocked.length + (correct ? 1 : 0)} KORT`;
 }
 
+function updateTurnBadge() { const count = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length; $("#turn-badge").hidden = !count; $("#turn-badge").textContent = count; if (navigator.setAppBadge) (count ? navigator.setAppBadge(count) : navigator.clearAppBadge()).catch(() => {}); }
 function render() {
+  updateTurnBadge();
   $("#player-name").textContent = state.playerName;
   const spotify = supabaseAuth.spotify();
   $("#spotify-status").textContent = spotify ? "Spotify Premium är anslutet." : "Premium krävs för uppspelning.";
