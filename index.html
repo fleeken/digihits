@@ -11,11 +11,11 @@
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon-ios-261.png" />
     <script>document.documentElement.classList.add("booting");if(localStorage.getItem("digihits-auth-session")&&new URLSearchParams(location.search).has("code")&&sessionStorage.getItem("digihits-spotify-pending"))document.documentElement.classList.add("spotify-callback")</script>
-    <link rel="stylesheet" href="styles.css?v=2.82" /><style>.no-change-cards{display:none!important}</style>
+    <link rel="stylesheet" href="styles.css?v=2.94" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
-<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v2.89</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
+<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v2.94</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
@@ -66,14 +66,16 @@
 
       <section class="view" data-view-panel="lobby">
         <section class="lobby-layout">
-          <aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-primary" id="lobby-chat" type="button">VISA CHATT</button><button class="button button-leave" id="lobby-leave" type="button">LÄMNA MATCHEN</button></aside>
+          <aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-primary chat-open-button" id="lobby-chat" type="button">VISA CHATT</button><button class="button button-leave" id="lobby-leave" type="button">LÄMNA MATCHEN</button></aside>
           <section class="panel lobby-main"><div class="lobby-title-row"><h1>Väntar på motspelare</h1><button class="lobby-unlock" type="button">🔓 OLÅST MATCH</button></div><div class="lobby-stage"><div class="lobby-code-card"><small>MATCHKOD</small><strong id="lobby-code">------</strong><button class="copy-code" id="copy-lobby-code" type="button">KOPIERA KOD</button></div></div></section>
         </section>
       </section>
 
       <section class="view" data-view-panel="match">
-        <section class="lobby-layout"><aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-green next-round" id="next-round" type="button" onclick="window.resumeDigihitsRound?.()">STARTA NÄSTA OMGÅNG</button><button class="button button-primary" type="button">VISA CHATT</button><button class="button button-leave" type="button">LÄMNA MATCHEN</button></aside><section class="panel match-view"><div class="lobby-title-row"><h1>Matchöversikt</h1></div><p class="turn-message" id="turn-message">DIN TUR</p><div class="match-summary"><small>MATCHKOD</small><strong id="overview-code">------</strong></div><div class="match-metrics"><div><strong id="overview-players-count">2</strong><small>SPELARE</small></div><div><strong id="overview-round">REDO</strong><small id="overview-round-label">OMGÅNG</small></div><div><strong id="overview-target">10</strong><small id="overview-target-label">FÖRST TILL</small></div></div><div id="overview-players" class="overview-players"></div></section></section>
+        <section class="lobby-layout"><aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-green next-round" id="next-round" type="button" onclick="window.resumeDigihitsRound?.()">STARTA NÄSTA OMGÅNG</button><button class="button button-primary chat-open-button" id="match-chat" type="button">VISA CHATT</button><button class="button button-leave" type="button">LÄMNA MATCHEN</button></aside><section class="panel match-view"><div class="lobby-title-row"><h1>Matchöversikt</h1></div><p class="turn-message" id="turn-message">DIN TUR</p><div class="match-summary"><small>MATCHKOD</small><strong id="overview-code">------</strong></div><div class="match-metrics"><div><strong id="overview-players-count">2</strong><small>SPELARE</small></div><div><strong id="overview-round">REDO</strong><small id="overview-round-label">OMGÅNG</small></div><div><strong id="overview-target">10</strong><small id="overview-target-label">FÖRST TILL</small></div></div><div id="overview-players" class="overview-players"></div></section></section>
       </section>
+
+      <section class="view" data-view-panel="chat"><section class="chat-view panel"><button class="back-link" id="chat-back" type="button">← Tillbaka</button><h1 id="chat-title">Chatt</h1><div class="chat-messages" id="chat-messages"></div><form class="chat-form" id="chat-form"><input id="chat-input" maxlength="500" placeholder="Skriv ett meddelande" /><button class="button button-primary" type="submit">SKICKA</button></form></section></section>
 
       <section class="view" data-view-panel="guess">
         <section class="guess-view panel"><div class="guess-top"><button class="back-link" data-view="match">← Tillbaka</button><h1>Rätt låtnamn &amp; artist ger ett byt-låt-kort</h1></div><div class="replay-row"><button class="button button-green" id="play-sample" type="button">▶ SPELA LÅT</button><button class="button button-secondary" id="replay-track" type="button">↻ SPELA LÅT FRÅN BÖRJAN</button></div><div class="song-timeline" id="song-timeline" hidden><span id="song-current">0:00</span><div><i id="song-progress"></i></div><span id="song-duration">0:00</span></div><form id="guess-form" class="guess-form"><input id="guess-artist" placeholder="Artist" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" /><input id="guess-track" placeholder="Låtnamn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" /><small>Små stavfel är okej.</small><div><button class="button button-primary" type="submit">NÄSTA</button><button class="button button-secondary" id="skip-guess" type="button">HOPPA ÖVER</button></div></form></section>
@@ -111,8 +113,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script>window.onSpotifyWebPlaybackSDKReady = () => window.dispatchEvent(new Event("digihits-spotify-ready"));</script>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
-    <script src="auth.js?v=2.89"></script>
+    <script src="auth.js?v=2.94"></script>
     <script src="tracks.js"></script>
-    <script src="app.js?v=2.89"></script>
+    <script src="app.js?v=2.94"></script>
   </body>
 </html>

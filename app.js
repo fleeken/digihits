@@ -19,6 +19,8 @@ state.lockedTimeline ||= [{ id: "digi-001", year: 1956, artist: "Elvis Presley",
 state.currentCard ||= null;
 state.guessDraft ||= null;
 state.placementDraft ||= null;
+state.chatUnread ||= {};
+state.chatMatchCode ||= null;
 let currentPlacementCorrect = true;
 let viewingLatestRound = false;
 const latestRounds = {};
@@ -74,15 +76,17 @@ async function ensureSpotifyPlayer() {
   catch (error) { resetSpotifyPlayer(); throw error; }
 }
 const normaliseTrackText = (value) => String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-const answerText = (value) => String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(/\s+/).filter((word, index) => !(index === 0 && ["the", "a", "an", "en", "ett", "den", "det", "de"].includes(word))).join("");
+const answerText = (value) => String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(/\s+/).filter((word) => !["the", "a", "an", "en", "ett", "den", "det", "de", "and", "och"].includes(word)).join("");
 function editDistance(left, right) { const row = Array.from({ length: right.length + 1 }, (_, index) => index); for (let i = 1; i <= left.length; i += 1) { let previous = row[0]; row[0] = i; for (let j = 1; j <= right.length; j += 1) { const saved = row[j]; row[j] = Math.min(row[j] + 1, row[j - 1] + 1, previous + (left[i - 1] === right[j - 1] ? 0 : 1)); previous = saved; } } return row[right.length]; }
-function closeAnswer(answer, expected) { const left = answerText(answer), right = answerText(expected); if (!left || !right) return false; if (left === right) return true; return editDistance(left, right) <= (right.length <= 5 ? 1 : Math.max(1, Math.floor(right.length * 0.18))); }
+function oneTranspositionAway(left, right) { if (left.length !== right.length) return false; const index = [...left].findIndex((letter, i) => letter !== right[i]); return index >= 0 && left[index] === right[index + 1] && left[index + 1] === right[index] && left.slice(index + 2) === right.slice(index + 2); }
+function closeAnswer(answer, expected) { const left = answerText(answer), right = answerText(expected); if (!left || !right) return false; if (left === right || oneTranspositionAway(left, right)) return true; return editDistance(left, right) <= (right.length <= 5 ? 1 : Math.max(1, Math.floor(right.length * 0.18))); }
+function titleAnswerMatches(answer, expected) { const left = answerText(answer), right = answerText(expected); return closeAnswer(answer, expected) || Boolean(left.length >= 4 && (right.startsWith(left) || left.startsWith(right))); }
 const artistAliases = Object.fromEntries(Object.entries({ "The Beatles": ["John Lennon", "Paul McCartney", "George Harrison", "Ringo Starr"], Queen: ["Freddie Mercury"], ABBA: ["Agnetha Fältskog", "Anni-Frid Lyngstad", "Frida"], Roxette: ["Marie Fredriksson", "Per Gessle"], "The Police": ["Sting"], Eagles: ["Don Henley"], Nirvana: ["Kurt Cobain"], Oasis: ["Liam Gallagher", "Noel Gallagher"], Metallica: ["James Hetfield"], Coldplay: ["Chris Martin"], U2: ["Bono"], "The Rolling Stones": ["Mick Jagger", "Keith Richards"], "Fleetwood Mac": ["Stevie Nicks", "Lindsey Buckingham", "Christine McVie"], "Bee Gees": ["Barry Gibb", "Robin Gibb", "Maurice Gibb"], "Destiny's Child": ["Beyoncé", "Beyonce"], "Ace of Base": ["Jenny Berggren", "Linn Berggren", "Ulf Ekberg"], "Gyllene Tider": ["Per Gessle"], Kent: ["Joakim Berg"] }).map(([artist, aliases]) => [answerText(artist), aliases]));
 artistAliases[answerText("Jackson 5")] = ["Michael Jackson"];
 function artistAnswerMatches(answer, expected) { const cleanAnswer = String(answer || "").trim(); if (!cleanAnswer) return false; const aliases = artistAliases[answerText(expected)] || [], parts = cleanAnswer.split(/\s*(?:,|&|\/|\boch\b|\band\b)\s*/i).map((part) => part.trim()).filter(Boolean), lastName = (value) => String(value).trim().split(/\s+/).at(-1); if (closeAnswer(cleanAnswer, expected) || closeAnswer(cleanAnswer, lastName(expected))) return true; if (parts.length === 1) return aliases.some((alias) => closeAnswer(parts[0], alias) || closeAnswer(parts[0], lastName(alias))); return parts.length > 0 && parts.length <= 3 && parts.every((part) => aliases.some((alias) => closeAnswer(part, alias) || closeAnswer(part, lastName(alias)))); }
 function soloResultStats(correct, mistakes, rounds) { return `<span>RÄTT PLACERADE KORT: <strong class="solo-correct">${correct}/10</strong></span><span>FELPLACERADE KORT: <strong class="solo-mistakes">${mistakes}</strong></span><span>${rounds === 1 ? "OMGÅNG" : "OMGÅNGAR"}: <strong class="solo-rounds">${rounds}</strong></span>`; }
-function completeSongGuess(guess, card) { const artist = String(guess?.artist || "").trim(), title = String(guess?.title || "").trim(); return Boolean(artist && title && ((artistAnswerMatches(artist, card.artist) && closeAnswer(title, card.title)) || (artistAnswerMatches(title, card.artist) && closeAnswer(artist, card.title)))); }
-function renderGuessChecks(card, guess = {}) { const answers = document.querySelectorAll(".result-checks .result-check"), fullAnswer = completeSongGuess(guess, card); [["artist", "Artist"], ["title", "Låtnamn"]].forEach(([key, label], index) => { const right = fullAnswer || (key === "artist" ? artistAnswerMatches(guess[key], card[key]) : closeAnswer(guess[key], card[key])); answers[index + 1].className = `result-check ${right ? "good" : "bad"}`; answers[index + 1].innerHTML = `${right ? "☑" : "✕"} &nbsp; ${right ? "Rätt" : "Fel"} ${label.toLowerCase()}<small>Du skrev: ${guess[key] || "–"}</small>`; }); }
+function completeSongGuess(guess, card) { const artist = String(guess?.artist || "").trim(), title = String(guess?.title || "").trim(); return Boolean(artist && title && ((artistAnswerMatches(artist, card.artist) && titleAnswerMatches(title, card.title)) || (artistAnswerMatches(title, card.artist) && titleAnswerMatches(artist, card.title)))); }
+function renderGuessChecks(card, guess = {}) { const answers = document.querySelectorAll(".result-checks .result-check"), fullAnswer = completeSongGuess(guess, card); [["artist", "Artist"], ["title", "Låtnamn"]].forEach(([key, label], index) => { const right = fullAnswer || (key === "artist" ? artistAnswerMatches(guess[key], card[key]) : titleAnswerMatches(guess[key], card[key])); answers[index + 1].className = `result-check ${right ? "good" : "bad"}`; answers[index + 1].innerHTML = `${right ? "☑" : "✕"} &nbsp; ${right ? "Rätt" : "Fel"} ${label.toLowerCase()}<small>Du skrev: ${guess[key] || "–"}</small>`; }); }
 const unsuitableSpotifyVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 async function resolveSpotifyTrack(token, card) {
   const cached = state.selectedTracks[card.id];
@@ -119,7 +123,12 @@ async function playCurrentTrack(retry = true) {
   const play = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ uris: [track.uri], position_ms: 0 }) });
   if (!play.ok && retry) { resetSpotifyPlayer(); return playCurrentTrack(false); }
   if (!play.ok) throw new Error("Spotify kunde inte starta låten.");
-  setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 250); setTimeout(() => spotifyPlayer?.seek(0).catch(() => {}), 750);
+  await new Promise((resolve) => setTimeout(resolve, 700));
+  const rewind = await spotifyPlayer?.seek(0).catch(() => false);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const playback = await spotifyPlayer?.getCurrentState().catch(() => null), playingRequestedTrack = playback && !playback.paused && playback.track_window?.current_track?.uri === track.uri && playback.position < 2500;
+  if ((!rewind || !playingRequestedTrack) && retry) { resetSpotifyPlayer(); return playCurrentTrack(false); }
+  if (!rewind || !playingRequestedTrack) throw new Error("Spotify kunde inte starta låten från början.");
   loadedSpotifyCardId = card.id; wasPausedByUser = false; pausedForNavigation = false; updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
 }
 function setPlayButton(playing) { spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
@@ -207,12 +216,13 @@ function render() {
   const renderCard = (match) => {
     const solo = isSoloMatch(match);
     const soloScore = solo ? soloProgress(match) : null;
+    const unread = solo ? 0 : Number(state.chatUnread[match.code] || 0);
     const label = solo ? "ÖPPNA SOLOMATCH HÄR" : match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCH HÄR";
     const status = solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
     const players = `${match.status === "waiting" ? "1" : "2"} spelare · Omgång ${match.round || 1}`;
     const lock = match.locked ? "🔒" : "🔓";
     const lockLabel = match.locked ? "Match låst" : "Match olåst";
-    return `<article class="match ${solo ? "solo" : match.status}">${solo ? "" : `<button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button>`}<div class="match-top"><strong>${match.title}</strong></div>${solo ? `<div class="solo-card-stats"><div><strong>${soloScore.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${soloScore.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.round || 1}</strong><small>${(match.round || 1) === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<small>${players}</small><div class="match-status">● ${status}</div><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
+    return `<article class="match ${solo ? "solo" : match.status}">${solo ? "" : `<button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button>`}<div class="match-top"><strong>${match.title}</strong></div>${solo ? `<div class="solo-card-stats"><div><strong>${soloScore.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${soloScore.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.round || 1}</strong><small>${(match.round || 1) === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<small>${players}</small><div class="match-status">● ${status}</div><div class="match-code">MATCHKOD &nbsp; <strong>${match.code}</strong></div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}${unread ? `<span class="chat-badge">${unread}</span>` : ""}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div></article>`;
   };
   const soloMatches = state.matches.filter(isSoloMatch);
   const active = state.matches.filter((match) => !isSoloMatch(match) && (match.status === "active" || match.status === "opponent"));
@@ -254,10 +264,40 @@ function openLobby(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
   state.activeMatchCode = matchCode; save();
+  refreshChatButtons(match);
   $("#lobby-code").textContent = match.code;
   $("#copy-lobby-code").textContent = "KOPIERA KOD";
   $("#copy-lobby-code").classList.remove("is-copied");
   showView("lobby");
+}
+
+const escapeHtml = (value) => String(value || "").replace(/[&<>"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character]);
+function refreshChatButtons(match = state.matches.find((item) => item.code === state.activeMatchCode)) {
+  const unread = Number(match && !isSoloMatch(match) ? state.chatUnread[match.code] || 0 : 0);
+  [$("#lobby-chat"), $("#match-chat")].filter(Boolean).forEach((button) => { button.hidden = !match || isSoloMatch(match); button.innerHTML = `VISA CHATT${unread ? ` <span class="chat-badge">${unread}</span>` : ""}`; });
+}
+async function loadChat() {
+  const match = state.matches.find((item) => item.code === state.chatMatchCode);
+  if (!match?.id) return;
+  const messages = await supabaseAuth.dataRequest(`online_messages?match_id=eq.${match.id}&select=id,user_id,display_name,body,created_at&order=created_at.asc`);
+  if (currentView !== "chat") return;
+  const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
+  $("#chat-messages").innerHTML = messages.length ? messages.map((message) => `<article class="chat-message ${message.user_id === user.id ? "mine" : ""}"><strong>${escapeHtml(message.display_name)}</strong>${escapeHtml(message.body)}<time>${new Date(message.created_at).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}</time></article>`).join("") : `<p class="chat-empty">Inga meddelanden ännu.</p>`;
+  $("#chat-messages").scrollTop = $("#chat-messages").scrollHeight;
+  state.chatUnread[match.code] = 0; save(); render(); refreshChatButtons(match);
+}
+async function openChat() {
+  const match = state.matches.find((item) => item.code === state.activeMatchCode);
+  if (!match || isSoloMatch(match)) { dialog("Chatt finns bara i onlinematcher."); return; }
+  state.chatMatchCode = match.code; state.chatReturnView = currentView; state.chatUnread[match.code] = 0; save();
+  $("#chat-title").textContent = match.title; $("#chat-input").value = ""; showView("chat"); await loadChat();
+}
+function handleChatRealtime(payload) {
+  if (payload.eventType !== "INSERT" || payload.new?.user_id === state.userId) return;
+  const match = state.matches.find((item) => item.id === payload.new?.match_id);
+  if (!match) return;
+  if (currentView === "chat" && state.chatMatchCode === match.code) { loadChat().catch(() => {}); return; }
+  state.chatUnread[match.code] = Number(state.chatUnread[match.code] || 0) + 1; save(); render(); refreshChatButtons();
 }
 
 function openMatch(matchCode) {
@@ -265,6 +305,7 @@ function openMatch(matchCode) {
   if (!match) return;
   const soloMatch = isSoloMatch(match);
   state.activeMatchCode = matchCode; save();
+  refreshChatButtons(match);
   $("#overview-code").textContent = soloMatch ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = soloMatch ? "SPELTYP" : "MATCHKOD";
   const playersMetric = $("#overview-players-count").parentElement;
@@ -385,7 +426,7 @@ async function syncMatches() {
   if (["guess", "timeline"].includes(currentView) && !resultIsLocked && activeMatch && activeMatch.status !== "active") openMatch(activeMatch.code);
   if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
 }
-function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {})); }
+function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {}), handleChatRealtime); }
 async function refreshActiveRound() {
   if (!["guess", "timeline"].includes(currentView)) return;
   const match = state.matches.find((item) => item.code === state.activeMatchCode && item.status === "active");
@@ -455,6 +496,9 @@ $("#copy-lobby-code").addEventListener("click", async () => {
   button.classList.add("is-copied");
 });
 $("#lobby-leave").addEventListener("click", () => showView("home"));
+[$("#lobby-chat"), $("#match-chat")].forEach((button) => button.addEventListener("click", () => openChat().catch((error) => alert(error.message))));
+$("#chat-back").addEventListener("click", () => { const view = state.chatReturnView === "lobby" ? "lobby" : "match"; if (view === "lobby") openLobby(state.activeMatchCode); else openMatch(state.activeMatchCode); });
+$("#chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const match = state.matches.find((item) => item.code === state.chatMatchCode), body = $("#chat-input").value.trim(); if (!match?.id || !body) return; const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); try { await supabaseAuth.dataRequest("online_messages", { match_id: match.id, user_id: user.id, display_name: state.playerName, body }, "POST"); $("#chat-input").value = ""; await loadChat(); } catch (error) { alert(error.message); } });
 window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify()) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } button.disabled = true; const label = button.textContent; button.textContent = "LADDAR OMGÅNG…"; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = true; resultIsLocked = true; renderRoundResult(true, pending.card, pending.snapshot); showView("result"); return; } await syncMatches(); button.textContent = "LADDAR OMGÅNG…"; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (!existingCard) { state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard(); } resetTurnInput(); showView("guess"); if (existingCard) { pausedForNavigation = true; resumeRoundTrack(); } else startCurrentTrack(); } catch (error) { alert(error.message); } finally { button.disabled = false; button.textContent = label; } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
@@ -714,13 +758,14 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
   }).catch(() => showView("login"));
 } else if (supabaseAuth.session()?.access_token) {
   supabaseAuth.user(supabaseAuth.session().access_token).then(async (user) => {
-    $("#player-email").textContent = user.email; state.playerName = user.user_metadata?.display_name || state.playerName; save(); render();
+    $("#player-email").textContent = user.email; state.playerName = user.user_metadata?.display_name || state.playerName; state.userId = user.id; save(); render();
     await syncMatches(); await restoreRoundUnlocked(); startRealtime();
     try { const spotify = await supabaseAuth.consumeSpotify(); if (spotify) { render(); dialog(`Spotify Premium är anslutet som ${spotify.name}.`); } } catch (error) { alert(error.message); }
     const view = location.hash.slice(1) || "home";
     if (view === "match" && state.activeMatchCode) openMatch(state.activeMatchCode);
     else if (view === "lobby" && state.activeMatchCode) openLobby(state.activeMatchCode);
     else if (view === "result" && state.activeMatchCode) await restoreResultView();
+    else if (view === "chat" && state.chatMatchCode) { showView("chat", false, true); await loadChat(); }
     else showView(view === "welcome" ? "home" : view, false, true);
   }).catch((error) => { if (error?.message === "SESSION_EXPIRED") { supabaseAuth.signOut(); showView("welcome"); return; } showView(location.hash.slice(1) || "home", false, true); });
 } else document.documentElement.classList.remove("booting");

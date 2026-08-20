@@ -76,12 +76,12 @@ const supabaseAuth = (() => {
       if (!response.ok) throw new Error(data.error || "Kunde inte radera kontot.");
     },
     dataRequest,
-    subscribeMatches(callback) {
+    subscribeMatches(callback, messageCallback = callback) {
       if (!window.supabase || !this.session()?.access_token) return;
       if (realtimeChannel) realtimeChannel.unsubscribe();
       const client = window.supabase.createClient(root, key, { auth: { persistSession: false } });
       client.realtime.setAuth(this.session().access_token);
-      realtimeChannel = client.channel("digihits-matches").on("postgres_changes", { event: "*", schema: "public", table: "online_matches" }, callback).on("postgres_changes", { event: "*", schema: "public", table: "online_players" }, callback).subscribe();
+      realtimeChannel = client.channel("digihits-matches").on("postgres_changes", { event: "*", schema: "public", table: "online_matches" }, callback).on("postgres_changes", { event: "*", schema: "public", table: "online_players" }, callback).on("postgres_changes", { event: "*", schema: "public", table: "online_messages" }, messageCallback).subscribe();
     },
     unsubscribeMatches() { if (realtimeChannel) { realtimeChannel.unsubscribe(); realtimeChannel = null; } },
     session() {
