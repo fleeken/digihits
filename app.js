@@ -206,6 +206,7 @@ function render() {
   const turns = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length;
   $("#waiting-count").textContent = `Väntar på ${waiting}`;
   $("#turn-count").textContent = `Din tur ${turns}`;
+  $("#turn-count").classList.toggle("has-turn", turns > 0);
   $("#stat-wins").textContent = `${state.stats.wins} st`;
   $("#stat-losses").textContent = `${state.stats.losses} st`;
   $("#stat-walkovers").textContent = `${state.stats.walkovers} st`;
@@ -658,7 +659,8 @@ $("#result-lock").addEventListener("click", async () => {
 $("#result-back").addEventListener("click", () => { if (viewingLatestRound) { viewingLatestRound = false; showView("match"); } else if (!currentPlacementCorrect) { state.roundUnlocked = []; save(); showView("home", true); } else showView("match"); });
 $("#brand-home").addEventListener("click", () => showView(currentView === "welcome" ? "welcome" : "home"));
 $("#install-app").addEventListener("click", () => dialog("I Safari: tryck på Dela-knappen längst ned, välj Lägg till på hemskärmen och bekräfta."));
-$("#enable-notifications").addEventListener("click", async () => { if (!("Notification" in window) || !("serviceWorker" in navigator)) { dialog("Notiser stöds inte i den här webbläsaren."); return; } if (Notification.permission === "granted") { dialog("Notiser är redan tillåtna på den här enheten."); return; } const permission = await Notification.requestPermission(); dialog(permission === "granted" ? "Notiser är tillåtna på den här enheten." : "Notiser tilläts inte. Du kan ändra detta i iPhones inställningar."); });
+const pushKeyBytes = (value) => Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), (character) => character.charCodeAt(0));
+$("#enable-notifications").addEventListener("click", async () => { try { if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("Notiser stöds inte i den här webbläsaren."); const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission(); if (permission !== "granted") throw new Error("Notiser tilläts inte. Du kan ändra detta i iPhones inställningar."); const registration = await navigator.serviceWorker.ready, key = window.DIGIHITS_VAPID_PUBLIC_KEY; if (!key) throw new Error("Notisservern är inte klar ännu."); const subscription = await registration.pushManager.getSubscription() || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(key) }); const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), endpoint = encodeURIComponent(subscription.endpoint), data = { endpoint: subscription.endpoint, user_id: String(user.id), subscription: subscription.toJSON() }, existing = await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}&select=endpoint`); if (existing.length) await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}`, data, "PATCH"); else await supabaseAuth.dataRequest("push_subscriptions", data, "POST"); dialog("Notiser är aktiverade på den här enheten."); } catch (error) { dialog(error.message); } });
 window.addEventListener("popstate", (event) => {
   if (resultIsLocked && currentView === "result") { history.pushState({ view: "result" }, "", "#result"); return; }
   showView(event.state?.view || "welcome", false, true);
@@ -772,6 +774,6 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
     else if (view === "lobby" && state.activeMatchCode) openLobby(state.activeMatchCode);
     else if (view === "result" && state.activeMatchCode) await restoreResultView();
     else if (view === "chat" && state.chatMatchCode) { showView("chat", false, true); await loadChat(); }
-    else showView(view === "welcome" ? "home" : view, false, true);
+    else showView(view === "welcome" ? "home" : view, new URLSearchParams(location.search).get("matches") === "1", true);
   }).catch((error) => { if (error?.message === "SESSION_EXPIRED") { supabaseAuth.signOut(); showView("welcome"); return; } showView(location.hash.slice(1) || "home", false, true); });
 } else document.documentElement.classList.remove("booting");
