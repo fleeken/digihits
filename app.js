@@ -21,6 +21,7 @@ state.guessDraft ||= null;
 state.placementDraft ||= null;
 state.chatUnread ||= {};
 state.chatMatchCode ||= null;
+state.pushNotificationsEnabled ??= false;
 let currentPlacementCorrect = true;
 let viewingLatestRound = false;
 const latestRounds = {};
@@ -202,6 +203,7 @@ function render() {
   $("#connect-spotify").textContent = spotify ? spotify.name : "ANSLUT DITT SPOTIFY PREMIUM HÄR";
   $("#connect-spotify").className = `button ${spotify ? "button-green" : "button-red"} spotify-button`;
   $("#switch-spotify").hidden = false;
+  $("#enable-notifications").textContent = state.pushNotificationsEnabled ? "INAKTIVERA NOTISER" : "AKTIVERA NOTISER";
   const waiting = state.matches.filter((match) => !isSoloMatch(match) && match.status === "opponent").length;
   const turns = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length;
   $("#waiting-count").textContent = `Väntar på ${waiting}`;
@@ -660,7 +662,7 @@ $("#result-back").addEventListener("click", () => { if (viewingLatestRound) { vi
 $("#brand-home").addEventListener("click", () => showView(currentView === "welcome" ? "welcome" : "home"));
 $("#install-app").addEventListener("click", () => dialog("I Safari: tryck på Dela-knappen längst ned, välj Lägg till på hemskärmen och bekräfta."));
 const pushKeyBytes = (value) => Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), (character) => character.charCodeAt(0));
-$("#enable-notifications").addEventListener("click", async () => { try { if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("Notiser stöds inte i den här webbläsaren."); const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission(); if (permission !== "granted") throw new Error("Notiser tilläts inte. Du kan ändra detta i iPhones inställningar."); const registration = await navigator.serviceWorker.ready, key = window.DIGIHITS_VAPID_PUBLIC_KEY; if (!key) throw new Error("Notisservern är inte klar ännu."); const subscription = await registration.pushManager.getSubscription() || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(key) }); const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), endpoint = encodeURIComponent(subscription.endpoint), data = { endpoint: subscription.endpoint, user_id: String(user.id), subscription: subscription.toJSON() }, existing = await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}&select=endpoint`); if (existing.length) await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}`, data, "PATCH"); else await supabaseAuth.dataRequest("push_subscriptions", data, "POST"); dialog("Notiser är aktiverade på den här enheten."); } catch (error) { dialog(error.message); } });
+$("#enable-notifications").addEventListener("click", async () => { try { if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("Notiser stöds inte i den här webbläsaren."); const registration = await navigator.serviceWorker.ready, existingSubscription = await registration.pushManager.getSubscription(); if (state.pushNotificationsEnabled) { if (existingSubscription) { await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${encodeURIComponent(existingSubscription.endpoint)}`, null, "DELETE"); await existingSubscription.unsubscribe(); } state.pushNotificationsEnabled = false; save(); render(); dialog("Notiser är inaktiverade på den här enheten."); return; } const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission(); if (permission !== "granted") throw new Error("Notiser tilläts inte. Du kan ändra detta i iPhones inställningar."); const key = window.DIGIHITS_VAPID_PUBLIC_KEY; if (!key) throw new Error("Notisservern är inte klar ännu."); const subscription = existingSubscription || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(key) }); const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), endpoint = encodeURIComponent(subscription.endpoint), data = { endpoint: subscription.endpoint, user_id: String(user.id), subscription: subscription.toJSON() }, existing = await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}&select=endpoint`); if (existing.length) await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}`, data, "PATCH"); else await supabaseAuth.dataRequest("push_subscriptions", data, "POST"); state.pushNotificationsEnabled = true; save(); render(); dialog("Notiser är aktiverade på den här enheten."); } catch (error) { dialog(error.message); } });
 window.addEventListener("popstate", (event) => {
   if (resultIsLocked && currentView === "result") { history.pushState({ view: "result" }, "", "#result"); return; }
   showView(event.state?.view || "welcome", false, true);
@@ -746,8 +748,9 @@ $("#signup-form").addEventListener("submit", async (event) => {
   finally { $("#signup-progress").hidden = true; }
 });
 
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=3.01").catch(() => {});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=3.08").catch(() => {});
 render();
+if ((window.matchMedia?.("(display-mode: standalone)").matches || navigator.standalone) && supabaseAuth.session()?.access_token && window.Notification?.permission === "default") setTimeout(() => dialog("Vill du slå på notiser för Digihits? Du får en notis när det är din tur.", () => $("#enable-notifications").click(), false, "AKTIVERA NOTISER"), 700);
 $("#timeline-row").after($("#change-track-area"));
 $("#change-track-area").after($("#lock-placement"));
 $("#change-track-area").classList.add("placement-change-track");

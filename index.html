@@ -11,11 +11,11 @@
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon-ios-261.png" />
     <script>document.documentElement.classList.add("booting");if(localStorage.getItem("digihits-auth-session")&&new URLSearchParams(location.search).has("code")&&sessionStorage.getItem("digihits-spotify-pending"))document.documentElement.classList.add("spotify-callback")</script>
-    <link rel="stylesheet" href="styles.css?v=3.07" /><style>.no-change-cards{display:none!important}</style>
+    <link rel="stylesheet" href="styles.css?v=3.09" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
-<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v3.07</small></button><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button></header>
+<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v3.09</small></button><div class="brand-actions"><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button><button class="install-home" id="enable-notifications" type="button">AKTIVERA NOTISER</button></div></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
@@ -90,7 +90,7 @@
       </section>
 
       <section class="view" data-view-panel="home">
-        <section class="hero panel"><h1>När släpptes låten?</h1><div class="account-row"><div class="account-row-top"><div><span class="status-dot"></span><strong> INLOGGAD</strong><p id="player-email">spelare@digihits.se</p></div><div class="account-actions"><button class="account-button" id="enable-notifications">AKTIVERA NOTISER</button><button class="account-button" id="change-password">BYT LÖSENORD</button><button class="account-button" id="logout">LOGGA UT</button><button class="account-button account-danger" id="delete-account">RADERA KONTO</button></div></div><div class="player-name"><span>SPELARNAMN</span><strong id="player-name">Spelare</strong></div></div></section>
+        <section class="hero panel"><h1>När släpptes låten?</h1><div class="account-row"><div class="account-row-top"><div><span class="status-dot"></span><strong> INLOGGAD</strong><p id="player-email">spelare@digihits.se</p></div><div class="account-actions"><button class="account-button" id="change-password">BYT LÖSENORD</button><button class="account-button" id="logout">LOGGA UT</button><button class="account-button account-danger" id="delete-account">RADERA KONTO</button></div></div><div class="player-name"><span>SPELARNAMN</span><strong id="player-name">Spelare</strong></div></div></section>
         <section class="panel spotify-connect"><p id="spotify-status">Premium krävs för uppspelning.</p><div class="spotify-actions"><button class="button button-red spotify-button" id="connect-spotify">ANSLUT DITT SPOTIFY PREMIUM HÄR</button><button class="spotify-switch" id="switch-spotify" type="button">BYT SPOTIFYKONTO</button></div></section>
         <section class="panel accordion" data-accordion>
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Skapa eller gå med i match</span><span class="accordion-mark">›</span></button>
@@ -113,9 +113,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script>window.onSpotifyWebPlaybackSDKReady = () => window.dispatchEvent(new Event("digihits-spotify-ready"));</script>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
-    <script src="auth.js?v=3.07"></script>
+    <script src="auth.js?v=3.09"></script>
     <script src="tracks.js"></script>
-    <script src="push-config.js?v=3.07"></script>
-    <script src="app.js?v=3.07"></script>
+    <script src="push-config.js?v=3.09"></script>
+    <script src="app.js?v=3.09"></script>
   </body>
 </html>
