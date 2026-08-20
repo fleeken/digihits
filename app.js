@@ -48,7 +48,7 @@ function pickFreshTrack(cards, used = []) {
   return selection[Math.floor(Math.random() * selection.length)];
 }
 function rememberTrack(card) {
-  state.recentTrackIds = [card.id, ...state.recentTrackIds.filter((id) => id !== card.id)].slice(0, 6);
+  state.recentTrackIds = [card.id, ...state.recentTrackIds.filter((id) => id !== card.id)].slice(0, 30);
 }
 const songTime = (milliseconds) => `${Math.floor(milliseconds / 60000)}:${String(Math.floor(milliseconds / 1000) % 60).padStart(2, "0")}`;
 function resetSpotifyPlayer() { spotifyPlayer?.disconnect?.().catch(() => {}); spotifyPlayer = null; spotifyDeviceId = null; spotifyPlayerReady = null; loadedSpotifyCardId = null; spotifyPlaying = false; wasPausedByUser = false; pausedForNavigation = false; }
@@ -575,8 +575,8 @@ async function dealCard() {
   if (!match?.id) throw new Error("Matchdata saknas.");
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const rows = await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=deck,used_track_ids`);
-  const matchData = rows[0], deck = expandedMatchDeck(matchData.deck || []), used = new Set(matchData.used_track_ids || []), available = deck.filter((card) => !used.has(card.id));
-  if (!available.length) throw new Error("Alla testlåtar i matchen är använda.");
+  const matchData = rows[0], deck = expandedMatchDeck(matchData.deck || []); let used = new Set(matchData.used_track_ids || []), available = deck.filter((card) => !used.has(card.id));
+  if (!available.length) { const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=locked_timeline,turn_cards,current_card`), knownCards = players.flatMap((player) => [...(player.locked_timeline || []), ...(player.turn_cards || []), ...(player.current_card ? [player.current_card] : [])]); used = new Set(knownCards.map((card) => card?.id).filter(Boolean)); available = deck.filter((card) => !used.has(card.id)); if (!available.length) throw new Error("Det finns inga lediga låtar kvar i matchen."); }
   const card = pickFreshTrack(available);
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { deck, used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}`, { current_card: card, updated_at: new Date().toISOString() }, "PATCH");
