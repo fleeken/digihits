@@ -193,7 +193,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#result-lock").textContent = `🔒 LÅS IN ${unlocked.length + (correct ? 1 : 0)} KORT`;
 }
 
-function updateTurnBadge() { const count = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length; $("#turn-badge").hidden = !count; $("#turn-badge").textContent = count; if (navigator.setAppBadge) (count ? navigator.setAppBadge(count) : navigator.clearAppBadge()).catch(() => {}); }
+function updateTurnBadge() { const count = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length + Object.values(state.chatUnread).reduce((sum, value) => sum + Number(value || 0), 0); $("#turn-badge").hidden = !count; $("#turn-badge").textContent = count; if (navigator.setAppBadge) (count ? navigator.setAppBadge(count) : navigator.clearAppBadge()).catch(() => {}); }
 function render() {
   updateTurnBadge();
   $("#player-name").textContent = state.playerName;
