@@ -780,7 +780,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.18";
+$(".brand small").textContent = "v3.19";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
@@ -798,8 +798,11 @@ function itunesJsonp(url) {
 async function resolveApplePreview(card) {
   const cached = state.selectedTracks[card.id];
   if (cached?.preview_url) return cached;
-  const query = `${card.title} ${card.artist}`;
-  const data = await itunesJsonp(`https://itunes.apple.com/search?country=se&media=music&entity=song&limit=25&term=${encodeURIComponent(query)}`);
+  const endpoint = new URL("https://zttkujhoyuxerdewofkb.supabase.co/functions/v1/apple-preview");
+  endpoint.search = new URLSearchParams({ title: card.title, artist: card.artist });
+  const response = await fetch(endpoint);
+  if (!response.ok) throw new Error("Kunde inte hämta låtpreview just nu.");
+  const data = await response.json();
   const title = normaliseTrackText(card.title), artist = normaliseTrackText(card.artist);
   const songs = data.results || [];
   const titleMatch = (song) => { const value = normaliseTrackText(song.trackName); return value === title || value.startsWith(title) || title.startsWith(value); };
