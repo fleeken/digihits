@@ -139,7 +139,7 @@ function resumeRoundTrack() { if (!pausedForNavigation || !state.currentCard || 
 const $ = (selector) => document.querySelector(selector);
 $("#guess-form button[type=submit]").textContent = "NÄSTA";
 if (document.documentElement.classList.contains("spotify-callback")) $("#spotify-connecting").hidden = false;
-let currentView = "welcome";
+let currentView = "welcome", chatPoll = 0;
 let resultIsLocked = false;
 const code = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
 function dialog(message, action, danger = false, confirmText = "FORTSÄTT") {
@@ -239,6 +239,7 @@ function render() {
   matches.innerHTML = state.matches.length ? `<h3 class="match-group-title">Mina solomatcher</h3>${soloMatches.length ? soloMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga solomatcher.</p>`}<h3 class="match-group-title">Mina onlinematcher</h3>${onlineMatches.length ? onlineMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga onlinematcher.</p>`}` : `<p class="muted">Du har inga matcher än.</p>`;
   const historyCard = (match) => `<article class="history-match ${match.mode === "solo" ? "solo-win" : match.leaveReason === "DU LÄMNADE INNAN MATCHSTART" ? "early-leave" : "walkover"}"><strong>${match.title}</strong>${match.mode === "solo" && match.rounds ? `<div class="solo-card-stats"><div><strong>${match.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${match.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.rounds}</strong><small>${match.rounds === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<span>${match.leaveReason}</span>`}</article>`;
   const soloHistory = state.history.filter((match) => match.mode === "solo"), onlineHistory = state.history.filter((match) => match.mode !== "solo");
+  matches.querySelectorAll("[data-open-match]").forEach((button) => { const unread = Number(state.chatUnread[button.dataset.openMatch] || 0); if (unread) button.closest(".match")?.querySelector(".match-card-actions")?.insertAdjacentHTML("afterbegin", `<span class="match-chat-alert" title="${unread} nya chattmeddelanden">✉<b>${unread}</b></span>`); });
   const history = $("#history");
   if (history) history.innerHTML = `<h3 class="section-subtitle">Solomatcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="solo">NOLLSTÄLL SOLOMATCHER</button></div>${soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`}<h3 class="section-subtitle">Onlinematcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="online">NOLLSTÄLL ONLINEMATCHER</button></div>${onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`}`;
 }
@@ -247,6 +248,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
   document.documentElement.classList.remove("booting");
   const gameView = view === "guess" || view === "timeline";
   if (!gameView) stopCurrentTrack(true);
+  if (view !== "chat") { clearInterval(chatPoll); chatPoll = 0; }
   if (view === "timeline") { $("#change-track-area").hidden = false; $("#change-track-area").querySelectorAll(".no-change-cards").forEach((element) => element.remove()); }
   currentView = view;
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
@@ -290,11 +292,11 @@ async function openChat() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match || isSoloMatch(match)) { dialog("Chatt finns bara i onlinematcher."); return; }
   state.chatMatchCode = match.code; state.chatReturnView = currentView; state.chatUnread[match.code] = 0; save();
-  $("#chat-title").textContent = match.title; $("#chat-input").value = ""; showView("chat"); await loadChat();
+  $("#chat-title").textContent = match.title; $("#chat-input").value = ""; showView("chat"); await loadChat(); clearInterval(chatPoll); chatPoll = setInterval(() => { if (currentView === "chat") loadChat().catch(() => {}); }, 2500);
 }
 function handleChatRealtime(payload) {
-  if (payload.eventType !== "INSERT" || payload.new?.user_id === state.userId) return;
-  const match = state.matches.find((item) => item.id === payload.new?.match_id);
+  if (payload.eventType !== "INSERT" || String(payload.new?.user_id) === String(state.userId)) return;
+  const match = state.matches.find((item) => String(item.id) === String(payload.new?.match_id));
   if (!match) return;
   if (currentView === "chat" && state.chatMatchCode === match.code) { loadChat().catch(() => {}); return; }
   state.chatUnread[match.code] = Number(state.chatUnread[match.code] || 0) + 1; save(); render(); refreshChatButtons();
