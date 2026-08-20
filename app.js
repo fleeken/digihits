@@ -780,18 +780,28 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.17";
+$(".brand small").textContent = "v3.18";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
+function itunesJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callback = `digihitsApple_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script = document.createElement("script"); let timer;
+    const clean = () => { clearTimeout(timer); script.remove(); delete window[callback]; };
+    const fail = () => { clean(); reject(new Error("Kunde inte hämta låtpreview just nu.")); };
+    timer = setTimeout(fail, 10000);
+    window[callback] = (data) => { clean(); resolve(data); };
+    script.onerror = fail; script.src = `${url}&callback=${callback}`; document.head.append(script);
+  });
+}
 async function resolveApplePreview(card) {
   const cached = state.selectedTracks[card.id];
   if (cached?.preview_url) return cached;
   const query = `${card.title} ${card.artist}`;
-  const response = await fetch(`https://itunes.apple.com/search?country=se&media=music&entity=song&limit=25&term=${encodeURIComponent(query)}`);
-  if (!response.ok) throw new Error("Kunde inte hämta låtpreview just nu.");
+  const data = await itunesJsonp(`https://itunes.apple.com/search?country=se&media=music&entity=song&limit=25&term=${encodeURIComponent(query)}`);
   const title = normaliseTrackText(card.title), artist = normaliseTrackText(card.artist);
-  const songs = (await response.json()).results || [];
+  const songs = data.results || [];
   const titleMatch = (song) => { const value = normaliseTrackText(song.trackName); return value === title || value.startsWith(title) || title.startsWith(value); };
   const artistMatch = (song) => { const value = normaliseTrackText(song.artistName); return value === artist || value.includes(artist) || artist.includes(value); };
   const track = songs.find((song) => song.previewUrl && titleMatch(song) && artistMatch(song) && !unsuitableAppleVersion.test(`${song.trackName} ${song.collectionName || ""}`));
