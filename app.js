@@ -200,11 +200,8 @@ function updateTurnBadge() { const count = state.matches.filter((match) => !isSo
 function render() {
   updateTurnBadge();
   $("#player-name").textContent = state.playerName;
-  const spotify = supabaseAuth.spotify();
-  $("#spotify-status").textContent = spotify ? "Spotify Premium är anslutet." : "Premium krävs för uppspelning.";
-  $("#connect-spotify").textContent = spotify ? spotify.name : "ANSLUT DITT SPOTIFY PREMIUM HÄR";
-  $("#connect-spotify").className = `button ${spotify ? "button-green" : "button-red"} spotify-button`;
-  $("#switch-spotify").hidden = false;
+  const spotifyPanel = $("#spotify-status");
+  if (spotifyPanel) spotifyPanel.textContent = "Apple Music-previews används för uppspelning.";
   $("#enable-notifications").textContent = state.pushNotificationsEnabled ? "INAKTIVERA NOTISER" : "AKTIVERA NOTISER";
   const waiting = state.matches.filter((match) => !isSoloMatch(match) && match.status === "opponent").length;
   const turns = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length;
@@ -714,8 +711,6 @@ $("#reset-password-form").addEventListener("submit", async (event) => {
   try { await supabaseAuth.updatePassword(supabaseAuth.session()?.access_token, next); alert("Lösenordet är ändrat."); showView("login"); }
   catch (error) { alert(error.message); }
 });
-$("#connect-spotify").addEventListener("click", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)));
-$("#switch-spotify").addEventListener("click", () => { supabaseAuth.disconnectSpotify(); render(); supabaseAuth.connectSpotify(true).catch((error) => alert(error.message)); });
 document.querySelectorAll("input, textarea").forEach((field) => { if (field.type === "password") field.autocomplete = /login|current/.test(field.id) ? "current-password" : "new-password"; else if (field.type === "email") field.autocomplete = "email"; else field.autocomplete = "off"; field.setAttribute("autocorrect", "off"); field.setAttribute("autocapitalize", "off"); field.spellcheck = false; });
 document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view, button.classList.contains("lobby-back"))));
 document.querySelectorAll("[data-accordion]").forEach((section) => {
@@ -782,3 +777,59 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
     else showView(view === "welcome" ? "home" : view, new URLSearchParams(location.search).get("matches") === "1", true);
   }).catch((error) => { if (error?.message === "SESSION_EXPIRED") { supabaseAuth.signOut(); showView("welcome"); return; } showView(location.hash.slice(1) || "home", false, true); });
 } else document.documentElement.classList.remove("booting");
+
+// Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
+let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
+$(".brand small").textContent = "v3.17";
+const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
+supabaseAuth.spotify = () => ({ name: "Apple-previews" });
+supabaseAuth.consumeSpotify = async () => null;
+async function resolveApplePreview(card) {
+  const cached = state.selectedTracks[card.id];
+  if (cached?.preview_url) return cached;
+  const query = `${card.title} ${card.artist}`;
+  const response = await fetch(`https://itunes.apple.com/search?country=se&media=music&entity=song&limit=25&term=${encodeURIComponent(query)}`);
+  if (!response.ok) throw new Error("Kunde inte hämta låtpreview just nu.");
+  const title = normaliseTrackText(card.title), artist = normaliseTrackText(card.artist);
+  const songs = (await response.json()).results || [];
+  const titleMatch = (song) => { const value = normaliseTrackText(song.trackName); return value === title || value.startsWith(title) || title.startsWith(value); };
+  const artistMatch = (song) => { const value = normaliseTrackText(song.artistName); return value === artist || value.includes(artist) || artist.includes(value); };
+  const track = songs.find((song) => song.previewUrl && titleMatch(song) && artistMatch(song) && !unsuitableAppleVersion.test(`${song.trackName} ${song.collectionName || ""}`));
+  if (!track) { const error = new Error("Det finns ingen spelbar preview för den låten."); error.code = "APPLE_TRACK_NOT_FOUND"; throw error; }
+  const resolved = { preview_url: track.previewUrl, duration_ms: 30000 };
+  state.selectedTracks[card.id] = resolved; save();
+  return resolved;
+}
+function appleAudio() {
+  if (applePreviewAudio) return applePreviewAudio;
+  applePreviewAudio = new Audio(); applePreviewAudio.preload = "auto";
+  applePreviewAudio.addEventListener("timeupdate", () => updateSongTimeline(applePreviewAudio.currentTime * 1000, (Number.isFinite(applePreviewAudio.duration) ? applePreviewAudio.duration : 30) * 1000, !applePreviewAudio.paused));
+  applePreviewAudio.addEventListener("ended", () => setPlayButton(false));
+  applePreviewAudio.addEventListener("error", () => { songStarting = false; setPlayButton(false); });
+  return applePreviewAudio;
+}
+async function prepareApplePreview(card = activeCard()) {
+  const track = await resolveApplePreview(card), audio = appleAudio();
+  if (applePreviewCardId !== card.id || audio.src !== track.preview_url) { audio.pause(); audio.src = track.preview_url; audio.load(); applePreviewCardId = card.id; }
+  return track;
+}
+async function playCurrentTrack(retry = true) {
+  songStarting = true; $("#play-sample").textContent = "LÅTEN STARTAR…"; $("#play-sample").className = "button button-green";
+  try {
+    const card = activeCard();
+    const track = await prepareApplePreview(card), audio = appleAudio();
+    audio.pause(); audio.currentTime = 0;
+    await audio.play();
+    wasPausedByUser = false; pausedForNavigation = false; songStarting = false;
+    updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
+  } catch (error) {
+    if (retry && error?.code === "APPLE_TRACK_NOT_FOUND") { await dealCard(); return playCurrentTrack(false); }
+    songStarting = false; setPlayButton(false); throw error;
+  }
+}
+function setPlayButton(playing) { if (!playing && songStarting) return; spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
+function stopCurrentTrack(keepForResume = false) { applePreviewAudio?.pause(); clearInterval(songTimer); pausedForNavigation = keepForResume && Boolean(state.currentCard && applePreviewCardId === state.currentCard.id); if (!keepForResume) { applePreviewCardId = null; } setPlayButton(false); }
+function startCurrentTrack() { clearInterval(songTimer); applePreviewAudio?.pause(); applePreviewCardId = null; songPosition = 0; songDuration = 0; $("#song-timeline").hidden = true; wasPausedByUser = false; pausedForNavigation = false; songStarting = false; setPlayButton(false); applePreviewPreparing = prepareApplePreview().catch(() => null).finally(() => { applePreviewPreparing = null; }); }
+function resumeRoundTrack() { if (!pausedForNavigation || !applePreviewAudio || applePreviewCardId !== state.currentCard?.id) return; applePreviewAudio.play().then(() => { pausedForNavigation = false; setPlayButton(true); }).catch(() => {}); }
+$("#play-sample").addEventListener("click", async (event) => { event.stopImmediatePropagation(); try { if (applePreviewPreparing) await applePreviewPreparing; const audio = appleAudio(); if (!audio.paused && applePreviewCardId === state.currentCard?.id) { audio.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && applePreviewCardId === state.currentCard?.id) { await audio.play(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } }, true);
+$("#replay-track").addEventListener("click", async (event) => { event.stopImmediatePropagation(); try { if (applePreviewPreparing) await applePreviewPreparing; await playCurrentTrack(); } catch (error) { alert(error.message); } }, true);

@@ -10,8 +10,8 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon-ios-261.png" />
-    <script>document.documentElement.classList.add("booting");if(localStorage.getItem("digihits-auth-session")&&new URLSearchParams(location.search).has("code")&&sessionStorage.getItem("digihits-spotify-pending"))document.documentElement.classList.add("spotify-callback")</script>
-    <link rel="stylesheet" href="styles.css?v=3.16" /><style>.no-change-cards{display:none!important}</style>
+    <script>document.documentElement.classList.add("booting")</script>
+    <link rel="stylesheet" href="styles.css?v=3.17" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
@@ -91,7 +91,6 @@
 
       <section class="view" data-view-panel="home">
         <section class="hero panel"><h1>När släpptes låten?</h1><div class="account-row"><div class="account-row-top"><div><span class="status-dot"></span><strong> INLOGGAD</strong><p id="player-email">spelare@digihits.se</p></div><div class="account-actions"><button class="account-button" id="change-password">BYT LÖSENORD</button><button class="account-button" id="logout">LOGGA UT</button><button class="account-button account-danger" id="delete-account">RADERA KONTO</button></div></div><div class="player-name"><span>SPELARNAMN</span><strong id="player-name">Spelare</strong></div></div></section>
-        <section class="panel spotify-connect"><p id="spotify-status">Premium krävs för uppspelning.</p><div class="spotify-actions"><button class="button button-red spotify-button" id="connect-spotify">ANSLUT DITT SPOTIFY PREMIUM HÄR</button><button class="spotify-switch" id="switch-spotify" type="button">BYT SPOTIFYKONTO</button></div></section>
         <section class="panel accordion" data-accordion>
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Skapa eller gå med i match</span><span class="accordion-mark">›</span></button>
           <div class="accordion-content"><div class="match-actions"><article class="action-card"><h3>Skapa en ny match</h3><p>Spela själv eller skicka en matchkod till en vän.</p><button class="button button-purple" id="create-solo-match">SKAPA NY SOLOMATCH</button><button class="button button-green" id="create-match">SKAPA NY ONLINEMATCH</button></article><article class="action-card"><h3>Har du fått en matchkod?</h3><p>Skriv koden du fått av din vän.</p><label class="sr-only" for="match-code">Matchkod</label><input id="match-code" maxlength="6" placeholder="SKRIV MATCHKOD" autocomplete="off" /><button class="button button-green" id="join-match">GÅ MED I MATCHEN</button></article></div></div>
@@ -111,11 +110,9 @@
       </section>
     </main><div class="spotify-connecting" id="spotify-connecting" hidden><div><strong>ANSLUTER TILL SPOTIFY…</strong><span>Väntar på Spotify. Det kan ta några sekunder.</span><i></i></div></div><div class="modal" id="app-dialog" hidden><div class="modal-card dialog-card"><div class="dialog-icon">✦</div><h2 id="dialog-title">Digihits</h2><p id="dialog-message"></p><div class="modal-actions"><button class="button button-secondary" id="dialog-cancel" type="button" hidden>AVBRYT</button><button class="button button-primary" id="dialog-confirm" type="button">OK</button></div></div></div><div class="modal" id="delete-modal" hidden><div class="modal-card"><h2>Radera konto</h2><p>Detta kan inte ångras. Skriv <strong>RADERA</strong> för att fortsätta.</p><form id="delete-account-form" class="auth-form"><input id="delete-confirmation" autocomplete="off" placeholder="Skriv RADERA" /><p class="delete-error" id="delete-error" hidden>Kontot har inte raderats. Skriv exakt RADERA med stora bokstäver.</p><div class="signup-progress" id="delete-progress" hidden><span>RADERAR KONTO…</span><i></i></div><div class="modal-actions"><button class="button button-secondary" id="delete-cancel" type="button">AVBRYT</button><button class="button button-leave" id="delete-submit" type="submit">RADERA KONTO</button></div></form></div></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script>window.onSpotifyWebPlaybackSDKReady = () => window.dispatchEvent(new Event("digihits-spotify-ready"));</script>
-    <script src="https://sdk.scdn.co/spotify-player.js"></script>
-    <script src="auth.js?v=3.16"></script>
+    <script src="auth.js?v=3.17"></script>
     <script src="tracks.js"></script>
-    <script src="push-config.js?v=3.16"></script>
-    <script src="app.js?v=3.16"></script>
+    <script src="push-config.js?v=3.17"></script>
+    <script src="app.js?v=3.17"></script>
   </body>
 </html>
