@@ -32,7 +32,7 @@ state.sentFriendRequests ||= [];
 state.pushNotificationsEnabled ??= false;
 state.seenTurnNotices ||= {};
 let currentPlacementCorrect = true, roundLoading = false;
-let viewingLatestRound = false, viewingHistoryResult = false, returnToFinalResult = false, historyResultEntry = null;
+let viewingLatestRound = false, viewingHistoryResult = false, returnToFinalResult = false, historyResultEntry = null, historyResultRounds = 0;
 const latestRounds = {};
 let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, wasPausedByUser = false, pausedForNavigation = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer, trackStartPromise = null, songStarting = false;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
@@ -181,7 +181,7 @@ async function showHistoryResult(entry) {
   let summary = $("#final-match-overview");
   if (!summary) { summary = document.createElement("section"); summary.id = "final-match-overview"; summary.className = "final-match-overview"; $(".result-match-code").before(summary); }
   const winner = players.find((player) => String(player.user_id) === String(entry.result?.winner_id))?.display_name || "Vinnaren", won = String(entry.result?.winner_id) === String(state.userId);
-  const rounds = Math.max(1, ...players.map((player) => Number(player.rounds_started || 0)));
+  const rounds = Math.max(1, ...players.map((player) => Number(player.rounds_started || 0))); historyResultRounds = rounds;
   summary.innerHTML = `<h1>Slutresultat</h1><p class="final-winner">${won ? "DU VANN MATCHEN" : "DU FÖRLORADE MATCHEN"}</p><p class="final-rounds">${rounds === 1 ? "OMGÅNG" : "OMGÅNGAR"}: <strong>${rounds}</strong></p><div class="match-summary"><small>MATCHKOD</small><strong>${escapeHtml(entry.code)}</strong></div><div class="match-metrics"><div><strong>${players.length || "–"}</strong><small>SPELARE</small></div><div><strong>AVSLUTAD</strong><small>MATCHSTATUS</small></div><div><strong>10</strong><small>FÖRST TILL</small></div></div><div class="overview-players">${players.map((player) => { const locked = Math.max(1, (player.locked_timeline || []).length), score = player.last_round?.score || {}, mistakes = Math.max(0, Number(score.mistakes) || Math.max(0, Number(player.rounds_started || 0) - Math.max(0, locked - 1))), correct = Math.max(locked, Number(score.correct) || 0); latestRounds[player.id] = player.last_round; return `<article class="overview-player ${String(player.user_id) === String(entry.result?.winner_id) ? "your-turn" : ""}"><div class="overview-player-header"><strong>${escapeHtml(player.display_name)}</strong></div><small>${correct}/10 rätt placerade · ${mistakes} felplacerade · ${player.swap_cards || 0}/3 Byt-låt-kort</small><button class="timeline-button final-player-round" data-player-round="${player.id}" type="button">VISA SENASTE OMGÅNG</button></article>`; }).join("")}</div>`;
   summary.hidden = false; $(".result-match-code").hidden = true; $("#solo-result-score").hidden = true; $(".result-head").hidden = true; $(".result-checks").hidden = true; $(".result-actions").hidden = true; $("#result-timeline").hidden = true; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; showView("result");
 }
@@ -250,6 +250,7 @@ async function syncFriends() {
   const [friends, requests, invites, unreads, sentRequests, sentMatchInvites] = await Promise.all([supabaseAuth.dataRequest("rpc/digihits_my_friends", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_friend_requests", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_match_invites", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_friend_unreads", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_sent_friend_requests", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_sent_match_invites", {}, "POST")]);
   state.friends = friends || []; state.friendRequests = requests || []; state.friendInvites = invites || []; state.friendChatUnread = Object.fromEntries((unreads || []).map((item) => [item.friend_id, Number(item.unread_count)])); state.sentFriendRequests = sentRequests || []; state.sentMatchInvites = sentMatchInvites || []; save(); renderFriends();
 }
+function alignResetButtons() { document.querySelectorAll(".section-subtitle").forEach((title) => { const reset = title.nextElementSibling; if (!reset?.classList.contains("reset-row") || title.parentElement.classList.contains("section-heading")) return; const heading = document.createElement("div"); heading.className = "section-heading"; title.before(heading); heading.append(title, reset); }); }
 function render() {
   updateTurnBadge();
   $("#player-name").textContent = state.playerName;
@@ -299,7 +300,7 @@ function render() {
   matches.querySelectorAll("[data-open-match]").forEach((button) => { const unread = Number(state.chatUnread[button.dataset.openMatch] || 0); if (unread) button.closest(".match")?.querySelector(".match-lock-top")?.insertAdjacentHTML("beforebegin", `<button class="match-chat-alert" data-open-chat="${button.dataset.openMatch}" title="Öppna chatt: ${unread} nya meddelanden" aria-label="Öppna chatt" type="button">✉<b>${unread}</b></button>`); });
   const history = $("#history");
   if (history) history.innerHTML = `<h3 class="section-subtitle">Solomatcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="solo">NOLLSTÄLL SOLOMATCHER</button></div>${soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`}<h3 class="section-subtitle">Onlinematcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="online">NOLLSTÄLL ONLINEMATCHER</button></div>${onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`}`;
-  renderFriends();
+  alignResetButtons(); renderFriends();
 }
 
 function showView(view, focusMatches = false, fromHistory = false) {
@@ -450,7 +451,7 @@ function showLatestRound(round) {
   if (!round) { dialog("Ingen spelad omgång ännu."); return; }
   viewingLatestRound = true;
   const playedCard = (round.cards || []).at(-1);
-  if (playedCard) { $("#result-song").textContent = `${playedCard.artist} – ${playedCard.title} (${playedCard.year})`; renderGuessChecks(playedCard, round.guess || {}); } const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = (round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length, mistakes = Math.max(0, attempts - Math.max(0, correctCards - 1)); $(".result-match-code").hidden = solo; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(mistakes) : state.activeMatchCode || "------"; $("#result-code").classList.toggle("solo-mistake-count", solo); $("#solo-result-score").hidden = !solo; $("#solo-result-score").innerHTML = soloResultStats(correctCards, mistakes, attempts);
+  if (playedCard) { $("#result-song").textContent = `${playedCard.artist} – ${playedCard.title} (${playedCard.year})`; renderGuessChecks(playedCard, round.guess || {}); } const solo = Boolean(state.matches.find((match) => match.code === state.activeMatchCode)?.solo); const attempts = Number(round.rounds || 0) || (viewingHistoryResult ? historyResultRounds : 0) || state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0, correctCards = Math.max((round.timeline || round.cards || []).filter((card) => !/FEL ?PLACERAT/.test(card.status)).length, Number(round.score?.correct) || 0), mistakes = Math.max(0, Number(round.score?.mistakes) || Math.max(0, attempts - Math.max(0, correctCards - 1))); $(".result-match-code").hidden = solo; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD"; $("#result-code").textContent = solo ? String(mistakes) : state.activeMatchCode || "------"; $("#result-code").classList.toggle("solo-mistake-count", solo); $("#solo-result-score").hidden = !(solo || viewingHistoryResult); $("#solo-result-score").innerHTML = soloResultStats(correctCards, mistakes, attempts);
   const latestTimeline = (round.timeline || round.cards || []).slice();
   if (round.outcome !== "wrong") latestTimeline.sort((a, b) => a.year - b.year);
   round.timeline = latestTimeline;
@@ -662,7 +663,7 @@ async function handoverTurn(savedTimeline = null) {
   const target = (await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=target_cards`))[0]?.target_cards || 10, won = currentPlacementCorrect && (minePlayer.locked_timeline || []).length + cardsToLock.length >= target;
   const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" })), { ...currentCard, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }];
   const previousScore = minePlayer.last_round?.score || {}, priorCorrect = Math.max(1, Number(previousScore.correct) || (minePlayer.locked_timeline || []).length), priorMistakes = Math.max(0, Number(previousScore.mistakes) || Math.max(0, Number(minePlayer.rounds_started || 0) - Math.max(0, priorCorrect - 1))), score = { correct: currentPlacementCorrect ? priorCorrect + cardsToLock.length : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
-  const lastRound = { ended_at: new Date().toISOString(), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, score, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...roundCards] };
+  const lastRound = { ended_at: new Date().toISOString(), rounds: Number(minePlayer.rounds_started || 0), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, score, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...roundCards] };
   const currentSwapCards = Math.max(0, Math.min(3, Number(state.changeTrackCards ?? minePlayer.swap_cards) || 0));
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, swap_cards: currentSwapCards, updated_at: new Date().toISOString() }, "PATCH");
   const lockMatch = match.locked || (minePlayer.rounds_started || 0) >= 2;
@@ -892,7 +893,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.80";
+$(".brand small").textContent = "v3.83";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
