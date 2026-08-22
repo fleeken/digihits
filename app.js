@@ -395,7 +395,7 @@ function openMatch(matchCode) {
 }
 async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
-    const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,display_name,turn_order,locked_timeline,last_round,rounds_started&order=turn_order`);
+    const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,user_id,display_name,turn_order,locked_timeline,last_round,rounds_started&order=turn_order`);
     const match = state.matches.find((item) => item.id === matchId), friendBox = $("#match-friend-invites");
     if (friendBox && match && !solo && !match.locked) { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))); const inviteableFriends = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE"))); friendBox.hidden = false; friendBox.innerHTML = inviteableFriends.length ? `<small>BJUD IN VÄN TILL MATCHEN</small><div>${inviteableFriends.map((friend) => `<button class="button button-secondary" data-invite-friend="${friend.friend_id}" type="button">${escapeHtml(friend.display_name)} · BJUD IN</button>`).join("")}</div>` : `<small>DU HAR INGA FLER VÄNNER ATT BJUD IN TILL DENNA MATCH.</small>`; }
     if (!solo) $("#overview-players-count").textContent = String(players.length);
@@ -416,7 +416,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
       $("#overview-target").textContent = "10";
       $("#overview-target-label").textContent = "FÖRST TILL";
     }
-    $("#overview-players").innerHTML = solo ? `<button class="timeline-button show-player-round" data-player-round="${players[0]?.id || ""}" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : players.map((player, index) => `<article class="overview-player ${isYourTurn && index === 0 ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">${player.turn_order + 1}</span><strong>${player.display_name}</strong></div><small>${(player.locked_timeline || []).length}/10 låsta kort · ${player.last_round?.outcome === "locked" ? (player.last_round.cards || []).length : 0} olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" data-player-round="${player.id}" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`).join("");
+    $("#overview-players").innerHTML = solo ? `<button class="timeline-button show-player-round" data-player-round="${players[0]?.id || ""}" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : players.map((player, index) => { const friend = state.friends.some((item) => String(item.friend_id) === String(player.user_id)); const friendButton = String(player.user_id) === String(state.userId) ? "" : friend ? `<small class="already-friend">REDAN VÄN MED</small>` : `<button class="button button-green add-match-friend" data-add-match-friend="${player.user_id}" data-player-name="${escapeHtml(player.display_name)}" type="button">LÄGG TILL VÄN</button>`; return `<article class="overview-player ${isYourTurn && index === 0 ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">${player.turn_order + 1}</span><strong>${player.display_name}</strong></div><small>${(player.locked_timeline || []).length}/10 låsta kort · ${player.last_round?.outcome === "locked" ? (player.last_round.cards || []).length : 0} olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" data-player-round="${player.id}" type="button">VISA SENASTE SPELADE OMGÅNG</button>${friendButton}</article>`; }).join("");
     $("#overview-players").hidden = false;
   } catch { /* matchvyn behåller sin lokala reservvy */ }
 }
@@ -556,6 +556,7 @@ $("#friends-section")?.addEventListener("click", async (event) => {
   } catch (error) { alert(error.message); }
 });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-invite-friend]"); if (!button) return; const friend = state.friends.find((item) => String(item.friend_id) === String(button.dataset.inviteFriend)); dialog(`Vill du lägga till ${friend?.display_name || "spelaren"} till denna match?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: state.activeMatchCode, recipient: button.dataset.inviteFriend }, "POST"); dialog("Matchinbjudan är skickad."); } catch (error) { alert(error.message); } }, false, "JA"); });
+document.addEventListener("click", async (event) => { const button = event.target.closest("[data-add-match-friend]"); if (!button) return; dialog(`Vill du lägga till ${button.dataset.playerName} i din vänskapslista?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_request", { requested: button.dataset.playerName }, "POST"); button.replaceWith(Object.assign(document.createElement("small"), { className: "already-friend", textContent: "VÄNFÖRFRÅGAN SKICKAD" })); } catch (error) { alert(error.message); } }, false, "JA"); });
 $("#matches").addEventListener("click", (event) => {
   const chatButton = event.target.closest("[data-open-chat]");
   if (chatButton) { openChat(chatButton.dataset.openChat).catch((error) => alert(error.message)); return; }
@@ -858,7 +859,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.49";
+$(".brand small").textContent = "v3.51";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
