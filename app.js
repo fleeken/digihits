@@ -555,7 +555,7 @@ $("#friends-section")?.addEventListener("click", async (event) => {
     else if (chat) await openFriendChat(chat.dataset.openFriendChat);
   } catch (error) { alert(error.message); }
 });
-document.addEventListener("click", async (event) => { const button = event.target.closest("[data-invite-friend]"); if (!button) return; try { await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: state.activeMatchCode, recipient: button.dataset.inviteFriend }, "POST"); dialog("Matchinbjudan är skickad."); } catch (error) { alert(error.message); } });
+document.addEventListener("click", async (event) => { const button = event.target.closest("[data-invite-friend]"); if (!button) return; const friend = state.friends.find((item) => String(item.friend_id) === String(button.dataset.inviteFriend)); dialog(`Vill du lägga till ${friend?.display_name || "spelaren"} till denna match?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: state.activeMatchCode, recipient: button.dataset.inviteFriend }, "POST"); dialog("Matchinbjudan är skickad."); } catch (error) { alert(error.message); } }, false, "JA"); });
 $("#matches").addEventListener("click", (event) => {
   const chatButton = event.target.closest("[data-open-chat]");
   if (chatButton) { openChat(chatButton.dataset.openChat).catch((error) => alert(error.message)); return; }
@@ -858,7 +858,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.47";
+$(".brand small").textContent = "v3.49";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
