@@ -208,3 +208,6 @@ h1{font-size:31px;}
 .timeline-row{overflow-x:auto;overflow-y:hidden;justify-content:flex-start;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;}
 .timeline-row .slot{touch-action:pan-x;}
 .overview-loading{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 2px;color:#b9c7db;font-size:10px;font-weight:900}.overview-loading i{width:13px;height:13px;border:2px solid #405064;border-top-color:#4fc9ee;border-radius:50%;animation:spin .7s linear infinite}
+.final-match-overview h1{text-align:center;margin:8px 0 2px;font-size:24px}.final-winner{text-align:center;color:#72ffad;font-size:12px;font-weight:900;margin:0 0 12px}
+.history-code{display:block;margin-top:5px;font-size:9px;font-weight:900;color:#b9c7db}.history-code b{color:#4fc9ee;letter-spacing:1px}
+.history-match.history-won{border-color:#38db82;background:#103321}.history-match.history-won span{color:#72ffad}.history-match.history-lost{border-color:#ff5571;background:#32151b}.history-match.history-lost span{color:#ff8b9d}.history-match.history-walkover{border-color:#4fc9ee;background:#102b3a}.history-match.history-walkover span{color:#55cfff}
