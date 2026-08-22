@@ -11,7 +11,7 @@
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon-ios-261.png" />
     <script>document.documentElement.classList.add("booting")</script>
-    <link rel="stylesheet" href="styles.css?v=3.55" /><style>.no-change-cards{display:none!important}</style>
+    <link rel="stylesheet" href="styles.css?v=3.57" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
@@ -101,7 +101,7 @@
           <div class="accordion-content"><div id="matches" class="matches" aria-live="polite"></div></div>
         </section>
         <section class="panel accordion" data-accordion id="friends-section">
-          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina vänner</span><span class="accordion-mark">›</span></button>
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina vänner</span><span class="match-badges friend-badges"><span class="badge badge-friend" id="friend-request-count">Vänförfrågan 0</span><span class="friend-chat-alert" id="friend-chat-alert" hidden>✉<b id="friend-chat-count">0</b></span></span><span class="accordion-mark">›</span></button>
           <div class="accordion-content"><div class="friends-content"><form id="friend-search-form" class="friend-search"><input id="friend-search" placeholder="SÖK SPELARNAMN ELLER E-POST" autocomplete="off" /><button class="button button-green" type="submit">LÄGG TILL VÄN</button></form><p id="friend-feedback" class="friend-feedback" hidden></p><section id="friend-invites"></section><section id="friend-requests"></section><section id="friend-sent-requests"></section><section id="friends-list"></section></div></div>
         </section>
         <section class="panel accordion" data-accordion>
@@ -118,6 +118,6 @@
     <script src="auth.js?v=3.38"></script>
     <script src="tracks.js"></script>
     <script src="push-config.js?v=3.17"></script>
-    <script src="app.js?v=3.55"></script>
+    <script src="app.js?v=3.57"></script>
   </body>
 </html>
