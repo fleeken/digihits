@@ -27,6 +27,7 @@ state.friendInvites ||= [];
 state.friendChatId ||= null;
 state.friendChatUnread ||= {};
 state.pushNotificationsEnabled ??= false;
+state.seenTurnNotices ||= {};
 let currentPlacementCorrect = true, roundLoading = false;
 let viewingLatestRound = false;
 const latestRounds = {};
@@ -158,6 +159,18 @@ function dialog(message, action, danger = false, confirmText = "FORTSÄTT") {
 window.alert = (message) => dialog(String(message));
 
 function save() { localStorage.setItem(storageKey, JSON.stringify(state)); }
+function showTurnNotice(match) {
+  const notice = match?.turnNotice;
+  if (!notice?.type) return;
+  const noticeId = `${match.id}:${notice.issued_at || notice.type}`;
+  if (state.seenTurnNotices[noticeId]) return;
+  state.seenTurnNotices[noticeId] = true; save();
+  const opponent = notice.opponent_name || "din motspelare", code = notice.match_code || match.code;
+  const message = notice.type === "timeout"
+    ? `Du har varit inaktiv i matchen mot ${opponent} med matchkod ${code} i 72 timmar. Turen går nu automatiskt över till nästa spelare.`
+    : `Det har gått 48 timmar sedan du spelade i matchen mot ${opponent} med matchkod ${code}. Efter ytterligare 24 timmars inaktivitet i denna match går turen automatiskt över till nästa spelare.`;
+  dialog(message);
+}
 function settleResult(match, userId) {
   const result = match.last_result;
   if (result?.type === "solo") return;
@@ -384,7 +397,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
     const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,display_name,turn_order,locked_timeline,last_round,rounds_started&order=turn_order`);
     const match = state.matches.find((item) => item.id === matchId), friendBox = $("#match-friend-invites");
-    if (friendBox && match && !solo && !match.locked) { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))); const inviteableFriends = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE"))); friendBox.hidden = !inviteableFriends.length; friendBox.innerHTML = friendBox.hidden ? "" : `<small>BJUD IN VÄN TILL MATCHEN</small><div>${inviteableFriends.map((friend) => `<button class="button button-secondary" data-invite-friend="${friend.friend_id}" type="button">${escapeHtml(friend.display_name)} · BJUD IN</button>`).join("")}</div>`; }
+    if (friendBox && match && !solo && !match.locked) { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))); const inviteableFriends = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE"))); friendBox.hidden = false; friendBox.innerHTML = inviteableFriends.length ? `<small>BJUD IN VÄN TILL MATCHEN</small><div>${inviteableFriends.map((friend) => `<button class="button button-secondary" data-invite-friend="${friend.friend_id}" type="button">${escapeHtml(friend.display_name)} · BJUD IN</button>`).join("")}</div>` : `<small>DU HAR INGA FLER VÄNNER ATT BJUD IN TILL DENNA MATCH.</small>`; }
     if (!solo) $("#overview-players-count").textContent = String(players.length);
     players.forEach((player) => { latestRounds[player.id] = player.last_round; });
     if (solo) {
@@ -465,15 +478,16 @@ function addMatch(matchCode) {
 }
 async function syncMatches() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
-  const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,phase,current_user_id,last_result,updated_at)`);
+  const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,phase,current_user_id,last_result,turn_notice,updated_at)`);
   rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id); });
   let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name,rounds_started`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
-  state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => String(player.match_id) === String(row.match_id)), solo = isSoloMatch(match), opponent = matchPlayers.find((player) => String(player.user_id) !== String(user.id))?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : String(match.current_user_id) === String(user.id) ? "active" : "opponent", solo, locked: match.phase === "locked" || (solo && match.phase === "solo_locked"), round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), updatedAt: match.updated_at }; }).filter(Boolean).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+  state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => String(player.match_id) === String(row.match_id)), solo = isSoloMatch(match), opponent = matchPlayers.find((player) => String(player.user_id) !== String(user.id))?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : String(match.current_user_id) === String(user.id) ? "active" : "opponent", solo, locked: match.phase === "locked" || (solo && match.phase === "solo_locked"), round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), turnNotice: match.turn_notice, updatedAt: match.updated_at }; }).filter(Boolean).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
   save(); render();
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode);
   if ((currentView === "lobby" || currentView === "match") && activeMatch) openMatch(activeMatch.code);
   if (["guess", "timeline"].includes(currentView) && !resultIsLocked && activeMatch && activeMatch.status !== "active") openMatch(activeMatch.code);
   if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
+  state.matches.forEach(showTurnNotice);
 }
 function startRealtime() { supabaseAuth.subscribeMatches(() => { syncMatches().catch(() => {}); syncFriends().catch(() => {}); }, handleChatRealtime); }
 async function refreshActiveRound() {
@@ -495,7 +509,7 @@ document.addEventListener("visibilitychange", async () => {
 async function createOnlineMatch(inviteFriendId = null) {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); const matchCode = code();
   const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
-  const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", updated_at: new Date().toISOString() }, "POST");
+  const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", turn_started_at: new Date().toISOString(), updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
   if (inviteFriendId) { const friendStarter = pickFreshTrack(deck.filter((card) => card.id !== starter.id)); await supabaseAuth.dataRequest("rpc/digihits_add_friend_to_match", { match_code_input: matchCode, recipient: inviteFriendId, starter: friendStarter }, "POST"); }
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
@@ -520,7 +534,7 @@ async function joinOnlineMatch(matchCode) {
   if (!available.length) throw new Error("Det finns inget ledigt startkort i matchen.");
   const starter = pickFreshTrack(available);
   await supabaseAuth.dataRequest("online_players", { match_id: match.id, user_id: user.id, display_name: state.playerName, turn_order: players.length, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
-  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", ...(match.status === "waiting" ? { phase: "turn_ready", current_user_id: players[0]?.user_id || user.id } : {}), deck, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
+  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", ...(match.status === "waiting" ? { phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, turn_started_at: new Date().toISOString(), turn_reminder_sent_at: null, turn_notice: null } : {}), deck, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 
@@ -535,7 +549,7 @@ $("#friends-section")?.addEventListener("click", async (event) => {
   const answer = event.target.closest("[data-friend-answer]"), create = event.target.closest("[data-create-friend-match]"), remove = event.target.closest("[data-remove-friend]"), invite = event.target.closest("[data-join-friend-match]"), chat = event.target.closest("[data-open-friend-chat]");
   try {
     if (answer) { await supabaseAuth.dataRequest("rpc/digihits_answer_friend_request", { request_id: answer.dataset.friendAnswer, accept_request: answer.dataset.friendAccept === "true" }, "POST"); await syncFriends(); }
-    else if (create) await createOnlineMatch(create.dataset.createFriendMatch);
+    else if (create) { const friend = state.friends.find((item) => String(item.friend_id) === String(create.dataset.createFriendMatch)); dialog(`Vill du skapa en match mot ${friend?.display_name || "den här spelaren"}?`, async () => { try { await createOnlineMatch(create.dataset.createFriendMatch); } catch (error) { alert(error.message); } }, false, "JA"); }
     else if (remove) dialog(`Är du säker på att du vill ta bort ${remove.dataset.friendName}?`, async () => { await supabaseAuth.dataRequest("rpc/digihits_remove_friend", { target: remove.dataset.removeFriend }, "POST"); await syncFriends(); }, true, "JA");
     else if (invite) { await syncMatches(); const existing = state.matches.find((match) => match.code === invite.dataset.joinFriendMatch); if (existing) openMatch(existing.code); else await joinOnlineMatch(invite.dataset.joinFriendMatch); await supabaseAuth.dataRequest("rpc/digihits_dismiss_match_invite", { invite: invite.dataset.inviteId }, "POST"); await syncFriends(); }
     else if (chat) await openFriendChat(chat.dataset.openFriendChat);
@@ -618,7 +632,7 @@ async function handoverTurn(savedTimeline = null) {
   const lastRound = { ended_at: new Date().toISOString(), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...roundCards] };
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, swap_cards: earnedSwapCard ? (minePlayer.swap_cards || 0) + 1 : minePlayer.swap_cards || 0, updated_at: new Date().toISOString() }, "PATCH");
   const lockMatch = match.locked || (minePlayer.rounds_started || 0) >= 2;
-  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : solo ? (lockMatch ? "solo_locked" : "solo") : lockMatch ? "locked" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: user.id, type: solo ? "solo" : "win" } : {}) }, updated_at: new Date().toISOString() }, "PATCH");
+  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : solo ? (lockMatch ? "solo_locked" : "solo") : lockMatch ? "locked" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: user.id, type: solo ? "solo" : "win" } : {}) }, ...(solo || won ? {} : { turn_started_at: new Date().toISOString(), turn_reminder_sent_at: null, turn_notice: null }), updated_at: new Date().toISOString() }, "PATCH");
   await syncMatches();
   let soloSummary = null;
   if (won && solo) {
@@ -844,7 +858,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.44";
+$(".brand small").textContent = "v3.47";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
