@@ -173,6 +173,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
   const correctCards = locked.length + (correct ? 1 : 0);
   const score = solo ? soloProgress(state.matches.find((match) => match.code === state.activeMatchCode), locked) : { correct: 0, mistakes: 0 };
+  if (solo) score.correct = Math.max(score.correct, correctCards);
   $(".result-match-code").hidden = solo; $("#result-code-label").textContent = solo ? "FELPLACERADE KORT" : "MATCHKOD";
   $("#result-code").textContent = solo ? String(score.mistakes) : state.activeMatchCode || "------";
   $("#result-code").style.color = solo ? "#ff8b9d" : "";
@@ -192,7 +193,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const onlyContinue = !$("#result-continue").hidden && $("#result-lock").hidden;
   $(".result-actions").style.gridTemplateColumns = onlyContinue ? "minmax(0,300px)" : "";
   $(".result-actions").style.justifyContent = onlyContinue ? "center" : "";
-  $("#result-back").hidden = true; wrongButton.hidden = correct || solo; overviewButton.hidden = correct || solo;
+  $("#result-back").hidden = true; wrongButton.hidden = correct || solo; overviewButton.hidden = correct || solo || score.correct >= 10;
   $("#result-lock").textContent = `🔒 LÅS IN ${unlocked.length + (correct ? 1 : 0)} KORT`;
 }
 
@@ -468,14 +469,15 @@ async function joinOnlineMatch(matchCode) {
   const found = await supabaseAuth.dataRequest(`online_matches?code=eq.${matchCode}&select=*`); const match = found[0];
   if (!match) throw new Error("Matchkoden hittades inte.");
   if (match.phase === "locked") throw new Error("Matchen är låst eftersom andra omgången redan är påbörjad.");
-  if (match.status !== "waiting") throw new Error("Matchkoden hittades inte eller matchen är redan startad.");
-  const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=*`);
+  if (!["waiting", "active"].includes(match.status)) throw new Error("Matchkoden hittades inte eller matchen är avslutad.");
+  const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=*`);
+  if (players.length >= 8) throw new Error("Matchen är full – 8 spelare är redan med i matchen.");
   if (players.some((player) => player.user_id === user.id)) throw new Error("Du är redan med i matchen.");
   const deck = expandedMatchDeck(match.deck || []), available = deck.filter((card) => !(match.used_track_ids || []).includes(card.id));
   if (!available.length) throw new Error("Det finns inget ledigt startkort i matchen.");
   const starter = pickFreshTrack(available);
   await supabaseAuth.dataRequest("online_players", { match_id: match.id, user_id: user.id, display_name: state.playerName, turn_order: players.length, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
-  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", phase: "turn_ready", current_user_id: players[0]?.user_id || user.id, deck, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
+  await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "active", ...(match.status === "waiting" ? { phase: "turn_ready", current_user_id: players[0]?.user_id || user.id } : {}), deck, used_track_ids: [...(match.used_track_ids || []), starter.id], updated_at: new Date().toISOString() }, "PATCH");
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 
@@ -782,7 +784,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.29";
+$(".brand small").textContent = "v3.33";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
