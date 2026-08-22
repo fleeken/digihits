@@ -207,3 +207,4 @@ h1{font-size:31px;}
 /* Låt fingret bläddra på hela tidslinjen, även över de streckade placeringsytorna. */
 .timeline-row{overflow-x:auto;overflow-y:hidden;justify-content:flex-start;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;}
 .timeline-row .slot{touch-action:pan-x;}
+.overview-loading{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 2px;color:#b9c7db;font-size:10px;font-weight:900}.overview-loading i{width:13px;height:13px;border:2px solid #405064;border-top-color:#4fc9ee;border-radius:50%;animation:spin .7s linear infinite}
