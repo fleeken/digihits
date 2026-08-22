@@ -29,11 +29,18 @@ create table if not exists public.digihits_friend_messages (
   created_at timestamptz not null default now(),
   check (sender_id <> recipient_id)
 );
+create table if not exists public.digihits_friend_chat_reads (
+  user_id text not null,
+  friend_id text not null,
+  read_at timestamptz not null default now(),
+  primary key (user_id, friend_id)
+);
 
 alter table public.digihits_friend_requests enable row level security;
 alter table public.digihits_friendships enable row level security;
 alter table public.digihits_match_invites enable row level security;
 alter table public.digihits_friend_messages enable row level security;
+alter table public.digihits_friend_chat_reads enable row level security;
 
 drop policy if exists "Digihits reads own friendships" on public.digihits_friendships;
 create policy "Digihits reads own friendships" on public.digihits_friendships for select to authenticated using (user_id = auth.uid()::text);
@@ -60,7 +67,7 @@ create or replace function public.digihits_send_friend_request(requested text)
 returns void language plpgsql security definer set search_path = public, auth as $$
 declare target text := (select user_id from public.digihits_find_friend(requested));
 begin
-  if target is null then raise exception 'Ingen spelare hittades.'; end if;
+  if target is null then raise exception 'Spelarnamn hittades inte.'; end if;
   if target = auth.uid()::text then raise exception 'Du kan inte lägga till dig själv.'; end if;
   if exists (select 1 from public.digihits_friendships where user_id = auth.uid()::text and friend_id = target) then raise exception 'Ni är redan vänner.'; end if;
   insert into public.digihits_friend_requests(sender_id, recipient_id) values (auth.uid()::text, target) on conflict do nothing;
@@ -119,5 +126,17 @@ begin
   insert into public.digihits_friend_messages(sender_id, recipient_id, body) values (auth.uid()::text, friend, trim(message_body));
 end;
 $$;
+create or replace function public.digihits_mark_friend_chat_read(friend text)
+returns void language sql security definer set search_path = public as $$
+  insert into public.digihits_friend_chat_reads(user_id, friend_id, read_at) values (auth.uid()::text, friend, now())
+  on conflict (user_id, friend_id) do update set read_at = excluded.read_at;
+$$;
+create or replace function public.digihits_my_friend_unreads()
+returns table(friend_id text, unread_count bigint) language sql security definer set search_path = public as $$
+  select m.sender_id, count(*) from public.digihits_friend_messages m
+  left join public.digihits_friend_chat_reads r on r.user_id = auth.uid()::text and r.friend_id = m.sender_id
+  where m.recipient_id = auth.uid()::text and m.created_at > coalesce(r.read_at, 'epoch'::timestamptz)
+  group by m.sender_id;
+$$;
 
-grant execute on function public.digihits_find_friend(text), public.digihits_send_friend_request(text), public.digihits_answer_friend_request(uuid, boolean), public.digihits_remove_friend(text), public.digihits_my_friends(), public.digihits_my_friend_requests(), public.digihits_invite_friend(text, text), public.digihits_my_match_invites(), public.digihits_dismiss_match_invite(uuid), public.digihits_my_friend_messages(text), public.digihits_send_friend_message(text, text) to authenticated;
+grant execute on function public.digihits_find_friend(text), public.digihits_send_friend_request(text), public.digihits_answer_friend_request(uuid, boolean), public.digihits_remove_friend(text), public.digihits_my_friends(), public.digihits_my_friend_requests(), public.digihits_invite_friend(text, text), public.digihits_my_match_invites(), public.digihits_dismiss_match_invite(uuid), public.digihits_my_friend_messages(text), public.digihits_send_friend_message(text, text), public.digihits_mark_friend_chat_read(text), public.digihits_my_friend_unreads() to authenticated;
