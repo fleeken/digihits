@@ -11,7 +11,7 @@
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon-ios-261.png" />
     <script>document.documentElement.classList.add("booting")</script>
-    <link rel="stylesheet" href="styles.css?v=3.33" /><style>.no-change-cards{display:none!important}</style>
+    <link rel="stylesheet" href="styles.css?v=3.37" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
@@ -76,6 +76,7 @@
       </section>
 
       <section class="view" data-view-panel="chat"><section class="chat-view panel"><button class="back-link" id="chat-back" type="button">← Tillbaka</button><h1 id="chat-title">Chatt</h1><div class="chat-messages" id="chat-messages"></div><form class="chat-form" id="chat-form"><input id="chat-input" maxlength="500" placeholder="Skriv ett meddelande" /><button class="button button-primary" type="submit">SKICKA</button></form></section></section>
+      <section class="view" data-view-panel="friend-chat"><section class="chat-view panel"><button class="back-link" id="friend-chat-back" type="button">← Tillbaka</button><h1 id="friend-chat-title">Chatt</h1><div class="chat-messages" id="friend-chat-messages"></div><form class="chat-form" id="friend-chat-form"><input id="friend-chat-input" maxlength="500" placeholder="Skriv ett meddelande" /><button class="button button-primary" type="submit">SKICKA</button></form></section></section>
 
       <section class="view" data-view-panel="guess">
         <section class="guess-view panel"><div class="guess-top"><button class="back-link" data-view="match">← Tillbaka</button><h1>Rätt låtnamn &amp; artist ger ett byt-låt-kort</h1></div><div class="replay-row"><button class="button button-green" id="play-sample" type="button">▶ SPELA LÅT</button><button class="button button-secondary" id="replay-track" type="button">↻ SPELA LÅT FRÅN BÖRJAN</button></div><div class="song-timeline" id="song-timeline" hidden><span id="song-current">0:00</span><div><i id="song-progress"></i></div><span id="song-duration">0:00</span></div><form id="guess-form" class="guess-form"><input id="guess-artist" placeholder="Artist" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" /><input id="guess-track" placeholder="Låtnamn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" /><small>Små stavfel är okej.</small><div><button class="button button-primary" type="submit">NÄSTA</button><button class="button button-secondary" id="skip-guess" type="button">HOPPA ÖVER</button></div></form></section>
@@ -99,6 +100,10 @@
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina matcher</span><span class="match-badges"><span class="badge badge-waiting" id="waiting-count">Väntar på 0</span><span class="badge badge-turn" id="turn-count">Din tur 0</span></span></button>
           <div class="accordion-content"><div id="matches" class="matches" aria-live="polite"></div></div>
         </section>
+        <section class="panel accordion" data-accordion id="friends-section">
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina vänner</span><span class="accordion-mark">›</span></button>
+          <div class="accordion-content"><div class="friends-content"><form id="friend-search-form" class="friend-search"><input id="friend-search" placeholder="SÖK SPELARNAMN ELLER E-POST" autocomplete="off" /><button class="button button-green" type="submit">LÄGG TILL VÄN</button></form><p id="friend-feedback" class="friend-feedback" hidden></p><section id="friend-invites"></section><section id="friend-requests"></section><section id="friends-list"></section></div></div>
+        </section>
         <section class="panel accordion" data-accordion>
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Statistik</span><span class="accordion-mark">›</span></button>
           <div class="accordion-content"><h3 class="section-subtitle">Solomatcher</h3><div class="reset-row"><button class="reset-button" id="reset-solo-stats">NOLLSTÄLL SOLOSTATISTIK</button></div><div class="stat-grid"><div><small>OMGÅNGAR TILL VINST</small><strong id="solo-best-rounds">–</strong><small>BÄSTA RESULTAT</small></div><div><small>FELPLACERADE KORT</small><strong id="solo-fewest-mistakes">–</strong><small>FÄRST</small></div></div><h3 class="section-subtitle">Onlinematcher</h3><div class="reset-row"><button class="reset-button" id="reset-online-stats">NOLLSTÄLL ONLINESTATISTIK</button></div><div class="stat-grid"><div><small>VINSTER</small><strong id="stat-wins">0 st</strong></div><div><small>FÖRLUSTER</small><strong id="stat-losses">0 st</strong></div><div><small>WALK OVER</small><strong id="stat-walkovers">0 st</strong></div><div><small>FLEST VINSTER I RAD</small><strong id="stat-streak">0 st</strong></div></div></div>
@@ -110,9 +115,9 @@
       </section>
     </main><div class="spotify-connecting" id="spotify-connecting" hidden><div><strong>ANSLUTER TILL SPOTIFY…</strong><span>Väntar på Spotify. Det kan ta några sekunder.</span><i></i></div></div><div class="modal" id="app-dialog" hidden><div class="modal-card dialog-card"><div class="dialog-icon">✦</div><h2 id="dialog-title">Digihits</h2><p id="dialog-message"></p><div class="modal-actions"><button class="button button-secondary" id="dialog-cancel" type="button" hidden>AVBRYT</button><button class="button button-primary" id="dialog-confirm" type="button">OK</button></div></div></div><div class="modal" id="delete-modal" hidden><div class="modal-card"><h2>Radera konto</h2><p>Detta kan inte ångras. Skriv <strong>RADERA</strong> för att fortsätta.</p><form id="delete-account-form" class="auth-form"><input id="delete-confirmation" autocomplete="off" placeholder="Skriv RADERA" /><p class="delete-error" id="delete-error" hidden>Kontot har inte raderats. Skriv exakt RADERA med stora bokstäver.</p><div class="signup-progress" id="delete-progress" hidden><span>RADERAR KONTO…</span><i></i></div><div class="modal-actions"><button class="button button-secondary" id="delete-cancel" type="button">AVBRYT</button><button class="button button-leave" id="delete-submit" type="submit">RADERA KONTO</button></div></form></div></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="auth.js?v=3.17"></script>
+    <script src="auth.js?v=3.37"></script>
     <script src="tracks.js"></script>
     <script src="push-config.js?v=3.17"></script>
-    <script src="app.js?v=3.33"></script>
+    <script src="app.js?v=3.37"></script>
   </body>
 </html>

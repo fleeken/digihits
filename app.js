@@ -21,6 +21,10 @@ state.guessDraft ||= null;
 state.placementDraft ||= null;
 state.chatUnread ||= {};
 state.chatMatchCode ||= null;
+state.friends ||= [];
+state.friendRequests ||= [];
+state.friendInvites ||= [];
+state.friendChatId ||= null;
 state.pushNotificationsEnabled ??= false;
 let currentPlacementCorrect = true, roundLoading = false;
 let viewingLatestRound = false;
@@ -198,6 +202,17 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
 }
 
 function updateTurnBadge() { const count = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length; if (navigator.setAppBadge) (count ? navigator.setAppBadge(count) : navigator.clearAppBadge()).catch(() => {}); }
+function renderFriends() {
+  const requests = $("#friend-requests"), friends = $("#friends-list"), invites = $("#friend-invites"); if (!requests || !friends || !invites) return;
+  invites.innerHTML = state.friendInvites.length ? `<h3 class="friend-section-title">Matchinbjudningar</h3>${state.friendInvites.map((invite) => `<article class="friend-row"><strong>${escapeHtml(invite.sender_name)} har bjudit in dig</strong><div class="friend-actions"><button class="button button-green" data-join-friend-match="${invite.match_code}" data-invite-id="${invite.invite_id}" type="button">GÅ MED</button></div></article>`).join("")}` : "";
+  requests.innerHTML = state.friendRequests.length ? `<h3 class="friend-section-title">Inkommande förfrågningar</h3>${state.friendRequests.map((friend) => `<article class="friend-row"><strong>${escapeHtml(friend.display_name)}</strong><div class="friend-actions"><button class="button button-green" data-friend-answer="${friend.request_id}" data-friend-accept="true" type="button">ACCEPTERA</button><button class="button button-secondary" data-friend-answer="${friend.request_id}" type="button">AVVISA</button></div></article>`).join("")}` : "";
+  friends.innerHTML = `<h3 class="friend-section-title">Dina vänner</h3>${state.friends.length ? state.friends.map((friend) => `<article class="friend-row"><strong>${escapeHtml(friend.display_name)}</strong><div class="friend-actions"><button class="button button-secondary" data-open-friend-chat="${friend.friend_id}" type="button">VISA CHATT</button><button class="button button-green" data-create-friend-match="${friend.friend_id}" type="button">SKAPA MATCH MOT</button><button class="button button-leave" data-remove-friend="${friend.friend_id}" type="button">TA BORT</button></div></article>`).join("") : `<p class="friend-empty">Du har inga vänner ännu.</p>`}`;
+}
+async function syncFriends() {
+  if (!supabaseAuth.session()?.access_token) return;
+  const [friends, requests, invites] = await Promise.all([supabaseAuth.dataRequest("rpc/digihits_my_friends", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_friend_requests", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_match_invites", {}, "POST")]);
+  state.friends = friends || []; state.friendRequests = requests || []; state.friendInvites = invites || []; save(); renderFriends();
+}
 function render() {
   updateTurnBadge();
   $("#player-name").textContent = state.playerName;
@@ -247,6 +262,7 @@ function render() {
   matches.querySelectorAll("[data-open-match]").forEach((button) => { const unread = Number(state.chatUnread[button.dataset.openMatch] || 0); if (unread) button.closest(".match")?.querySelector(".match-lock-top")?.insertAdjacentHTML("beforebegin", `<button class="match-chat-alert" data-open-chat="${button.dataset.openMatch}" title="Öppna chatt: ${unread} nya meddelanden" aria-label="Öppna chatt" type="button">✉<b>${unread}</b></button>`); });
   const history = $("#history");
   if (history) history.innerHTML = `<h3 class="section-subtitle">Solomatcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="solo">NOLLSTÄLL SOLOMATCHER</button></div>${soloHistory.length ? soloHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade solomatcher.</p>`}<h3 class="section-subtitle">Onlinematcher</h3><div class="reset-row"><button class="reset-button" data-reset-history="online">NOLLSTÄLL ONLINEMATCHER</button></div>${onlineHistory.length ? onlineHistory.map(historyCard).join("") : `<p class="history-empty">Inga avslutade onlinematcher.</p>`}`;
+  renderFriends();
 }
 
 function showView(view, focusMatches = false, fromHistory = false) {
@@ -300,11 +316,27 @@ async function openChat(matchCode = state.activeMatchCode) {
   $("#chat-title").textContent = match.title; $("#chat-input").value = ""; showView("chat"); await loadChat(); clearInterval(chatPoll); chatPoll = setInterval(() => { if (currentView === "chat") loadChat().catch(() => {}); }, 2500);
 }
 function handleChatRealtime(payload) {
+  if (payload.table === "digihits_friend_messages") { handleFriendChatRealtime(payload); return; }
   if (payload.eventType !== "INSERT" || String(payload.new?.user_id) === String(state.userId)) return;
   const match = state.matches.find((item) => String(item.id) === String(payload.new?.match_id));
   if (!match) return;
   if (currentView === "chat" && state.chatMatchCode === match.code) { loadChat().catch(() => {}); return; }
   state.chatUnread[match.code] = Number(state.chatUnread[match.code] || 0) + 1; save(); render(); refreshChatButtons();
+}
+async function loadFriendChat() {
+  const friend = state.friends.find((item) => item.friend_id === state.friendChatId); if (!friend) return;
+  const messages = await supabaseAuth.dataRequest("rpc/digihits_my_friend_messages", { friend: friend.friend_id }, "POST");
+  if (currentView !== "friend-chat") return;
+  const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
+  $("#friend-chat-messages").innerHTML = messages.length ? messages.map((message) => `<article class="chat-message ${message.sender_id === user.id ? "mine" : ""}"><strong>${message.sender_id === user.id ? "Du" : escapeHtml(friend.display_name)}</strong>${escapeHtml(message.body)}<time>${new Date(message.created_at).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}</time></article>`).join("") : `<p class="chat-empty">Inga meddelanden ännu.</p>`;
+  $("#friend-chat-messages").scrollTop = $("#friend-chat-messages").scrollHeight;
+}
+async function openFriendChat(friendId) {
+  const friend = state.friends.find((item) => item.friend_id === friendId); if (!friend) return;
+  state.friendChatId = friendId; save(); $("#friend-chat-title").textContent = friend.display_name; $("#friend-chat-input").value = ""; showView("friend-chat"); await loadFriendChat();
+}
+function handleFriendChatRealtime(payload) {
+  if (payload.eventType === "INSERT" && currentView === "friend-chat" && [String(payload.new?.sender_id), String(payload.new?.recipient_id)].includes(String(state.friendChatId))) loadFriendChat().catch(() => {});
 }
 
 function openMatch(matchCode) {
@@ -337,6 +369,10 @@ function openMatch(matchCode) {
   if (!roundLoading) $("#next-round").textContent = pendingRound ? "ÅTERUPPTA OMGÅNG" : "STARTA NÄSTA OMGÅNG";
   $("#overview-players").hidden = true;
   $("#overview-players").innerHTML = soloMatch ? `<button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : "";
+  let friendBox = $("#match-friend-invites");
+  if (!friendBox) { friendBox = document.createElement("section"); friendBox.id = "match-friend-invites"; friendBox.className = "match-friend-invites"; $("#overview-players").after(friendBox); }
+  friendBox.hidden = soloMatch || match.locked || !state.friends.length;
+  friendBox.innerHTML = friendBox.hidden ? "" : `<small>BJUD IN VÄN TILL MATCHEN</small><div>${state.friends.map((friend) => `<button class="button button-secondary" data-invite-friend="${friend.friend_id}" type="button">${escapeHtml(friend.display_name)}</button>`).join("")}</div>`;
   showView("match");
   if (match.id) loadOverviewPlayers(match.id, isYourTurn, soloMatch);
 }
@@ -433,7 +469,7 @@ async function syncMatches() {
   if (["guess", "timeline"].includes(currentView) && !resultIsLocked && activeMatch && activeMatch.status !== "active") openMatch(activeMatch.code);
   if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
 }
-function startRealtime() { supabaseAuth.subscribeMatches(() => syncMatches().catch(() => {}), handleChatRealtime); }
+function startRealtime() { supabaseAuth.subscribeMatches(() => { syncMatches().catch(() => {}); syncFriends().catch(() => {}); }, handleChatRealtime); }
 async function refreshActiveRound() {
   if (!["guess", "timeline"].includes(currentView)) return;
   const match = state.matches.find((item) => item.code === state.activeMatchCode && item.status === "active");
@@ -450,11 +486,12 @@ document.addEventListener("visibilitychange", async () => {
     await refreshActiveRound().catch(() => {});
   }
 });
-async function createOnlineMatch() {
+async function createOnlineMatch(inviteFriendId = null) {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); const matchCode = code();
   const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
   const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
+  if (inviteFriendId) await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: matchCode, recipient: inviteFriendId }, "POST");
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 async function createSoloMatch() {
@@ -487,6 +524,18 @@ $("#join-match").addEventListener("click", async () => {
   const value = $("#match-code").value.trim().toUpperCase();
   if (!/^[A-Z0-9]{6}$/.test(value)) { $("#match-code").focus(); return; } try { await joinOnlineMatch(value); $("#match-code").value = ""; } catch (error) { alert(error.message); }
 });
+$("#friend-search-form")?.addEventListener("submit", async (event) => { event.preventDefault(); const input = $("#friend-search"), feedback = $("#friend-feedback"), requested = input.value.trim(); if (!requested) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_request", { requested }, "POST"); input.value = ""; feedback.textContent = "Vänförfrågan är skickad."; feedback.hidden = false; await syncFriends(); } catch (error) { feedback.textContent = error.message; feedback.hidden = false; } });
+$("#friends-section")?.addEventListener("click", async (event) => {
+  const answer = event.target.closest("[data-friend-answer]"), create = event.target.closest("[data-create-friend-match]"), remove = event.target.closest("[data-remove-friend]"), invite = event.target.closest("[data-join-friend-match]"), chat = event.target.closest("[data-open-friend-chat]");
+  try {
+    if (answer) { await supabaseAuth.dataRequest("rpc/digihits_answer_friend_request", { request_id: answer.dataset.friendAnswer, accept_request: answer.dataset.friendAccept === "true" }, "POST"); await syncFriends(); }
+    else if (create) await createOnlineMatch(create.dataset.createFriendMatch);
+    else if (remove) dialog("Ta bort vännen?", async () => { await supabaseAuth.dataRequest("rpc/digihits_remove_friend", { target: remove.dataset.removeFriend }, "POST"); await syncFriends(); }, true, "TA BORT");
+    else if (invite) { await joinOnlineMatch(invite.dataset.joinFriendMatch); await supabaseAuth.dataRequest("rpc/digihits_dismiss_match_invite", { invite: invite.dataset.inviteId }, "POST"); await syncFriends(); }
+    else if (chat) await openFriendChat(chat.dataset.openFriendChat);
+  } catch (error) { alert(error.message); }
+});
+document.addEventListener("click", async (event) => { const button = event.target.closest("[data-invite-friend]"); if (!button) return; try { await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: state.activeMatchCode, recipient: button.dataset.inviteFriend }, "POST"); dialog("Matchinbjudan är skickad."); } catch (error) { alert(error.message); } });
 $("#matches").addEventListener("click", (event) => {
   const chatButton = event.target.closest("[data-open-chat]");
   if (chatButton) { openChat(chatButton.dataset.openChat).catch((error) => alert(error.message)); return; }
@@ -509,6 +558,8 @@ $("#lobby-leave").addEventListener("click", () => showView("home"));
 [$("#lobby-chat"), $("#match-chat")].forEach((button) => button.addEventListener("click", () => openChat().catch((error) => alert(error.message))));
 $("#chat-back").addEventListener("click", () => { const view = state.chatReturnView === "lobby" ? "lobby" : "match"; if (view === "lobby") openLobby(state.activeMatchCode); else openMatch(state.activeMatchCode); });
 $("#chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const match = state.matches.find((item) => item.code === state.chatMatchCode), body = $("#chat-input").value.trim(); if (!match?.id || !body) return; const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); try { await supabaseAuth.dataRequest("online_messages", { match_id: match.id, user_id: user.id, display_name: state.playerName, body, message: body }, "POST"); $("#chat-input").value = ""; await loadChat(); } catch (error) { alert(error.message); } });
+$("#friend-chat-back").addEventListener("click", () => showView("home", true));
+$("#friend-chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const body = $("#friend-chat-input").value.trim(); if (!state.friendChatId || !body) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_message", { friend: state.friendChatId, message_body: body }, "POST"); $("#friend-chat-input").value = ""; await loadFriendChat(); } catch (error) { alert(error.message); } });
 window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify()) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; button.textContent = "LADDAR OMGÅNG…"; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = true; resultIsLocked = true; renderRoundResult(true, pending.card, pending.snapshot); showView("result"); return; } await syncMatches(); button.textContent = "LADDAR OMGÅNG…"; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (!existingCard) { state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard(); } resetTurnInput(); showView("guess"); if (existingCard) { pausedForNavigation = true; resumeRoundTrack(); } else startCurrentTrack(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; button.textContent = label; } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
@@ -730,7 +781,7 @@ $("#login-form").addEventListener("submit", async (event) => {
     const data = await supabaseAuth.signIn($("#login-email").value.trim(), $("#login-password").value);
     $("#player-email").textContent = data.user.email;
     state.playerName = data.user.user_metadata?.display_name || state.playerName;
-    save(); render(); closeHomeAccordions(); showView("home"); startRealtime(); syncMatches().catch(() => {});
+    save(); render(); closeHomeAccordions(); showView("home"); startRealtime(); syncMatches().catch(() => {}); syncFriends().catch(() => {});
   } catch (error) { alert(error.message); }
   finally { submit.disabled = false; $("#login-progress").hidden = true; }
 });
@@ -771,20 +822,21 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 } else if (supabaseAuth.session()?.access_token) {
   supabaseAuth.user(supabaseAuth.session().access_token).then(async (user) => {
     $("#player-email").textContent = user.email; state.playerName = user.user_metadata?.display_name || state.playerName; state.userId = user.id; save(); render();
-    await syncMatches(); await restoreRoundUnlocked(); startRealtime();
+    await syncMatches(); await syncFriends(); await restoreRoundUnlocked(); startRealtime();
     try { const spotify = await supabaseAuth.consumeSpotify(); if (spotify) { render(); dialog(`Spotify Premium är anslutet som ${spotify.name}.`); } } catch (error) { alert(error.message); }
     const view = location.hash.slice(1) || "home";
     if (view === "match" && state.activeMatchCode) openMatch(state.activeMatchCode);
     else if (view === "lobby" && state.activeMatchCode) openLobby(state.activeMatchCode);
     else if (view === "result" && state.activeMatchCode) await restoreResultView();
     else if (view === "chat" && state.chatMatchCode) { showView("chat", false, true); await loadChat(); }
+    else if (view === "friend-chat" && state.friendChatId) { showView("friend-chat", false, true); await loadFriendChat(); }
     else showView(view === "welcome" ? "home" : view, new URLSearchParams(location.search).get("matches") === "1", true);
   }).catch((error) => { if (error?.message === "SESSION_EXPIRED") { supabaseAuth.signOut(); showView("welcome"); return; } showView(location.hash.slice(1) || "home", false, true); });
 } else document.documentElement.classList.remove("booting");
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.33";
+$(".brand small").textContent = "v3.37";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
