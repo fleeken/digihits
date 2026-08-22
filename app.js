@@ -497,7 +497,7 @@ async function createOnlineMatch(inviteFriendId = null) {
   const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
   const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
-  if (inviteFriendId) await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: matchCode, recipient: inviteFriendId }, "POST");
+  if (inviteFriendId) { const friendStarter = pickFreshTrack(deck.filter((card) => card.id !== starter.id)); await supabaseAuth.dataRequest("rpc/digihits_add_friend_to_match", { match_code_input: matchCode, recipient: inviteFriendId, starter: friendStarter }, "POST"); }
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 async function createSoloMatch() {
@@ -537,7 +537,7 @@ $("#friends-section")?.addEventListener("click", async (event) => {
     if (answer) { await supabaseAuth.dataRequest("rpc/digihits_answer_friend_request", { request_id: answer.dataset.friendAnswer, accept_request: answer.dataset.friendAccept === "true" }, "POST"); await syncFriends(); }
     else if (create) await createOnlineMatch(create.dataset.createFriendMatch);
     else if (remove) dialog(`Är du säker på att du vill ta bort ${remove.dataset.friendName}?`, async () => { await supabaseAuth.dataRequest("rpc/digihits_remove_friend", { target: remove.dataset.removeFriend }, "POST"); await syncFriends(); }, true, "JA");
-    else if (invite) { await joinOnlineMatch(invite.dataset.joinFriendMatch); await supabaseAuth.dataRequest("rpc/digihits_dismiss_match_invite", { invite: invite.dataset.inviteId }, "POST"); await syncFriends(); }
+    else if (invite) { await syncMatches(); const existing = state.matches.find((match) => match.code === invite.dataset.joinFriendMatch); if (existing) openMatch(existing.code); else await joinOnlineMatch(invite.dataset.joinFriendMatch); await supabaseAuth.dataRequest("rpc/digihits_dismiss_match_invite", { invite: invite.dataset.inviteId }, "POST"); await syncFriends(); }
     else if (chat) await openFriendChat(chat.dataset.openFriendChat);
   } catch (error) { alert(error.message); }
 });
@@ -610,7 +610,8 @@ async function handoverTurn(savedTimeline = null) {
   const solo = isSoloMatch(match);
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=id,user_id,turn_order,locked_timeline,rounds_started,swap_cards&order=turn_order`);
-  const mine = players.findIndex((player) => player.user_id === user.id), minePlayer = players[mine], next = players[(mine + 1) % players.length];
+  const mine = players.findIndex((player) => String(player.user_id) === String(user.id)), minePlayer = players[mine], next = players[(mine + 1) % players.length];
+  if (!minePlayer || !next || (!solo && players.length < 2)) throw new Error("Det finns ingen aktiv motspelare i matchen.");
   const currentCard = activeCard(), cardsToLock = currentPlacementCorrect ? [...state.roundUnlocked, currentCard] : [], earnedSwapCard = false;
   const target = (await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=target_cards`))[0]?.target_cards || 10, won = currentPlacementCorrect && (minePlayer.locked_timeline || []).length + cardsToLock.length >= target;
   const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" })), { ...currentCard, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }];
@@ -618,6 +619,7 @@ async function handoverTurn(savedTimeline = null) {
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, swap_cards: earnedSwapCard ? (minePlayer.swap_cards || 0) + 1 : minePlayer.swap_cards || 0, updated_at: new Date().toISOString() }, "PATCH");
   const lockMatch = match.locked || (minePlayer.rounds_started || 0) >= 2;
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : solo ? (lockMatch ? "solo_locked" : "solo") : lockMatch ? "locked" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: user.id, type: solo ? "solo" : "win" } : {}) }, updated_at: new Date().toISOString() }, "PATCH");
+  await syncMatches();
   let soloSummary = null;
   if (won && solo) {
     const rounds = Math.max(1, minePlayer.rounds_started || 1);
@@ -842,7 +844,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.40";
+$(".brand small").textContent = "v3.43";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;

@@ -105,6 +105,23 @@ begin
   insert into public.digihits_match_invites(match_code, sender_id, recipient_id) values (match_code_input, auth.uid()::text, recipient) on conflict do nothing;
 end;
 $$;
+create or replace function public.digihits_add_friend_to_match(match_code_input text, recipient text, starter jsonb)
+returns void language plpgsql security definer set search_path = public as $$
+declare match_row public.online_matches%rowtype; player_count integer; friend_name text;
+begin
+  if not exists (select 1 from public.digihits_friendships where user_id = auth.uid()::text and friend_id = recipient) then raise exception 'Spelaren är inte din vän.'; end if;
+  select * into match_row from public.online_matches where code = match_code_input for update;
+  if match_row.id is null or match_row.phase = 'locked' then raise exception 'Matchen är låst.'; end if;
+  select count(*) into player_count from public.online_players where match_id::text = match_row.id::text and active = true;
+  if player_count >= 8 then raise exception 'Matchen är full – 8 spelare är redan med i matchen.'; end if;
+  if exists (select 1 from public.online_players where match_id::text = match_row.id::text and user_id = recipient and active = true) then return; end if;
+  select display_name into friend_name from public.digihits_profiles where user_id::text = recipient;
+  insert into public.online_players(match_id, user_id, display_name, turn_order, locked_timeline, turn_cards, swap_cards, rounds_started, active, history_hidden, updated_at)
+  values (match_row.id::text, recipient, coalesce(friend_name, 'Motspelare'), player_count, jsonb_build_array(starter), '[]'::jsonb, 0, 0, true, false, now());
+  update public.online_matches set status = 'active', phase = case when status = 'waiting' then 'turn_ready' else phase end, used_track_ids = coalesce(used_track_ids, '[]'::jsonb) || jsonb_build_array(starter->>'id'), updated_at = now() where id = match_row.id;
+  insert into public.digihits_match_invites(match_code, sender_id, recipient_id) values (match_code_input, auth.uid()::text, recipient) on conflict do nothing;
+end;
+$$;
 create or replace function public.digihits_my_match_invites()
 returns table(invite_id uuid, match_code text, sender_name text) language sql security definer set search_path = public as $$
   select i.id, i.match_code, p.display_name from public.digihits_match_invites i join public.digihits_profiles p on p.user_id::text = i.sender_id where i.recipient_id = auth.uid()::text order by i.created_at desc;
@@ -139,4 +156,4 @@ returns table(friend_id text, unread_count bigint) language sql security definer
   group by m.sender_id;
 $$;
 
-grant execute on function public.digihits_find_friend(text), public.digihits_send_friend_request(text), public.digihits_answer_friend_request(uuid, boolean), public.digihits_remove_friend(text), public.digihits_my_friends(), public.digihits_my_friend_requests(), public.digihits_invite_friend(text, text), public.digihits_my_match_invites(), public.digihits_dismiss_match_invite(uuid), public.digihits_my_friend_messages(text), public.digihits_send_friend_message(text, text), public.digihits_mark_friend_chat_read(text), public.digihits_my_friend_unreads() to authenticated;
+grant execute on function public.digihits_find_friend(text), public.digihits_send_friend_request(text), public.digihits_answer_friend_request(uuid, boolean), public.digihits_remove_friend(text), public.digihits_my_friends(), public.digihits_my_friend_requests(), public.digihits_invite_friend(text, text), public.digihits_add_friend_to_match(text, text, jsonb), public.digihits_my_match_invites(), public.digihits_dismiss_match_invite(uuid), public.digihits_my_friend_messages(text), public.digihits_send_friend_message(text, text), public.digihits_mark_friend_chat_read(text), public.digihits_my_friend_unreads() to authenticated;
