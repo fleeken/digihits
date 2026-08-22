@@ -102,7 +102,8 @@ create or replace function public.digihits_my_friend_requests()
 returns table(request_id uuid, sender_id text, display_name text) language sql security definer set search_path = public as $$
   select r.id, r.sender_id, p.display_name from public.digihits_friend_requests r join public.digihits_profiles p on p.user_id::text = r.sender_id where r.recipient_id = auth.uid()::text and r.status = 'pending' order by r.created_at;
 $$;
-create or replace function public.digihits_my_sent_friend_requests()
+drop function if exists public.digihits_my_sent_friend_requests();
+create function public.digihits_my_sent_friend_requests()
 returns table(request_id uuid, recipient_id text, display_name text, status text) language sql security definer set search_path = public as $$
   select r.id, r.recipient_id, p.display_name, r.status from public.digihits_friend_requests r join public.digihits_profiles p on p.user_id::text = r.recipient_id where r.sender_id = auth.uid()::text;
 $$;
@@ -186,6 +187,7 @@ $$;
 create or replace function public.digihits_my_friend_unreads()
 returns table(friend_id text, unread_count bigint) language sql security definer set search_path = public as $$
   select m.sender_id, count(*) from public.digihits_friend_messages m
+  join public.digihits_friendships f on f.user_id = auth.uid()::text and f.friend_id = m.sender_id
   left join public.digihits_friend_chat_reads r on r.user_id = auth.uid()::text and r.friend_id = m.sender_id
   where m.recipient_id = auth.uid()::text and m.created_at > coalesce(r.read_at, 'epoch'::timestamptz)
   group by m.sender_id;
