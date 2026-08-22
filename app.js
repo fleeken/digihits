@@ -415,15 +415,16 @@ function openMatch(matchCode) {
   $("#overview-players").innerHTML = soloMatch ? `<button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : "";
   let friendBox = $("#match-friend-invites");
   if (!friendBox) { friendBox = document.createElement("section"); friendBox.id = "match-friend-invites"; friendBox.className = "match-friend-invites"; $("#overview-players").after(friendBox); }
-  friendBox.hidden = true; friendBox.innerHTML = ""; let overviewLoading = $("#overview-loading"); if (!overviewLoading) { overviewLoading = document.createElement("div"); overviewLoading.id = "overview-loading"; overviewLoading.className = "overview-loading"; overviewLoading.innerHTML = "<i></i>LADDAR MATCHÖVERSIKT…"; $("#overview-players").before(overviewLoading); } overviewLoading.hidden = false;
+  friendBox.hidden = true; friendBox.innerHTML = ""; let overviewLoading = $("#overview-loading"); if (!overviewLoading) { overviewLoading = document.createElement("div"); overviewLoading.id = "overview-loading"; overviewLoading.className = "overview-loading"; overviewLoading.innerHTML = "<i></i>LADDAR MATCHÖVERSIKT…"; $("#overview-players").before(overviewLoading); }
   showView("match");
-  if (match.id) loadOverviewPlayers(match.id, isYourTurn, soloMatch);
+  if (match.id) { overviewLoading.hidden = false; loadOverviewPlayers(match.id, isYourTurn, soloMatch); }
+  else overviewLoading.hidden = true;
 }
 async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
     const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,user_id,display_name,turn_order,locked_timeline,last_round,rounds_started,swap_cards&order=turn_order`);
     const match = state.matches.find((item) => item.id === matchId), friendBox = $("#match-friend-invites");
-    if (friendBox && match && !solo) { friendBox.hidden = false; const locked = match.locked || players.some((player) => Number(player.rounds_started || 0) >= 2); if (locked) friendBox.innerHTML = `<small>OMGÅNG TVÅ ÄR PÅBÖRJAD OCH MATCHEN ÄR DÄRMED LÅST.</small>`; else { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))); const inviteableFriends = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE"))); friendBox.innerHTML = inviteableFriends.length ? `<small>BJUD IN VÄN TILL MATCHEN</small><div>${inviteableFriends.map((friend) => `<button class="button button-secondary" data-invite-friend="${friend.friend_id}" type="button">${escapeHtml(friend.display_name)} · BJUD IN</button>`).join("")}</div>` : `<small>DU HAR INGA FLER VÄNNER ATT BJUD IN TILL DENNA MATCH.</small>`; } }
+    if (friendBox && match && !solo) { friendBox.hidden = false; const locked = match.locked || players.some((player) => Number(player.rounds_started || 0) >= 2); if (locked) friendBox.innerHTML = `<small>BJUD IN VÄN TILL MATCHEN</small><p>MATCHEN ÄR LÅST EFTERSOM OMGÅNG TVÅ REDAN PÅBÖRJATS.</p>`; else { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))); const inviteableFriends = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE"))); friendBox.innerHTML = `<small>BJUD IN VÄN TILL MATCHEN</small>${inviteableFriends.length ? `<div>${inviteableFriends.map((friend) => `<button class="button button-secondary" data-invite-friend="${friend.friend_id}" type="button">${escapeHtml(friend.display_name)} · BJUD IN</button>`).join("")}</div>` : `<p>DU HAR INGA FLER VÄNNER ATT BJUD IN TILL DENNA MATCH.</p>`}`; } }
     if (!solo) $("#overview-players-count").textContent = String(players.length);
     players.forEach((player) => { latestRounds[player.id] = player.last_round; });
     if (solo) {
@@ -894,7 +895,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.84";
+$(".brand small").textContent = "v3.86";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
