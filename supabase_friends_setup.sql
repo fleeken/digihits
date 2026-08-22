@@ -24,6 +24,9 @@ create table if not exists public.digihits_match_invites (
   created_at timestamptz not null default now(),
   unique (match_code, recipient_id)
 );
+alter table public.digihits_match_invites add column if not exists status text not null default 'pending';
+alter table public.digihits_match_invites drop constraint if exists digihits_match_invites_status_check;
+alter table public.digihits_match_invites add constraint digihits_match_invites_status_check check (status in ('pending', 'declined', 'accepted'));
 create table if not exists public.digihits_friend_messages (
   id uuid primary key default gen_random_uuid(),
   sender_id text not null,
@@ -138,17 +141,26 @@ end;
 $$;
 create or replace function public.digihits_my_match_invites()
 returns table(invite_id uuid, match_code text, sender_name text) language sql security definer set search_path = public as $$
-  select i.id, i.match_code, p.display_name from public.digihits_match_invites i join public.digihits_profiles p on p.user_id::text = i.sender_id where i.recipient_id = auth.uid()::text order by i.created_at desc;
+  select i.id, i.match_code, p.display_name from public.digihits_match_invites i join public.digihits_profiles p on p.user_id::text = i.sender_id where i.recipient_id = auth.uid()::text and i.status = 'pending' order by i.created_at desc;
+$$;
+drop function if exists public.digihits_my_sent_match_invites();
+create function public.digihits_my_sent_match_invites()
+returns table(invite_id uuid, recipient_name text, match_code text, status text) language sql security definer set search_path = public as $$
+  select i.id, p.display_name, i.match_code, i.status from public.digihits_match_invites i join public.digihits_profiles p on p.user_id::text = i.recipient_id where i.sender_id = auth.uid()::text and i.status in ('declined', 'accepted') order by i.created_at desc;
 $$;
 create or replace function public.digihits_dismiss_match_invite(invite uuid)
 returns void language sql security definer set search_path = public as $$
-  delete from public.digihits_match_invites where id = invite and recipient_id = auth.uid()::text;
+  update public.digihits_match_invites set status = 'declined' where id = invite and recipient_id = auth.uid()::text and status = 'pending';
+$$;
+create or replace function public.digihits_dismiss_sent_match_invite(invite uuid)
+returns void language sql security definer set search_path = public as $$
+  delete from public.digihits_match_invites where id = invite and sender_id = auth.uid()::text and status in ('declined', 'accepted');
 $$;
 create or replace function public.digihits_accept_match_invite(invite uuid, starter jsonb)
 returns text language plpgsql security definer set search_path = public as $$
 declare invite_row public.digihits_match_invites%rowtype; match_row public.online_matches%rowtype; player_count integer; recipient_name text;
 begin
-  select * into invite_row from public.digihits_match_invites where id = invite and recipient_id = auth.uid()::text for update;
+  select * into invite_row from public.digihits_match_invites where id = invite and recipient_id = auth.uid()::text and status = 'pending' for update;
   if invite_row.id is null then raise exception 'Matchinbjudan hittades inte.'; end if;
   select * into match_row from public.online_matches where code = invite_row.match_code for update;
   if match_row.id is null or match_row.status = 'finished' then raise exception 'Matchkoden hittades inte eller matchen är avslutad.'; end if;
@@ -162,7 +174,7 @@ begin
     values (match_row.id::text, auth.uid()::text, coalesce(recipient_name, 'Motspelare'), player_count, jsonb_build_array(starter), '[]'::jsonb, 0, 0, true, false, now());
     update public.online_matches set status = 'active', phase = case when status = 'waiting' then 'turn_ready' else phase end, used_track_ids = coalesce(used_track_ids, '[]'::jsonb) || jsonb_build_array(starter->>'id'), updated_at = now() where id = match_row.id;
   end if;
-  delete from public.digihits_match_invites where id = invite_row.id;
+  update public.digihits_match_invites set status = 'accepted' where id = invite_row.id;
   return invite_row.match_code;
 end;
 $$;
@@ -193,4 +205,4 @@ returns table(friend_id text, unread_count bigint) language sql security definer
   group by m.sender_id;
 $$;
 
-grant execute on function public.digihits_find_friend(text), public.digihits_send_friend_request(text), public.digihits_answer_friend_request(uuid, boolean), public.digihits_remove_friend(text), public.digihits_my_friends(), public.digihits_my_friend_requests(), public.digihits_my_sent_friend_requests(), public.digihits_dismiss_sent_friend_request(uuid), public.digihits_invite_friend(text, text), public.digihits_add_friend_to_match(text, text, jsonb), public.digihits_my_match_invites(), public.digihits_dismiss_match_invite(uuid), public.digihits_accept_match_invite(uuid, jsonb), public.digihits_my_friend_messages(text), public.digihits_send_friend_message(text, text), public.digihits_mark_friend_chat_read(text), public.digihits_my_friend_unreads() to authenticated;
+grant execute on function public.digihits_find_friend(text), public.digihits_send_friend_request(text), public.digihits_answer_friend_request(uuid, boolean), public.digihits_remove_friend(text), public.digihits_my_friends(), public.digihits_my_friend_requests(), public.digihits_my_sent_friend_requests(), public.digihits_dismiss_sent_friend_request(uuid), public.digihits_invite_friend(text, text), public.digihits_add_friend_to_match(text, text, jsonb), public.digihits_my_match_invites(), public.digihits_my_sent_match_invites(), public.digihits_dismiss_match_invite(uuid), public.digihits_dismiss_sent_match_invite(uuid), public.digihits_accept_match_invite(uuid, jsonb), public.digihits_my_friend_messages(text), public.digihits_send_friend_message(text, text), public.digihits_mark_friend_chat_read(text), public.digihits_my_friend_unreads() to authenticated;
