@@ -20,6 +20,7 @@ state.roundUnlocked ||= [];
 state.lockedTimeline ||= [{ id: "digi-001", year: 1956, artist: "Elvis Presley", title: "Hound Dog" }];
 state.currentCard ||= null;
 state.guessDraft ||= null;
+state.guessFinalized ||= null;
 state.placementDraft ||= null;
 state.chatUnread ||= {};
 state.chatMatchCode ||= null;
@@ -152,7 +153,7 @@ function startCurrentTrack() { clearInterval(songTimer); loadedSpotifyCardId = n
 function resumeRoundTrack() { if (!pausedForNavigation || !state.currentCard || mobileBrowser) return; if (spotifyPlayer && loadedSpotifyCardId === state.currentCard.id) spotifyPlayer.resume().then(() => { pausedForNavigation = false; setPlayButton(true); }).catch(() => playCurrentTrack().catch(() => {})); else startCurrentTrack(); }
 
 const $ = (selector) => document.querySelector(selector);
-$("#guess-form button[type=submit]").textContent = "NÄSTA";
+$("#guess-form button[type=submit]").textContent = "SPARA & VIDARE TILL TIDSLINJEN";
 if (document.documentElement.classList.contains("spotify-callback")) $("#spotify-connecting").hidden = false;
 let currentView = "welcome", chatPoll = 0, realtimeFallbackPoll = 0, realtimeRefreshing = false;
 let resultIsLocked = false;
@@ -310,6 +311,7 @@ function render() {
 }
 
 function showView(view, focusMatches = false, fromHistory = false) {
+  if (view === "guess" && state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === activeCard()?.id) view = "timeline";
   document.documentElement.classList.remove("booting");
   const gameView = view === "guess" || view === "timeline";
   if (!gameView) stopCurrentTrack(true);
@@ -490,7 +492,7 @@ function placementIsCorrect() {
   return (!cards[position - 1] || cards[position - 1].year <= activeCard().year) && (!cards[position] || activeCard().year <= cards[position].year);
 }
 function resetTurnInput() {
-  state.currentGuess = null; state.guessDraft = null; state.placementDraft = null; $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = ""; $("#change-track-area").hidden = false;
+  state.currentGuess = null; state.guessDraft = null; state.guessFinalized = null; state.placementDraft = null; $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = ""; $("#change-track-area").hidden = false;
   const cards = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...state.roundUnlocked].sort((a, b) => a.year - b.year);
   const slot = (index) => `<div class="slot" data-slot="${index}">PLACERA<br>HÄR</div>`;
   $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "STARTKORT" ? "locked-card" : card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status}</span></small></article>`).join("") + slot(cards.length); save();
@@ -634,8 +636,7 @@ document.addEventListener("click", (event) => { const button = event.target.clos
 $("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } const playerState = await spotifyPlayer?.getCurrentState().catch(() => null), expected = state.selectedTracks[activeCard().id]?.uri, sameTrack = expected && playerState?.track_window?.current_track?.uri === expected, actuallyPlaying = Boolean(playerState && !playerState.paused); if (actuallyPlaying && sameTrack) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && sameTrack) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } catch (error) { songStarting = false; setPlayButton(false); if (/ansluta spelaren|starta låten|spelaren kunde inte laddas/i.test(error.message)) dialog("Spotify behöver anslutas igen innan låten kan spelas.", () => { resetSpotifyPlayer(); supabaseAuth.disconnectSpotify(); supabaseAuth.connectSpotify(true).catch((issue) => alert(issue.message)); }, false, "ANSLUT KONTO"); else alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { if (trackStartPromise) await trackStartPromise; loadedSpotifyCardId = null; trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } catch (error) { alert(error.message); } });
 [$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); }));
-$("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; save(); $("#change-track-area").hidden = false; showView("timeline"); });
-$("#skip-guess").addEventListener("click", () => { $("#change-track-area").hidden = false; showView("timeline"); });
+$("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = false; showView("timeline"); });
 let dragTarget = null;
 function startDrag(card, event) {
   card.setPointerCapture(event.pointerId);
@@ -719,12 +720,13 @@ async function restoreRoundUnlocked() {
   if (!match?.id) return;
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const rows = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=turn_cards,current_card,locked_timeline,swap_cards,rounds_started`);
-  const serverCard = rows[0]?.current_card || null, sameCard = state.currentCard?.id === serverCard?.id && state.currentCardMatchCode === match.code, savedGuess = sameCard ? state.currentGuess : null, savedDraft = sameCard ? state.guessDraft : null, savedPlacement = sameCard ? state.placementDraft : null;
+  const serverCard = rows[0]?.current_card || null, sameCard = state.currentCard?.id === serverCard?.id && state.currentCardMatchCode === match.code, savedGuess = sameCard ? state.currentGuess : null, savedDraft = sameCard ? state.guessDraft : null, savedFinalized = sameCard ? state.guessFinalized : null, savedPlacement = sameCard ? state.placementDraft : null;
   state.roundUnlocked = rows[0]?.turn_cards || [];
   state.lockedTimeline = rows[0]?.locked_timeline || state.lockedTimeline;
   state.currentCard = serverCard; state.currentCardMatchCode = state.currentCard ? match.code : null; state.changeTrackCards = rows[0]?.swap_cards || 0; if (isSoloMatch(match)) state.soloProgress[match.code] ||= { correct: state.lockedTimeline.length, mistakes: Math.max(0, (rows[0]?.rounds_started || 0) - Math.max(0, state.lockedTimeline.length - 1)) };
   save(); resetTurnInput();
   if (savedGuess) state.currentGuess = savedGuess;
+  if (savedFinalized) state.guessFinalized = savedFinalized;
   if (savedDraft) { state.guessDraft = savedDraft; $("#guess-artist").value = savedDraft.artist || ""; $("#guess-track").value = savedDraft.title || ""; }
   if (savedPlacement && state.currentCard && savedPlacement.cardId === state.currentCard.id && Number.isInteger(savedPlacement.position)) placeCard(savedPlacement.position);
   save();
@@ -791,6 +793,7 @@ const pushKeyBytes = (value) => Uint8Array.from(atob(value.replace(/-/g, "+").re
 $("#enable-notifications").addEventListener("click", async () => { try { if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("Notiser stöds inte i den här webbläsaren."); const registration = await navigator.serviceWorker.ready, existingSubscription = await registration.pushManager.getSubscription(); if (state.pushNotificationsEnabled) { if (existingSubscription) { await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${encodeURIComponent(existingSubscription.endpoint)}`, null, "DELETE"); await existingSubscription.unsubscribe(); } state.pushNotificationsEnabled = false; save(); render(); dialog("Notiser är inaktiverade på den här enheten."); return; } const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission(); if (permission !== "granted") throw new Error("Notiser tilläts inte. Du kan ändra detta i iPhones inställningar."); const key = window.DIGIHITS_VAPID_PUBLIC_KEY; if (!key) throw new Error("Notisservern är inte klar ännu."); const subscription = existingSubscription || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(key) }); const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), endpoint = encodeURIComponent(subscription.endpoint), data = { endpoint: subscription.endpoint, user_id: String(user.id), subscription: subscription.toJSON() }, existing = await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}&select=endpoint`); if (existing.length) await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}`, data, "PATCH"); else await supabaseAuth.dataRequest("push_subscriptions", data, "POST"); state.pushNotificationsEnabled = true; save(); render(); dialog("Notiser är aktiverade på den här enheten."); } catch (error) { dialog(error.message); } });
 window.addEventListener("popstate", (event) => {
   if (resultIsLocked && currentView === "result") { history.pushState({ view: "result" }, "", "#result"); return; }
+  if (event.state?.view === "guess" && state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === activeCard()?.id) { history.replaceState({ view: "timeline" }, "", "#timeline"); showView("timeline", false, true); return; }
   showView(event.state?.view || "welcome", false, true);
 });
 $("#reset-solo-stats")?.addEventListener("click", () => dialog("Nollställ statistik för solomatcher?", () => { state.soloStats = { bestRounds: null, fewestMistakes: null }; save(); render(); }, true, "NOLLSTÄLL"));
@@ -909,7 +912,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.13";
+$(".brand small").textContent = "v4.15";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
