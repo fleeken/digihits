@@ -596,7 +596,7 @@ document.addEventListener("click", async (event) => {
     else if (dismiss) { await supabaseAuth.dataRequest("rpc/digihits_dismiss_sent_friend_request", { request_id: dismiss.dataset.dismissFriendRequest }, "POST"); await syncFriends(); }
     else if (dismissNotice) { await supabaseAuth.dataRequest("rpc/digihits_dismiss_friend_notification", { notice: dismissNotice.dataset.dismissFriendNotice }, "POST"); await syncFriends(); }
     else if (unblock) { await supabaseAuth.dataRequest("rpc/digihits_unblock_friend", { target: unblock.dataset.unblockFriend }, "POST"); await syncFriends(); }
-    else if (block) dialog(`Vill du blockera ${block.dataset.friendName}?`, async () => { await supabaseAuth.dataRequest("rpc/digihits_block_friend", { target: block.dataset.blockFriend }, "POST"); await syncFriends(); }, true, "BLOCKERA");
+    else if (block) dialog(`Vill du blockera ${block.dataset.friendName}? Blockering tar även bort personen från din vänskapslista.`, async () => { await supabaseAuth.dataRequest("rpc/digihits_block_friend", { target: block.dataset.blockFriend }, "POST"); await syncFriends(); }, true, "BLOCKERA");
     else if (declineInvite) { await supabaseAuth.dataRequest("rpc/digihits_dismiss_match_invite", { invite: declineInvite.dataset.declineMatchInvite }, "POST"); await syncFriends(); }
     else if (dismissMatchInvite) { await supabaseAuth.dataRequest("rpc/digihits_dismiss_sent_match_invite", { invite: dismissMatchInvite.dataset.dismissSentMatchInvite }, "POST"); await syncFriends(); }
     else if (create) { const friend = state.friends.find((item) => String(item.friend_id) === String(create.dataset.createFriendMatch)); dialog(`Vill du skapa en match mot ${friend?.display_name || "den här spelaren"}?`, async () => { try { await createOnlineMatch(create.dataset.createFriendMatch); } catch (error) { alert(error.message); } }, false, "JA"); }
@@ -917,7 +917,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.43";
+$(".brand small").textContent = "v4.45";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
