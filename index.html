@@ -11,7 +11,7 @@
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon-ios-261.png" />
     <script>document.documentElement.classList.add("booting")</script>
-    <link rel="stylesheet" href="styles.css?v=4.16" /><style>.no-change-cards{display:none!important}</style>
+    <link rel="stylesheet" href="styles.css?v=4.20" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
@@ -97,11 +97,11 @@
           <div class="accordion-content"><div class="match-actions"><article class="action-card"><h3>Skapa en ny match</h3><p>Spela själv eller skicka en matchkod till en vän.</p><button class="button button-purple" id="create-solo-match">SKAPA NY SOLOMATCH</button><button class="button button-green" id="create-match">SKAPA NY ONLINEMATCH</button></article><article class="action-card"><h3>Har du fått en matchkod?</h3><p>Skriv koden du fått av din vän.</p><label class="sr-only" for="match-code">Matchkod</label><input id="match-code" maxlength="6" placeholder="SKRIV MATCHKOD" autocomplete="off" /><button class="button button-green" id="join-match">GÅ MED I MATCHEN</button></article></div></div>
         </section>
         <section class="panel accordion" data-accordion id="my-matches-section">
-          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina matcher</span><span class="match-badges"><span class="badge badge-waiting" id="waiting-count">Väntar på 0</span><span class="badge badge-turn" id="turn-count">Din tur 0</span></span></button>
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina matcher</span><span class="match-badges"><span class="badge badge-waiting" id="waiting-count">Väntar på 0</span><span class="badge badge-turn" id="turn-count">Din tur 0</span><span class="badge badge-friend" id="friend-match-invite-count">Matchinbjudan 0</span></span></button>
           <div class="accordion-content"><section id="friend-invites"></section><section id="friend-sent-match-invites"></section><div id="matches" class="matches" aria-live="polite"></div></div>
         </section>
         <section class="panel accordion" data-accordion id="friends-section">
-          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina vänner</span><span class="match-badges friend-badges"><span class="badge badge-friend" id="friend-request-count">Vänförfrågan 0</span><span class="badge badge-friend" id="friend-match-invite-count">Matchinbjudan 0</span><span class="friend-chat-alert" id="friend-chat-alert" hidden>✉<b id="friend-chat-count">0</b></span></span><span class="accordion-mark">›</span></button>
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina vänner</span><span class="match-badges friend-badges"><span class="badge badge-friend" id="friend-request-count">Vänförfrågan 0</span><span class="friend-chat-alert" id="friend-chat-alert" hidden>✉<b id="friend-chat-count">0</b></span></span><span class="accordion-mark">›</span></button>
           <div class="accordion-content"><div class="friends-content"><form id="friend-search-form" class="friend-search"><input id="friend-search" placeholder="SÖK SPELARNAMN ELLER E-POST" autocomplete="off" /><button class="button button-green" type="submit">LÄGG TILL VÄN</button></form><p id="friend-feedback" class="friend-feedback" hidden></p><section id="friend-requests"></section><section id="friend-sent-requests"></section><section id="friends-list"></section></div></div>
         </section>
         <section class="panel accordion" data-accordion>
@@ -118,6 +118,6 @@
     <script src="auth.js?v=4.02"></script>
     <script src="tracks.js"></script>
     <script src="push-config.js?v=3.17"></script>
-    <script src="app.js?v=4.19"></script>
+    <script src="app.js?v=4.20"></script>
   </body>
 </html>

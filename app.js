@@ -584,7 +584,7 @@ $("#join-match").addEventListener("click", async () => {
   if (!/^[A-Z0-9]{5,6}$/.test(value)) { dialog("Skriv en giltig matchkod med fem eller sex tecken."); return; } try { await joinOnlineMatch(value); $("#match-code").value = ""; } catch (error) { dialog(error.message || "Det gick inte att gå med i matchen."); }
 });
 $("#friend-search-form")?.addEventListener("submit", async (event) => { event.preventDefault(); const input = $("#friend-search"), feedback = $("#friend-feedback"), requested = input.value.trim(); if (!requested) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_request", { requested }, "POST"); input.value = ""; feedback.textContent = "Vänförfrågan är skickad."; feedback.classList.remove("error"); feedback.hidden = false; await syncFriends(); } catch (error) { feedback.textContent = error.message; feedback.classList.add("error"); feedback.hidden = false; } });
-$("#friends-section")?.addEventListener("click", async (event) => {
+document.addEventListener("click", async (event) => {
   const answer = event.target.closest("[data-friend-answer]"), dismiss = event.target.closest("[data-dismiss-friend-request]"), dismissNotice = event.target.closest("[data-dismiss-friend-notice]"), unblock = event.target.closest("[data-unblock-friend]"), block = event.target.closest("[data-block-friend]"), declineInvite = event.target.closest("[data-decline-match-invite]"), dismissMatchInvite = event.target.closest("[data-dismiss-sent-match-invite]"), create = event.target.closest("[data-create-friend-match]"), remove = event.target.closest("[data-remove-friend]"), invite = event.target.closest("[data-join-friend-match]"), chat = event.target.closest("[data-open-friend-chat]");
   try {
     if (answer) { const accepting = answer.dataset.friendAccept === "true", friend = state.friendRequests.find((item) => String(item.request_id) === String(answer.dataset.friendAnswer)); if (accepting) dialogProgress(`ACCEPTERAR VÄNFÖRFRÅGAN FRÅN ${friend?.display_name || "SPELAREN"}…`); try { await supabaseAuth.dataRequest("rpc/digihits_answer_friend_request", { request_id: answer.dataset.friendAnswer, accept_request: accepting }, "POST"); await syncFriends(); } finally { if (accepting) closeDialogProgress(); } }
@@ -912,7 +912,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.19";
+$(".brand small").textContent = "v4.20";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
