@@ -210,7 +210,7 @@ h1{font-size:31px;}
 #friends-list .friend-section-title{margin-top:14px;}
 .guess-form div{grid-template-columns:1fr;justify-items:center;}.guess-form div .button{width:min(100%,330px);}.guess-final-note{color:#b9c7db;text-align:center;margin-top:-3px;}
 .button-yellow{background:#e8b83d;color:#171104;border-color:#ffd266;}.guess-form>#skip-guess{width:min(100%,330px);justify-self:center;margin:0;}
-.guess-view .guess-top{padding:8px 20px 0;}.guess-view .guess-top .back-link{display:none;}.guess-view>.guess-back{display:block;text-align:left;margin:14px 20px 4px;}.guess-view .guess-top h1{margin:8px 0;}.guess-view .guess-form{margin:14px auto 24px;}
+.guess-view .guess-top{padding:8px 20px 0;}.guess-view .guess-top .back-link{display:none;}.guess-view>.guess-back{display:block;text-align:left;margin:14px 20px 16px;}.guess-view .guess-top h1{margin:8px 0;}.guess-view .guess-form{margin:14px auto 24px;}
 [data-view-panel="home"] .accordion-content h3{display:table;width:auto;text-decoration:underline;text-decoration-color:#405064;text-underline-offset:6px;text-decoration-thickness:1px;padding-bottom:3px;}
 #my-matches-section .accordion-toggle,#my-matches-section .accordion-label,#my-matches-section .match-badges,#my-matches-section .match-badges .badge{flex-wrap:nowrap;white-space:nowrap;}#my-matches-section .accordion-label,#my-matches-section .match-badges .badge{flex-shrink:0;}
 @media(max-width:640px){#my-matches-section .accordion-toggle{padding:17px 22px;gap:3px;font-size:20px;white-space:nowrap;}#my-matches-section .accordion-label::before{margin-right:5px;}#my-matches-section .match-badges{gap:3px;}#my-matches-section .match-badges .badge{padding:3px 4px;font-size:8px;}}
