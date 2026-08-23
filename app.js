@@ -152,7 +152,7 @@ function resumeRoundTrack() { if (!pausedForNavigation || !state.currentCard || 
 const $ = (selector) => document.querySelector(selector);
 $("#guess-form button[type=submit]").textContent = "NÄSTA";
 if (document.documentElement.classList.contains("spotify-callback")) $("#spotify-connecting").hidden = false;
-let currentView = "welcome", chatPoll = 0;
+let currentView = "welcome", chatPoll = 0, realtimeFallbackPoll = 0, realtimeRefreshing = false;
 let resultIsLocked = false;
 const code = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
 function dialog(message, action, danger = false, confirmText = "FORTSÄTT", cancelText = "AVBRYT") {
@@ -160,6 +160,8 @@ function dialog(message, action, danger = false, confirmText = "FORTSÄTT", canc
   $("#dialog-cancel").onclick = () => { $("#app-dialog").hidden = true; };
   $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; action?.(); };
 }
+function dialogProgress(message) { const progress = document.createElement("div"); progress.id = "dialog-progress"; progress.className = "dialog-progress"; progress.innerHTML = "<i></i>"; $("#dialog-message").textContent = message; $("#dialog-message").after(progress); $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false; }
+function closeDialogProgress() { $("#dialog-progress")?.remove(); $("#dialog-confirm").hidden = false; $("#app-dialog").hidden = true; }
 window.alert = (message) => dialog(String(message));
 
 function save() { localStorage.setItem(storageKey, JSON.stringify(state)); }
@@ -241,10 +243,10 @@ function updateTurnBadge() { const count = state.matches.filter((match) => !isSo
 function renderFriends() {
   const requests = $("#friend-requests"), sent = $("#friend-sent-requests"), sentMatches = $("#friend-sent-match-invites"), friends = $("#friends-list"), invites = $("#friend-invites"); if (!requests || !sent || !sentMatches || !friends || !invites) return;
   const unreadCount = Object.values(state.friendChatUnread).reduce((total, count) => total + Number(count || 0), 0), requestCount = state.friendRequests.length, inviteCount = state.friendInvites.length; $("#friend-request-count").textContent = `Vänförfrågan ${requestCount}`; $("#friend-request-count").hidden = !requestCount; $("#friend-match-invite-count").textContent = `Matchinbjudan ${inviteCount}`; $("#friend-match-invite-count").hidden = !inviteCount; $("#friend-chat-alert").hidden = !unreadCount; $("#friend-chat-count").textContent = String(unreadCount);
-  invites.innerHTML = state.friendInvites.length ? `<h3 class="friend-section-title">Matchinbjudningar</h3>${state.friendInvites.map((invite) => `<article class="friend-row"><strong>${escapeHtml(invite.sender_name)} har bjudit in dig till match</strong><div class="friend-actions"><button class="button button-green" data-join-friend-match="${invite.match_code}" data-invite-id="${invite.invite_id}" type="button">GÅ MED</button><button class="button button-secondary" data-decline-match-invite="${invite.invite_id}" type="button">AVVISA</button></div></article>`).join("")}` : "";
-  sentMatches.innerHTML = state.sentMatchInvites.length ? `<h3 class="friend-section-title">Skickade matchförfrågningar</h3>${state.sentMatchInvites.map((invite) => invite.status === "pending" ? `<article class="friend-row"><strong>Inbjudan skickad till ${escapeHtml(invite.recipient_name || "spelaren")} · MATCHKOD ${escapeHtml(invite.match_code)}.</strong></article>` : `<article class="friend-row ${invite.status === "accepted" ? "friend-request-accepted" : "friend-request-declined"}"><strong>Matchförfrågan ${invite.status === "accepted" ? "accepterad" : "avvisad"} av ${escapeHtml(invite.recipient_name || "spelaren")} · MATCHKOD ${escapeHtml(invite.match_code)}.</strong><button class="button button-secondary" data-dismiss-sent-match-invite="${invite.invite_id}" type="button">OK</button></article>`).join("")}` : "";
-  requests.innerHTML = state.friendRequests.length ? `<h3 class="friend-section-title">Inkommande vänförfrågningar</h3>${state.friendRequests.map((friend) => `<article class="friend-row"><strong>${escapeHtml(friend.display_name)}</strong><div class="friend-actions"><button class="button button-green" data-friend-answer="${friend.request_id}" data-friend-accept="true" type="button">ACCEPTERA</button><button class="button button-secondary" data-friend-answer="${friend.request_id}" type="button">AVVISA</button></div></article>`).join("")}` : "";
-  sent.innerHTML = state.sentFriendRequests.length ? `<h3 class="friend-section-title">Skickade vänförfrågningar</h3>${state.sentFriendRequests.map((request) => { const name = escapeHtml(request.display_name || "spelaren"); return request.status === "accepted" ? `<article class="friend-row friend-request-accepted"><strong>Du är nu vän med ${name}.</strong><button class="button button-secondary" data-dismiss-friend-request="${request.request_id}" type="button">OK</button></article>` : request.status === "declined" ? `<article class="friend-row friend-request-declined"><strong>${name} avvisade din vänförfrågan.</strong><button class="button button-secondary" data-dismiss-friend-request="${request.request_id}" type="button">OK</button></article>` : `<article class="friend-row"><strong>Vänförfrågan till ${name} – väntar på svar.</strong></article>`; }).join("")}` : "";
+  invites.innerHTML = `<h3 class="friend-section-title">Inkommande matchinbjudningar</h3>${state.friendInvites.length ? state.friendInvites.map((invite) => `<article class="friend-row"><strong>${escapeHtml(invite.sender_name)} har bjudit in dig till match</strong><div class="friend-actions"><button class="button button-green" data-join-friend-match="${invite.match_code}" data-invite-id="${invite.invite_id}" type="button">GÅ MED</button><button class="button button-secondary" data-decline-match-invite="${invite.invite_id}" type="button">AVVISA</button></div></article>`).join("") : `<p class="friend-empty">Du har inga inkommande matchinbjudningar.</p>`}`;
+  sentMatches.innerHTML = `<h3 class="friend-section-title">Skickade matchförfrågningar</h3>${state.sentMatchInvites.length ? state.sentMatchInvites.map((invite) => invite.status === "pending" ? `<article class="friend-row"><strong>Inbjudan skickad till ${escapeHtml(invite.recipient_name || "spelaren")} · MATCHKOD ${escapeHtml(invite.match_code)}.</strong></article>` : `<article class="friend-row ${invite.status === "accepted" ? "friend-request-accepted" : "friend-request-declined"}"><strong>Matchförfrågan ${invite.status === "accepted" ? "accepterad" : "avvisad"} av ${escapeHtml(invite.recipient_name || "spelaren")} · MATCHKOD ${escapeHtml(invite.match_code)}.</strong><button class="button button-secondary" data-dismiss-sent-match-invite="${invite.invite_id}" type="button">OK</button></article>`).join("") : `<p class="friend-empty">Du har inga matchförfrågningar.</p>`}`;
+  requests.innerHTML = `<h3 class="friend-section-title">Inkommande vänförfrågningar</h3>${state.friendRequests.length ? state.friendRequests.map((friend) => `<article class="friend-row"><strong>${escapeHtml(friend.display_name)}</strong><div class="friend-actions"><button class="button button-green" data-friend-answer="${friend.request_id}" data-friend-accept="true" type="button">ACCEPTERA</button><button class="button button-secondary" data-friend-answer="${friend.request_id}" type="button">AVVISA</button></div></article>`).join("") : `<p class="friend-empty">Du har inga inkommande vänförfrågningar.</p>`}`;
+  sent.innerHTML = `<h3 class="friend-section-title">Skickade vänförfrågningar</h3>${state.sentFriendRequests.length ? state.sentFriendRequests.map((request) => { const name = escapeHtml(request.display_name || "spelaren"); return request.status === "accepted" ? `<article class="friend-row friend-request-accepted"><strong>Du är nu vän med ${name}.</strong><button class="button button-secondary" data-dismiss-friend-request="${request.request_id}" type="button">OK</button></article>` : request.status === "declined" ? `<article class="friend-row friend-request-declined"><strong>${name} avvisade din vänförfrågan.</strong><button class="button button-secondary" data-dismiss-friend-request="${request.request_id}" type="button">OK</button></article>` : `<article class="friend-row"><strong>Vänförfrågan till ${name} – väntar på svar.</strong></article>`; }).join("") : `<p class="friend-empty">Du har inga skickade vänförfrågningar.</p>`}`;
   friends.innerHTML = `<h3 class="friend-section-title">Vänskapslista</h3>${state.friends.length ? state.friends.map((friend) => { const unread = Number(state.friendChatUnread[friend.friend_id] || 0), name = String(friend.display_name || "").toLocaleLowerCase("sv-SE"), played = state.history.filter((match) => match.mode === "online" && String(match.opponentName || String(match.title || "").split(", ").at(-1)).toLocaleLowerCase("sv-SE") === name), isWalkover = (match) => /WALK/i.test(match.leaveReason || ""), wins = played.filter((match) => !isWalkover(match) && /VANN/i.test(match.leaveReason || "")).length, losses = played.filter((match) => !isWalkover(match) && /FÖRLORADE/i.test(match.leaveReason || "")).length, walkovers = played.filter(isWalkover).length; return `<article class="friend-row"><strong>${escapeHtml(friend.display_name)}</strong><div class="friend-stats"><div><b>${wins}</b><small>VINSTER MOT</small></div><div><b>${losses}</b><small>FÖRLUSTER MOT</small></div><div><b>${walkovers}</b><small>WALK OVER</small></div><div><b>${played.length}</b><small>SPELADE MATCHER</small></div></div><div class="friend-actions friend-main-actions"><button class="button button-primary" data-open-friend-chat="${friend.friend_id}" type="button">VISA CHATT${unread ? `<span class="chat-badge">${unread}</span>` : ""}</button><button class="button button-green" data-create-friend-match="${friend.friend_id}" type="button">SKAPA NY MATCH MOT</button><button class="button button-leave" data-remove-friend="${friend.friend_id}" data-friend-name="${escapeHtml(friend.display_name)}" type="button">TA BORT VÄN</button></div></article>`; }).join("") : `<p class="friend-empty">Du har inga vänner ännu.</p>`}`;
 }
 async function syncFriends() {
@@ -519,7 +521,8 @@ async function syncMatches() {
   if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
   state.matches.forEach(showTurnNotice);
 }
-function startRealtime() { supabaseAuth.subscribeMatches(() => { syncMatches().catch(() => {}); syncFriends().catch(() => {}); }, handleChatRealtime); }
+async function refreshRealtimeState() { if (realtimeRefreshing || document.visibilityState !== "visible" || !supabaseAuth.session()?.access_token) return; realtimeRefreshing = true; try { await Promise.all([syncMatches(), syncFriends()]); if (currentView === "chat") await loadChat(); else if (currentView === "friend-chat") await loadFriendChat(); else await refreshActiveRound(); } catch { /* nästa Realtime- eller reservsynk försöker igen */ } finally { realtimeRefreshing = false; } }
+function startRealtime() { supabaseAuth.subscribeMatches(() => refreshRealtimeState(), handleChatRealtime); clearInterval(realtimeFallbackPoll); realtimeFallbackPoll = setInterval(refreshRealtimeState, 5000); }
 async function refreshActiveRound() {
   if (!["guess", "timeline"].includes(currentView)) return;
   const match = state.matches.find((item) => item.code === state.activeMatchCode && item.status === "active");
@@ -532,8 +535,7 @@ async function refreshActiveRound() {
 document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState === "visible" && supabaseAuth.session()?.access_token) {
     if (spotifyPlayer && !(await spotifyPlayer.getCurrentState().catch(() => null))) resetSpotifyPlayer();
-    await syncMatches().catch(() => {});
-    await refreshActiveRound().catch(() => {});
+    await refreshRealtimeState();
   }
 });
 async function createOnlineMatch(inviteFriendId = null) {
@@ -578,13 +580,13 @@ $("#friend-search-form")?.addEventListener("submit", async (event) => { event.pr
 $("#friends-section")?.addEventListener("click", async (event) => {
   const answer = event.target.closest("[data-friend-answer]"), dismiss = event.target.closest("[data-dismiss-friend-request]"), declineInvite = event.target.closest("[data-decline-match-invite]"), dismissMatchInvite = event.target.closest("[data-dismiss-sent-match-invite]"), create = event.target.closest("[data-create-friend-match]"), remove = event.target.closest("[data-remove-friend]"), invite = event.target.closest("[data-join-friend-match]"), chat = event.target.closest("[data-open-friend-chat]");
   try {
-    if (answer) { await supabaseAuth.dataRequest("rpc/digihits_answer_friend_request", { request_id: answer.dataset.friendAnswer, accept_request: answer.dataset.friendAccept === "true" }, "POST"); await syncFriends(); }
+    if (answer) { const accepting = answer.dataset.friendAccept === "true", friend = state.friendRequests.find((item) => String(item.request_id) === String(answer.dataset.friendAnswer)); if (accepting) dialogProgress(`ACCEPTERAR VÄNFÖRFRÅGAN FRÅN ${friend?.display_name || "SPELAREN"}…`); try { await supabaseAuth.dataRequest("rpc/digihits_answer_friend_request", { request_id: answer.dataset.friendAnswer, accept_request: accepting }, "POST"); await syncFriends(); } finally { if (accepting) closeDialogProgress(); } }
     else if (dismiss) { await supabaseAuth.dataRequest("rpc/digihits_dismiss_sent_friend_request", { request_id: dismiss.dataset.dismissFriendRequest }, "POST"); await syncFriends(); }
     else if (declineInvite) { await supabaseAuth.dataRequest("rpc/digihits_dismiss_match_invite", { invite: declineInvite.dataset.declineMatchInvite }, "POST"); await syncFriends(); }
     else if (dismissMatchInvite) { await supabaseAuth.dataRequest("rpc/digihits_dismiss_sent_match_invite", { invite: dismissMatchInvite.dataset.dismissSentMatchInvite }, "POST"); await syncFriends(); }
     else if (create) { const friend = state.friends.find((item) => String(item.friend_id) === String(create.dataset.createFriendMatch)); dialog(`Vill du skapa en match mot ${friend?.display_name || "den här spelaren"}?`, async () => { try { await createOnlineMatch(create.dataset.createFriendMatch); } catch (error) { alert(error.message); } }, false, "JA"); }
-    else if (remove) dialog(`Är du säker på att du vill ta bort ${remove.dataset.friendName}?`, async () => { await supabaseAuth.dataRequest("rpc/digihits_remove_friend", { target: remove.dataset.removeFriend }, "POST"); await syncFriends(); }, true, "JA");
-    else if (invite) { const starter = pickFreshTrack(testDeck), matchCode = await supabaseAuth.dataRequest("rpc/digihits_accept_match_invite", { invite: invite.dataset.inviteId, starter }, "POST"); await syncMatches(); const existing = state.matches.find((match) => match.code === matchCode); if (!existing) throw new Error("Matchinbjudan kunde inte öppnas."); openMatch(existing.code); await syncFriends(); }
+    else if (remove) dialog(`Är du säker på att du vill ta bort ${remove.dataset.friendName}?`, async () => { dialogProgress(`TAR BORT ${remove.dataset.friendName} FRÅN VÄNSKAPSLISTAN…`); try { await supabaseAuth.dataRequest("rpc/digihits_remove_friend", { target: remove.dataset.removeFriend }, "POST"); await syncFriends(); } finally { closeDialogProgress(); } }, true, "JA");
+    else if (invite) { dialogProgress("ACCEPTERAR MATCHINBJUDAN…"); try { const starter = pickFreshTrack(testDeck), matchCode = await supabaseAuth.dataRequest("rpc/digihits_accept_match_invite", { invite: invite.dataset.inviteId, starter }, "POST"); await syncMatches(); const existing = state.matches.find((match) => match.code === matchCode); if (!existing) throw new Error("Matchinbjudan kunde inte öppnas."); openMatch(existing.code); await syncFriends(); } finally { closeDialogProgress(); } }
     else if (chat) await openFriendChat(chat.dataset.openFriendChat);
   } catch (error) { alert(error.message); }
 });
@@ -833,6 +835,7 @@ document.querySelectorAll("[data-accordion]").forEach((section) => {
   section.querySelector(".accordion-toggle").addEventListener("click", () => {
     const open = section.classList.toggle("is-open");
     section.querySelector(".accordion-toggle").setAttribute("aria-expanded", String(open));
+    if (section.id === "friends-section" && open) syncFriends().catch(() => {});
   });
 });
 $("#login-form").addEventListener("submit", async (event) => {
@@ -897,7 +900,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.94";
+$(".brand small").textContent = "v3.99";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;

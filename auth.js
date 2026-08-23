@@ -2,12 +2,13 @@ const supabaseAuth = (() => {
   const root = "https://zttkujhoyuxerdewofkb.supabase.co";
   const key = "sb_publishable_lV9EA-XC2KQP5lBxr74puA_Zy1959R0";
   const sessionKey = "digihits-auth-session";
-  let realtimeChannel;
+  let realtimeChannel, pendingRequests = 0, slowRequestTimer = 0;
+  const setSlowRequest = (visible) => { const indicator = document.getElementById("network-progress"); if (indicator) indicator.hidden = !visible; };
   async function fetchWithTimeout(url, options) {
-    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 30000);
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 30000); pendingRequests += 1; if (pendingRequests === 1) slowRequestTimer = setTimeout(() => { if (pendingRequests && document.getElementById("app-dialog")?.hidden) setSlowRequest(true); }, 3000);
     try { return await fetch(url, { ...options, signal: controller.signal, cache: "no-store" }); }
     catch (error) { throw new Error(error.name === "AbortError" ? "Inloggningen tog för lång tid. Kontrollera nätet och försök igen." : "Kunde inte ansluta till servern. Kontrollera nätet och försök igen."); }
-    finally { clearTimeout(timer); }
+    finally { clearTimeout(timer); pendingRequests = Math.max(0, pendingRequests - 1); if (!pendingRequests) { clearTimeout(slowRequestTimer); setSlowRequest(false); } }
   }
   async function request(path, body, method = "POST", accessToken = key) {
     const response = await fetchWithTimeout(`${root}/auth/v1${path}`, { method, headers: { apikey: key, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -25,7 +26,7 @@ const supabaseAuth = (() => {
     requestPasswordReset(email) { return request(`/recover?redirect_to=${encodeURIComponent(`${location.origin}${location.pathname}?reset=1`)}`, { email }); },
     updatePassword(accessToken, password, currentPassword) { return request("/user", { password, ...(currentPassword ? { current_password: currentPassword } : {}) }, "PUT", accessToken); },
     async deleteAccount(confirmation) { const token = this.session()?.access_token; if (!token) throw new Error("Du är inte inloggad."); const response = await fetch(`${root}/functions/v1/delete-account`, { method: "POST", headers: { apikey: key, Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ confirmation }) }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || "Kunde inte radera kontot."); },
-    async dataRequest(path, body, method = "GET") { const token = (await this.refreshSession()).access_token; const response = await fetch(`${root}/rest/v1/${path}`, { method, headers: { apikey: key, Authorization: `Bearer ${token}`, "Content-Type": "application/json", Prefer: "return=representation" }, ...(body ? { body: JSON.stringify(body) } : {}) }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.message || "Kunde inte kontakta matchservern."); return data; },
+    async dataRequest(path, body, method = "GET") { const token = (await this.refreshSession()).access_token; const response = await fetchWithTimeout(`${root}/rest/v1/${path}`, { method, headers: { apikey: key, Authorization: `Bearer ${token}`, "Content-Type": "application/json", Prefer: "return=representation" }, ...(body ? { body: JSON.stringify(body) } : {}) }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.message || "Kunde inte kontakta matchservern."); return data; },
     subscribeMatches(callback, messageCallback = callback) { if (!window.supabase || !this.session()?.access_token) return; if (realtimeChannel) realtimeChannel.unsubscribe(); const client = window.supabase.createClient(root, key, { auth: { persistSession: false } }); client.realtime.setAuth(this.session().access_token); realtimeChannel = client.channel("digihits-matches").on("postgres_changes", { event: "*", schema: "public", table: "online_matches" }, callback).on("postgres_changes", { event: "*", schema: "public", table: "online_players" }, callback).on("postgres_changes", { event: "*", schema: "public", table: "online_messages" }, messageCallback).on("postgres_changes", { event: "*", schema: "public", table: "digihits_friend_requests" }, callback).on("postgres_changes", { event: "*", schema: "public", table: "digihits_friendships" }, callback).on("postgres_changes", { event: "*", schema: "public", table: "digihits_match_invites" }, callback).on("postgres_changes", { event: "*", schema: "public", table: "digihits_friend_messages" }, messageCallback).subscribe(); },
     unsubscribeMatches() { if (realtimeChannel) { realtimeChannel.unsubscribe(); realtimeChannel = null; } },
     session() { try { return JSON.parse(localStorage.getItem(sessionKey)); } catch { return null; } },
