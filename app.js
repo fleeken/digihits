@@ -596,7 +596,8 @@ $("#matches").addEventListener("click", (event) => {
   if (openButton) { openMatch(openButton.dataset.openMatch); return; }
   const deleteButton = event.target.closest("[data-delete-match]");
   if (deleteButton) {
-    dialog("Vill du verkligen lämna matchen?", async () => { const match = state.matches.find((item) => item.code === deleteButton.dataset.deleteMatch); if (!match) return; try { const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=user_id`), winner = players.find((player) => player.user_id !== user.id)?.user_id; await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "finished", last_result: winner ? { winner_id: winner, type: "walkover" } : null, updated_at: new Date().toISOString() }, "PATCH"); state.history.unshift({ ...match, ...(match.solo ? { mode: "solo" } : {}), leaveReason: match.solo ? "RADERAD SOLOMATCH" : match.status === "waiting" ? "DU LÄMNADE INNAN MATCHSTART" : "DU LÄMNADE - WALK OVER" }); await syncMatches(); } catch (error) { alert(error.message); } }, true);
+    const match = state.matches.find((item) => item.code === deleteButton.dataset.deleteMatch); if (!match) return; const opponent = String(match.title || "").split(", ").find((name) => name.toLocaleLowerCase("sv-SE") !== String(state.playerName).toLocaleLowerCase("sv-SE")) || "motspelaren", message = match.solo ? "Vill du verkligen avsluta solomatchen?" : `Vill du verkligen lämna matchen mot ${opponent} med matchkoden ${match.code}?`;
+    dialog(message, async () => { try { const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&select=user_id`), winner = players.find((player) => player.user_id !== user.id)?.user_id; await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: "finished", last_result: winner ? { winner_id: winner, type: "walkover" } : null, updated_at: new Date().toISOString() }, "PATCH"); state.history.unshift({ ...match, ...(match.solo ? { mode: "solo" } : {}), leaveReason: match.solo ? "RADERAD SOLOMATCH" : match.status === "waiting" ? "DU LÄMNADE INNAN MATCHSTART" : "DU LÄMNADE - WALK OVER" }); await syncMatches(); } catch (error) { alert(error.message); } }, true);
   }
 });
 $("#history")?.addEventListener("click", (event) => { const scope = event.target.closest("[data-reset-history]")?.dataset.resetHistory; if (!scope) return; const solo = scope === "solo"; dialog(`Nollställ avslutade ${solo ? "solomatcher" : "onlinematcher"}?`, () => { state.history = state.history.filter((match) => solo ? match.mode !== "solo" : match.mode === "solo"); save(); render(); }, true, "NOLLSTÄLL"); });
@@ -895,7 +896,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v3.89";
+$(".brand small").textContent = "v3.90";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
