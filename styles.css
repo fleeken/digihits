@@ -206,7 +206,7 @@ h1{font-size:31px;}
 .match-friend-invites .button{color:#8fffc0;}
 .match-friend-invites .match-invite-status{margin:0;font-size:10px;font-weight:900;color:#b9c7db;}.match-friend-invites .match-invite-status.accepted{color:#8fffc0;}.match-friend-invites .match-invite-status.declined{color:#ff8b9d;}
 .block-join-request{display:grid;gap:8px;padding:9px;border:1px solid #a45cff;border-radius:9px;background:#171326;font-size:11px;}.block-join-request div{display:flex;gap:7px;}.block-join-request .button{flex:1;}
-#my-matches-section #friend-invites,#my-matches-section #friend-sent-match-invites{display:grid;gap:8px;padding:0 16px;}
+#my-matches-section #friend-invites,#my-matches-section #friend-sent-match-invites{display:grid;gap:8px;padding:0 16px;}#my-matches-section #friend-invites{padding-top:10px;}
 .overview-player .already-friend{margin-left:auto;color:#8fffc0;font-size:9px;font-weight:900;white-space:nowrap;}.overview-player .add-match-friend{width:auto;min-height:25px;margin:0 0 0 auto;padding:4px 6px;font-size:7px;white-space:nowrap;}
 /* Låt fingret bläddra på hela tidslinjen, även över de streckade placeringsytorna. */
 .timeline-row{overflow-x:auto;overflow-y:hidden;justify-content:flex-start;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;}
