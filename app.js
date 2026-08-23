@@ -419,7 +419,7 @@ function openMatch(matchCode) {
   $("#turn-message").hidden = soloMatch;
   $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
   $("#turn-message").classList.toggle("waiting", !isYourTurn);
-  const pendingRound = state.pendingResult?.matchCode === matchCode || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === matchCode));
+  const pendingRound = state.pendingResult?.matchCode === matchCode || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === matchCode)) || (isYourTurn && ["guess", "timeline", "result"].includes(state.roundResumeViews[matchCode]));
   $("#next-round").classList.toggle("is-visible", isYourTurn);
   if (!roundLoading) $("#next-round").textContent = pendingRound ? "ÅTERUPPTA OMGÅNG" : "STARTA NÄSTA OMGÅNG";
   $("#overview-players").hidden = true;
@@ -786,7 +786,7 @@ $("#change-track-area").addEventListener("click", async (event) => {
 $("#result-lock").addEventListener("click", async () => {
   try {
     if (String(state.activeMatchCode || "").startsWith("S0")) return;
-    state.pendingResult = null; save(); const outcome = await handoverTurn();
+    state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); const outcome = await handoverTurn();
     resultIsLocked = true; $("#result-back").hidden = true; showView("home", true); dialog(outcome.earnedSwapCard ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!" : outcome.won ? "Du vann matchen!" : "Korten är låsta. Turen har gått vidare till nästa spelare.");
   } catch (error) { alert(error.message); }
 });
@@ -916,7 +916,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.40";
+$(".brand small").textContent = "v4.41";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
