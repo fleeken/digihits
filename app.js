@@ -579,7 +579,7 @@ $("#create-match").addEventListener("click", async () => { try { await createOnl
 $("#create-solo-match").addEventListener("click", async () => { try { await createSoloMatch(); } catch (error) { alert(error.message); } });
 $("#join-match").addEventListener("click", async () => {
   const value = $("#match-code").value.trim().toUpperCase();
-  if (!/^[A-Z0-9]{6}$/.test(value)) { $("#match-code").focus(); return; } try { await joinOnlineMatch(value); $("#match-code").value = ""; } catch (error) { dialog(error.message || "Det gick inte att gå med i matchen."); }
+  if (!/^[A-Z0-9]{5,6}$/.test(value)) { dialog("Skriv en giltig matchkod med fem eller sex tecken."); return; } try { await joinOnlineMatch(value); $("#match-code").value = ""; } catch (error) { dialog(error.message || "Det gick inte att gå med i matchen."); }
 });
 $("#friend-search-form")?.addEventListener("submit", async (event) => { event.preventDefault(); const input = $("#friend-search"), feedback = $("#friend-feedback"), requested = input.value.trim(); if (!requested) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_request", { requested }, "POST"); input.value = ""; feedback.textContent = "Vänförfrågan är skickad."; feedback.classList.remove("error"); feedback.hidden = false; await syncFriends(); } catch (error) { feedback.textContent = error.message; feedback.classList.add("error"); feedback.hidden = false; } });
 $("#friends-section")?.addEventListener("click", async (event) => {
@@ -909,7 +909,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.10";
+$(".brand small").textContent = "v4.12";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
