@@ -18,6 +18,20 @@ drop policy if exists "Digihits reads own join requests" on public.digihits_matc
 create policy "Digihits reads own join requests" on public.digihits_match_join_requests for select to authenticated using (requester_id = auth.uid()::text or blocker_id = auth.uid()::text);
 do $$ begin alter publication supabase_realtime add table public.digihits_blocks; exception when duplicate_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.digihits_match_join_requests; exception when duplicate_object then null; end $$;
+create table if not exists public.digihits_friend_notifications (
+  id uuid primary key default gen_random_uuid(), recipient_id text not null, actor_id text not null,
+  kind text not null default 'removed', created_at timestamptz not null default now()
+);
+alter table public.digihits_friend_notifications enable row level security;
+drop policy if exists "Digihits reads own friend notifications" on public.digihits_friend_notifications;
+create policy "Digihits reads own friend notifications" on public.digihits_friend_notifications for select to authenticated using (recipient_id=auth.uid()::text);
+do $$ begin alter publication supabase_realtime add table public.digihits_friend_notifications; exception when duplicate_object then null; end $$;
+create or replace function public.digihits_my_friend_notifications() returns table(notice_id uuid,display_name text) language sql security definer set search_path=public as $$
+  select n.id,p.display_name from public.digihits_friend_notifications n join public.digihits_profiles p on p.user_id::text=n.actor_id where n.recipient_id=auth.uid()::text and n.kind='removed' order by n.created_at;
+$$;
+create or replace function public.digihits_dismiss_friend_notification(notice uuid) returns void language sql security definer set search_path=public as $$
+  delete from public.digihits_friend_notifications where id=notice and recipient_id=auth.uid()::text;
+$$;
 
 create or replace function public.digihits_block_friend(target text) returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -136,4 +150,4 @@ begin
  update public.digihits_match_join_requests set status=case when allow_join then 'allowed' else 'declined' end where id=r.id;
  if allow_join and not exists(select 1 from public.digihits_match_join_requests where match_code=r.match_code and requester_id=r.requester_id and status='pending') and not exists(select 1 from public.digihits_match_join_requests where match_code=r.match_code and requester_id=r.requester_id and status='declined') then perform public.digihits_complete_match_join(r.match_code,r.requester_id,r.starter); end if;
 end; $$;
-grant execute on function public.digihits_block_friend(text),public.digihits_unblock_friend(text),public.digihits_my_blocks(),public.digihits_request_match_join(text,jsonb,boolean),public.digihits_my_match_join_requests(text),public.digihits_answer_match_join_request(uuid,boolean) to authenticated;
+grant execute on function public.digihits_block_friend(text),public.digihits_unblock_friend(text),public.digihits_my_blocks(),public.digihits_request_match_join(text,jsonb,boolean),public.digihits_my_match_join_requests(text),public.digihits_answer_match_join_request(uuid,boolean),public.digihits_my_friend_notifications(),public.digihits_dismiss_friend_notification(uuid) to authenticated;
