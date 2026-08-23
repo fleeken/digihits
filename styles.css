@@ -212,7 +212,7 @@ h1{font-size:31px;}
 .button-yellow{background:#e8b83d;color:#171104;border-color:#ffd266;}.guess-form>#skip-guess{width:min(100%,330px);justify-self:center;margin:0;}
 [data-view-panel="home"] .accordion-content h3{display:table;width:auto;text-decoration:underline;text-decoration-color:#405064;text-underline-offset:6px;text-decoration-thickness:1px;padding-bottom:3px;}
 #my-matches-section .accordion-toggle,#my-matches-section .accordion-label,#my-matches-section .match-badges,#my-matches-section .match-badges .badge{flex-wrap:nowrap;white-space:nowrap;}#my-matches-section .accordion-label,#my-matches-section .match-badges .badge{flex-shrink:0;}
-@media(max-width:640px){#my-matches-section .accordion-toggle{padding:13px 12px;gap:3px;font-size:16px;white-space:nowrap;}#my-matches-section .accordion-label::before{margin-right:5px;}#my-matches-section .match-badges{gap:3px;}#my-matches-section .match-badges .badge{padding:3px 4px;font-size:8px;}}
+@media(max-width:640px){#my-matches-section .accordion-toggle{padding:17px 22px;gap:3px;font-size:20px;white-space:nowrap;}#my-matches-section .accordion-label::before{margin-right:5px;}#my-matches-section .match-badges{gap:3px;}#my-matches-section .match-badges .badge{padding:3px 4px;font-size:8px;}}
 .overview-player .already-friend{margin-left:auto;color:#8fffc0;font-size:9px;font-weight:900;white-space:nowrap;}.overview-player .add-match-friend{width:auto;min-height:25px;margin:0 0 0 auto;padding:4px 6px;font-size:7px;white-space:nowrap;}
 /* Låt fingret bläddra på hela tidslinjen, även över de streckade placeringsytorna. */
 .timeline-row{overflow-x:auto;overflow-y:hidden;justify-content:flex-start;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;}
