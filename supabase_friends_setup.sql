@@ -41,12 +41,20 @@ create table if not exists public.digihits_friend_chat_reads (
   read_at timestamptz not null default now(),
   primary key (user_id, friend_id)
 );
+create table if not exists public.digihits_friend_notifications (
+  id uuid primary key default gen_random_uuid(),
+  recipient_id text not null,
+  actor_id text not null,
+  kind text not null default 'removed',
+  created_at timestamptz not null default now()
+);
 
 alter table public.digihits_friend_requests enable row level security;
 alter table public.digihits_friendships enable row level security;
 alter table public.digihits_match_invites enable row level security;
 alter table public.digihits_friend_messages enable row level security;
 alter table public.digihits_friend_chat_reads enable row level security;
+alter table public.digihits_friend_notifications enable row level security;
 
 drop policy if exists "Digihits reads own friendships" on public.digihits_friendships;
 create policy "Digihits reads own friendships" on public.digihits_friendships for select to authenticated using (user_id = auth.uid()::text);
@@ -56,11 +64,14 @@ drop policy if exists "Digihits reads own match invites" on public.digihits_matc
 create policy "Digihits reads own match invites" on public.digihits_match_invites for select to authenticated using (sender_id = auth.uid()::text or recipient_id = auth.uid()::text);
 drop policy if exists "Digihits reads own friend messages" on public.digihits_friend_messages;
 create policy "Digihits reads own friend messages" on public.digihits_friend_messages for select to authenticated using (sender_id = auth.uid()::text or recipient_id = auth.uid()::text);
+drop policy if exists "Digihits reads own friend notifications" on public.digihits_friend_notifications;
+create policy "Digihits reads own friend notifications" on public.digihits_friend_notifications for select to authenticated using (recipient_id = auth.uid()::text);
 
 do $$ begin alter publication supabase_realtime add table public.digihits_friend_requests; exception when duplicate_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.digihits_friendships; exception when duplicate_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.digihits_match_invites; exception when duplicate_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.digihits_friend_messages; exception when duplicate_object then null; end $$;
+do $$ begin alter publication supabase_realtime add table public.digihits_friend_notifications; exception when duplicate_object then null; end $$;
 
 create or replace function public.digihits_find_friend(requested text)
 returns table(user_id text, display_name text) language sql security definer set search_path = public, auth as $$
@@ -76,7 +87,8 @@ begin
   if target is null then raise exception 'Spelarnamn hittades inte.'; end if;
   if target = auth.uid()::text then raise exception 'Du kan inte lägga till dig själv.'; end if;
   if exists (select 1 from public.digihits_friendships where user_id = auth.uid()::text and friend_id = target) then raise exception 'Ni är redan vänner.'; end if;
-  insert into public.digihits_friend_requests(sender_id, recipient_id) values (auth.uid()::text, target) on conflict do nothing;
+  insert into public.digihits_friend_requests(sender_id, recipient_id) values (auth.uid()::text, target)
+  on conflict (sender_id, recipient_id) do update set status = 'pending', created_at = now();
 end;
 $$;
 create or replace function public.digihits_answer_friend_request(request_id uuid, accept_request boolean)
@@ -94,8 +106,13 @@ begin
 end;
 $$;
 create or replace function public.digihits_remove_friend(target text)
-returns void language sql security definer set search_path = public as $$
-  delete from public.digihits_friendships where (user_id = auth.uid()::text and friend_id = target) or (user_id = target and friend_id = auth.uid()::text);
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if exists (select 1 from public.digihits_friendships where user_id = auth.uid()::text and friend_id = target) then
+    delete from public.digihits_friendships where (user_id = auth.uid()::text and friend_id = target) or (user_id = target and friend_id = auth.uid()::text);
+    insert into public.digihits_friend_notifications(recipient_id, actor_id) values (target, auth.uid()::text);
+  end if;
+end;
 $$;
 create or replace function public.digihits_my_friends()
 returns table(friend_id text, display_name text) language sql security definer set search_path = public as $$
@@ -204,5 +221,13 @@ returns table(friend_id text, unread_count bigint) language sql security definer
   where m.recipient_id = auth.uid()::text and m.created_at > coalesce(r.read_at, 'epoch'::timestamptz)
   group by m.sender_id;
 $$;
+create or replace function public.digihits_my_friend_notifications()
+returns table(notice_id uuid, display_name text) language sql security definer set search_path = public as $$
+  select n.id, p.display_name from public.digihits_friend_notifications n join public.digihits_profiles p on p.user_id::text = n.actor_id where n.recipient_id = auth.uid()::text and n.kind = 'removed' order by n.created_at;
+$$;
+create or replace function public.digihits_dismiss_friend_notification(notice uuid)
+returns void language sql security definer set search_path = public as $$
+  delete from public.digihits_friend_notifications where id = notice and recipient_id = auth.uid()::text;
+$$;
 
-grant execute on function public.digihits_find_friend(text), public.digihits_send_friend_request(text), public.digihits_answer_friend_request(uuid, boolean), public.digihits_remove_friend(text), public.digihits_my_friends(), public.digihits_my_friend_requests(), public.digihits_my_sent_friend_requests(), public.digihits_dismiss_sent_friend_request(uuid), public.digihits_invite_friend(text, text), public.digihits_add_friend_to_match(text, text, jsonb), public.digihits_my_match_invites(), public.digihits_my_sent_match_invites(), public.digihits_dismiss_match_invite(uuid), public.digihits_dismiss_sent_match_invite(uuid), public.digihits_accept_match_invite(uuid, jsonb), public.digihits_my_friend_messages(text), public.digihits_send_friend_message(text, text), public.digihits_mark_friend_chat_read(text), public.digihits_my_friend_unreads() to authenticated;
+grant execute on function public.digihits_find_friend(text), public.digihits_send_friend_request(text), public.digihits_answer_friend_request(uuid, boolean), public.digihits_remove_friend(text), public.digihits_my_friends(), public.digihits_my_friend_requests(), public.digihits_my_sent_friend_requests(), public.digihits_dismiss_sent_friend_request(uuid), public.digihits_invite_friend(text, text), public.digihits_add_friend_to_match(text, text, jsonb), public.digihits_my_match_invites(), public.digihits_my_sent_match_invites(), public.digihits_dismiss_match_invite(uuid), public.digihits_dismiss_sent_match_invite(uuid), public.digihits_accept_match_invite(uuid, jsonb), public.digihits_my_friend_messages(text), public.digihits_send_friend_message(text, text), public.digihits_mark_friend_chat_read(text), public.digihits_my_friend_unreads(), public.digihits_my_friend_notifications(), public.digihits_dismiss_friend_notification(uuid) to authenticated;
