@@ -41,9 +41,11 @@ begin
   delete from public.digihits_match_invites where (sender_id=auth.uid()::text and recipient_id=target) or (sender_id=target and recipient_id=auth.uid()::text);
   insert into public.digihits_blocks(blocker_id,blocked_id) values(auth.uid()::text,target) on conflict do nothing;
 end; $$;
-create or replace function public.digihits_unblock_friend(target text) returns void language sql security definer set search_path = public as $$
+create or replace function public.digihits_unblock_friend(target text) returns void language plpgsql security definer set search_path = public as $$
+begin
   delete from public.digihits_blocks where blocker_id=auth.uid()::text and blocked_id=target;
-$$;
+  delete from public.digihits_match_join_requests where blocker_id=auth.uid()::text and requester_id=target;
+end; $$;
 create or replace function public.digihits_my_blocks() returns table(blocked_id text, display_name text) language sql security definer set search_path=public as $$
   select b.blocked_id,p.display_name from public.digihits_blocks b join public.digihits_profiles p on p.user_id::text=b.blocked_id where b.blocker_id=auth.uid()::text order by lower(p.display_name);
 $$;
