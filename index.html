@@ -11,7 +11,7 @@
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon-ios-261.png" />
     <script>document.documentElement.classList.add("booting")</script>
-    <link rel="stylesheet" href="styles.css?v=4.20" /><style>.no-change-cards{display:none!important}</style>
+    <link rel="stylesheet" href="styles.css?v=4.23" /><style>.no-change-cards{display:none!important}</style>
   </head>
   <body>
     <main class="app-shell">
@@ -79,7 +79,7 @@
       <section class="view" data-view-panel="friend-chat"><section class="chat-view panel"><button class="back-link" id="friend-chat-back" type="button">← Tillbaka</button><h1 id="friend-chat-title">Chatt</h1><div class="chat-messages" id="friend-chat-messages"></div><form class="chat-form" id="friend-chat-form"><input id="friend-chat-input" maxlength="500" placeholder="Skriv ett meddelande" /><button class="button button-primary" type="submit">SKICKA</button></form></section></section>
 
       <section class="view" data-view-panel="guess">
-        <section class="guess-view panel"><div class="guess-top"><button class="back-link" data-view="match">← Tillbaka</button><h1>Rätt låtnamn &amp; artist ger ett byt-låt-kort</h1></div><div class="replay-row"><button class="button button-green" id="play-sample" type="button">▶ SPELA LÅT</button><button class="button button-secondary" id="replay-track" type="button">↻ SPELA LÅT FRÅN BÖRJAN</button></div><div class="song-timeline" id="song-timeline" hidden><span id="song-current">0:00</span><div><i id="song-progress"></i></div><span id="song-duration">0:00</span></div><form id="guess-form" class="guess-form"><small class="guess-skip-note">Vill du inte gissa? Lämna fälten tomma och välj Spara &amp; vidare till tidslinjen.</small><input id="guess-artist" placeholder="Artist" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" /><input id="guess-track" placeholder="Låtnamn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" /><small>Små stavfel är okej.</small><div><button class="button button-green" type="submit">SPARA &amp; VIDARE TILL TIDSLINJEN</button></div><small class="guess-final-note">Gissningen går inte att ångra.</small></form></section>
+        <section class="guess-view panel"><div class="guess-top"><button class="back-link" data-view="match">← Tillbaka</button><h1>Rätt låtnamn &amp; artist ger ett byt-låt-kort</h1></div><div class="replay-row"><button class="button button-green" id="play-sample" type="button">▶ SPELA LÅT</button><button class="button button-secondary" id="replay-track" type="button">↻ SPELA LÅT FRÅN BÖRJAN</button></div><div class="song-timeline" id="song-timeline" hidden><span id="song-current">0:00</span><div><i id="song-progress"></i></div><span id="song-duration">0:00</span></div><form id="guess-form" class="guess-form"><input id="guess-artist" placeholder="Artist" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" /><input id="guess-track" placeholder="Låtnamn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" /><small>Små stavfel är okej.</small><div><button class="button button-green" type="submit">SPARA &amp; VIDARE TILL TIDSLINJEN</button></div><small class="guess-final-note">Gissningen går inte att ångra.</small><button class="button button-yellow" id="skip-guess" type="button">VIDARE TILL TIDSLINJEN UTAN ATT GISSA</button></form></section>
       </section>
 
       <section class="view" data-view-panel="timeline">
@@ -118,6 +118,6 @@
     <script src="auth.js?v=4.02"></script>
     <script src="tracks.js"></script>
     <script src="push-config.js?v=3.17"></script>
-    <script src="app.js?v=4.22"></script>
+    <script src="app.js?v=4.24"></script>
   </body>
 </html>
