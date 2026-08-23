@@ -264,9 +264,7 @@ function render() {
   const spotifyPanel = $("#spotify-status");
   if (spotifyPanel) spotifyPanel.textContent = "Apple Music-previews används för uppspelning.";
   $("#enable-notifications").textContent = state.pushNotificationsEnabled ? "INAKTIVERA NOTISER" : "AKTIVERA NOTISER";
-  const waiting = state.matches.filter((match) => !isSoloMatch(match) && match.status === "opponent").length;
   const turns = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length;
-  $("#waiting-count").textContent = `Väntar på ${waiting}`;
   $("#turn-count").textContent = `Din tur ${turns}`;
   $("#turn-count").classList.toggle("has-turn", turns > 0);
   $("#stat-wins").textContent = `${state.stats.wins} st`;
@@ -912,7 +910,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.20";
+$(".brand small").textContent = "v4.22";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
