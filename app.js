@@ -450,7 +450,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
       $("#overview-target-label").textContent = "FÖRST TILL";
     }
     $("#overview-players").innerHTML = solo ? `<button class="timeline-button show-player-round" data-player-round="${players[0]?.id || ""}" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : players.map((player, index) => { const friend = state.friends.some((item) => String(item.friend_id) === String(player.user_id)), pending = state.sentFriendRequests.some((item) => String(item.recipient_id) === String(player.user_id) && item.status === "pending"); const friendControl = String(player.user_id) === String(state.userId) ? "" : friend ? `<small class="already-friend">REDAN VÄN MED</small>` : pending ? `<small class="already-friend">VÄNFÖRFRÅGAN SKICKAD</small>` : `<button class="button button-green add-match-friend" data-add-match-friend="${player.user_id}" data-player-name="${escapeHtml(player.display_name)}" type="button">LÄGG TILL VÄN</button>`; return `<article class="overview-player ${isYourTurn && index === 0 ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">${player.turn_order + 1}</span><strong>${player.display_name}</strong>${friendControl}</div><small>${(player.locked_timeline || []).length}/10 låsta kort · ${player.last_round?.outcome === "locked" ? (player.last_round.cards || []).length : 0} olåsta · 0/3 Byt låt-kort</small><button class="timeline-button show-player-round" data-player-round="${player.id}" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`; }).join("");
-    $("#overview-players").querySelectorAll(".overview-player > small:not(.already-friend)").forEach((line) => line.remove());
+    $("#overview-players").querySelectorAll(".overview-player").forEach((row, index) => { const player = players[index], saved = player.last_round?.score || {}, correct = Math.max(1, Number(saved.correct) || (player.locked_timeline || []).length), mistakes = Number.isFinite(Number(saved.mistakes)) && saved.mistakes !== "" ? Math.max(0, Number(saved.mistakes)) : Math.max(0, Number(player.rounds_started || 0) - Math.max(0, correct - 1)), line = row.querySelector(":scope > small"); if (line) line.textContent = `${correct}/10 rätt placerade kort · ${mistakes} felplacerade kort · ${Math.max(0, Number(player.swap_cards) || 0)}/3 byt-låt-kort`; });
     $("#overview-players").hidden = false;
   } catch { /* matchvyn behåller sin lokala reservvy */ } finally { $("#overview-loading")?.setAttribute("hidden", ""); }
 }
@@ -911,7 +911,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.29";
+$(".brand small").textContent = "v4.30";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
