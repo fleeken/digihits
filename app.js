@@ -18,6 +18,7 @@ state.recentTrackIds ||= [];
 state.changeTrackCards ??= 0;
 state.pendingSwapAward ||= null;
 state.swapUsedThisRound ??= false;
+state.roundResumeViews ||= {};
 state.roundUnlocked ||= [];
 state.lockedTimeline ||= [{ id: "digi-001", year: 1956, artist: "Elvis Presley", title: "Hound Dog" }];
 state.currentCard ||= null;
@@ -313,6 +314,7 @@ function render() {
 
 function showView(view, focusMatches = false, fromHistory = false) {
   if (view === "guess" && state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === activeCard()?.id) view = "timeline";
+  if ((view === "guess" || view === "timeline" || (view === "result" && state.pendingResult?.matchCode === state.activeMatchCode)) && state.activeMatchCode) { state.roundResumeViews[state.activeMatchCode] = view; save(); }
   const replayRow = $(".replay-row"), songTimeline = $("#song-timeline"); let timelinePlayer = $("#timeline-player"); if (!timelinePlayer) { timelinePlayer = document.createElement("div"); timelinePlayer.id = "timeline-player"; } if (replayRow && songTimeline) { if (view === "timeline") { $(".timeline-view")?.prepend(timelinePlayer); timelinePlayer.append(replayRow, songTimeline); } else $(".guess-view")?.prepend(replayRow, songTimeline); }
   document.documentElement.classList.remove("booting");
   const gameView = view === "guess" || view === "timeline";
@@ -632,7 +634,7 @@ $("#chat-back").addEventListener("click", () => { const view = state.chatReturnV
 $("#chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const match = state.matches.find((item) => item.code === state.chatMatchCode), body = $("#chat-input").value.trim(); if (!match?.id || !body) return; const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); try { await supabaseAuth.dataRequest("online_messages", { match_id: match.id, user_id: user.id, display_name: state.playerName, body, message: body }, "POST"); $("#chat-input").value = ""; await loadChat(); } catch (error) { alert(error.message); } });
 $("#friend-chat-back").addEventListener("click", () => showView("home", true));
 $("#friend-chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const body = $("#friend-chat-input").value.trim(); if (!state.friendChatId || !body) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_message", { friend: state.friendChatId, message_body: body }, "POST"); $("#friend-chat-input").value = ""; await loadFriendChat(); } catch (error) { alert(error.message); } });
-window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify()) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; button.textContent = "LADDAR OMGÅNG…"; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = true; resultIsLocked = true; renderRoundResult(true, pending.card, pending.snapshot); showView("result"); return; } await syncMatches(); button.textContent = "LADDAR OMGÅNG…"; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (!existingCard) { state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard(); } resetTurnInput(); showView("guess"); if (existingCard) { pausedForNavigation = true; resumeRoundTrack(); } else startCurrentTrack(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; button.textContent = label; } };
+window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify()) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; button.textContent = "LADDAR OMGÅNG…"; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = true; resultIsLocked = true; renderRoundResult(true, pending.card, pending.snapshot); showView("result"); return; } await syncMatches(); button.textContent = "LADDAR OMGÅNG…"; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { showView(state.roundResumeViews[state.activeMatchCode] || "guess"); pausedForNavigation = true; resumeRoundTrack(); return; } state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard(); resetTurnInput(); showView("guess"); startCurrentTrack(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; button.textContent = label; } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 document.addEventListener("click", (event) => { const button = event.target.closest(".final-player-round"); if (button) { const id = button.dataset.playerRound; returnToFinalResult = true; showLatestRound({ ...(latestRounds[id] || {}), historyScore: historyPlayerScores[id] }); } });
@@ -914,7 +916,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.35";
+$(".brand small").textContent = "v4.36";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
