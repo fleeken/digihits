@@ -119,7 +119,8 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   if not exists (select 1 from public.digihits_friendships where user_id = auth.uid()::text and friend_id = recipient) then raise exception 'Spelaren är inte din vän.'; end if;
   if not exists (select 1 from public.online_players p join public.online_matches m on m.id::text = p.match_id::text where m.code = match_code_input and p.user_id = auth.uid()::text and m.phase <> 'locked') then raise exception 'Matchen kan inte ta emot fler inbjudningar.'; end if;
-  insert into public.digihits_match_invites(match_code, sender_id, recipient_id) values (match_code_input, auth.uid()::text, recipient) on conflict do nothing;
+  if exists (select 1 from public.digihits_match_invites where match_code = match_code_input and recipient_id = recipient) then raise exception 'Inbjudan redan skickad.'; end if;
+  insert into public.digihits_match_invites(match_code, sender_id, recipient_id) values (match_code_input, auth.uid()::text, recipient);
 end;
 $$;
 create or replace function public.digihits_add_friend_to_match(match_code_input text, recipient text, starter jsonb)
@@ -134,9 +135,8 @@ begin
   if exists (select 1 from public.online_players where match_id::text = match_row.id::text and user_id = recipient and active = true) then return; end if;
   select display_name into friend_name from public.digihits_profiles where user_id::text = recipient;
   insert into public.online_players(match_id, user_id, display_name, turn_order, locked_timeline, turn_cards, swap_cards, rounds_started, active, history_hidden, updated_at)
-  values (match_row.id::text, recipient, coalesce(friend_name, 'Motspelare'), player_count, jsonb_build_array(starter), '[]'::jsonb, 0, 0, true, false, now());
+  values (match_row.id, recipient, coalesce(friend_name, 'Motspelare'), player_count, jsonb_build_array(starter), '[]'::jsonb, 0, 0, true, false, now());
   update public.online_matches set status = 'active', phase = case when status = 'waiting' then 'turn_ready' else phase end, used_track_ids = coalesce(used_track_ids, '[]'::jsonb) || jsonb_build_array(starter->>'id'), updated_at = now() where id = match_row.id;
-  insert into public.digihits_match_invites(match_code, sender_id, recipient_id) values (match_code_input, auth.uid()::text, recipient) on conflict do nothing;
 end;
 $$;
 create or replace function public.digihits_my_match_invites()
@@ -145,8 +145,8 @@ returns table(invite_id uuid, match_code text, sender_name text) language sql se
 $$;
 drop function if exists public.digihits_my_sent_match_invites();
 create function public.digihits_my_sent_match_invites()
-returns table(invite_id uuid, recipient_name text, match_code text, status text) language sql security definer set search_path = public as $$
-  select i.id, p.display_name, i.match_code, i.status from public.digihits_match_invites i join public.digihits_profiles p on p.user_id::text = i.recipient_id where i.sender_id = auth.uid()::text and i.status in ('declined', 'accepted') order by i.created_at desc;
+returns table(invite_id uuid, recipient_id text, recipient_name text, match_code text, status text) language sql security definer set search_path = public as $$
+  select i.id, i.recipient_id, p.display_name, i.match_code, i.status from public.digihits_match_invites i join public.digihits_profiles p on p.user_id::text = i.recipient_id where i.sender_id = auth.uid()::text order by i.created_at desc;
 $$;
 create or replace function public.digihits_dismiss_match_invite(invite uuid)
 returns void language sql security definer set search_path = public as $$
@@ -171,7 +171,7 @@ begin
     if coalesce(match_row.used_track_ids, '[]'::jsonb) @> jsonb_build_array(starter->>'id') then raise exception 'Försök gå med igen.'; end if;
     select display_name into recipient_name from public.digihits_profiles where user_id::text = auth.uid()::text;
     insert into public.online_players(match_id, user_id, display_name, turn_order, locked_timeline, turn_cards, swap_cards, rounds_started, active, history_hidden, updated_at)
-    values (match_row.id::text, auth.uid()::text, coalesce(recipient_name, 'Motspelare'), player_count, jsonb_build_array(starter), '[]'::jsonb, 0, 0, true, false, now());
+    values (match_row.id, auth.uid()::text, coalesce(recipient_name, 'Motspelare'), player_count, jsonb_build_array(starter), '[]'::jsonb, 0, 0, true, false, now());
     update public.online_matches set status = 'active', phase = case when status = 'waiting' then 'turn_ready' else phase end, used_track_ids = coalesce(used_track_ids, '[]'::jsonb) || jsonb_build_array(starter->>'id'), updated_at = now() where id = match_row.id;
   end if;
   update public.digihits_match_invites set status = 'accepted' where id = invite_row.id;
