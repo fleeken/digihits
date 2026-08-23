@@ -596,7 +596,7 @@ $("#friends-section")?.addEventListener("click", async (event) => {
     else if (remove) dialog(`Är du säker på att du vill ta bort ${remove.dataset.friendName}?`, async () => { dialogProgress(`TAR BORT ${remove.dataset.friendName} FRÅN VÄNSKAPSLISTAN…`); try { await supabaseAuth.dataRequest("rpc/digihits_remove_friend", { target: remove.dataset.removeFriend }, "POST"); await syncFriends(); } finally { closeDialogProgress(); } }, true, "JA");
     else if (invite) { dialogProgress("ACCEPTERAR MATCHINBJUDAN…"); try { const starter = pickFreshTrack(testDeck), matchCode = await supabaseAuth.dataRequest("rpc/digihits_accept_match_invite", { invite: invite.dataset.inviteId, starter }, "POST"); await syncMatches(); const existing = state.matches.find((match) => match.code === matchCode); if (!existing) throw new Error("Matchinbjudan kunde inte öppnas."); openMatch(existing.code); await syncFriends(); } finally { closeDialogProgress(); } }
     else if (chat) await openFriendChat(chat.dataset.openFriendChat);
-  } catch (error) { alert(error.message); }
+  } catch (error) { dialog(error.message || "Det gick inte att gå med i matchen."); }
 });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-invite-friend]"); if (!button) return; const friend = state.friends.find((item) => String(item.friend_id) === String(button.dataset.inviteFriend)); if (state.sentMatchInvites.some((invite) => String(invite.match_code) === String(state.activeMatchCode) && String(invite.recipient_id) === String(button.dataset.inviteFriend))) return dialog("Inbjudan redan skickad."); dialog(`Vill du lägga till ${friend?.display_name || "spelaren"} till denna match?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: state.activeMatchCode, recipient: button.dataset.inviteFriend }, "POST"); await syncFriends(); openMatch(state.activeMatchCode); } catch (error) { alert(error.message); } }, false, "JA"); });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-add-match-friend]"); if (!button) return; dialog(`Vill du lägga till ${button.dataset.playerName} i din vänskapslista?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_request", { requested: button.dataset.playerName }, "POST"); state.sentFriendRequests = [...state.sentFriendRequests.filter((item) => String(item.recipient_id) !== String(button.dataset.addMatchFriend)), { recipient_id: String(button.dataset.addMatchFriend), display_name: button.dataset.playerName, status: "pending" }]; save(); button.replaceWith(Object.assign(document.createElement("small"), { className: "already-friend", textContent: "VÄNFÖRFRÅGAN SKICKAD" })); } catch (error) { alert(error.message); } }, false, "JA"); });
@@ -909,7 +909,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.09";
+$(".brand small").textContent = "v4.10";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
