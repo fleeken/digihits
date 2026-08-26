@@ -396,6 +396,16 @@ function openMatch(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
   const soloMatch = isSoloMatch(match);
+  const matchLeave = document.querySelector('[data-view-panel="match"] .button-leave');
+  matchLeave.textContent = soloMatch ? "RADERA MATCH" : "LÄMNA MATCHEN";
+  matchLeave.onclick = soloMatch ? () => dialog("Vill du verkligen radera denna solomatch?", async () => {
+    try {
+      await supabaseAuth.dataRequest("online_matches?id=eq." + match.id, { status: "finished", last_result: null, updated_at: new Date().toISOString() }, "PATCH");
+      state.history.unshift({ ...match, mode: "solo", leaveReason: "RADERAD SOLOMATCH" });
+      await syncMatches();
+      showView("home", true);
+    } catch (error) { dialog(error.message || "Kunde inte radera solomatchen."); }
+  }, true, "JA", "NEJ") : null;
   state.activeMatchCode = matchCode; save();
   refreshChatButtons(match);
   $("#overview-code").textContent = soloMatch ? "SOLOMATCH" : match.code;
@@ -929,7 +939,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.62";
+$(".brand small").textContent = "v4.64";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
