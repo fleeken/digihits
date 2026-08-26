@@ -286,10 +286,8 @@ function render() {
     const label = solo ? "ÖPPNA SOLOMATCH HÄR" : match.status === "active" ? "ÖPPNA MATCH HÄR" : "VISA MATCHÖVERSIKT HÄR";
     const status = solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
     const matchPlayers = match.players?.length ? match.players : String(match.title || "").split(", ").filter(Boolean).map((display_name) => ({ display_name }));
-    const playerRows = matchPlayers.map((player) => { const correct = Math.max(1, Number(player.last_round?.score?.correct) || (player.locked_timeline || []).length || 0); return `<div><strong>${escapeHtml(player.display_name)} <b>${correct}p/10p</b></strong></div>`; }).join("");
-    const lock = match.locked ? "🔒" : "🔓";
-    const lockLabel = match.locked ? "Match låst" : "Match olåst";
-    return `<article class="match ${solo ? "solo" : match.status}">${solo ? "" : `<button class="match-lock-top ${match.locked ? "is-locked" : "is-unlocked"}" title="${lockLabel}" aria-label="${lockLabel}" type="button">${lock}</button>`}${solo ? `<div class="match-top"><strong>Solomatch</strong></div><div class="solo-card-stats"><div><strong>${soloScore.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${soloScore.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.round || 1}</strong><small>${(match.round || 1) === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<div class="match-card-metrics"><div><strong>${match.round || 1}</strong><small>OMGÅNG</small></div></div><div class="match-player-list">${playerRows}</div><div class="match-status">● ${status}</div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">● ${label}</button><div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div></div>${solo ? "" : `<div class="match-code match-code-bottom">MATCHKOD <strong>${match.code}</strong></div>`}</article>`;
+    const playerRows = matchPlayers.map((player) => { const correct = Math.max(1, Number(player.last_round?.score?.correct) || (player.locked_timeline || []).length || 0); return `<div><strong>${escapeHtml(player.display_name)} <b>(${correct}/10p)</b></strong></div>`; }).join("");
+    return `<article class="match ${solo ? "solo" : match.status}">${solo ? "" : `<div class="match-status match-status-top">● ${status}</div><button class="match-icon delete-icon match-delete-top" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button>`}${solo ? `<div class="match-top"><strong>Solomatch</strong></div><div class="solo-card-stats"><div><strong>${soloScore.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${soloScore.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.round || 1}</strong><small>${(match.round || 1) === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<div class="match-player-list">${playerRows}</div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">${label}</button>${solo ? `<div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div>` : ""}</div>${solo ? "" : `<div class="match-code match-code-bottom">MATCHKOD <strong>${match.code}</strong></div>`}</article>`;
   };
   const soloMatches = state.matches.filter(isSoloMatch);
   const active = state.matches.filter((match) => !isSoloMatch(match) && (match.status === "active" || match.status === "opponent"));
@@ -915,7 +913,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.53";
+$(".brand small").textContent = "v4.56";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
