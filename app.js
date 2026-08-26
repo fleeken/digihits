@@ -423,7 +423,7 @@ function openMatch(matchCode) {
   $("#overview-players-count").textContent = soloMatch ? String(match.round || 1) : "2";
   playersMetric.querySelector("small").textContent = soloMatch ? ((match.round || 1) === 1 ? "OMGÅNG" : "OMGÅNGAR") : "SPELARE";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
-  const matchStarted = soloMatch || (match.players || []).some((player) => Number(player.rounds_started || 0) > 0);
+  const matchStarted = (match.players || []).some((player) => Number(player.rounds_started || 0) > 0);
   const score = soloMatch ? soloProgress(match) : null;
   $("#overview-round").textContent = soloMatch ? String(score.mistakes) : !matchStarted ? "MAX 8 SPELARE PER MATCH" : "1";
   $("#overview-round-label").textContent = soloMatch ? "FELPLACERADE" : !matchStarted ? "" : "OMGÅNG";
@@ -434,7 +434,7 @@ function openMatch(matchCode) {
   $("#turn-message").classList.toggle("waiting", !isYourTurn);
   const pendingRound = state.pendingResult?.matchCode === matchCode || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === matchCode)) || (isYourTurn && ["guess", "timeline", "result"].includes(state.roundResumeViews[matchCode]));
   $("#next-round").classList.toggle("is-visible", isYourTurn);
-  if (!roundLoading) $("#next-round").textContent = pendingRound ? (soloMatch ? "ÅTERUPPTA MATCH" : "ÅTERUPPTA OMGÅNG") : !soloMatch && !matchStarted ? "STARTA MATCHEN" : "STARTA NÄSTA OMGÅNG";
+  if (!roundLoading) $("#next-round").textContent = pendingRound ? (soloMatch ? "ÅTERUPPTA MATCH" : "ÅTERUPPTA OMGÅNG") : !matchStarted ? "STARTA MATCH" : "STARTA NÄSTA OMGÅNG";
   $("#overview-players").hidden = true;
   $("#overview-players").innerHTML = soloMatch ? `<button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : "";
   let friendBox = $("#match-friend-invites");
@@ -466,7 +466,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
       const waitingForStart = !players.some((player) => Number(player.rounds_started || 0) > 0);
       $("#overview-round").textContent = waitingForStart ? "MAX 8 SPELARE PER MATCH" : String(Math.max(1, ...players.map((player) => player.rounds_started || 0)));
       $("#overview-round-label").textContent = waitingForStart ? "" : "OMGÅNG";
-      if (waitingForStart && isYourTurn && !roundLoading && !state.pendingResult && !state.currentCard) $("#next-round").textContent = "STARTA MATCHEN";
+      if (waitingForStart && isYourTurn && !roundLoading && !state.pendingResult && !state.currentCard) $("#next-round").textContent = "STARTA MATCH";
       $("#overview-target").textContent = "10";
       $("#overview-target-label").textContent = "FÖRST TILL";
     }
@@ -943,7 +943,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.65";
+$(".brand small").textContent = "v4.67";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
