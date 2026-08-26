@@ -458,6 +458,18 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
     }
     $("#overview-players").innerHTML = solo ? `<button class="timeline-button show-player-round" data-player-round="${players[0]?.id || ""}" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : players.map((player, index) => { const friend = state.friends.some((item) => String(item.friend_id) === String(player.user_id)), pending = state.sentFriendRequests.some((item) => String(item.recipient_id) === String(player.user_id) && item.status === "pending"), saved = player.last_round?.score || {}, correct = Math.max(1, Number(saved.correct) || (player.locked_timeline || []).length), mistakes = Number.isFinite(Number(saved.mistakes)) && saved.mistakes !== "" ? Math.max(0, Number(saved.mistakes)) : Math.max(0, Number(player.rounds_started || 0) - Math.max(0, correct - 1)), swapCards = Math.max(0, Number(player.swap_cards) || 0); const friendControl = String(player.user_id) === String(state.userId) ? "" : friend ? `<small class="already-friend">REDAN VÄN MED</small>` : pending ? `<small class="already-friend">VÄNFÖRFRÅGAN SKICKAD</small>` : `<button class="button button-green add-match-friend" data-add-match-friend="${player.user_id}" data-player-name="${escapeHtml(player.display_name)}" type="button">LÄGG TILL VÄN</button>`; return `<article class="overview-player ${isYourTurn && index === 0 ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">${player.turn_order + 1}</span><strong>${player.display_name}</strong>${friendControl}</div><div class="overview-player-stats"><div><strong>${correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${swapCards}/3</strong><small>BYT-LÅT-KORT</small></div></div><button class="timeline-button show-player-round" data-player-round="${player.id}" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`; }).join("");
     $("#overview-players").hidden = false;
+    if (!solo && players.length > 2) players.forEach((player) => {
+      if (String(player.user_id) === String(state.userId)) return;
+      const roundButton = [...document.querySelectorAll("#overview-players [data-player-round]")].find((item) => String(item.dataset.playerRound) === String(player.id));
+      if (!roundButton) return;
+      const removeButton = document.createElement("button");
+      removeButton.className = "button button-leave remove-match-player";
+      removeButton.type = "button";
+      removeButton.dataset.removeMatchPlayer = player.user_id;
+      removeButton.dataset.playerName = player.display_name;
+      removeButton.textContent = "AVVISA SPELARE FRÅN MATCHEN";
+      roundButton.after(removeButton);
+    });
   } catch { /* matchvyn behåller sin lokala reservvy */ } finally { $("#overview-loading")?.setAttribute("hidden", ""); }
 }
 function showLatestRound(round) {
@@ -607,6 +619,7 @@ document.addEventListener("click", async (event) => { const button = event.targe
 document.addEventListener("click", (event) => { if (!event.target.closest("#open-invite-friends")) return; $("#dialog-title").textContent = "Bjud in vän"; $("#dialog-message").innerHTML = matchInviteCandidates.length ? `<div class="invite-picker">${matchInviteCandidates.map((friend) => `<div><strong>${escapeHtml(friend.display_name)}</strong><button class="button button-green" data-invite-friend="${friend.friend_id}" type="button">BJUD IN</button></div>`).join("")}</div>` : "Du har inga fler vänner att bjuda in."; $("#dialog-cancel").hidden = true; $("#dialog-confirm").textContent = "STÄNG"; $("#dialog-confirm").className = "button button-secondary"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false; });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-add-match-friend]"); if (!button) return; dialog(`Vill du lägga till ${button.dataset.playerName} i din vänskapslista?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_request", { requested: button.dataset.playerName }, "POST"); state.sentFriendRequests = [...state.sentFriendRequests.filter((item) => String(item.recipient_id) !== String(button.dataset.addMatchFriend)), { recipient_id: String(button.dataset.addMatchFriend), display_name: button.dataset.playerName, status: "pending" }]; save(); button.replaceWith(Object.assign(document.createElement("small"), { className: "already-friend", textContent: "VÄNFÖRFRÅGAN SKICKAD" })); } catch (error) { alert(error.message); } }, false, "JA"); });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-match-join-request]"); if (!button) return; try { await supabaseAuth.dataRequest("rpc/digihits_answer_match_join_request", { request: button.dataset.matchJoinRequest, allow_join: button.dataset.allowMatchJoin === "true" }, "POST"); await syncMatches(); if (state.activeMatchCode) openMatch(state.activeMatchCode); } catch (error) { alert(error.message); } });
+document.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-match-player]"); if (!button) return; const name = button.dataset.playerName || "spelaren"; dialog("Vill du verkligen avvisa " + name + " från matchen?\n\nNär samtliga spelare tryckt på Avvisa " + name + " tas spelaren bort från matchen.", async () => { try { const result = await supabaseAuth.dataRequest("rpc/digihits_vote_remove_match_player", { match_code_input: state.activeMatchCode, remove_player: button.dataset.removeMatchPlayer }, "POST"); const vote = Array.isArray(result) ? result[0] : result; await syncMatches(); openMatch(state.activeMatchCode); if (!vote?.removed) dialog("Din avvisning är sparad. Väntar på övriga spelares avvisning (" + (vote?.votes || 1) + "/" + (vote?.needed || "?") + ")."); } catch (error) { dialog(error.message || "Kunde inte avvisa spelaren."); } }, true, "AVVISA"); });
 $("#matches").addEventListener("click", (event) => {
   const chatButton = event.target.closest("[data-open-chat]");
   if (chatButton) { openChat(chatButton.dataset.openChat).catch((error) => alert(error.message)); return; }
@@ -916,7 +929,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.59";
+$(".brand small").textContent = "v4.60";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
