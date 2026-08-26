@@ -397,15 +397,19 @@ function openMatch(matchCode) {
   if (!match) return;
   const soloMatch = isSoloMatch(match);
   const matchLeave = document.querySelector('[data-view-panel="match"] .button-leave');
-  matchLeave.textContent = soloMatch ? "RADERA MATCH" : "LÄMNA MATCHEN";
-  matchLeave.onclick = soloMatch ? () => dialog("Vill du verkligen radera denna solomatch?", async () => {
+  const isOnlyPlayer = soloMatch || (match.players || []).length <= 1;
+  matchLeave.textContent = isOnlyPlayer ? "RADERA MATCH" : "LÄMNA MATCHEN";
+  matchLeave.onclick = () => dialog(soloMatch ? "Vill du verkligen radera denna solomatch?" : isOnlyPlayer ? "Vill du verkligen radera denna onlinematch?" : "Vill du verkligen lämna matchen och därmed lämna walk over?", async () => {
     try {
-      await supabaseAuth.dataRequest("online_matches?id=eq." + match.id, { status: "finished", last_result: null, updated_at: new Date().toISOString() }, "PATCH");
-      state.history.unshift({ ...match, mode: "solo", leaveReason: "RADERAD SOLOMATCH" });
+      const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
+      const players = await supabaseAuth.dataRequest("online_players?match_id=eq." + match.id + "&active=eq.true&select=user_id");
+      const winner = isOnlyPlayer ? null : players.find((player) => String(player.user_id) !== String(user.id))?.user_id;
+      await supabaseAuth.dataRequest("online_matches?id=eq." + match.id, { status: "finished", last_result: winner ? { winner_id: winner, type: "walkover" } : null, updated_at: new Date().toISOString() }, "PATCH");
+      state.history.unshift({ ...match, ...(soloMatch ? { mode: "solo" } : {}), leaveReason: soloMatch ? "RADERAD SOLOMATCH" : isOnlyPlayer ? "RADERAD ONLINE-MATCH" : "DU LÄMNADE - WALK OVER" });
       await syncMatches();
       showView("home", true);
-    } catch (error) { dialog(error.message || "Kunde inte radera solomatchen."); }
-  }, true, "JA", "NEJ") : null;
+    } catch (error) { dialog(error.message || "Kunde inte avsluta matchen."); }
+  }, true, "JA", "NEJ");
   state.activeMatchCode = matchCode; save();
   refreshChatButtons(match);
   $("#overview-code").textContent = soloMatch ? "SOLOMATCH" : match.code;
@@ -939,7 +943,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.64";
+$(".brand small").textContent = "v4.65";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
