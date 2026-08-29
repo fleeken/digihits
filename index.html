@@ -11,7 +11,7 @@
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon-ios-261.png" />
     <script>document.documentElement.classList.add("booting")</script>
-    <link rel="stylesheet" href="styles.css?v=4.86" /><style>.no-change-cards{display:none!important}.level-head button{border-color:#4fc9ee;background:#102b3a;color:#4fc9ee}.achievement{width:100%;text-align:left;font:inherit;cursor:pointer}</style>
+    <link rel="stylesheet" href="styles.css?v=4.86" /><style>.no-change-cards{display:none!important}.level-head button{border-color:#4fc9ee;background:#102b3a;color:#4fc9ee}.achievement{width:100%;text-align:left;font:inherit;cursor:pointer}.avatar-panel{border:1px solid #a66bff;border-radius:11px;padding:12px;background:#19112b;display:grid;gap:12px}.avatar-panel h3{margin:0;color:#d7b4ff;font-size:13px}.avatar-layout{display:grid;grid-template-columns:150px 1fr;gap:14px}.artist-avatar{height:220px;border:1px solid #a66bff;border-radius:12px;background:linear-gradient(#24193a,#111927);position:relative;overflow:hidden}.avatar-head,.avatar-hair,.avatar-hat,.avatar-face,.avatar-body,.avatar-legs,.avatar-shoes,.avatar-accessory{position:absolute;left:50%;transform:translateX(-50%)}.avatar-head{top:39px;width:68px;height:72px;border-radius:45%;background:var(--skin);z-index:2}.avatar-hair{top:27px;width:76px;height:45px;border-radius:50% 50% 22% 22%;background:var(--hair);z-index:3}.avatar-hat{top:12px;z-index:4;font-size:29px}.avatar-face{top:76px;z-index:4;font-size:21px}.avatar-body{bottom:39px;width:92px;height:91px;border-radius:18px 18px 4px 4px;background:var(--top);z-index:1}.avatar-accessory{bottom:99px;z-index:5;font-size:25px}.avatar-legs{bottom:0;width:76px;height:45px;background:var(--legs);clip-path:polygon(0 0,44% 0,48% 100%,52% 100%,56% 0,100% 0,100% 100%,0 100%)}.avatar-shoes{bottom:-4px;z-index:2;font-size:25px;letter-spacing:4px}.avatar-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.avatar-control{display:grid;grid-template-columns:1fr auto;gap:5px}.avatar-control label{grid-column:1/-1;font-size:8px;font-weight:900;color:#d7b4ff}.avatar-control select{min-width:0;padding:7px;background:#101722;border:1px solid #5d4a78;border-radius:7px;color:#fff;font:inherit;font-size:9px}.avatar-random{margin:0!important;padding:7px!important;font-size:8px!important;background:#343040!important;color:#fff!important}.avatar-genres{display:flex;gap:6px;flex-wrap:wrap}.avatar-genres button{margin:0;padding:6px 8px;border:1px solid #a66bff;border-radius:7px;background:#261b3a;color:#eadcff;font-size:8px;font-weight:900;cursor:pointer}.avatar-actions{display:flex;gap:7px;flex-wrap:wrap}.avatar-actions .button{margin:0;font-size:9px;padding:8px 10px}@media(max-width:640px){.avatar-layout{grid-template-columns:1fr}.artist-avatar{height:180px}.avatar-controls{grid-template-columns:1fr}.avatar-control{grid-template-columns:1fr auto}}</style>
   </head>
   <body>
     <main class="app-shell">
@@ -106,7 +106,7 @@
         </section>
         <section class="panel accordion" data-accordion id="career-section">
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Min musikkarriär</span><span class="accordion-mark">›</span></button>
-          <div class="accordion-content"><section id="level-panel" class="level-panel"></section></div>
+          <div class="accordion-content"><section id="level-panel" class="level-panel"></section><section id="avatar-panel" class="avatar-panel"></section></div>
         </section>
         <section class="panel accordion" data-accordion id="game-history-section">
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Min spelhistorik</span><span class="accordion-mark">›</span></button>
@@ -118,6 +118,6 @@
     <script src="auth.js?v=4.02"></script>
     <script src="tracks.js"></script>
     <script src="push-config.js?v=3.17"></script>
-<script src="app.js?v=5.02"></script>
+<script src="app.js?v=5.03"></script>
   </body>
 </html>
