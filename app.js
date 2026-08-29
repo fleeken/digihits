@@ -4,7 +4,7 @@ const state = JSON.parse(localStorage.getItem(storageKey) || "null") || {
   matches: [],
   history: []
 };
-state.history ||= [];
+state.history = (state.history || []).slice(0, 5);
 state.matches = state.matches.filter((match) => !match.isTest);
 state.stats ||= { wins: 0, losses: 0, walkovers: 0, streak: 0 };
 state.stats.currentStreak ||= 0;
@@ -177,7 +177,7 @@ function dialogProgress(message) { const progress = document.createElement("div"
 function closeDialogProgress() { $("#dialog-progress")?.remove(); $("#dialog-confirm").hidden = false; $("#app-dialog").hidden = true; }
 window.alert = (message) => dialog(String(message));
 
-function save() { localStorage.setItem(storageKey, JSON.stringify(state)); }
+function save() { state.history = state.history.slice(0, 5); localStorage.setItem(storageKey, JSON.stringify(state)); }
 function showTurnNotice(match) {
   const notice = match?.turnNotice;
   if (!notice?.type) return;
@@ -1026,7 +1026,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.95";
+$(".brand small").textContent = "v4.96";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
