@@ -22,6 +22,11 @@ state.recentTrackIds ||= [];
 state.changeTrackCards ??= 0;
 state.pendingSwapAward ||= null;
 state.achievements ||= {};
+state.career ||= { onlineMatchesCreated: 0, playedWith: [], dailyOpponents: {}, fullHouse: false };
+state.career.onlineMatchesCreated ||= 0;
+state.career.playedWith ||= [];
+state.career.dailyOpponents ||= {};
+state.career.fullHouse ??= false;
 state.swapUsedThisRound ??= false;
 state.roundResumeViews ||= {};
 state.roundUnlocked ||= [];
@@ -247,6 +252,7 @@ function finishAchievementAwards() {
 }
 function evaluateCareerAchievements(comeback = false) {
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
+  const todayOpponents = new Set(state.career.dailyOpponents[new Date().toISOString().slice(0, 10)] || []).size;
   if (state.stats.wins >= 1) grantAchievement("firstWin", "Första vinsten");
   if (state.stats.streak >= 3) grantAchievement("streak3", "3 vinster i rad");
   if (state.stats.wins >= 10) grantAchievement("wins10", "10 onlinevinster");
@@ -256,6 +262,11 @@ function evaluateCareerAchievements(comeback = false) {
   if (state.onlineCorrect >= 100) grantAchievement("correct100", "100 rätt placerade kort");
   if (opponents >= 3) grantAchievement("threeFriends", "Vunnit mot 3 vänner");
   if (opponents >= 5) grantAchievement("fiveFriends", "Vunnit mot 5 vänner");
+  if (state.career.onlineMatchesCreated >= 5) grantAchievement("matchmaker", "Matchmakaren");
+  if (state.career.playedWith.length >= 5) grantAchievement("socialPlayer", "Sällskapsspelare");
+  if (state.friends.length >= 5) grantAchievement("friendshipTone", "Vänskapston");
+  if (state.career.fullHouse) grantAchievement("fullHouse", "Fullt hus");
+  if (todayOpponents >= 3) grantAchievement("eveningDj", "Kvällens DJ");
   if (state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp >= 90) grantAchievement("goldRecord", "Guldskiva nådd");
   finishAchievementAwards();
 }
@@ -331,16 +342,22 @@ function render() {
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
   const achievements = [
     ["firstWin", "★", "Första vinsten", "Vinn din första onlinematch."],
-    ["streak3", "🔥", "3 vinster i rad", "Vinn tre onlinematcher i följd."],
-    ["wins10", "10", "10 onlinevinster", "Vinn totalt tio onlinematcher."],
     ["firstSwap", "♫", "Första byt-låt-kortet", "Gissa både rätt artist och låtnamn i en onlinematch."],
-    ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 90 onlinepoäng."],
-    ["threeFriends", "♟", "3 olika vänner", "Vinn mot tre olika vänner."],
-    ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher."],
-    ["streak5", "⚡", "5 vinster i rad", "Vinn fem onlinematcher i följd."],
+    ["matchmaker", "✦", "Matchmakaren", "Skapa fem onlinematcher."],
+    ["hattrick", "3", "Hattrick", "Lås in tre kort rätt i samma omgång."],
+    ["fullHouse", "8", "Fullt hus", "Spela en onlinematch med minst fyra spelare."],
+    ["eveningDj", "♫", "Kvällens DJ", "Spela mot tre olika personer samma dag."],
+    ["friendshipTone", "♥", "Vänskapston", "Ha fem personer i din vänskapslista."],
+    ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer."],
     ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust."],
+    ["streak3", "🔥", "3 vinster i rad", "Vinn tre onlinematcher i följd."],
+    ["threeFriends", "♟", "3 olika vänner", "Vinn mot tre olika vänner."],
+    ["fiveFriends", "♛", "5 olika vänner", "Vinn mot fem olika vänner."],
+    ["wins10", "10", "10 onlinevinster", "Vinn totalt tio onlinematcher."],
     ["correct100", "100", "100 rätt placerade", "Placera totalt 100 kort rätt i onlinematcher."],
-    ["fiveFriends", "♛", "5 olika vänner", "Vinn mot fem olika vänner."]
+    ["streak5", "⚡", "5 vinster i rad", "Vinn fem onlinematcher i följd."],
+    ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 90 onlinepoäng."],
+    ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher."]
   ];
   const achievementMarkup = "<section class=\"achievement-list\"><h3>UTMÄRKELSER</h3><div>" + achievements.map(([id, icon, label, description]) => "<button class=\"achievement " + (state.achievements[id] ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>").join("") + "</div></section>";
   levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>" + achievementMarkup;
@@ -652,7 +669,7 @@ async function createOnlineMatch(inviteFriendId = null) {
   const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", turn_started_at: new Date().toISOString(), updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
   if (inviteFriendId) await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: matchCode, recipient: inviteFriendId }, "POST");
-  rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); if (inviteFriendId) await syncFriends(); openMatch(matchCode);
+  rememberTrack(starter); state.changeTrackCards = 0; state.career.onlineMatchesCreated += 1; evaluateCareerAchievements(); save(); await syncMatches(); if (inviteFriendId) await syncFriends(); openMatch(matchCode);
 }
 async function createSoloMatch() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), matchCode = `S0${code().slice(2)}`;
@@ -849,6 +866,7 @@ async function markRoundStarted() {
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=id,rounds_started`);
   const player = players[0];
   if (player) { const rounds = (player.rounds_started || 0) + 1; await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: rounds, updated_at: new Date().toISOString() }, "PATCH"); const local = state.matches.find((match) => match.code === state.activeMatchCode); if (local) { local.round = rounds; save(); } }
+  if (!isSoloMatch(match)) { const participants = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=user_id`), others = participants.map((item) => String(item.user_id)).filter((id) => id !== String(user.id)), today = new Date().toISOString().slice(0, 10); state.career.fullHouse ||= participants.length >= 4; state.career.playedWith = [...new Set([...state.career.playedWith, ...others])]; state.career.dailyOpponents[today] = [...new Set([...(state.career.dailyOpponents[today] || []), ...others])]; save(); evaluateCareerAchievements(); }
 }
 async function restoreResultView() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
@@ -868,7 +886,7 @@ $("#lock-placement").addEventListener("click", async () => {
   const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode));
   const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } };
   currentPlacementCorrect = placementIsCorrect();
-  if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; save(); evaluateCareerAchievements(); }
+  if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; if (state.roundUnlocked.length + 1 >= 3) grantAchievement("hattrick", "Hattrick"); save(); evaluateCareerAchievements(); }
   if (!solo) {
     const match = state.matches.find((item) => item.code === state.activeMatchCode), player = (match?.players || []).find((item) => String(item.user_id) === String(state.userId)), savedScore = player?.last_round?.score || {}, priorCorrect = Math.max(1, Number(savedScore.correct) || state.lockedTimeline.length), priorMistakes = Number.isFinite(Number(savedScore.mistakes)) && savedScore.mistakes !== "" ? Math.max(0, Number(savedScore.mistakes)) : Math.max(0, Number(player?.rounds_started || 0) - Math.max(0, priorCorrect - 1));
     resultSnapshot.score = { correct: currentPlacementCorrect ? priorCorrect + state.roundUnlocked.length + 1 : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
@@ -1027,7 +1045,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.97";
+$(".brand small").textContent = "v4.99";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
