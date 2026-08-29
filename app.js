@@ -343,7 +343,7 @@ function render() {
   ];
   const achievementMarkup = "<section class=\"achievement-list\"><h3>UTMÄRKELSER</h3><div>" + achievements.map(([id, icon, label, description]) => "<button class=\"achievement " + (state.achievements[id] ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>").join("") + "</div></section>";
   levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, points - levelFloor) + "/" + (nextLevel.min - levelFloor) + " POÄNG · " + Math.max(0, nextLevel.min - points) + " TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>" + achievementMarkup;
-  levelPanel.querySelector("button").onclick = () => { dialog("Poäng och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\nUpplåst utmärkelse: +3 poäng\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); };
+  levelPanel.querySelector("button").onclick = () => { dialog("Poäng och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\nUpplåst utmärkelse: +3 poäng\n\nTryck på en utmärkelse för att se exakt hur den låses upp.\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); };
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
   $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
   $("#change-track-area").innerHTML = state.changeTrackCards ? `<button class="button change-track-button" id="use-change-track" type="button">ANVÄND ETT BYT-LÅT-KORT ${state.changeTrackCards}/3</button>` : "";
@@ -1026,7 +1026,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.90";
+$(".brand small").textContent = "v4.91";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
