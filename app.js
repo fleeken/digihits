@@ -225,16 +225,7 @@ function renderAvatar() { const panel = $("#avatar-panel"); if (!panel) return; 
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-v2]"); if (!select) return; avatarV2()[select.dataset.avatarV2] = select.value; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-v2-genre]"), random = event.target.closest("[data-avatar-v2-random]"); if (!genre && !random) return; const a = avatarV2(); if (genre) Object.assign(a, avatarGenrePresets[genre.dataset.avatarV2Genre], { genre: genre.dataset.avatarV2Genre }); else Object.entries(avatarV2Options).forEach(([part, values]) => a[part] = values[Math.floor(Math.random() * values.length)]); save(); renderAvatar(); });
 function friendAvatarStyle(name) { let hash = 0; for (const char of String(name || "")) hash = (hash * 31 + char.charCodeAt(0)) >>> 0; return avatarStyles[hash % avatarStyles.length].toLowerCase(); }
-// Återställd premiumstil tills ett komplett professionellt lagerpaket finns.
-function renderAvatar() {
-  const panel = $("#avatar-panel"); if (!panel) return;
-  state.avatar ||= {};
-  const genre = avatarStyles.includes(state.avatar.genre) ? state.avatar.genre : "Pop";
-  state.avatar.genre = genre;
-  const genreClass = genre.toLowerCase();
-  const accountAvatar = $("#change-avatar"); if (accountAvatar) { accountAvatar.className = `mini-avatar account-avatar mini-${genreClass}`; accountAvatar.replaceChildren(); }
-  panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="genre-avatar-layout"><div class="genre-avatar genre-${genreClass}" role="img" aria-label="${genre}-artist"></div><div class="genre-avatar-copy"><p>Välj en artiststil eller slumpa fram en helt ny look.</p><div class="genre-style-grid">${avatarStyles.map((style) => `<button type="button" class="${style === genre ? "is-selected" : ""}" data-avatar-style="${style}">${style.toUpperCase()}</button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA ARTISTSTIL</button></div></div>`;
-}
+// Genrer är bara förval. Alla delar i 2D-avataren kan sedan blandas fritt.
 function openAvatarEditor() { showView("avatar"); }
 $("#change-avatar")?.addEventListener("click", openAvatarEditor);
 $("#change-avatar-link")?.addEventListener("click", openAvatarEditor);
@@ -1104,7 +1095,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v5.17";
+$(".brand small").textContent = "v5.18";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
