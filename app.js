@@ -10,6 +10,8 @@ state.stats ||= { wins: 0, losses: 0, walkovers: 0, streak: 0 };
 state.stats.currentStreak ||= 0;
 state.stats.walkoverLeaves ||= 0;
 state.stats.achievementXp ||= 0;
+state.stats.comebackReady ??= false;
+state.onlineCorrect ||= 0;
 state.soloStats ||= { bestRounds: null, fewestMistakes: null };
 state.soloProgress ||= {};
 state.settledResults ||= [];
@@ -44,6 +46,7 @@ state.seenTurnNotices ||= {};
 state.seenFinalChanceNotices ||= {};
 let currentPlacementCorrect = true, roundLoading = false;
 let viewingLatestRound = false, viewingHistoryResult = false, returnToFinalResult = false, historyResultEntry = null, historyResultRounds = 0, historyPlayerScores = {}, matchInviteCandidates = [];
+let achievementPopupQueue = [];
 const latestRounds = {};
 let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, wasPausedByUser = false, pausedForNavigation = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer, trackStartPromise = null, songStarting = false;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
@@ -216,29 +219,44 @@ function settleResult(match, userId, players = []) {
   const alreadySettled = state.settledResults.includes(match.id), alreadyArchived = state.archivedResults.includes(match.id);
   const won = result.winner_id === userId;
   const winner = players.find((player) => String(player.user_id) === String(result.winner_id))?.display_name || "Motspelaren", opponent = players.find((player) => String(player.user_id) !== String(userId))?.display_name || "Motspelaren";
-  if (!alreadySettled) { state.stats.wins += won ? 1 : 0; state.stats.losses += won ? 0 : 1; state.stats.walkovers += won && result.type === "walkover" ? 1 : 0; state.stats.currentStreak = won ? state.stats.currentStreak + 1 : 0; state.stats.streak = Math.max(state.stats.streak, state.stats.currentStreak); state.settledResults.push(match.id); }
+  const comeback = won && state.stats.comebackReady;
+  if (!alreadySettled) { state.stats.wins += won ? 1 : 0; state.stats.losses += won ? 0 : 1; state.stats.walkovers += won && result.type === "walkover" ? 1 : 0; state.stats.currentStreak = won ? state.stats.currentStreak + 1 : 0; state.stats.streak = Math.max(state.stats.streak, state.stats.currentStreak); state.stats.comebackReady = won ? false : true; state.settledResults.push(match.id); }
   const entry = { id: match.id, code: match.code, mode: "online", title: `${state.playerName}, ${opponent}`, opponentName: opponent, leaveReason: result.type === "walkover" ? (won ? "DU VANN - WALK OVER" : "DU LÄMNADE - WALK OVER") : won ? "DU VANN MATCHEN" : "DU FÖRLORADE MATCHEN", result };
   if (!alreadyArchived) { state.history.unshift(entry); state.archivedResults.push(match.id); }
   save();
-  if (won) evaluateCareerAchievements();
+  if (won) evaluateCareerAchievements(comeback);
   if (!won && !alreadyArchived && !state.selfWalkovers.includes(match.id)) { const message = `Du förlorade matchen mot ${winner}. Matchens resultat går att se på startsidan under Historik.`; if (window.Notification?.permission === "granted") new Notification("Digihits", { body: message }); dialog(message, () => showHistoryResult(entry), false, "VISA SLUTRESULTAT", "OK"); }
 }
 function grantAchievement(id, label) {
   if (state.achievements[id]) return false;
   state.achievements[id] = true;
   state.stats.achievementXp += 3;
-  save(); render();
-  dialog("Utmärkelse upplåst: " + label + "!\n\nDu får +3 onlinepoäng.");
+  achievementPopupQueue.push(label);
   return true;
 }
-function evaluateCareerAchievements() {
+function showAchievementPopups() {
+  if (!$("#app-dialog").hidden) { setTimeout(showAchievementPopups, 250); return; }
+  const label = achievementPopupQueue.shift();
+  if (!label) return;
+  dialog("Utmärkelse upplåst: " + label + "!\n\nDu får +3 onlinepoäng.", showAchievementPopups, false, "OK");
+}
+function finishAchievementAwards() {
+  if (!achievementPopupQueue.length) return;
+  save(); render(); showAchievementPopups();
+}
+function evaluateCareerAchievements(comeback = false) {
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
-  const basePoints = state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp;
-  if (state.stats.wins >= 1 && !state.achievements.firstWin) return grantAchievement("firstWin", "Första vinsten");
-  if (state.stats.streak >= 3 && !state.achievements.streak3) return grantAchievement("streak3", "3 vinster i rad");
-  if (state.stats.wins >= 10 && !state.achievements.wins10) return grantAchievement("wins10", "10 onlinevinster");
-  if (opponents >= 3 && !state.achievements.threeFriends) return grantAchievement("threeFriends", "Vunnit mot 3 vänner");
-  if (basePoints >= 90 && !state.achievements.goldRecord) return grantAchievement("goldRecord", "Guldskiva nådd");
+  if (state.stats.wins >= 1) grantAchievement("firstWin", "Första vinsten");
+  if (state.stats.streak >= 3) grantAchievement("streak3", "3 vinster i rad");
+  if (state.stats.wins >= 10) grantAchievement("wins10", "10 onlinevinster");
+  if (state.stats.wins >= 25) grantAchievement("wins25", "25 onlinevinster");
+  if (state.stats.streak >= 5) grantAchievement("streak5", "5 vinster i rad");
+  if (comeback) grantAchievement("comeback", "Vändningen");
+  if (state.onlineCorrect >= 100) grantAchievement("correct100", "100 rätt placerade kort");
+  if (opponents >= 3) grantAchievement("threeFriends", "Vunnit mot 3 vänner");
+  if (opponents >= 5) grantAchievement("fiveFriends", "Vunnit mot 5 vänner");
+  if (state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp >= 90) grantAchievement("goldRecord", "Guldskiva nådd");
+  finishAchievementAwards();
 }
 function closeHomeAccordions() {
   document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
@@ -311,15 +329,20 @@ function render() {
   const levelPanel = $("#level-panel");
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
   const achievements = [
-    [state.achievements.firstWin, "★", "Första vinsten"],
-    [state.achievements.streak3, "🔥", "3 vinster i rad"],
-    [state.achievements.wins10, "10", "10 onlinevinster"],
-    [state.achievements.firstSwap, "♫", "Första byt-låt-kortet"],
-    [state.achievements.goldRecord, "◆", "Guldskiva nådd"],
-    [state.achievements.threeFriends, "♟", "Vunnit mot 3 vänner"]
+    ["firstWin", "★", "Första vinsten", "Vinn din första onlinematch."],
+    ["streak3", "🔥", "3 vinster i rad", "Vinn tre onlinematcher i följd."],
+    ["wins10", "10", "10 onlinevinster", "Vinn totalt tio onlinematcher."],
+    ["firstSwap", "♫", "Första byt-låt-kortet", "Gissa både rätt artist och låtnamn i en onlinematch."],
+    ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 90 onlinepoäng."],
+    ["threeFriends", "♟", "3 olika vänner", "Vinn mot tre olika vänner."],
+    ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher."],
+    ["streak5", "⚡", "5 vinster i rad", "Vinn fem onlinematcher i följd."],
+    ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust."],
+    ["correct100", "100", "100 rätt placerade", "Placera totalt 100 kort rätt i onlinematcher."],
+    ["fiveFriends", "♛", "5 olika vänner", "Vinn mot fem olika vänner."]
   ];
-  const achievementMarkup = "<section class=\"achievement-list\"><h3>UTMÄRKELSER</h3><div>" + achievements.map(([earned, icon, label]) => "<article class=\"achievement " + (earned ? "earned" : "") + "\"><b>" + icon + "</b><small>" + label + "</small></article>").join("") + "</div></section>";
-  levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFO</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, points - levelFloor) + "/" + (nextLevel.min - levelFloor) + " POÄNG · " + Math.max(0, nextLevel.min - points) + " TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>" + achievementMarkup;
+  const achievementMarkup = "<section class=\"achievement-list\"><h3>UTMÄRKELSER</h3><div>" + achievements.map(([id, icon, label, description]) => "<button class=\"achievement " + (state.achievements[id] ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>").join("") + "</div></section>";
+  levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, points - levelFloor) + "/" + (nextLevel.min - levelFloor) + " POÄNG · " + Math.max(0, nextLevel.min - points) + " TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>" + achievementMarkup;
   levelPanel.querySelector("button").onclick = () => { dialog("Poäng och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\nUpplåst utmärkelse: +3 poäng\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); };
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
   $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
@@ -583,7 +606,7 @@ async function updateSwapCards(delta) {
   if (player) await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { swap_cards: cards, updated_at: new Date().toISOString() }, "PATCH");
   state.changeTrackCards = cards; save(); render(); return cards;
 }
-async function settlePendingSwapAward() { const pending = state.pendingSwapAward; if (!pending || pending.matchCode !== state.activeMatchCode) return; state.pendingSwapAward = null; const used = state.swapUsedThisRound; state.swapUsedThisRound = false; save(); if (!used) { if (!state.achievements.firstSwap) grantAchievement("firstSwap", "Första byt-låt-kortet"); if (state.changeTrackCards < 3) await updateSwapCards(1); } }
+async function settlePendingSwapAward() { const pending = state.pendingSwapAward; if (!pending || pending.matchCode !== state.activeMatchCode) return; state.pendingSwapAward = null; const used = state.swapUsedThisRound; state.swapUsedThisRound = false; save(); if (!used) { grantAchievement("firstSwap", "Första byt-låt-kortet"); if (state.changeTrackCards < 3) await updateSwapCards(1); finishAchievementAwards(); } }
 function hasCorrectSongGuess(card) { return completeSongGuess(state.currentGuess, card); }
 function soloProgress(match, locked = state.lockedTimeline) { const code = match?.code || state.activeMatchCode, player = (match?.players || []).find((item) => String(item.user_id) === String(state.userId)), started = Number(player?.rounds_started || 0), fallback = { correct: Math.max(1, locked.length || 0), mistakes: Math.max(0, started - Math.max(0, (locked.length || 0) - 1)) }; const saved = state.soloProgress?.[code]; if (!saved || typeof saved !== "object") state.soloProgress[code] = fallback; else { saved.correct = Math.max(1, Number(saved.correct) || fallback.correct); saved.mistakes = started === 0 ? 0 : Math.max(0, Number(saved.mistakes) || 0); } return state.soloProgress[code]; }
 function addMatch(matchCode) {
@@ -706,6 +729,7 @@ $("#chat-back").addEventListener("click", () => { const view = state.chatReturnV
 $("#chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const match = state.matches.find((item) => item.code === state.chatMatchCode), body = $("#chat-input").value.trim(); if (!match?.id || !body) return; const user = await supabaseAuth.user(supabaseAuth.session()?.access_token); try { await supabaseAuth.dataRequest("online_messages", { match_id: match.id, user_id: user.id, display_name: state.playerName, body, message: body }, "POST"); $("#chat-input").value = ""; await loadChat(); } catch (error) { alert(error.message); } });
 $("#friend-chat-back").addEventListener("click", () => showView("home", true));
 $("#friend-chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const body = $("#friend-chat-input").value.trim(); if (!state.friendChatId || !body) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_message", { friend: state.friendChatId, message_body: body }, "POST"); $("#friend-chat-input").value = ""; await loadFriendChat(); } catch (error) { alert(error.message); } });
+document.addEventListener("click", (event) => { const achievement = event.target.closest("[data-achievement-info]"); if (!achievement) return; dialog(achievement.dataset.achievementLabel + "\n\n" + achievement.dataset.achievementDescription + "\n\nBelöning: +3 onlinepoäng."); });
 window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify()) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = /STARTA MATCH/.test(label) ? "STARTAR MATCH…" : "LADDAR OMGÅNG…"; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; showView(state.roundResumeViews[state.activeMatchCode] || "guess"); pausedForNavigation = true; resumeRoundTrack(); return; } state.roundUnlocked = []; save(); await markRoundStarted(); button.textContent = loadingLabel; await dealCard(); resetTurnInput(); enteredRound = true; showView("guess"); startCurrentTrack(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) button.textContent = label; } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
@@ -843,6 +867,7 @@ $("#lock-placement").addEventListener("click", async () => {
   const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode));
   const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } };
   currentPlacementCorrect = placementIsCorrect();
+  if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; save(); evaluateCareerAchievements(); }
   if (!solo) {
     const match = state.matches.find((item) => item.code === state.activeMatchCode), player = (match?.players || []).find((item) => String(item.user_id) === String(state.userId)), savedScore = player?.last_round?.score || {}, priorCorrect = Math.max(1, Number(savedScore.correct) || state.lockedTimeline.length), priorMistakes = Number.isFinite(Number(savedScore.mistakes)) && savedScore.mistakes !== "" ? Math.max(0, Number(savedScore.mistakes)) : Math.max(0, Number(player?.rounds_started || 0) - Math.max(0, priorCorrect - 1));
     resultSnapshot.score = { correct: currentPlacementCorrect ? priorCorrect + state.roundUnlocked.length + 1 : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
@@ -1001,7 +1026,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.86";
+$(".brand small").textContent = "v4.90";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
