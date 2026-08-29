@@ -24,7 +24,10 @@ state.pendingSwapAward ||= null;
 state.achievements ||= {};
 state.career ||= { onlineMatchesCreated: 0, playedWith: [], dailyOpponents: {}, fullHouse: false };
 state.career.onlineMatchesCreated ||= 0;
+state.career.createdMatchCodes ||= [];
+state.career.startedMatchCodes ||= [];
 state.career.playedWith ||= [];
+state.career.friendIds ||= [];
 state.career.dailyOpponents ||= {};
 state.career.fullHouse ??= false;
 state.swapUsedThisRound ??= false;
@@ -262,9 +265,9 @@ function evaluateCareerAchievements(comeback = false) {
   if (state.onlineCorrect >= 100) grantAchievement("correct100", "100 rätt placerade kort");
   if (opponents >= 3) grantAchievement("threeFriends", "Vunnit mot 3 vänner");
   if (opponents >= 5) grantAchievement("fiveFriends", "Vunnit mot 5 vänner");
-  if (state.career.onlineMatchesCreated >= 5) grantAchievement("matchmaker", "Matchmakaren");
+  if (state.career.startedMatchCodes.length >= 5) grantAchievement("matchmaker", "Matchmakaren");
   if (state.career.playedWith.length >= 5) grantAchievement("socialPlayer", "Sällskapsspelare");
-  if (state.friends.length >= 5) grantAchievement("friendshipTone", "Vänskapston");
+  if (state.career.friendIds.length >= 5) grantAchievement("friendshipTone", "Vänskapston");
   if (state.career.fullHouse) grantAchievement("fullHouse", "Fullt hus");
   if (todayOpponents >= 3) grantAchievement("eveningDj", "Kvällens DJ");
   if (state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp >= 90) grantAchievement("goldRecord", "Guldskiva nådd");
@@ -320,7 +323,7 @@ function renderFriends() {
 async function syncFriends() {
   if (!supabaseAuth.session()?.access_token) return;
   const [friends, requests, invites, unreads, sentRequests, sentMatchInvites, notifications] = await Promise.all([supabaseAuth.dataRequest("rpc/digihits_my_friends", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_friend_requests", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_match_invites", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_friend_unreads", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_sent_friend_requests", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_sent_match_invites", {}, "POST"), supabaseAuth.dataRequest("rpc/digihits_my_friend_notifications", {}, "POST")]);
-  state.friends = friends || []; state.friendRequests = requests || []; state.friendInvites = invites || []; state.friendChatUnread = Object.fromEntries((unreads || []).map((item) => [item.friend_id, Number(item.unread_count)])); state.sentFriendRequests = sentRequests || []; state.sentMatchInvites = sentMatchInvites || []; state.friendNotifications = notifications || []; state.blocks = []; save(); renderFriends();
+  state.friends = friends || []; state.career.friendIds = [...new Set([...state.career.friendIds, ...state.friends.map((friend) => String(friend.friend_id))])]; state.friendRequests = requests || []; state.friendInvites = invites || []; state.friendChatUnread = Object.fromEntries((unreads || []).map((item) => [item.friend_id, Number(item.unread_count)])); state.sentFriendRequests = sentRequests || []; state.sentMatchInvites = sentMatchInvites || []; state.friendNotifications = notifications || []; state.blocks = []; evaluateCareerAchievements(); save(); renderFriends();
 }
 function alignResetButtons() { document.querySelectorAll(".section-subtitle").forEach((title) => { const reset = title.nextElementSibling; if (!reset?.classList.contains("reset-row") || title.parentElement.classList.contains("section-heading")) return; const heading = document.createElement("div"); heading.className = "section-heading"; title.before(heading); heading.append(title, reset); }); }
 function render() {
@@ -343,11 +346,11 @@ function render() {
   const achievements = [
     ["firstWin", "★", "Första vinsten", "Vinn din första onlinematch."],
     ["firstSwap", "♫", "Första byt-låt-kortet", "Gissa både rätt artist och låtnamn i en onlinematch."],
-    ["matchmaker", "✦", "Matchmakaren", "Skapa fem onlinematcher."],
+    ["matchmaker", "✦", "Matchmakaren", "Spela fem onlinematcher med minst en annan deltagare."],
     ["hattrick", "3", "Hattrick", "Lås in tre kort rätt i samma omgång."],
     ["fullHouse", "8", "Fullt hus", "Spela en onlinematch med minst fyra spelare."],
     ["eveningDj", "♫", "Kvällens DJ", "Spela mot tre olika personer samma dag."],
-    ["friendshipTone", "♥", "Vänskapston", "Ha fem personer i din vänskapslista."],
+    ["friendshipTone", "♥", "Vänskapston", "Bli vän med fem olika personer."],
     ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer."],
     ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust."],
     ["streak3", "🔥", "3 vinster i rad", "Vinn tre onlinematcher i följd."],
@@ -638,6 +641,8 @@ async function syncMatches() {
   let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name,rounds_started,locked_timeline,last_round`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
   rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id, players.filter((player) => String(player.match_id) === String(row.match_id))); });
   state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => String(player.match_id) === String(row.match_id)), solo = isSoloMatch(match), opponent = matchPlayers.find((player) => String(player.user_id) !== String(user.id))?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : String(match.current_user_id) === String(user.id) ? "active" : "opponent", solo, locked: match.phase === "locked" || (solo && match.phase === "solo_locked"), round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), players: matchPlayers, turnNotice: match.turn_notice, lastResult: match.last_result, updatedAt: match.updated_at }; }).filter(Boolean).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+  state.matches.filter((match) => !match.solo && match.players.length >= 2 && state.career.createdMatchCodes.includes(String(match.code))).forEach((match) => { if (!state.career.startedMatchCodes.includes(String(match.code))) state.career.startedMatchCodes.push(String(match.code)); });
+  evaluateCareerAchievements();
   save(); render();
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode);
   const activeMatchChanged = !previousActive || previousActive.status !== activeMatch?.status || previousActive.title !== activeMatch?.title || previousActive.round !== activeMatch?.round || previousActive.locked !== activeMatch?.locked;
@@ -669,7 +674,7 @@ async function createOnlineMatch(inviteFriendId = null) {
   const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", turn_started_at: new Date().toISOString(), updated_at: new Date().toISOString() }, "POST");
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
   if (inviteFriendId) await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: matchCode, recipient: inviteFriendId }, "POST");
-  rememberTrack(starter); state.changeTrackCards = 0; state.career.onlineMatchesCreated += 1; evaluateCareerAchievements(); save(); await syncMatches(); if (inviteFriendId) await syncFriends(); openMatch(matchCode);
+  rememberTrack(starter); state.changeTrackCards = 0; state.career.createdMatchCodes.push(matchCode); save(); await syncMatches(); if (inviteFriendId) await syncFriends(); openMatch(matchCode);
 }
 async function createSoloMatch() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), matchCode = `S0${code().slice(2)}`;
@@ -866,7 +871,7 @@ async function markRoundStarted() {
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=id,rounds_started`);
   const player = players[0];
   if (player) { const rounds = (player.rounds_started || 0) + 1; await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: rounds, updated_at: new Date().toISOString() }, "PATCH"); const local = state.matches.find((match) => match.code === state.activeMatchCode); if (local) { local.round = rounds; save(); } }
-  if (!isSoloMatch(match)) { const participants = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=user_id`), others = participants.map((item) => String(item.user_id)).filter((id) => id !== String(user.id)), today = new Date().toISOString().slice(0, 10); state.career.fullHouse ||= participants.length >= 4; state.career.playedWith = [...new Set([...state.career.playedWith, ...others])]; state.career.dailyOpponents[today] = [...new Set([...(state.career.dailyOpponents[today] || []), ...others])]; save(); evaluateCareerAchievements(); }
+  if (!isSoloMatch(match)) { const participants = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=user_id`), others = participants.map((item) => String(item.user_id)).filter((id) => id !== String(user.id)), today = new Date().toISOString().slice(0, 10); if (participants.length >= 2 && state.career.createdMatchCodes.includes(String(match.code))) state.career.startedMatchCodes = [...new Set([...state.career.startedMatchCodes, String(match.code)])]; state.career.fullHouse ||= participants.length >= 4; state.career.playedWith = [...new Set([...state.career.playedWith, ...others])]; state.career.dailyOpponents[today] = [...new Set([...(state.career.dailyOpponents[today] || []), ...others])]; save(); evaluateCareerAchievements(); }
 }
 async function restoreResultView() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
@@ -1045,7 +1050,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.99";
+$(".brand small").textContent = "v5.02";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
