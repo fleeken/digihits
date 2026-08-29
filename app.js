@@ -164,7 +164,7 @@ let currentView = "welcome", chatPoll = 0, realtimeFallbackPoll = 0, realtimeRef
 let resultIsLocked = false;
 const code = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
 function dialog(message, action, danger = false, confirmText = "FORTSÄTT", cancelText = "AVBRYT") {
-  $("#dialog-message").textContent = message; $("#dialog-cancel").hidden = !action; $("#dialog-cancel").textContent = cancelText; $("#dialog-confirm").textContent = action ? confirmText : "OK"; $("#dialog-confirm").className = `button ${danger ? "button-leave" : "button-primary"}`; $("#app-dialog").hidden = false;
+  $("#dialog-message").classList.remove("level-rules"); $("#dialog-message").textContent = message; $("#dialog-cancel").hidden = !action; $("#dialog-cancel").textContent = cancelText; $("#dialog-confirm").textContent = action ? confirmText : "OK"; $("#dialog-confirm").className = `button ${danger ? "button-leave" : "button-primary"}`; $("#app-dialog").hidden = false;
   $("#dialog-cancel").onclick = () => { $("#app-dialog").hidden = true; };
   $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; action?.(); };
 }
@@ -289,8 +289,8 @@ function render() {
   $("#stat-streak").textContent = `${state.stats.streak} st`;
   const levelSteps = [{ name: "Uppvärmning", min: -Infinity }, { name: "Soundcheck", min: 1 }, { name: "Genombrott", min: 9 }, { name: "Hitmakare", min: 24 }, { name: "Listetta", min: 50 }, { name: "Guldskiva", min: 90 }, { name: "Platinaskiva", min: 150 }, { name: "Digihits-legendar", min: 250 }], points = state.stats.wins * 3 - state.stats.walkoverLeaves, levelIndex = Math.max(0, levelSteps.reduce((found, level, index) => points >= level.min ? index : found, 0)), level = levelSteps[levelIndex], nextLevel = levelSteps[levelIndex + 1], levelFloor = levelIndex ? level.min : 0, progress = nextLevel ? Math.max(0, Math.min(100, ((points - levelFloor) / (nextLevel.min - levelFloor)) * 100)) : 100;
   const levelPanel = $("#level-panel");
-  levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINEPOÄNG</small><strong>" + points + "</strong></div><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">ⓘ</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + " POÄNG TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>";
-  levelPanel.querySelector("button").onclick = () => dialog("Poäng och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+");
+  levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFO</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, points - levelFloor) + "/" + (nextLevel.min - levelFloor) + " POÄNG · " + Math.max(0, nextLevel.min - points) + " TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>";
+  levelPanel.querySelector("button").onclick = () => { dialog("Poäng och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); };
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
   $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
   $("#change-track-area").innerHTML = state.changeTrackCards ? `<button class="button change-track-button" id="use-change-track" type="button">ANVÄND ETT BYT-LÅT-KORT ${state.changeTrackCards}/3</button>` : "";
@@ -971,7 +971,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.81";
+$(".brand small").textContent = "v4.85";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
