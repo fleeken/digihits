@@ -15,7 +15,10 @@ Deno.serve(async (request) => {
   const opponent = players.find((player) => String(player.user_id) !== String(match.current_user_id));
   if (!target) return Response.json({ skipped: true });
   const { data: subscriptions = [] } = await supabase.from("push_subscriptions").select("endpoint,subscription").eq("user_id", String(target.user_id));
-  const message = JSON.stringify({ title: "Din tur i Digihits", body: `Det är din tur mot ${opponent?.display_name || "din motspelare"}.`, url: "./?matches=1#home" });
+  const { data: activePlayers = [] } = await supabase.from("online_players").select("match_id").eq("user_id", String(target.user_id)).eq("active", true);
+  const activeMatchIds = activePlayers.map((player) => String(player.match_id));
+  const { count } = activeMatchIds.length ? await supabase.from("online_matches").select("id", { count: "exact", head: true }).in("id", activeMatchIds).eq("current_user_id", String(target.user_id)).eq("status", "active").not("code", "like", "S0%") : { count: 0 };
+  const message = JSON.stringify({ title: "Din tur i Digihits", body: `Det är din tur mot ${opponent?.display_name || "din motspelare"}.`, url: "./?matches=1#home", badgeCount: count || 1 });
   await Promise.all(subscriptions.map(async (item) => {
     try { await webpush.sendNotification(item.subscription, message); }
     catch (error) { if ([404, 410].includes(Number(error?.statusCode))) await supabase.from("push_subscriptions").delete().eq("endpoint", item.endpoint); }
