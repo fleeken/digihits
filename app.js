@@ -205,6 +205,7 @@ function renderAvatar() {
   const genre = avatarStyles.includes(state.avatar.genre) ? state.avatar.genre : "Pop";
   state.avatar.genre = genre;
   const genreClass = genre.toLowerCase();
+  const accountAvatar = $("#change-avatar"); if (accountAvatar) accountAvatar.className = `mini-avatar account-avatar mini-${genreClass}`;
   panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="genre-avatar-layout"><div class="genre-avatar genre-${genreClass}" role="img" aria-label="${genre}-artist"></div><div class="genre-avatar-copy"><p>Välj en artiststil eller slumpa fram en helt ny look.</p><div class="genre-style-grid">${avatarStyles.map((style) => `<button type="button" class="${style === genre ? "is-selected" : ""}" data-avatar-style="${style}">${style.toUpperCase()}</button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA ARTISTSTIL</button><p class="avatar-coming">Fler personliga val för hår, kläder och accessoarer kommer i nästa steg.</p></div></div>`;
 }
 document.addEventListener("click", (event) => {
@@ -214,6 +215,10 @@ document.addEventListener("click", (event) => {
   state.avatar.genre = style ? style.dataset.avatarStyle : avatarStyles[Math.floor(Math.random() * avatarStyles.length)];
   save(); renderAvatar();
 });
+function friendAvatarStyle(name) { let hash = 0; for (const char of String(name || "")) hash = (hash * 31 + char.charCodeAt(0)) >>> 0; return avatarStyles[hash % avatarStyles.length].toLowerCase(); }
+function openAvatarEditor() { const section = $("#career-section"); if (!section) return; if (!section.classList.contains("is-open")) section.querySelector(".accordion-toggle")?.click(); section.scrollIntoView({ behavior: "smooth", block: "start" }); }
+$("#change-avatar")?.addEventListener("click", openAvatarEditor);
+$("#change-avatar-link")?.addEventListener("click", openAvatarEditor);
 function showTurnNotice(match) {
   const notice = match?.turnNotice;
   if (!notice?.type) return;
@@ -346,6 +351,7 @@ function renderFriends() {
   requests.innerHTML = `<h3 class="friend-section-title">Inkommande vänförfrågningar</h3>${state.friendRequests.length ? state.friendRequests.map((friend) => `<article class="friend-row"><strong>${escapeHtml(friend.display_name)}</strong><div class="friend-actions"><button class="button button-green" data-friend-answer="${friend.request_id}" data-friend-accept="true" type="button">ACCEPTERA</button><button class="button button-secondary" data-friend-answer="${friend.request_id}" type="button">AVVISA</button></div></article>`).join("") : `<p class="friend-empty">Du har inga inkommande vänförfrågningar.</p>`}`;
   sent.innerHTML = `<h3 class="friend-section-title">Skickade vänförfrågningar</h3>${state.sentFriendRequests.length ? state.sentFriendRequests.map((request) => { const name = escapeHtml(request.display_name || "spelaren"); return request.status === "accepted" ? `<article class="friend-row friend-request-accepted"><strong>Du är nu vän med ${name}.</strong><button class="button button-secondary" data-dismiss-friend-request="${request.request_id}" type="button">OK</button></article>` : request.status === "declined" ? `<article class="friend-row friend-request-declined"><strong>${name} avvisade din vänförfrågan.</strong><button class="button button-secondary" data-dismiss-friend-request="${request.request_id}" type="button">OK</button></article>` : `<article class="friend-row"><strong>Vänförfrågan till ${name} – väntar på svar.</strong></article>`; }).join("") : `<p class="friend-empty">Du har inga skickade vänförfrågningar.</p>`}`;
   friends.innerHTML = `<h3 class="friend-section-title">Vänskapslista</h3>${state.friends.length ? state.friends.map((friend) => { const name = String(friend.display_name || "").toLocaleLowerCase("sv-SE"), played = state.history.filter((match) => match.mode === "online" && String(match.opponentName || String(match.title || "").split(", ").at(-1)).toLocaleLowerCase("sv-SE") === name), isWalkover = (match) => /WALK/i.test(match.leaveReason || ""), wins = played.filter((match) => !isWalkover(match) && /VANN/i.test(match.leaveReason || "")).length, losses = played.filter((match) => !isWalkover(match) && /FÖRLORADE/i.test(match.leaveReason || "")).length, walkovers = played.filter(isWalkover).length; return `<article class="friend-row"><strong>${escapeHtml(friend.display_name)}</strong><div class="friend-stats"><div><b>${wins}</b><small>VINSTER MOT</small></div><div><b>${losses}</b><small>FÖRLUSTER MOT</small></div><div><b>${walkovers}</b><small>WALK OVER</small></div><div><b>${played.length}</b><small>SPELADE MATCHER</small></div></div><div class="friend-actions friend-main-actions"><button class="button button-green" data-create-friend-match="${friend.friend_id}" type="button">SKAPA NY MATCH MOT</button><button class="button button-leave" data-remove-friend="${friend.friend_id}" data-friend-name="${escapeHtml(friend.display_name)}" type="button">TA BORT VÄN</button></div></article>`; }).join("") : `<p class="friend-empty">Du har inga vänner ännu.</p>`}${state.friendNotifications.map((notice) => `<article class="friend-row friend-request-declined"><strong>${escapeHtml(notice.display_name)} tog bort dig som vän.</strong><button class="button button-secondary" data-dismiss-friend-notice="${notice.notice_id}" type="button">OK</button></article>`).join("")}`;
+  friends.querySelectorAll(".friend-row").forEach((row) => { const name = row.querySelector(":scope > strong"); if (!name || !row.querySelector(".friend-stats")) return; const avatar = document.createElement("span"); avatar.className = `mini-avatar friend-avatar mini-${friendAvatarStyle(name.textContent)}`; name.before(avatar); name.classList.add("friend-name-with-avatar"); });
 }
 async function syncFriends() {
   if (!supabaseAuth.session()?.access_token) return;
@@ -1078,7 +1084,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v5.07";
+$(".brand small").textContent = "v5.08";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
