@@ -198,13 +198,13 @@ document.addEventListener("click", (event) => { const randomPart = event.target.
 avatarChoices.eyes = ["Runda", "Skarpa", "Glada"];
 function renderAvatar() { const panel = $("#avatar-panel"); if (!panel) return; const a = state.avatar, choices = ["skin", "eyes", "hair", "beard", "hat", "top", "accessory", "piercing"], labels = { skin: "HUDTON", eyes: "ÖGON", hair: "FRISYR", beard: "ANSIKTSBEHÅRING", hat: "HUVUDBONAD", top: "ÖVERKROPP", accessory: "ACCESSOAR", piercing: "PIERCING" }, skin = { Ljus: "#f4c7a1", Mellan: "#c7865c", Mörk: "#71452d" }[a.skin], hair = { Kort: "#352014", Lockigt: "#6c432a", Långt: "#1a1513", Mohawk: "#c53b75", Flätor: "#2a2022" }[a.hair], top = { "T-shirt": "#4fc9ee", Skinnjacka: "#24242d", Hoodie: "#7956cf", Glitterjacka: "#d29b33", Kavaj: "#496a94" }[a.top]; panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-layout portrait-layout"><div class="artist-avatar portrait-avatar" style="--skin:${skin};--hair:${hair};--top:${top}"><i class="portrait-shoulders"></i><i class="portrait-neck"></i><i class="portrait-face"></i><i class="portrait-hair hair-${a.hair.toLowerCase().replace("å", "a")}"></i><i class="portrait-eyes eyes-${a.eyes.toLowerCase()}"></i><i class="portrait-nose"></i><i class="portrait-mouth"></i><i class="portrait-beard beard-${a.beard.toLowerCase()}"></i><i class="portrait-hat hat-${a.hat.toLowerCase().replace("å", "a")}"></i><i class="portrait-accessory accessory-${a.accessory.toLowerCase().replaceAll(" ", "-")}"></i><i class="portrait-piercing piercing-${a.piercing.toLowerCase().replace("ö", "o")}"></i></div><div class="avatar-controls">${choices.map((part) => `<div class="avatar-control"><label>${labels[part]}</label><select data-avatar-part="${part}">${avatarChoices[part].map((value) => `<option${a[part] === value ? " selected" : ""}>${value}</option>`).join("")}</select><button class="avatar-random" data-avatar-random="${part}" type="button">SLUMPA</button></div>`).join("")}</div></div><div class="avatar-actions"><button class="button button-purple" data-avatar-random-all type="button">SLUMPA HELA AVATAREN</button></div><div class="avatar-genres"><strong>SLUMPA EFTER GENRE:</strong>${Object.keys(avatarGenres).map((genre) => `<button data-avatar-genre="${genre}" type="button">${genre.toUpperCase()}</button>`).join("")}</div>`; }
 // Första riktiga avatarversionen: genre väljer ett faktiskt illustrerat porträtt.
-const avatarStyles = ["Pop", "Rock", "Hiphop", "Elektroniskt", "Country", "Indie"];
+const avatarStyles = ["Pop", "Rock", "Hiphop", "EDM", "Country", "Indie"];
 function renderAvatar() {
   const panel = $("#avatar-panel"); if (!panel) return;
   state.avatar ||= {};
   const genre = avatarStyles.includes(state.avatar.genre) ? state.avatar.genre : "Pop";
   state.avatar.genre = genre;
-  const genreClass = genre.toLowerCase().replace("hiphop", "hiphop").replace("elektroniskt", "elektroniskt");
+  const genreClass = genre.toLowerCase();
   panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="genre-avatar-layout"><div class="genre-avatar genre-${genreClass}" role="img" aria-label="${genre}-artist"></div><div class="genre-avatar-copy"><p>Välj en artiststil eller slumpa fram en helt ny look.</p><div class="genre-style-grid">${avatarStyles.map((style) => `<button type="button" class="${style === genre ? "is-selected" : ""}" data-avatar-style="${style}">${style.toUpperCase()}</button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA ARTISTSTIL</button><p class="avatar-coming">Fler personliga val för hår, kläder och accessoarer kommer i nästa steg.</p></div></div>`;
 }
 document.addEventListener("click", (event) => {
@@ -1078,7 +1078,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v5.05";
+$(".brand small").textContent = "v5.07";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
