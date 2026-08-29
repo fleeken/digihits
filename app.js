@@ -216,9 +216,10 @@ document.addEventListener("click", (event) => {
   save(); renderAvatar();
 });
 function friendAvatarStyle(name) { let hash = 0; for (const char of String(name || "")) hash = (hash * 31 + char.charCodeAt(0)) >>> 0; return avatarStyles[hash % avatarStyles.length].toLowerCase(); }
-function openAvatarEditor() { const section = $("#career-section"); if (!section) return; if (!section.classList.contains("is-open")) section.querySelector(".accordion-toggle")?.click(); section.scrollIntoView({ behavior: "smooth", block: "start" }); }
+function openAvatarEditor() { showView("avatar"); }
 $("#change-avatar")?.addEventListener("click", openAvatarEditor);
 $("#change-avatar-link")?.addEventListener("click", openAvatarEditor);
+$("#avatar-back")?.addEventListener("click", () => showView("home"));
 function showTurnNotice(match) {
   const notice = match?.turnNotice;
   if (!notice?.type) return;
@@ -1084,7 +1085,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v5.08";
+$(".brand small").textContent = "v5.09";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
