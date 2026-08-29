@@ -15,7 +15,7 @@
   </head>
   <body>
     <main class="app-shell">
-<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v3.16</small></button><div class="brand-actions"><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button><button class="install-home" id="enable-notifications" type="button">AKTIVERA NOTISER</button></div></header>
+<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v4.80</small></button><div class="brand-actions"><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button><button class="install-home" id="enable-notifications" type="button">AKTIVERA NOTISER</button></div></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
@@ -66,13 +66,13 @@
 
       <section class="view" data-view-panel="lobby">
         <section class="lobby-layout">
-          <aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-leave" id="lobby-leave" type="button">LÄMNA MATCHEN</button></aside>
+          <aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-primary" id="lobby-chat" type="button">VISA CHATT</button><button class="button button-leave" id="lobby-leave" type="button">LÄMNA MATCHEN</button></aside>
           <section class="panel lobby-main"><div class="lobby-title-row"><h1>Väntar på motspelare</h1><button class="lobby-unlock" type="button">🔓 OLÅST MATCH</button></div><div class="lobby-stage"><div class="lobby-code-card"><small>MATCHKOD</small><strong id="lobby-code">------</strong><button class="copy-code" id="copy-lobby-code" type="button">KOPIERA KOD</button></div></div></section>
         </section>
       </section>
 
       <section class="view" data-view-panel="match">
-        <section class="lobby-layout"><aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-green next-round" id="next-round" type="button" onclick="window.resumeDigihitsRound?.()">STARTA NÄSTA OMGÅNG</button><button class="button button-leave" type="button">LÄMNA MATCHEN</button></aside><section class="panel match-view"><div class="lobby-title-row"><h1>Matchöversikt</h1></div><p class="turn-message" id="turn-message">DIN TUR</p><div class="match-summary"><small>MATCHKOD</small><strong id="overview-code">------</strong></div><div class="match-metrics"><div class="overview-optional"><strong id="overview-players-count">2</strong><small>SPELARE</small></div><div><strong id="overview-round">REDO</strong><small id="overview-round-label">OMGÅNG</small></div><div class="overview-optional"><strong id="overview-target">10</strong><small id="overview-target-label">FÖRST TILL</small></div></div><div id="overview-players" class="overview-players"></div></section></section>
+        <section class="lobby-layout"><aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-green next-round" id="next-round" type="button" onclick="window.resumeDigihitsRound?.()">STARTA NÄSTA OMGÅNG</button><button class="button button-primary" id="match-chat" type="button">VISA CHATT</button><button class="button button-leave" type="button">LÄMNA MATCHEN</button></aside><section class="panel match-view"><div class="lobby-title-row"><h1>Matchöversikt</h1></div><p class="turn-message" id="turn-message">DIN TUR</p><div class="match-summary"><small>MATCHKOD</small><strong id="overview-code">------</strong></div><div class="match-metrics"><div class="overview-optional"><strong id="overview-players-count">2</strong><small>SPELARE</small></div><div><strong id="overview-round">REDO</strong><small id="overview-round-label">OMGÅNG</small></div><div class="overview-optional"><strong id="overview-target">10</strong><small id="overview-target-label">FÖRST TILL</small></div></div><div id="overview-players" class="overview-players"></div></section></section>
       </section>
 
       <section class="view" data-view-panel="chat"><section class="chat-view panel"><button class="back-link" id="chat-back" type="button">← Tillbaka</button><h1 id="chat-title">Chatt</h1><div class="chat-messages" id="chat-messages"></div><form class="chat-form" id="chat-form"><input id="chat-input" maxlength="500" placeholder="Skriv ett meddelande" /><button class="button button-primary" type="submit">SKICKA</button></form></section></section>
@@ -100,6 +100,11 @@
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina matcher</span><span class="match-badges"><span class="badge badge-turn" id="turn-count">Din tur 0</span><span class="badge badge-friend" id="friend-match-invite-count">Matchinbjudan 0</span></span></button>
           <div class="accordion-content"><section id="friend-invites"></section><section id="friend-sent-match-invites"></section><div id="matches" class="matches" aria-live="polite"></div></div>
         </section>
+
+        <section class="panel accordion" data-accordion id="career-section">
+          <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Min musikkarriär</span><span class="accordion-mark">›</span></button>
+          <div class="accordion-content"><section id="level-panel" class="level-panel"></section></div>
+        </section>
         <section class="panel accordion" data-accordion id="friends-section">
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina vänner</span><span class="match-badges friend-badges"><span class="badge badge-friend" id="friend-request-count">Vänförfrågan 0</span></span><span class="accordion-mark">›</span></button>
           <div class="accordion-content"><div class="friends-content"><form id="friend-search-form" class="friend-search"><input id="friend-search" placeholder="SÖK SPELARNAMN ELLER E-POST" autocomplete="off" /><button class="button button-green" type="submit">LÄGG TILL VÄN</button></form><p id="friend-feedback" class="friend-feedback" hidden></p><section id="friend-requests"></section><section id="friend-sent-requests"></section><section id="friends-list"></section></div></div>
@@ -118,6 +123,6 @@
     <script src="auth.js?v=4.02"></script>
     <script src="tracks.js"></script>
     <script src="push-config.js?v=3.17"></script>
-    <script src="app.js?v=4.78"></script>
+    <script src="app.js?v=4.81"></script>
   </body>
 </html>

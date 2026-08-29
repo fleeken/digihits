@@ -288,9 +288,9 @@ function render() {
   $("#stat-walkovers").textContent = `${state.stats.walkovers} st`;
   $("#stat-streak").textContent = `${state.stats.streak} st`;
   const levelSteps = [{ name: "Uppvärmning", min: -Infinity }, { name: "Soundcheck", min: 1 }, { name: "Genombrott", min: 9 }, { name: "Hitmakare", min: 24 }, { name: "Listetta", min: 50 }, { name: "Guldskiva", min: 90 }, { name: "Platinaskiva", min: 150 }, { name: "Digihits-legendar", min: 250 }], points = state.stats.wins * 3 - state.stats.walkoverLeaves, levelIndex = Math.max(0, levelSteps.reduce((found, level, index) => points >= level.min ? index : found, 0)), level = levelSteps[levelIndex], nextLevel = levelSteps[levelIndex + 1], levelFloor = levelIndex ? level.min : 0, progress = nextLevel ? Math.max(0, Math.min(100, ((points - levelFloor) / (nextLevel.min - levelFloor)) * 100)) : 100;
-  let levelPanel = $("#level-panel"); if (!levelPanel) { levelPanel = document.createElement("section"); levelPanel.id = "level-panel"; levelPanel.className = "level-panel"; $("#stat-wins").closest(".accordion-content").prepend(levelPanel); }
-  levelPanel.innerHTML = "<div class=\"level-head\"><div><small>POÄNG</small><strong>" + points + "</strong></div><div><small>NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">ⓘ</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + " POÄNG TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>";
-  levelPanel.querySelector("button").onclick = () => dialog("Poängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+");
+  const levelPanel = $("#level-panel");
+  levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINEPOÄNG</small><strong>" + points + "</strong></div><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">ⓘ</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + " POÄNG TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>";
+  levelPanel.querySelector("button").onclick = () => dialog("Poäng och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+");
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
   $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
   $("#change-track-area").innerHTML = state.changeTrackCards ? `<button class="button change-track-button" id="use-change-track" type="button">ANVÄND ETT BYT-LÅT-KORT ${state.changeTrackCards}/3</button>` : "";
@@ -303,7 +303,8 @@ function render() {
     const status = solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
     const matchPlayers = match.players?.length ? match.players : String(match.title || "").split(", ").filter(Boolean).map((display_name) => ({ display_name }));
     const playerRows = matchPlayers.map((player) => { const correct = Math.max(1, Number(player.last_round?.score?.correct) || (player.locked_timeline || []).length || 0); return `<div><strong>${escapeHtml(player.display_name)} <b>(${correct}/10p)</b></strong></div>`; }).join("");
-    return `<article class="match ${solo ? "solo" : match.status}">${solo ? "" : `<div class="match-status match-status-top">● ${status}</div><button class="match-icon delete-icon match-delete-top" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button>`}${solo ? `<div class="match-top"><strong>Solomatch</strong></div><div class="solo-card-stats"><div><strong>${soloScore.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${soloScore.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.round || 1}</strong><small>${(match.round || 1) === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<div class="match-player-list">${playerRows}</div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">${label}</button>${solo ? `<div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div>` : ""}</div>${solo ? "" : `<div class="match-code match-code-bottom">MATCHKOD <strong>${match.code}</strong></div>`}</article>`;
+    const unread = !solo ? Number(state.chatUnread[match.code] || 0) : 0;
+    return `<article class="match ${solo ? "solo" : match.status}">${solo ? "" : `<div class="match-status match-status-top">● ${status}</div>${unread ? `<button class="match-chat-alert" data-open-chat="${match.code}" title="Nya chattmeddelanden" aria-label="Öppna chatt" type="button">✉<b>${unread}</b></button>` : ""}<button class="match-icon delete-icon match-delete-top" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button>`}${solo ? `<div class="match-top"><strong>Solomatch</strong></div><div class="solo-card-stats"><div><strong>${soloScore.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${soloScore.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.round || 1}</strong><small>${(match.round || 1) === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<div class="match-player-list">${playerRows}</div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">${label}</button>${solo ? `<div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div>` : ""}</div>${solo ? "" : `<div class="match-code match-code-bottom">MATCHKOD <strong>${match.code}</strong></div>`}</article>`;
   };
   const soloMatches = state.matches.filter(isSoloMatch);
   const active = state.matches.filter((match) => !isSoloMatch(match) && (match.status === "active" || match.status === "opponent"));
@@ -326,7 +327,7 @@ function render() {
 }
 
 function showView(view, focusMatches = false, fromHistory = false) {
-  if (view === "chat" || view === "friend-chat") view = "home";
+  if (view === "friend-chat") view = "home";
   if (view === "guess" && state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === activeCard()?.id) view = "timeline";
   if ((view === "guess" || view === "timeline" || (view === "result" && state.pendingResult?.matchCode === state.activeMatchCode)) && state.activeMatchCode) { state.roundResumeViews[state.activeMatchCode] = view; save(); }
   const replayRow = $(".replay-row"), songTimeline = $("#song-timeline"); let timelinePlayer = $("#timeline-player"); if (!timelinePlayer) { timelinePlayer = document.createElement("div"); timelinePlayer.id = "timeline-player"; } if (replayRow && songTimeline) { if (view === "timeline") { $(".timeline-view")?.prepend(timelinePlayer); timelinePlayer.append(replayRow, songTimeline); } else { const guessView = $(".guess-view"), back = $(".guess-top .back-link") || $(".guess-view > .guess-back"); if (back) { back.classList.add("guess-back"); guessView?.prepend(back); } $(".guess-top")?.before(replayRow, songTimeline); } }
@@ -380,7 +381,6 @@ async function openChat(matchCode = state.activeMatchCode) {
   $("#chat-title").textContent = match.title; $("#chat-input").value = ""; showView("chat"); await loadChat(); clearInterval(chatPoll); chatPoll = setInterval(() => { if (currentView === "chat") loadChat().catch(() => {}); }, 2500);
 }
 function handleChatRealtime(payload) {
-  if (payload.table === "digihits_friend_messages") { handleFriendChatRealtime(payload); return; }
   if (payload.eventType !== "INSERT" || String(payload.new?.user_id) === String(state.userId)) return;
   const match = state.matches.find((item) => String(item.id) === String(payload.new?.match_id));
   if (!match) return;
@@ -436,7 +436,6 @@ function openMatch(matchCode) {
   playersMetric.hidden = false;
   playersMetric.style.display = "";
   playersMetric.parentElement.classList.toggle("solo-metrics", soloMatch);
-  $("#match-chat")?.setAttribute("hidden", "");
   $("#overview-players-count").textContent = soloMatch ? String(match.round || 1) : "2";
   playersMetric.querySelector("small").textContent = soloMatch ? ((match.round || 1) === 1 ? "OMGÅNG" : "OMGÅNGAR") : "SPELARE";
   const isYourTurn = match.status === "active", isWaiting = match.status === "waiting";
@@ -972,7 +971,7 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;
-$(".brand small").textContent = "v4.78";
+$(".brand small").textContent = "v4.81";
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
