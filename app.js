@@ -1083,7 +1083,7 @@ $("#signup-form").addEventListener("submit", async (event) => {
 });
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=3.92").catch(() => {});
-render();
+// Första renderingen sker efter att avatarens delar har initierats.
 if ((window.matchMedia?.("(display-mode: standalone)").matches || navigator.standalone) && supabaseAuth.session()?.access_token && window.Notification?.permission === "default") setTimeout(() => dialog("Vill du slå på notiser för Digihits? Du får en notis när det är din tur eller när du får en matchinbjudan.", () => $("#enable-notifications").click(), false, "AKTIVERA NOTISER"), 700);
 $("#timeline-row").after($("#change-track-area"));
 $("#change-track-area").after($("#lock-placement"));
@@ -1127,7 +1127,8 @@ function avatarRigSvg(raw, mini = false) { const a = avatarRig(raw), skin = { Lj
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; state.avatar.traits = avatarRig(state.avatar); const a = state.avatar.traits; const accountAvatar = $("#change-avatar"); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-rig-mini"; accountAvatar.replaceChildren(); accountAvatar.insertAdjacentHTML("beforeend", avatarRigSvg(a, true)); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-rig-layout"><div class="avatar-rig-preview">${avatarRigSvg(a)}</div><div class="avatar-rig-controls">${Object.entries(avatarRigOptions).map(([part, choices]) => `<label>${avatarRigLabels[part]}<select data-avatar-rig="${part}">${choices.map((choice) => `<option${a[part] === choice ? " selected" : ""}>${choice}</option>`).join("")}</select></label>`).join("")}<button type="button" class="button button-purple" data-avatar-rig-random>SLUMPA ALLT</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div><div class="avatar-rig-genres"><b>SNABBSTIL EFTER GENRE</b>${avatarStyles.map((genre) => `<button type="button" data-avatar-rig-genre="${genre}">${genre.toUpperCase()}</button>`).join("")}</div>`; }
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
-$(".brand small").textContent = "v5.36";
+$(".brand small").textContent = "v5.37";
+render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
 supabaseAuth.consumeSpotify = async () => null;
