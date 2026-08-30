@@ -1,6 +1,6 @@
 self.addEventListener("push", (event) => {
   const data = event.data?.json() || {};
-  const jobs = [self.registration.showNotification(data.title || "Digihits", { body: data.body || "Det är din tur.", icon: "icon-ios-261.png", badge: "icon-ios-261.png", tag: "digihits-turn", renotify: true, data: { url: data.url || "./?matches=1#home" } })];
+  const jobs = [self.registration.showNotification(data.title || "Digihits", { body: data.body || "Det är din tur.", icon: "icon-dh-560.png", badge: "icon-dh-560.png", tag: "digihits-turn", renotify: true, data: { url: data.url || "./?matches=1#home" } })];
   if (typeof data.badgeCount === "number" && "setAppBadge" in self.navigator) jobs.push(data.badgeCount ? self.navigator.setAppBadge(data.badgeCount) : self.navigator.clearAppBadge());
   event.waitUntil(Promise.all(jobs));
 });
