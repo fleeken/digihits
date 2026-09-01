@@ -283,3 +283,13 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 .timeline-row .slot.has-card .placed-card{width:100%!important;height:100%!important;margin:0!important;box-sizing:border-box!important;place-self:stretch!important;}
 .hero .account-row-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;gap:12px!important;}
 .hero .account-avatar-wrap{grid-column:2;grid-row:1;justify-self:end;align-self:start;}
+
+/* v5.68: mjuk kortlek och stabil placering */
+.timeline-row .slot{transition:border-color .24s ease,background .24s ease,box-shadow .24s ease,color .24s ease!important;}
+.timeline-row .slot.is-target{border-color:#8de9f4!important;background:#18364a!important;box-shadow:0 0 14px #55cfe099,0 0 7px #9465c977 inset!important;transform:none!important;}
+.locking-cards .unlocked-card,.locking-cards .placed-card{animation:lock-card-still 1.15s var(--card-delay) ease both!important;}
+@keyframes lock-card-still{0%,100%{transform:none}45%{border-color:#7effbd;box-shadow:0 0 28px #42ed9d;transform:none}}
+.card-deck{transform:perspective(500px) rotateY(-24deg) rotateZ(-7deg);transform-origin:bottom right;}
+.is-dealing .card-deck i{animation:deck-flick 1.8s ease-in-out infinite alternate;animation-delay:calc(var(--deck-index,0) * 70ms);}
+.is-dealing .card-deck i:nth-child(1){--deck-index:1}.is-dealing .card-deck i:nth-child(2){--deck-index:2}.is-dealing .card-deck i:nth-child(3){--deck-index:3}.is-dealing .card-deck i:nth-child(4){--deck-index:4}.is-dealing .card-deck i:nth-child(5){--deck-index:5}.is-dealing .card-deck i:nth-child(6){--deck-index:6}.is-dealing .card-deck i:nth-child(7){--deck-index:7}.is-dealing .card-deck i:nth-child(8){--deck-index:8}
+@keyframes deck-flick{from{margin-left:0}to{margin-left:calc(var(--deck-index) * -2px)}}

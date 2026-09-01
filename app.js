@@ -98,8 +98,9 @@ async function animateCardDeal(card, starter = null) {
     setTimeout(() => target.classList.remove("deal-arrived"), 700);
     await animationWait(220);
   };
-  if (starter) await fly(starter, false, $("#timeline-row .year-card"), 1250);
-  await fly(card, true, $("#secret-card"), 1350);
+  await animationWait(650);
+  if (starter) await fly(starter, false, $("#timeline-row .year-card"), 1800);
+  await fly(card, true, $("#secret-card"), 1950);
   stage.className = ""; stage.replaceChildren();
 }
 async function animateSwapReveal(card) {
@@ -924,7 +925,8 @@ function moveCard(event) {
   else if (event.clientX > bounds.right - 46) timeline.scrollLeft += 18;
   document.querySelectorAll("[data-slot]").forEach((slot) => slot.classList.remove("is-target"));
   const slots = [...document.querySelectorAll("[data-slot]")], direct = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-slot]");
-  dragTarget = direct || slots.map((slot) => { const area = slot.getBoundingClientRect(), dx = Math.max(area.left - event.clientX, 0, event.clientX - area.right), dy = Math.max(area.top - event.clientY, 0, event.clientY - area.bottom); return { slot, distance: Math.hypot(dx, dy) }; }).sort((a, b) => a.distance - b.distance).find((item) => item.distance <= 78)?.slot || null;
+  const closest = slots.map((slot) => { const area = slot.getBoundingClientRect(), centerX = area.left + area.width / 2, centerY = area.top + area.height / 2; return { slot, distance: Math.hypot(event.clientX - centerX, event.clientY - centerY) }; }).sort((a, b) => a.distance - b.distance)[0];
+  dragTarget = direct || (closest?.distance <= 145 ? closest.slot : null);
   dragTarget?.classList.add("is-target");
 }
 document.addEventListener("pointermove", (event) => { if (document.querySelector(".dragging")) moveCard(event); });
@@ -1208,7 +1210,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.67";
+$(".brand small").textContent = "v5.68";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
