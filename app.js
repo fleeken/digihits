@@ -91,14 +91,16 @@ async function animateCardDeal(card, starter = null) {
     const startX = deckBounds.left + 8 - targetBounds.width * .52, startY = deckBounds.top + deckBounds.height / 2 - targetBounds.height / 2, exitX = deckBounds.left - targetBounds.width * .9, exitY = startY - 12;
     Object.assign(element.style, { left: `${startX}px`, top: `${startY}px`, width: `${targetBounds.width}px`, height: `${targetBounds.height}px` });
     target.classList.add("deal-target");
+    const points = [{ x: 0, y: 0 }, { x: exitX - startX, y: exitY - startY }, { x: exitX - startX - 18, y: exitY - startY - 20 }, { x: targetBounds.left - startX, y: targetBounds.top - startY }];
+    const lengths = points.slice(1).map((point, index) => Math.hypot(point.x - points[index].x, point.y - points[index].y)), totalLength = lengths.reduce((sum, length) => sum + length, 0), offsets = [0]; lengths.reduce((sum, length) => { const next = sum + length; offsets.push(next / totalLength); return next; }, 0);
+    const travelDuration = Math.max(duration, Math.min(4800, totalLength / .16));
     stage.classList.add("is-extracting");
     await element.animate([
-      { left: `${startX}px`, top: `${startY}px`, transform: "rotate(-8deg) scale(.52)", opacity: .35 },
-      { offset: .22, left: `${exitX}px`, top: `${exitY}px`, transform: "rotate(-5deg) scale(.82)", opacity: 1 },
-      { offset: .52, left: `${exitX - 18}px`, top: `${exitY - 20}px`, transform: "rotate(3deg) scale(1.04)", opacity: 1 },
-      { offset: .78, transform: "rotate(-2deg) scale(1.02)", opacity: 1 },
-      { left: `${targetBounds.left}px`, top: `${targetBounds.top}px`, transform: "rotate(0) scale(1)", opacity: 1 }
-    ], { duration, easing: "cubic-bezier(.2,.72,.2,1)", fill: "forwards" }).finished;
+      { offset: offsets[0], transform: "translate3d(0,0,0) rotate(-8deg) scale(.52)", opacity: .4 },
+      { offset: offsets[1], transform: `translate3d(${points[1].x}px,${points[1].y}px,0) rotate(-5deg) scale(.82)`, opacity: 1 },
+      { offset: offsets[2], transform: `translate3d(${points[2].x}px,${points[2].y}px,0) rotate(2deg) scale(1)`, opacity: 1 },
+      { offset: offsets[3], transform: `translate3d(${points[3].x}px,${points[3].y}px,0) rotate(0) scale(1)`, opacity: 1 }
+    ], { duration: travelDuration, easing: "linear", fill: "forwards" }).finished;
     stage.classList.remove("is-extracting"); target.classList.remove("deal-target"); target.classList.add("deal-arrived"); element.remove();
     setTimeout(() => target.classList.remove("deal-arrived"), 700);
     await animationWait(220);
@@ -1223,7 +1225,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.79";
+$(".brand small").textContent = "v5.80";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
