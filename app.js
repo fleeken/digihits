@@ -79,9 +79,27 @@ const animationCard = (card, className = "", secret = false) => `<article class=
 async function animateCardDeal(card, starter = null) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const stage = animationStage();
-  stage.innerHTML = `${animationDeck()}${starter ? animationCard(starter, "starter-deal") : ""}${animationCard(card, "secret-deal", true)}`;
-  stage.className = starter ? "is-active has-starter" : "is-active";
-  await animationWait(starter ? 1900 : 900);
+  stage.innerHTML = animationDeck(); stage.className = "is-active is-dealing";
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  const deckBounds = stage.querySelector(".card-deck").getBoundingClientRect();
+  const fly = async (flyingCard, secret, target, duration) => {
+    if (!target) return;
+    const targetBounds = target.getBoundingClientRect();
+    stage.insertAdjacentHTML("beforeend", animationCard(flyingCard, "fly-card", secret));
+    const element = stage.lastElementChild;
+    Object.assign(element.style, { left: `${deckBounds.left}px`, top: `${deckBounds.top}px`, width: `${deckBounds.width}px`, height: `${deckBounds.height}px` });
+    target.classList.add("deal-target");
+    await element.animate([
+      { left: `${deckBounds.left}px`, top: `${deckBounds.top}px`, width: `${deckBounds.width}px`, height: `${deckBounds.height}px`, transform: "rotate(10deg) scale(.92)", opacity: .15 },
+      { offset: .52, transform: "rotate(-4deg) scale(1.08)", opacity: 1 },
+      { left: `${targetBounds.left}px`, top: `${targetBounds.top}px`, width: `${targetBounds.width}px`, height: `${targetBounds.height}px`, transform: "rotate(0) scale(1)", opacity: 1 }
+    ], { duration, easing: "cubic-bezier(.2,.72,.2,1)", fill: "forwards" }).finished;
+    target.classList.remove("deal-target"); target.classList.add("deal-arrived"); element.remove();
+    setTimeout(() => target.classList.remove("deal-arrived"), 700);
+    await animationWait(220);
+  };
+  if (starter) await fly(starter, false, $("#timeline-row .year-card"), 1250);
+  await fly(card, true, $("#secret-card"), 1350);
   stage.className = ""; stage.replaceChildren();
 }
 async function animateSwapReveal(card) {
@@ -905,7 +923,8 @@ function moveCard(event) {
   if (event.clientX < bounds.left + 46) timeline.scrollLeft -= 18;
   else if (event.clientX > bounds.right - 46) timeline.scrollLeft += 18;
   document.querySelectorAll("[data-slot]").forEach((slot) => slot.classList.remove("is-target"));
-  dragTarget = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-slot]") || [...document.querySelectorAll("[data-slot]")].find((slot) => { const area = slot.getBoundingClientRect(), margin = 34; return event.clientX >= area.left - margin && event.clientX <= area.right + margin && event.clientY >= area.top - margin && event.clientY <= area.bottom + margin; }) || null;
+  const slots = [...document.querySelectorAll("[data-slot]")], direct = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-slot]");
+  dragTarget = direct || slots.map((slot) => { const area = slot.getBoundingClientRect(), dx = Math.max(area.left - event.clientX, 0, event.clientX - area.right), dy = Math.max(area.top - event.clientY, 0, event.clientY - area.bottom); return { slot, distance: Math.hypot(dx, dy) }; }).sort((a, b) => a.distance - b.distance).find((item) => item.distance <= 78)?.slot || null;
   dragTarget?.classList.add("is-target");
 }
 document.addEventListener("pointermove", (event) => { if (document.querySelector(".dragging")) moveCard(event); });
@@ -1189,7 +1208,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.66";
+$(".brand small").textContent = "v5.67";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });

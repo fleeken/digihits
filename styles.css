@@ -272,5 +272,14 @@ input{background:#071020;border-color:#536682;box-shadow:inset 0 2px 12px #0007;
 .timeline-row .slot.is-target{border-color:#76dbea!important;background:#173247!important;box-shadow:0 0 13px #55cfe088,0 0 7px #9465c977 inset!important;transform:translateY(-2px) scale(1.015);color:#fff!important;transition:.16s ease;}
 .card-deck i:nth-child(3){transform:rotate(1deg) translateY(-2px)}.card-deck i:nth-child(4){transform:rotate(3deg) translateY(-4px)}.card-deck i:nth-child(5){transform:rotate(5deg) translateY(-6px)}.card-deck i:nth-child(6){transform:rotate(7deg) translateY(-8px)}.card-deck i:nth-child(7){transform:rotate(9deg) translateY(-10px)}.card-deck i:nth-child(8){transform:rotate(11deg) translateY(-12px)}
 .has-starter .secret-deal{animation-delay:.95s!important;}
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
+#card-animation-stage.is-dealing{background:#02071299;pointer-events:none;}
+.fly-card{position:fixed!important;margin:0!important;z-index:2;animation:none!important;box-sizing:border-box;}
+.deal-target{opacity:.12!important;}
+.deal-arrived{animation:deal-arrived .7s ease-out both;}
+@keyframes deal-arrived{0%{filter:brightness(1.8);box-shadow:0 0 34px #63eaff}100%{filter:none}}
+.timeline-row .slot.is-target{border-color:#8de9f4!important;background:#18364a!important;box-shadow:0 0 10px #55cfe077,0 0 5px #9465c966 inset!important;transform:translateY(-1px) scale(1.01);}
+.timeline-row .slot.has-card{padding:5px!important;overflow:hidden;}
+.timeline-row .slot.has-card .placed-card{width:100%!important;height:100%!important;margin:0!important;box-sizing:border-box!important;place-self:stretch!important;}
 .hero .account-row-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;gap:12px!important;}
 .hero .account-avatar-wrap{grid-column:2;grid-row:1;justify-self:end;align-self:start;}
