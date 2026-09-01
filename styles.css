@@ -293,3 +293,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 .is-dealing .card-deck i{animation:deck-flick 1.8s ease-in-out infinite alternate;animation-delay:calc(var(--deck-index,0) * 70ms);}
 .is-dealing .card-deck i:nth-child(1){--deck-index:1}.is-dealing .card-deck i:nth-child(2){--deck-index:2}.is-dealing .card-deck i:nth-child(3){--deck-index:3}.is-dealing .card-deck i:nth-child(4){--deck-index:4}.is-dealing .card-deck i:nth-child(5){--deck-index:5}.is-dealing .card-deck i:nth-child(6){--deck-index:6}.is-dealing .card-deck i:nth-child(7){--deck-index:7}.is-dealing .card-deck i:nth-child(8){--deck-index:8}
 @keyframes deck-flick{from{margin-left:0}to{margin-left:calc(var(--deck-index) * -2px)}}
+.placed-card.dragging{width:174px!important;height:128px!important;min-height:128px!important;padding:15px!important;place-self:auto!important;box-sizing:border-box!important;}
+.locking-cards .unlocked-card,.locking-cards .correct-card{animation:lock-card-result 1.45s var(--card-delay) ease both!important;}
+@keyframes lock-card-result{0%{transform:translateY(-12px);border-color:#4fc9ee}35%{transform:translateY(0);border-color:#77ffba;box-shadow:0 0 32px #39ef94}70%{transform:translateY(0);border-color:#77ffba;box-shadow:0 0 18px #39ef94}100%{transform:translateY(0);border-color:#58657a;box-shadow:none;background:#202632}}
+.deck-only.is-dealing .card-deck{filter:drop-shadow(0 0 18px #9c73ff88);}

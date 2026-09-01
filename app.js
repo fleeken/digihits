@@ -112,18 +112,23 @@ async function animateSwapReveal(card) {
 }
 async function animateTimelineOutcome(correct) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const row = document.querySelector("#timeline-row");
+  const row = document.querySelector("#result-timeline") || document.querySelector("#timeline-row");
   if (!row) return;
-  const affected = [...row.querySelectorAll(".unlocked-card, .placed-card")];
+  const affected = [...row.querySelectorAll(correct ? ".unlocked-card, .correct-card" : ".unlocked-card, .misplaced-card")];
   if (!affected.length) return;
+  await animationWait(700);
   const stage = animationStage();
-  if (!correct) { stage.innerHTML = animationDeck(); stage.className = "is-active deck-only"; }
-  row.classList.add(correct ? "locking-cards" : "returning-cards");
-  affected.forEach((card, index) => card.style.setProperty("--card-delay", `${index * 90}ms`));
-  await animationWait(correct ? 900 : 1150);
-  row.classList.remove("locking-cards", "returning-cards");
-  affected.forEach((card) => card.style.removeProperty("--card-delay"));
-  if (!correct) { stage.className = ""; stage.replaceChildren(); }
+  if (correct) {
+    row.classList.add("locking-cards");
+    affected.forEach((item, index) => item.style.setProperty("--card-delay", `${index * 180}ms`));
+    await animationWait(1650 + affected.length * 180);
+    row.classList.remove("locking-cards"); affected.forEach((item) => item.style.removeProperty("--card-delay")); return;
+  }
+  stage.innerHTML = animationDeck(); stage.className = "is-active deck-only is-dealing";
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  const deck = stage.querySelector(".card-deck").getBoundingClientRect(), targetX = deck.left + deck.width / 2, targetY = deck.top + deck.height / 2;
+  await Promise.all(affected.map((item, index) => { const bounds = item.getBoundingClientRect(), dx = targetX - (bounds.left + bounds.width / 2), dy = targetY - (bounds.top + bounds.height / 2); return item.animate([{ transform: "none", opacity: 1, filter: "none" }, { offset: .2, transform: "scale(1.04)", boxShadow: "0 0 26px #ff536f", borderColor: "#ff536f" }, { transform: `translate(${dx}px,${dy}px) rotate(${8 + index * 4}deg) scale(.28)`, opacity: 0, filter: "hue-rotate(325deg)" }], { duration: 1750, delay: index * 330, easing: "cubic-bezier(.42,0,.72,.35)", fill: "forwards" }).finished; }));
+  await animationWait(700); stage.className = ""; stage.replaceChildren();
 }
 function renderRoundPlayers() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode), players = match?.players || [];
@@ -1050,12 +1055,13 @@ $("#lock-placement").addEventListener("click", async () => {
   if (hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) { state.pendingSwapAward = { matchCode: state.activeMatchCode, cardId: resultCard.id }; state.swapUsedThisRound = false; save(); earnedSwapCard = true; }
   if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
   if (solo || currentPlacementCorrect) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect }; save(); }
-  await animateTimelineOutcome(currentPlacementCorrect);
   resultIsLocked = true; $("#result-back").hidden = true;
+  renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
+  await animateTimelineOutcome(currentPlacementCorrect);
   let soloOutcome;
   if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); } catch (error) { alert(error.message); return; } }
   if (soloOutcome?.won) { state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); }
-  renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
+  renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot);
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
   else if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
   else if (hasCorrectSongGuess(resultCard) && state.changeTrackCards >= 3) dialog("Du gissade rätt för både artist och låtnamn, men du har redan 3/3 byt-låt-kort.");
@@ -1210,7 +1216,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.69";
+$(".brand small").textContent = "v5.70";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
