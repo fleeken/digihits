@@ -315,3 +315,13 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 .card-deck b{z-index:30!important;inset:18px 5px 18px 23px!important;writing-mode:vertical-rl;font-size:8px!important;letter-spacing:.08em!important;}.card-deck b span{font-size:18px!important;margin-bottom:5px;}
 .is-dealing .card-deck i{animation:side-deck-flick 2.2s calc(var(--deck-index) * 65ms) ease-in-out infinite alternate!important;}
 @keyframes side-deck-flick{from{margin-left:0;filter:brightness(.85)}to{margin-left:calc(var(--deck-index) * -1.2px);filter:brightness(1.18)}}
+
+/* v5.76: ren kortlek i sidoperspektiv */
+.card-deck{width:104px!important;height:164px!important;right:9%!important;bottom:8%!important;transform:perspective(720px) rotateY(-57deg) rotateZ(-4deg)!important;filter:drop-shadow(12px 15px 13px #000b)!important;}
+.card-deck::before{content:""!important;inset:-5px -8px -7px 8px!important;border:2px solid #52698d!important;border-radius:12px!important;background:#071020!important;box-shadow:inset 0 0 14px #000,0 0 13px #6cdcff44!important;}
+.card-deck::after{content:""!important;left:-7px!important;right:auto!important;top:7px!important;bottom:7px!important;width:13px!important;border:1px solid #cad5e5!important;border-radius:5px!important;background:repeating-linear-gradient(0deg,#edf2f8 0 2px,#91a0b5 2px 3px)!important;box-shadow:-3px 0 7px #4fdcff66!important;}
+.card-deck i{inset:3px!important;border:1px solid #536887!important;border-radius:10px!important;transform:translateX(calc(var(--deck-index) * -1px)) translateY(calc(var(--deck-index) * -.35px))!important;background:linear-gradient(145deg,#12284a,#080f20 72%,#6840a5)!important;box-shadow:-1px 0 0 #d9e3ef,2px 3px 5px #0008!important;}
+.card-deck b{inset:0!important;writing-mode:initial!important;font-size:0!important;display:grid!important;place-items:center!important;}.card-deck b span{font-size:30px!important;color:#7fe3ff!important;text-shadow:0 0 12px #55d9ff!important;margin:0!important;}
+.is-dealing .card-deck i{animation:clean-deck-leaf 2.8s calc(var(--deck-index) * 55ms) ease-in-out infinite alternate!important;}
+@keyframes clean-deck-leaf{from{margin-left:0}to{margin-left:calc(var(--deck-index) * -1px)}}
+.placed-card.dragging{max-width:none!important;min-width:0!important;transform:none!important;}
