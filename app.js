@@ -76,7 +76,7 @@ function animationStage() {
   if (!stage) { stage = document.createElement("div"); stage.id = "card-animation-stage"; stage.setAttribute("aria-hidden", "true"); document.body.append(stage); }
   return stage;
 }
-const animationDeck = () => `<div class="card-deck">${Array.from({ length: 16 }, (_, index) => `<i style="--deck-index:${index}"></i>`).join("")}<b><span>♫</span>KORTLEK</b></div>`;
+const animationDeck = () => `<div class="card-deck"><em class="dealer-arm"><u></u></em>${Array.from({ length: 10 }, (_, index) => `<i style="--deck-index:${index}"></i>`).join("")}<b><span>♫</span>HEMLIGA LÅTKORT</b></div>`;
 const cardStatusLabel = (status = "") => status === "OLÅST" || status === "LÅST DENNA OMGÅNG" ? "OLÅST KORT" : /FEL ?PLACERAT/.test(status) ? "FELPLACERAT" : status === "LÅST" ? "LÅST KORT" : status;
 const animationCard = (card, className = "", secret = false) => `<article class="animation-card ${className}"><span>♫</span><strong>${secret ? "????" : card?.year || "????"}</strong><small>${secret ? "HEMLIGT KORT" : `${escapeHtml(card?.title || "HEMLIGT KORT")}<br>${escapeHtml(card?.artist || "")}`}</small></article>`;
 async function animateCardDeal(card, starter = null) {
@@ -85,9 +85,9 @@ async function animateCardDeal(card, starter = null) {
   const stage = animationStage();
   stage.innerHTML = animationDeck(); stage.className = "is-active is-dealing";
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  const deckBounds = stage.querySelector(".card-deck").getBoundingClientRect(), topCardBounds = stage.querySelector(".card-deck i:last-of-type").getBoundingClientRect();
   const fly = async (flyingCard, secret, target, duration) => {
     if (!target || skipCardDeal) return;
+    const deckBounds = stage.querySelector(".card-deck").getBoundingClientRect(), topCardBounds = stage.querySelector(".card-deck i:last-of-type").getBoundingClientRect();
     const targetBounds = target.getBoundingClientRect();
     stage.insertAdjacentHTML("beforeend", animationCard(flyingCard, "fly-card", secret));
     const element = stage.lastElementChild;
@@ -109,9 +109,10 @@ async function animateCardDeal(card, starter = null) {
     setTimeout(() => target.classList.remove("deal-arrived"), 700);
     await animationWait(220);
   };
-  await animationWait(500);
+  await animationWait(1050);
   if (starter) await fly(starter, false, $("#timeline-row .year-card"), 1600);
   await fly(card, true, $("#secret-card"), 1750);
+  if (!skipCardDeal) { stage.classList.add("is-leaving"); await animationWait(750); }
   stage.className = ""; stage.replaceChildren();
 }
 document.addEventListener("pointerdown", () => { const stage = document.querySelector("#card-animation-stage.is-dealing"); if (!stage) return; skipCardDeal = true; activeCardDealAnimations.forEach((animation) => { try { animation.finish(); } catch {} }); }, true);
@@ -1230,7 +1231,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.86";
+$(".brand small").textContent = "v5.87";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
