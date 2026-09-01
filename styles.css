@@ -390,4 +390,16 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 }
 @keyframes offer-secret-box{from{transform:translate(72vw,-50%) perspective(700px) rotateX(-7deg) rotateY(-10deg);opacity:.2}to{transform:translate(-50%,-50%) perspective(700px) rotateX(-7deg) rotateY(-10deg);opacity:1}}
 @keyframes return-secret-box{from{transform:translate(-50%,-50%) perspective(700px) rotateX(-7deg) rotateY(-10deg);opacity:1}to{transform:translate(72vw,-50%) perspective(700px) rotateX(-7deg) rotateY(-10deg);opacity:.15}}
+
+/* v5.92: centrerad klickbar deltagarlista i spelvyerna */
+.round-player-strip{overflow-x:auto!important;padding:12px 14px 18px!important;}
+.round-player-strip>div{display:flex!important;justify-content:center!important;align-items:flex-start!important;gap:18px!important;min-width:fit-content!important;margin:auto!important;}
+.round-player-strip .round-player{position:relative;display:grid;grid-template-columns:48px auto;align-items:center;gap:8px;min-width:112px;padding:4px 4px 18px;border:0;background:transparent;color:#fff;text-align:left;cursor:pointer;}
+.round-player-strip .round-player>i{display:block;width:48px;height:48px;border:2px solid #4b607f;border-radius:50%;background-size:200% 300%;box-shadow:0 4px 10px #0008;}
+.round-player-strip .round-player.is-current>i{border-color:#54ddff;box-shadow:0 0 18px #4fdcff;}
+.round-player-strip .round-player>span{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.round-player-strip .round-player strong{font-size:11px;white-space:nowrap;}
+.round-player-strip .round-player b{font-size:8px;color:#b8c9de;white-space:nowrap;}
+.round-player-strip .round-player small{position:absolute;left:2px;top:56px;padding:2px 6px;border-radius:99px;background:#71ebde;color:#06221e;font-size:6px;font-weight:1000;white-space:nowrap;}
+@media(max-width:640px){.round-player-strip>div{justify-content:center!important;gap:10px!important}.round-player-strip .round-player{grid-template-columns:42px auto;min-width:98px}.round-player-strip .round-player>i{width:42px;height:42px}.round-player-strip .round-player small{top:50px}}
 @media(max-width:640px){.app-shell{padding-top:max(28px,calc(env(safe-area-inset-top,0px) + 14px))!important;}}
