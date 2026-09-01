@@ -35,6 +35,7 @@ state.career.fullHouse ??= false;
 state.friendCareerOpen ||= {};
 state.swapUsedThisRound ??= false;
 state.roundResumeViews ||= {};
+state.roundAnimationSeen ||= {};
 state.roundUnlocked ||= [];
 state.lockedTimeline ||= [{ id: "digi-001", year: 1956, artist: "Elvis Presley", title: "Hound Dog" }];
 state.currentCard ||= null;
@@ -66,6 +67,51 @@ const testDeck = [...window.DIGIHITS_TRACKS.reduce((tracks, card) => {
   return tracks;
 }, new Map()).values()];
 const activeCard = () => state.currentCard || testDeck[5];
+const animationWait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+function animationStage() {
+  let stage = document.querySelector("#card-animation-stage");
+  if (!stage) { stage = document.createElement("div"); stage.id = "card-animation-stage"; stage.setAttribute("aria-hidden", "true"); document.body.append(stage); }
+  return stage;
+}
+const animationCard = (card, className = "") => `<article class="animation-card ${className}"><span>♫</span><strong>${card?.year || "????"}</strong><small>${escapeHtml(card?.title || "HEMLIGT KORT")}<br>${escapeHtml(card?.artist || "")}</small></article>`;
+async function animateCardDeal(card, starter = null) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const stage = animationStage();
+  stage.innerHTML = `<div class="card-deck"><i></i><i></i><i></i><b>KORTLEK</b></div>${starter ? animationCard(starter, "starter-deal") : ""}${animationCard(card, "secret-deal")}`;
+  stage.className = starter ? "is-active has-starter" : "is-active";
+  await animationWait(starter ? 1250 : 850);
+  stage.className = ""; stage.replaceChildren();
+}
+async function animateSwapReveal(card) {
+  const stage = animationStage();
+  stage.innerHTML = `<div class="swap-reveal-copy">BYT-LÅT-KORTET AVSLÖJAS</div><div class="card-deck"><i></i><i></i><i></i><b>KORTLEK</b></div>${animationCard(card, "swap-reveal-card")}`;
+  stage.className = "is-active is-swap";
+  await animationWait(1550);
+  stage.className = ""; stage.replaceChildren();
+}
+async function animateTimelineOutcome(correct) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const row = document.querySelector("#timeline-row");
+  if (!row) return;
+  const affected = [...row.querySelectorAll(".unlocked-card, .placed-card")];
+  if (!affected.length) return;
+  const stage = animationStage();
+  if (!correct) { stage.innerHTML = `<div class="card-deck"><i></i><i></i><i></i><b>KORTLEK</b></div>`; stage.className = "is-active deck-only"; }
+  row.classList.add(correct ? "locking-cards" : "returning-cards");
+  affected.forEach((card, index) => card.style.setProperty("--card-delay", `${index * 90}ms`));
+  await animationWait(correct ? 900 : 1150);
+  row.classList.remove("locking-cards", "returning-cards");
+  affected.forEach((card) => card.style.removeProperty("--card-delay"));
+  if (!correct) { stage.className = ""; stage.replaceChildren(); }
+}
+function renderRoundPlayers() {
+  const match = state.matches.find((item) => item.code === state.activeMatchCode), players = match?.players || [];
+  document.querySelectorAll(".round-player-strip").forEach((strip) => {
+    if (isSoloMatch(match) || players.length < 2) { strip.hidden = true; strip.replaceChildren(); return; }
+    strip.hidden = false;
+    strip.innerHTML = `<p>Nu spelar: <strong>${escapeHtml(state.playerName)}</strong> <span>▶</span></p><div>${players.map((player) => { const mine = String(player.user_id) === String(state.userId), score = Math.max(1, Number(player.last_round?.score?.correct) || (player.locked_timeline || []).length || 1), initial = escapeHtml(String(player.display_name || "?").trim().charAt(0).toUpperCase()); return `<article class="${mine ? "is-current" : ""}"><i>${initial}</i><span>${escapeHtml(player.display_name || "Spelare")}<b>${score}</b></span>${mine ? "<small>DIN TUR</small>" : ""}</article>`; }).join("")}</div>`;
+  });
+}
 // Enda källan för matchtyp: S0 är reserverat för solomatcher.
 // Därmed kan en onlinematch aldrig hamna i solo-flöde eller solostatistik.
 const isSoloMatch = (match) => String(match?.code || "").startsWith("S0");
@@ -250,6 +296,7 @@ $("#change-avatar")?.addEventListener("click", openAvatarEditor);
 $("#change-avatar-link")?.addEventListener("click", openAvatarEditor);
 $("#avatar-back")?.addEventListener("click", () => showView("home"));
 function showTurnNotice(match) {
+  if (!match?.players?.some((player) => Number(player.rounds_started || 0) > 0)) return;
   const notice = match?.turnNotice;
   if (!notice?.type) return;
   const noticeId = `${match.id}:${notice.issued_at || notice.type}`;
@@ -480,13 +527,14 @@ function showView(view, focusMatches = false, fromHistory = false) {
   if (view === "friend-chat") view = "home";
   if (view === "guess" && state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === activeCard()?.id) view = "timeline";
   if ((view === "guess" || view === "timeline" || (view === "result" && state.pendingResult?.matchCode === state.activeMatchCode)) && state.activeMatchCode) { state.roundResumeViews[state.activeMatchCode] = view; save(); }
-  const replayRow = $(".replay-row"), songTimeline = $("#song-timeline"); let timelinePlayer = $("#timeline-player"); if (!timelinePlayer) { timelinePlayer = document.createElement("div"); timelinePlayer.id = "timeline-player"; } if (replayRow && songTimeline) { if (view === "timeline") { $(".timeline-view")?.prepend(timelinePlayer); timelinePlayer.append(replayRow, songTimeline); } else { const guessView = $(".guess-view"), back = $(".guess-top .back-link") || $(".guess-view > .guess-back"); if (back) { back.classList.add("guess-back"); guessView?.prepend(back); } $(".guess-top")?.before(replayRow, songTimeline); } }
+  const replayRow = $(".replay-row"), songTimeline = $("#song-timeline"); let timelinePlayer = $("#timeline-player"); if (!timelinePlayer) { timelinePlayer = document.createElement("div"); timelinePlayer.id = "timeline-player"; } if (replayRow && songTimeline) { if (view === "timeline") { const strip = $(".timeline-view .round-player-strip"); strip ? strip.after(timelinePlayer) : $(".timeline-view")?.prepend(timelinePlayer); timelinePlayer.append(replayRow, songTimeline); } else { const guessView = $(".guess-view"), back = $(".guess-top .back-link") || $(".guess-view > .guess-back"); if (back) { back.classList.add("guess-back"); guessView?.prepend(back); } $(".guess-top")?.before(replayRow, songTimeline); } }
   document.documentElement.classList.remove("booting");
   const gameView = view === "guess" || view === "timeline";
   if (!gameView) stopCurrentTrack(true);
   if (view !== "chat") { clearInterval(chatPoll); chatPoll = 0; }
   if (view === "timeline") { $("#change-track-area").hidden = !state.changeTrackCards; $("#change-track-area").querySelectorAll(".no-change-cards").forEach((element) => element.remove()); }
   currentView = view;
+  if (view === "guess" || view === "timeline") renderRoundPlayers();
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
   });
@@ -917,6 +965,9 @@ async function dealCard() {
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { deck, used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}`, { current_card: card, updated_at: new Date().toISOString() }, "PATCH");
   state.currentCard = card; state.currentCardMatchCode = match.code; rememberTrack(card); save();
+  const starter = !state.roundAnimationSeen[match.code] && state.lockedTimeline.length === 1 ? state.lockedTimeline[0] : null;
+  state.roundAnimationSeen[match.code] = true; save();
+  await animateCardDeal(card, starter);
 }
 async function saveRoundUnlocked() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
@@ -965,7 +1016,7 @@ async function restoreResultView() {
 $("#lock-placement").addEventListener("click", async () => {
   viewingLatestRound = false;
   const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode));
-  const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) } };
+  const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) }, placedPosition: placedAt };
   currentPlacementCorrect = placementIsCorrect();
   if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; if (state.roundUnlocked.length + 1 >= 3) grantAchievement("hattrick", "Hattrick"); save(); evaluateCareerAchievements(); }
   if (!solo) {
@@ -975,8 +1026,9 @@ $("#lock-placement").addEventListener("click", async () => {
   if (solo) { const score = soloProgress(state.matches.find((match) => match.code === state.activeMatchCode)); currentPlacementCorrect ? score.correct += 1 : score.mistakes += 1; resultSnapshot.score = { ...score }; save(); }
   let earnedSwapCard = false;
   if (hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) { state.pendingSwapAward = { matchCode: state.activeMatchCode, cardId: resultCard.id }; state.swapUsedThisRound = false; save(); earnedSwapCard = true; }
-  if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(placedAt, 0, { ...resultCard, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
+  if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
   if (solo || currentPlacementCorrect) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect }; save(); }
+  await animateTimelineOutcome(currentPlacementCorrect);
   resultIsLocked = true; $("#result-back").hidden = true;
   let soloOutcome;
   if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); } catch (error) { alert(error.message); return; } }
@@ -991,7 +1043,7 @@ $("#result-continue").addEventListener("click", async () => { const solo = isSol
 $("#change-track-area").addEventListener("click", async (event) => {
   if (!event.target.closest("#use-change-track")) return;
   if (!state.changeTrackCards) { dialog("Du har inga byt-låt-kort."); return; }
-  dialog("Är du säker på att du vill använda ett av dina byt-låt-kort?", async () => { try { await updateSwapCards(-1); state.swapUsedThisRound = true; save(); await dealCard(); await settlePendingSwapAward(); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); }, false, "ANVÄND BYT-LÅT-KORT");
+  dialog("Är du säker på att du vill använda ett av dina byt-låt-kort?", async () => { const discardedCard = { ...activeCard() }; try { await animateSwapReveal(discardedCard); await updateSwapCards(-1); state.swapUsedThisRound = true; save(); await dealCard(); await settlePendingSwapAward(); } catch (error) { alert(error.message); return; } resetTurnInput(); showView("guess"); startCurrentTrack(); }, false, "ANVÄND BYT-LÅT-KORT");
 });
 $("#result-lock").addEventListener("click", async () => {
   try {
@@ -1136,7 +1188,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.61";
+$(".brand small").textContent = "v5.62";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
