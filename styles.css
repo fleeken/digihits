@@ -306,3 +306,12 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 .card-deck b{z-index:20;gap:4px;align-content:center;text-shadow:0 0 10px #51dfff;}.card-deck b span{display:block;font-size:28px;color:#c880ff;}
 .is-dealing .card-deck i{animation:deck-page 2.4s calc(var(--deck-index) * 75ms) ease-in-out infinite alternate!important;}
 @keyframes deck-page{0%{margin-left:0;filter:brightness(.82)}55%{margin-left:calc(var(--deck-index) * -1px);filter:brightness(1.22)}100%{margin-left:calc(var(--deck-index) * -3px);filter:brightness(.95)}}
+
+/* v5.73: kortlek sedd från sidan med tydlig kortöppning */
+.card-deck{width:66px!important;height:184px!important;right:8%!important;bottom:7%!important;transform:perspective(700px) rotateY(-18deg) rotateZ(-5deg)!important;transform-origin:center!important;filter:drop-shadow(13px 17px 16px #000c)!important;}
+.card-deck::before{content:""!important;position:absolute!important;inset:2px 0 2px 15px!important;z-index:18!important;border:2px solid #8f6be0!important;border-radius:7px 15px 15px 7px!important;background:linear-gradient(90deg,#080e1d,#192c50 48%,#0b1428)!important;box-shadow:inset 8px 0 10px #000b,inset -3px 0 8px #7651bc77,0 0 18px #9b68ff66!important;}
+.card-deck::after{content:""!important;position:absolute!important;left:4px!important;top:12px!important;bottom:12px!important;width:16px!important;z-index:25!important;border:2px solid #c9d5e8!important;border-right:0!important;border-radius:6px 0 0 6px!important;background:repeating-linear-gradient(0deg,#eef3fa 0 2px,#8d9bb0 2px 4px)!important;box-shadow:-5px 0 12px #65dcff88,inset -4px 0 5px #0007!important;}
+.card-deck i{inset:10px 35px 10px -13px!important;border-radius:5px!important;transform:translateX(calc(var(--deck-index) * .9px)) translateY(calc((var(--deck-index) - 8) * .45px)) rotate(0)!important;background:linear-gradient(90deg,#e8eff9 0 7%,#10284a 8% 72%,#8857db 100%)!important;box-shadow:-2px 0 0 #eef4ff,0 2px 4px #0009!important;}
+.card-deck b{z-index:30!important;inset:18px 5px 18px 23px!important;writing-mode:vertical-rl;font-size:8px!important;letter-spacing:.08em!important;}.card-deck b span{font-size:18px!important;margin-bottom:5px;}
+.is-dealing .card-deck i{animation:side-deck-flick 2.2s calc(var(--deck-index) * 65ms) ease-in-out infinite alternate!important;}
+@keyframes side-deck-flick{from{margin-left:0;filter:brightness(.85)}to{margin-left:calc(var(--deck-index) * -1.2px);filter:brightness(1.18)}}
