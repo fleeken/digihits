@@ -74,7 +74,8 @@ function animationStage() {
   if (!stage) { stage = document.createElement("div"); stage.id = "card-animation-stage"; stage.setAttribute("aria-hidden", "true"); document.body.append(stage); }
   return stage;
 }
-const animationDeck = () => `<div class="card-deck">${"<i></i>".repeat(8)}<b>KORTLEK</b></div>`;
+const animationDeck = () => `<div class="card-deck">${Array.from({ length: 16 }, (_, index) => `<i style="--deck-index:${index}"></i>`).join("")}<b><span>♫</span>KORTLEK</b></div>`;
+const cardStatusLabel = (status = "") => status === "OLÅST" || status === "LÅST DENNA OMGÅNG" ? "OLÅST KORT" : /FEL ?PLACERAT/.test(status) ? "FELPLACERAT" : status === "LÅST" ? "LÅST KORT" : status;
 const animationCard = (card, className = "", secret = false) => `<article class="animation-card ${className}"><span>♫</span><strong>${secret ? "????" : card?.year || "????"}</strong><small>${secret ? "HEMLIGT KORT" : `${escapeHtml(card?.title || "HEMLIGT KORT")}<br>${escapeHtml(card?.artist || "")}`}</small></article>`;
 async function animateCardDeal(card, starter = null) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -116,7 +117,7 @@ async function animateTimelineOutcome(correct) {
   if (!row) return;
   const affected = [...row.querySelectorAll(correct ? ".unlocked-card, .correct-card" : ".unlocked-card, .misplaced-card")];
   if (!affected.length) return;
-  await animationWait(700);
+  await animationWait(correct ? 700 : 5000);
   const stage = animationStage();
   if (correct) {
     row.classList.add("locking-cards");
@@ -434,7 +435,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
   $("#placement-result").textContent = solo ? (correct ? "☑  Rätt placerat" : "✕  Fel placerat") : correct ? "☑  Rätt placering" : "✕  Fel placering · Du förlorar dina olåsta kort.";
   const timeline = snapshot?.timeline || [...locked.map((item, index) => ({ ...item, status: index === 0 ? "STARTKORT" : solo ? "RÄTT PLACERAT" : "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
-  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(item.status) ? "misplaced-card" : solo ? "correct-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"${item.status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${item.status}</span></small></article>`).join("");
+  $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(item.status) ? "misplaced-card" : solo ? "correct-card" : item.status === "LÅST" ? "locked-card" : "unlocked-card"}"${item.status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${cardStatusLabel(item.status)}</span></small></article>`).join("");
   $("#result-continue").hidden = !correct && !solo;
   $("#result-continue").textContent = solo ? "▶ FORTSÄTT MED NY LÅT" : "▶ FORTSÄTT OMGÅNG & TA ETT TILL HEMLIGT LÅTKORT";
   $("#result-lock").hidden = !correct || solo; $("#change-track-area").hidden = !correct || solo;
@@ -739,7 +740,7 @@ function showLatestRound(round) {
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
   const wrong = round.outcome === "wrong"; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; wrongButton.hidden = true; $("#placement-result").className = `result-check ${wrong ? "bad" : "good"}`; $("#placement-result").textContent = solo ? (wrong ? "✕  Fel placerat" : "☑  Rätt placerat") : wrong ? "✕  Fel placering" : "☑  Rätt placering";
   const overviewButton = $("#wrong-overview"); if (overviewButton) overviewButton.hidden = true;
-  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${card.status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(card.status) ? "misplaced-card" : solo ? "correct-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"${card.status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status || (wrong ? "OLÅST" : "LÅST DENNA OMGÅNG")}</span></small></article>`).join("");
+  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => `<article class="year-card ${card.status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(card.status) ? "misplaced-card" : solo ? "correct-card" : card.status === "OLÅST" ? "unlocked-card" : "locked-card"}"${card.status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${cardStatusLabel(card.status || (wrong ? "OLÅST" : "LÅST"))}</span></small></article>`).join("");
   $("#result-continue").hidden = true; $("#result-lock").hidden = true; showView("result");
 }
 
@@ -765,7 +766,7 @@ function resetTurnInput() {
   state.currentGuess = null; state.guessDraft = null; state.guessFinalized = null; state.placementDraft = null; $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = ""; $("#change-track-area").hidden = !state.changeTrackCards; if (state.currentCard && state.pendingSwapAward?.cardId !== state.currentCard.id) void settlePendingSwapAward();
   const cards = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...state.roundUnlocked].sort((a, b) => a.year - b.year);
   const slot = (index) => `<div class="slot" data-slot="${index}">PLACERA<br>HÄR</div>`;
-  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "STARTKORT" ? "locked-card" : card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${card.status}</span></small></article>`).join("") + slot(cards.length); save();
+  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "STARTKORT" ? "locked-card" : card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${cardStatusLabel(card.status)}</span></small></article>`).join("") + slot(cards.length); save();
 }
 
 async function updateSwapCards(delta) {
@@ -912,19 +913,21 @@ $("#replay-track").addEventListener("click", async () => { try { if (trackStartP
 [$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); }));
 $("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); const deal = pendingTimelineDeal; pendingTimelineDeal = null; if (deal) await animateCardDeal(deal.card, deal.starter); });
 $("#skip-guess")?.addEventListener("click", () => $("#guess-form").requestSubmit());
-let dragTarget = null;
+let dragTarget = null, dragOffsetX = 0, dragOffsetY = 0;
 function startDrag(card, event) {
-  card.setPointerCapture(event.pointerId);
+  const bounds = card.getBoundingClientRect(); dragOffsetX = event.clientX - bounds.left; dragOffsetY = event.clientY - bounds.top;
+  try { card.setPointerCapture(event.pointerId); } catch {}
   card.classList.add("dragging");
+  card.style.width = `${bounds.width}px`; card.style.height = `${bounds.height}px`;
   dragTarget = null;
   moveCard(event);
 }
 $("#secret-card").addEventListener("pointerdown", (event) => startDrag($("#secret-card"), event));
-$("#timeline-row").addEventListener("pointerdown", (event) => { const card = event.target.closest(".placed-card"); if (card) startDrag(card, event); });
+$("#timeline-row").addEventListener("pointerdown", (event) => { const card = event.target.closest(".placed-card"); if (card) { event.preventDefault(); startDrag(card, event); } });
 function moveCard(event) {
   const card = document.querySelector(".dragging");
-  card.style.left = `${event.clientX - card.offsetWidth / 2}px`;
-  card.style.top = `${event.clientY - card.offsetHeight / 2}px`;
+  card.style.left = `${event.clientX - dragOffsetX}px`;
+  card.style.top = `${event.clientY - dragOffsetY}px`;
   const timeline = $("#timeline-row"), bounds = timeline.getBoundingClientRect();
   if (event.clientX < bounds.left + 46) timeline.scrollLeft -= 18;
   else if (event.clientX > bounds.right - 46) timeline.scrollLeft += 18;
@@ -939,7 +942,7 @@ document.addEventListener("pointerup", () => {
   const card = document.querySelector(".dragging");
   if (!card) return;
   card.classList.remove("dragging");
-  card.style.left = ""; card.style.top = "";
+  card.style.left = ""; card.style.top = ""; card.style.width = ""; card.style.height = "";
   document.querySelectorAll("[data-slot]").forEach((slot) => slot.classList.remove("is-target"));
   if (dragTarget) placeCard(dragTarget.dataset.slot);
   dragTarget = null;
@@ -1216,7 +1219,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.70";
+$(".brand small").textContent = "v5.72";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
