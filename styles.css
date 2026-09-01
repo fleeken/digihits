@@ -338,3 +338,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 .unlocked-card{border-color:#4fc9ee!important;background:#102b3a!important;transform:translateY(-12px)!important;}.unlocked-card strong{color:#4fc9ee!important;}
 .misplaced-card{border-color:#ff5571!important;background:#32151b!important;transform:translateY(-12px)!important;}.misplaced-card strong{color:#ff8b9d!important;}
 .result-timeline.timeline-centered{justify-content:center!important;}
+.is-extracting .card-deck{animation:deck-pulse .8s ease-in-out infinite alternate!important;}
+.is-extracting .card-deck::after{box-shadow:-8px 0 18px #6ce6ffbb,inset -5px 0 6px #000!important;}
+@keyframes deck-pulse{from{filter:drop-shadow(10px 14px 13px #000c)}to{filter:drop-shadow(8px 11px 18px #6bdcff66)}}
+.fly-card{transform-origin:center!important;will-change:left,top,transform,opacity;backface-visibility:hidden;}
