@@ -60,6 +60,8 @@ let currentPlacementCorrect = true, roundLoading = false;
 let viewingLatestRound = false, viewingHistoryResult = false, returnToFinalResult = false, historyResultEntry = null, historyResultRounds = 0, historyPlayerScores = {}, matchInviteCandidates = [];
 let achievementPopupQueue = [];
 let pendingTimelineDeal = null;
+let skipCardDeal = false;
+const activeCardDealAnimations = new Set();
 const latestRounds = {};
 let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, wasPausedByUser = false, pausedForNavigation = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer, trackStartPromise = null, songStarting = false;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
@@ -79,37 +81,40 @@ const cardStatusLabel = (status = "") => status === "OLÅST" || status === "LÅS
 const animationCard = (card, className = "", secret = false) => `<article class="animation-card ${className}"><span>♫</span><strong>${secret ? "????" : card?.year || "????"}</strong><small>${secret ? "HEMLIGT KORT" : `${escapeHtml(card?.title || "HEMLIGT KORT")}<br>${escapeHtml(card?.artist || "")}`}</small></article>`;
 async function animateCardDeal(card, starter = null) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  skipCardDeal = false;
   const stage = animationStage();
   stage.innerHTML = animationDeck(); stage.className = "is-active is-dealing";
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   const deckBounds = stage.querySelector(".card-deck").getBoundingClientRect();
   const fly = async (flyingCard, secret, target, duration) => {
-    if (!target) return;
+    if (!target || skipCardDeal) return;
     const targetBounds = target.getBoundingClientRect();
     stage.insertAdjacentHTML("beforeend", animationCard(flyingCard, "fly-card", secret));
     const element = stage.lastElementChild;
-    const startX = deckBounds.left + 8 - targetBounds.width * .52, startY = deckBounds.top + deckBounds.height / 2 - targetBounds.height / 2, exitX = deckBounds.left - targetBounds.width * .9, exitY = startY - 12;
+    const startX = deckBounds.left + 22 - targetBounds.width * .28, startY = deckBounds.top - targetBounds.height * .18, exitX = deckBounds.left - targetBounds.width * .72, exitY = startY - 28;
     Object.assign(element.style, { left: `${startX}px`, top: `${startY}px`, width: `${targetBounds.width}px`, height: `${targetBounds.height}px` });
     target.classList.add("deal-target");
-    const points = [{ x: 0, y: 0 }, { x: exitX - startX, y: exitY - startY }, { x: exitX - startX - 18, y: exitY - startY - 20 }, { x: targetBounds.left - startX, y: targetBounds.top - startY }];
+    const start = { x: 0, y: 0 }, exit = { x: exitX - startX, y: exitY - startY }, finish = { x: targetBounds.left - startX, y: targetBounds.top - startY }, control = { x: (exit.x + finish.x) / 2, y: Math.min(exit.y, finish.y) - 105 };
+    const curve = Array.from({ length: 12 }, (_, index) => { const t = (index + 1) / 12, inverse = 1 - t; return { x: inverse * inverse * exit.x + 2 * inverse * t * control.x + t * t * finish.x, y: inverse * inverse * exit.y + 2 * inverse * t * control.y + t * t * finish.y, t }; });
+    const points = [start, exit, ...curve];
     const lengths = points.slice(1).map((point, index) => Math.hypot(point.x - points[index].x, point.y - points[index].y)), totalLength = lengths.reduce((sum, length) => sum + length, 0), offsets = [0]; lengths.reduce((sum, length) => { const next = sum + length; offsets.push(next / totalLength); return next; }, 0);
-    const travelDuration = Math.max(duration, Math.min(4800, totalLength / .16));
+    const travelDuration = Math.max(duration, Math.min(3300, totalLength / .24));
+    const frames = points.map((point, index) => { const t = point.t ?? (index ? 0 : 0), scale = index === 0 ? .58 : index === 1 ? .88 : 1 + Math.sin(Math.PI * t) * .035, rotation = index < 2 ? -7 + index * 3 : Math.sin(Math.PI * t * 2) * 2.2; return { offset: offsets[index], transform: `translate3d(${point.x}px,${point.y}px,0) rotate(${rotation}deg) scale(${scale})`, opacity: index ? 1 : .98 }; });
+    element.style.transform = frames[0].transform; element.style.opacity = "0.98";
     stage.classList.add("is-extracting");
-    await element.animate([
-      { offset: offsets[0], transform: "translate3d(0,0,0) rotate(-8deg) scale(.52)", opacity: .4 },
-      { offset: offsets[1], transform: `translate3d(${points[1].x}px,${points[1].y}px,0) rotate(-5deg) scale(.82)`, opacity: 1 },
-      { offset: offsets[2], transform: `translate3d(${points[2].x}px,${points[2].y}px,0) rotate(2deg) scale(1)`, opacity: 1 },
-      { offset: offsets[3], transform: `translate3d(${points[3].x}px,${points[3].y}px,0) rotate(0) scale(1)`, opacity: 1 }
-    ], { duration: travelDuration, easing: "linear", fill: "forwards" }).finished;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const movement = element.animate(frames, { duration: travelDuration, easing: "linear", fill: "forwards" }); activeCardDealAnimations.add(movement);
+    await movement.finished.catch(() => {}); activeCardDealAnimations.delete(movement);
     stage.classList.remove("is-extracting"); target.classList.remove("deal-target"); target.classList.add("deal-arrived"); element.remove();
     setTimeout(() => target.classList.remove("deal-arrived"), 700);
     await animationWait(220);
   };
-  await animationWait(650);
-  if (starter) await fly(starter, false, $("#timeline-row .year-card"), 2350);
-  await fly(card, true, $("#secret-card"), 2500);
+  await animationWait(500);
+  if (starter) await fly(starter, false, $("#timeline-row .year-card"), 1600);
+  await fly(card, true, $("#secret-card"), 1750);
   stage.className = ""; stage.replaceChildren();
 }
+document.addEventListener("pointerdown", () => { const stage = document.querySelector("#card-animation-stage.is-dealing"); if (!stage) return; skipCardDeal = true; activeCardDealAnimations.forEach((animation) => { try { animation.finish(); } catch {} }); }, true);
 async function animateSwapReveal(card) {
   const stage = animationStage();
   stage.innerHTML = `<div class="swap-reveal-copy">BYT-LÅT-KORTET AVSLÖJAS</div>${animationDeck()}${animationCard(card, "swap-reveal-card")}`;
@@ -1225,7 +1230,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.80";
+$(".brand small").textContent = "v5.82";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });

@@ -343,4 +343,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 @keyframes deck-pulse{from{filter:drop-shadow(10px 14px 13px #000c)}to{filter:drop-shadow(8px 11px 18px #6bdcff66)}}
 .fly-card{transform-origin:center!important;will-change:left,top,transform,opacity;backface-visibility:hidden;}
 .card-deck{z-index:5!important;}.fly-card{z-index:4!important;will-change:transform,opacity!important;contain:layout paint style;}
+.card-deck b{font-size:9px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;color:#dff8ff!important;letter-spacing:.09em!important;writing-mode:initial!important;}.card-deck b span{font-size:23px!important;margin:0 0 2px!important;}
+.is-extracting .card-deck i:last-of-type{animation:top-card-release .7s ease-out both!important;}
+@keyframes top-card-release{from{transform:translateX(0);opacity:1}to{transform:translateX(-18px);opacity:.12}}
 @media(max-width:640px){.app-shell{padding-top:max(28px,calc(env(safe-area-inset-top,0px) + 14px))!important;}}
