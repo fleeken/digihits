@@ -269,6 +269,8 @@ input{background:#071020;border-color:#536682;box-shadow:inset 0 2px 12px #0007;
 
 /* v5.64 */
 #lobby-chat,#match-chat{background:#168fc4!important;border-color:#54d8ff!important;color:#fff!important;box-shadow:0 0 13px #39bde955;}
-.timeline-row .slot.is-target{border-color:#70f0ff!important;background:#123a52!important;box-shadow:0 0 28px #42ddff,0 0 12px #b275ff inset!important;transform:translateY(-5px) scale(1.04);color:#fff!important;transition:.12s ease;}
+.timeline-row .slot.is-target{border-color:#76dbea!important;background:#173247!important;box-shadow:0 0 13px #55cfe088,0 0 7px #9465c977 inset!important;transform:translateY(-2px) scale(1.015);color:#fff!important;transition:.16s ease;}
+.card-deck i:nth-child(3){transform:rotate(1deg) translateY(-2px)}.card-deck i:nth-child(4){transform:rotate(3deg) translateY(-4px)}.card-deck i:nth-child(5){transform:rotate(5deg) translateY(-6px)}.card-deck i:nth-child(6){transform:rotate(7deg) translateY(-8px)}.card-deck i:nth-child(7){transform:rotate(9deg) translateY(-10px)}.card-deck i:nth-child(8){transform:rotate(11deg) translateY(-12px)}
+.has-starter .secret-deal{animation-delay:.95s!important;}
 .hero .account-row-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;gap:12px!important;}
 .hero .account-avatar-wrap{grid-column:2;grid-row:1;justify-self:end;align-self:start;}

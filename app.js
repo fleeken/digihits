@@ -74,18 +74,19 @@ function animationStage() {
   if (!stage) { stage = document.createElement("div"); stage.id = "card-animation-stage"; stage.setAttribute("aria-hidden", "true"); document.body.append(stage); }
   return stage;
 }
+const animationDeck = () => `<div class="card-deck">${"<i></i>".repeat(8)}<b>KORTLEK</b></div>`;
 const animationCard = (card, className = "", secret = false) => `<article class="animation-card ${className}"><span>♫</span><strong>${secret ? "????" : card?.year || "????"}</strong><small>${secret ? "HEMLIGT KORT" : `${escapeHtml(card?.title || "HEMLIGT KORT")}<br>${escapeHtml(card?.artist || "")}`}</small></article>`;
 async function animateCardDeal(card, starter = null) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const stage = animationStage();
-  stage.innerHTML = `<div class="card-deck"><i></i><i></i><i></i><b>KORTLEK</b></div>${starter ? animationCard(starter, "starter-deal") : ""}${animationCard(card, "secret-deal", true)}`;
+  stage.innerHTML = `${animationDeck()}${starter ? animationCard(starter, "starter-deal") : ""}${animationCard(card, "secret-deal", true)}`;
   stage.className = starter ? "is-active has-starter" : "is-active";
-  await animationWait(starter ? 1250 : 850);
+  await animationWait(starter ? 1900 : 900);
   stage.className = ""; stage.replaceChildren();
 }
 async function animateSwapReveal(card) {
   const stage = animationStage();
-  stage.innerHTML = `<div class="swap-reveal-copy">BYT-LÅT-KORTET AVSLÖJAS</div><div class="card-deck"><i></i><i></i><i></i><b>KORTLEK</b></div>${animationCard(card, "swap-reveal-card")}`;
+  stage.innerHTML = `<div class="swap-reveal-copy">BYT-LÅT-KORTET AVSLÖJAS</div>${animationDeck()}${animationCard(card, "swap-reveal-card")}`;
   stage.className = "is-active is-swap";
   await animationWait(1550);
   stage.className = ""; stage.replaceChildren();
@@ -97,7 +98,7 @@ async function animateTimelineOutcome(correct) {
   const affected = [...row.querySelectorAll(".unlocked-card, .placed-card")];
   if (!affected.length) return;
   const stage = animationStage();
-  if (!correct) { stage.innerHTML = `<div class="card-deck"><i></i><i></i><i></i><b>KORTLEK</b></div>`; stage.className = "is-active deck-only"; }
+  if (!correct) { stage.innerHTML = animationDeck(); stage.className = "is-active deck-only"; }
   row.classList.add(correct ? "locking-cards" : "returning-cards");
   affected.forEach((card, index) => card.style.setProperty("--card-delay", `${index * 90}ms`));
   await animationWait(correct ? 900 : 1150);
@@ -904,7 +905,7 @@ function moveCard(event) {
   if (event.clientX < bounds.left + 46) timeline.scrollLeft -= 18;
   else if (event.clientX > bounds.right - 46) timeline.scrollLeft += 18;
   document.querySelectorAll("[data-slot]").forEach((slot) => slot.classList.remove("is-target"));
-  dragTarget = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-slot]") || null;
+  dragTarget = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-slot]") || [...document.querySelectorAll("[data-slot]")].find((slot) => { const area = slot.getBoundingClientRect(), margin = 34; return event.clientX >= area.left - margin && event.clientX <= area.right + margin && event.clientY >= area.top - margin && event.clientY <= area.bottom + margin; }) || null;
   dragTarget?.classList.add("is-target");
 }
 document.addEventListener("pointermove", (event) => { if (document.querySelector(".dragging")) moveCard(event); });
@@ -1188,7 +1189,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.65";
+$(".brand small").textContent = "v5.66";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
