@@ -325,3 +325,16 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 .is-dealing .card-deck i{animation:clean-deck-leaf 2.8s calc(var(--deck-index) * 55ms) ease-in-out infinite alternate!important;}
 @keyframes clean-deck-leaf{from{margin-left:0}to{margin-left:calc(var(--deck-index) * -1px)}}
 .placed-card.dragging{max-width:none!important;min-width:0!important;transform:none!important;}
+
+/* v5.77: låg kortsko sedd från sidan */
+.card-deck{width:178px!important;height:72px!important;right:7%!important;bottom:8%!important;transform:rotate(-7deg)!important;filter:drop-shadow(10px 14px 13px #000c)!important;overflow:visible!important;}
+.card-deck::before{content:""!important;position:absolute!important;inset:14px -5px -7px 37px!important;z-index:18!important;border:2px solid #536d96!important;border-radius:6px 16px 16px 7px!important;background:linear-gradient(180deg,#172b4c,#070e1d)!important;box-shadow:inset 0 7px 12px #35568366,inset 0 -8px 12px #000b,0 0 16px #5bdcff33!important;}
+.card-deck::after{content:""!important;position:absolute!important;left:19px!important;right:auto!important;top:15px!important;bottom:1px!important;width:22px!important;z-index:24!important;border:2px solid #9eb1cb!important;border-right:0!important;border-radius:7px 0 0 7px!important;background:#060c18!important;box-shadow:-5px 0 10px #55dcff55,inset -5px 0 6px #000!important;}
+.card-deck i{left:28px!important;right:8px!important;top:5px!important;bottom:17px!important;inset:5px 8px 17px 28px!important;border:1px solid #8294ad!important;border-radius:6px!important;background:linear-gradient(180deg,#e8eef6 0 5%,#182d50 6% 78%,#7149b3 100%)!important;box-shadow:0 1px 0 #eef4fb,2px 3px 5px #0008!important;transform:translateX(calc(var(--deck-index) * .55px)) translateY(calc(var(--deck-index) * 1.15px))!important;}
+.card-deck b{inset:20px 13px 10px 54px!important;z-index:30!important;writing-mode:initial!important;font-size:0!important;display:grid!important;place-items:center!important;}.card-deck b span{font-size:25px!important;color:#74dcff!important;margin:0!important;text-shadow:0 0 12px #4dd8ff!important;}
+.is-dealing .card-deck i{animation:card-shoe-browse 3s calc(var(--deck-index) * 48ms) ease-in-out infinite!important;}
+@keyframes card-shoe-browse{0%,42%,100%{margin-left:0;filter:brightness(.9)}58%{margin-left:calc((16 - var(--deck-index)) * -1.2px);filter:brightness(1.18)}72%{margin-left:0;filter:brightness(1)}}
+.locked-card{border-color:#58657a!important;background:#202632!important;transform:none!important;}.locked-card strong{color:#ffcf55!important;}
+.unlocked-card{border-color:#4fc9ee!important;background:#102b3a!important;transform:translateY(-12px)!important;}.unlocked-card strong{color:#4fc9ee!important;}
+.misplaced-card{border-color:#ff5571!important;background:#32151b!important;transform:translateY(-12px)!important;}.misplaced-card strong{color:#ff8b9d!important;}
+.result-timeline.timeline-centered{justify-content:center!important;}
