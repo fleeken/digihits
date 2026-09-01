@@ -59,6 +59,7 @@ state.seenFinalChanceNotices ||= {};
 let currentPlacementCorrect = true, roundLoading = false;
 let viewingLatestRound = false, viewingHistoryResult = false, returnToFinalResult = false, historyResultEntry = null, historyResultRounds = 0, historyPlayerScores = {}, matchInviteCandidates = [];
 let achievementPopupQueue = [];
+let pendingTimelineDeal = null;
 const latestRounds = {};
 let spotifyPlayer, spotifyDeviceId, spotifyPlayerReady, spotifyPlaying = false, wasPausedByUser = false, pausedForNavigation = false, loadedSpotifyCardId = null, songPosition = 0, songDuration = 0, songTimer, trackStartPromise = null, songStarting = false;
 const mobileBrowser = /iPhone|iPad|Android/i.test(navigator.userAgent);
@@ -73,11 +74,11 @@ function animationStage() {
   if (!stage) { stage = document.createElement("div"); stage.id = "card-animation-stage"; stage.setAttribute("aria-hidden", "true"); document.body.append(stage); }
   return stage;
 }
-const animationCard = (card, className = "") => `<article class="animation-card ${className}"><span>♫</span><strong>${card?.year || "????"}</strong><small>${escapeHtml(card?.title || "HEMLIGT KORT")}<br>${escapeHtml(card?.artist || "")}</small></article>`;
+const animationCard = (card, className = "", secret = false) => `<article class="animation-card ${className}"><span>♫</span><strong>${secret ? "????" : card?.year || "????"}</strong><small>${secret ? "HEMLIGT KORT" : `${escapeHtml(card?.title || "HEMLIGT KORT")}<br>${escapeHtml(card?.artist || "")}`}</small></article>`;
 async function animateCardDeal(card, starter = null) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const stage = animationStage();
-  stage.innerHTML = `<div class="card-deck"><i></i><i></i><i></i><b>KORTLEK</b></div>${starter ? animationCard(starter, "starter-deal") : ""}${animationCard(card, "secret-deal")}`;
+  stage.innerHTML = `<div class="card-deck"><i></i><i></i><i></i><b>KORTLEK</b></div>${starter ? animationCard(starter, "starter-deal") : ""}${animationCard(card, "secret-deal", true)}`;
   stage.className = starter ? "is-active has-starter" : "is-active";
   await animationWait(starter ? 1250 : 850);
   stage.className = ""; stage.replaceChildren();
@@ -884,7 +885,7 @@ document.addEventListener("click", (event) => { const button = event.target.clos
 $("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } const playerState = await spotifyPlayer?.getCurrentState().catch(() => null), expected = state.selectedTracks[activeCard().id]?.uri, sameTrack = expected && playerState?.track_window?.current_track?.uri === expected, actuallyPlaying = Boolean(playerState && !playerState.paused); if (actuallyPlaying && sameTrack) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && sameTrack) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } catch (error) { songStarting = false; setPlayButton(false); if (/ansluta spelaren|starta låten|spelaren kunde inte laddas/i.test(error.message)) dialog("Spotify behöver anslutas igen innan låten kan spelas.", () => { resetSpotifyPlayer(); supabaseAuth.disconnectSpotify(); supabaseAuth.connectSpotify(true).catch((issue) => alert(issue.message)); }, false, "ANSLUT KONTO"); else alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { if (trackStartPromise) await trackStartPromise; loadedSpotifyCardId = null; trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } catch (error) { alert(error.message); } });
 [$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); }));
-$("#guess-form").addEventListener("submit", (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); });
+$("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); const deal = pendingTimelineDeal; pendingTimelineDeal = null; if (deal) await animateCardDeal(deal.card, deal.starter); });
 $("#skip-guess")?.addEventListener("click", () => $("#guess-form").requestSubmit());
 let dragTarget = null;
 function startDrag(card, event) {
@@ -966,8 +967,7 @@ async function dealCard() {
   await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}`, { current_card: card, updated_at: new Date().toISOString() }, "PATCH");
   state.currentCard = card; state.currentCardMatchCode = match.code; rememberTrack(card); save();
   const starter = !state.roundAnimationSeen[match.code] && state.lockedTimeline.length === 1 ? state.lockedTimeline[0] : null;
-  state.roundAnimationSeen[match.code] = true; save();
-  await animateCardDeal(card, starter);
+  state.roundAnimationSeen[match.code] = true; pendingTimelineDeal = { card, starter }; save();
 }
 async function saveRoundUnlocked() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
@@ -1188,7 +1188,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.63";
+$(".brand small").textContent = "v5.64";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
