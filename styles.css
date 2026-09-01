@@ -270,3 +270,5 @@ input{background:#071020;border-color:#536682;box-shadow:inset 0 2px 12px #0007;
 /* v5.64 */
 #lobby-chat,#match-chat{background:#168fc4!important;border-color:#54d8ff!important;color:#fff!important;box-shadow:0 0 13px #39bde955;}
 .timeline-row .slot.is-target{border-color:#70f0ff!important;background:#123a52!important;box-shadow:0 0 28px #42ddff,0 0 12px #b275ff inset!important;transform:translateY(-5px) scale(1.04);color:#fff!important;transition:.12s ease;}
+.hero .account-row-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;gap:12px!important;}
+.hero .account-avatar-wrap{grid-column:2;grid-row:1;justify-self:end;align-self:start;}
