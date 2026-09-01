@@ -85,13 +85,13 @@ async function animateCardDeal(card, starter = null) {
   const stage = animationStage();
   stage.innerHTML = animationDeck(); stage.className = "is-active is-dealing";
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  const deckBounds = stage.querySelector(".card-deck").getBoundingClientRect();
+  const deckBounds = stage.querySelector(".card-deck").getBoundingClientRect(), topCardBounds = stage.querySelector(".card-deck i:last-of-type").getBoundingClientRect();
   const fly = async (flyingCard, secret, target, duration) => {
     if (!target || skipCardDeal) return;
     const targetBounds = target.getBoundingClientRect();
     stage.insertAdjacentHTML("beforeend", animationCard(flyingCard, "fly-card", secret));
     const element = stage.lastElementChild;
-    const startX = deckBounds.left + deckBounds.width * .16, startY = deckBounds.top - targetBounds.height * .2, exitX = startX - targetBounds.width * .58, exitY = startY - targetBounds.height * .08;
+    const sourceScale = Math.max(.24, Math.min(.58, Math.min(topCardBounds.width / targetBounds.width, topCardBounds.height / targetBounds.height))), startX = topCardBounds.left + topCardBounds.width / 2 - targetBounds.width / 2, startY = topCardBounds.top + topCardBounds.height / 2 - targetBounds.height / 2, exitX = startX - targetBounds.width * .62, exitY = startY - targetBounds.height * .1;
     Object.assign(element.style, { left: `${startX}px`, top: `${startY}px`, width: `${targetBounds.width}px`, height: `${targetBounds.height}px` });
     target.classList.add("deal-target");
     const start = { x: 0, y: 0 }, exit = { x: exitX - startX, y: exitY - startY }, finish = { x: targetBounds.left - startX, y: targetBounds.top - startY }, control = { x: (exit.x + finish.x) / 2, y: Math.min(exit.y, finish.y) - 105 };
@@ -99,7 +99,7 @@ async function animateCardDeal(card, starter = null) {
     const loosened = { x: exit.x * .62, y: exit.y * .35 }, lifted = { x: exit.x, y: exit.y }, points = [start, loosened, lifted, ...curve];
     const lengths = points.slice(1).map((point, index) => Math.hypot(point.x - points[index].x, point.y - points[index].y)), totalLength = lengths.reduce((sum, length) => sum + length, 0), offsets = [0, .18, .34, ...curve.map((_, index) => .34 + .66 * ((index + 1) / curve.length))];
     const travelDuration = Math.max(duration, Math.min(3300, totalLength / .24));
-    const frames = points.map((point, index) => { const t = point.t ?? 0, scale = index === 0 ? .46 : index === 1 ? .5 : index === 2 ? .78 : 1 + Math.sin(Math.PI * t) * .025, rotation = index === 0 ? -8 : index === 1 ? -7 : index === 2 ? -3 : Math.sin(Math.PI * t * 2) * 1.8; return { offset: offsets[index], transform: `translate3d(${point.x}px,${point.y}px,0) rotate(${rotation}deg) scale(${scale})`, opacity: 1 }; });
+    const frames = points.map((point, index) => { const t = point.t ?? 0, scale = index === 0 ? sourceScale : index === 1 ? sourceScale + (1 - sourceScale) * .3 : index === 2 ? .82 : 1 + Math.sin(Math.PI * t) * .02, rotation = index === 0 ? -7 : index === 1 ? -6 : index === 2 ? -2.5 : Math.sin(Math.PI * t * 2) * 1.5; return { offset: offsets[index], transform: `translate3d(${point.x}px,${point.y}px,0) rotate(${rotation}deg) scale(${scale})`, opacity: 1 }; });
     element.style.transform = frames[0].transform; element.style.opacity = "0.98";
     stage.classList.add("is-extracting");
     await new Promise((resolve) => requestAnimationFrame(resolve));
@@ -1230,7 +1230,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.85";
+$(".brand small").textContent = "v5.86";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
