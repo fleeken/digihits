@@ -153,19 +153,24 @@ async function animateTimelineOutcome(correct) {
   affected.forEach((item) => item.remove()); row.classList.add("timeline-centered"); row.scrollTo({ left: Math.max(0, (row.scrollWidth - row.clientWidth) / 2), behavior: "smooth" });
   await animationWait(1000); stage.className = ""; stage.replaceChildren();
 }
+const roundStripMarkup = new WeakMap();
 function renderRoundPlayers() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode), players = match?.players || [];
   const finalSummary = $("#final-match-overview"), isFinal = finalSummary && !finalSummary.hidden;
   const round = Math.max(1, Number(match?.round) || 0, ...players.map((player) => Number(player.rounds_started) || 0));
   document.querySelectorAll(".view-round-number").forEach((label) => {
-    label.hidden = !match || (label.closest('[data-view-panel="result"]') && isFinal);
-    label.innerHTML = `Omgång <strong>${round}</strong>`;
+    label.hidden = !match || isSoloMatch(match) || (label.closest('[data-view-panel="result"]') && isFinal);
+    if (label.dataset.round !== String(round)) { label.innerHTML = `Omgång <strong>${round}</strong>`; label.dataset.round = String(round); }
   });
   document.querySelectorAll(".round-player-strip").forEach((strip) => {
-    if (isSoloMatch(match) || !players.length || (strip.id === "result-player-strip" && isFinal)) { strip.hidden = true; strip.replaceChildren(); return; }
+    const hidden = isSoloMatch(match) || !players.length || (strip.id === "result-player-strip" && isFinal);
+    const banner = strip.closest(".match-turn-banner");
+    if (banner) banner.hidden = hidden;
+    if (hidden) { strip.hidden = true; return; }
     strip.hidden = false;
-    const markup = `<div>${players.map((player) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.id || player.user_id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.id || player.user_id)}"><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
-    if (strip.innerHTML !== markup) strip.innerHTML = markup;
+    const markup = `<div>${players.map((player) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
+    // Compare source markup, not browser-normalized HTML; retain avatars and scroll on unchanged syncs.
+    if (roundStripMarkup.get(strip) !== markup) { strip.innerHTML = markup; roundStripMarkup.set(strip, markup); }
   });
 }
 function updateRoundStartButton() {
@@ -803,9 +808,6 @@ function openMatch(matchCode) {
   $("#overview-round-label").textContent = soloMatch ? "FELPLACERADE" : !matchStarted ? "" : "OMGÅNG";
   $("#overview-target").textContent = soloMatch ? `${score.correct}/10` : "10";
   $("#overview-target-label").textContent = soloMatch ? "RÄTT PLACERADE" : "FÖRST TILL";
-  $("#turn-message").hidden = soloMatch;
-  $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
-  $("#turn-message").classList.toggle("waiting", !isYourTurn);
   // Button state is shared with return navigation and completed loading.
   $("#next-round").classList.toggle("is-visible", isYourTurn);
   updateRoundStartButton();
@@ -923,7 +925,7 @@ async function syncMatches() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const previousActive = state.matches.find((match) => match.code === state.activeMatchCode);
   const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,phase,current_user_id,last_result,turn_notice,updated_at)`);
-  let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&select=match_id,user_id,display_name,rounds_started,locked_timeline,last_round,swap_cards`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
+  let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&active=eq.true&select=id,match_id,user_id,display_name,turn_order,rounds_started,locked_timeline,last_round,swap_cards&order=turn_order`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
   rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id, players.filter((player) => String(player.match_id) === String(row.match_id))); });
   state.matches = rows.map((row) => { const match = row.online_matches, matchPlayers = players.filter((player) => String(player.match_id) === String(row.match_id)), solo = isSoloMatch(match), opponent = matchPlayers.find((player) => String(player.user_id) !== String(user.id))?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : String(match.current_user_id) === String(user.id) ? "active" : "opponent", currentUserId: match.current_user_id, solo, locked: match.phase === "locked" || (solo && match.phase === "solo_locked"), round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), players: matchPlayers, turnNotice: match.turn_notice, lastResult: match.last_result, updatedAt: match.updated_at }; }).filter(Boolean).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
   state.matches.filter((match) => !match.solo && match.players.length >= 2 && state.career.createdMatchCodes.includes(String(match.code))).forEach((match) => { if (!state.career.startedMatchCodes.includes(String(match.code))) state.career.startedMatchCodes.push(String(match.code)); });
@@ -1308,7 +1310,7 @@ $("#signup-form").addEventListener("submit", async (event) => {
   finally { $("#signup-progress").hidden = true; }
 });
 
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=6.21", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=6.23", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {});
 // Första renderingen sker efter att avatarens delar har initierats.
 if ((window.matchMedia?.("(display-mode: standalone)").matches || navigator.standalone) && supabaseAuth.session()?.access_token && window.Notification?.permission === "default") setTimeout(() => dialog("Vill du slå på notiser för Digihits? Du får en notis när det är din tur eller när du får en matchinbjudan.", () => $("#enable-notifications").click(), false, "AKTIVERA NOTISER"), 700);
 $("#timeline-row").after($("#change-track-area"));
@@ -1354,7 +1356,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v6.21";
+$(".brand small").textContent = "v6.23";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
