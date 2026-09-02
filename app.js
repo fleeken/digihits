@@ -168,6 +168,7 @@ function renderRoundPlayers() {
     if (banner) banner.hidden = hidden;
     if (hidden) { strip.hidden = true; return; }
     strip.hidden = false;
+    strip.dataset.playerCount = String(players.length);
     const markup = `<div>${players.map((player) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
     // Compare source markup, not browser-normalized HTML; retain avatars and scroll on unchanged syncs.
     if (roundStripMarkup.get(strip) !== markup) { strip.innerHTML = markup; roundStripMarkup.set(strip, markup); }
@@ -1310,7 +1311,7 @@ $("#signup-form").addEventListener("submit", async (event) => {
   finally { $("#signup-progress").hidden = true; }
 });
 
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=6.23", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=6.25", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {});
 // Första renderingen sker efter att avatarens delar har initierats.
 if ((window.matchMedia?.("(display-mode: standalone)").matches || navigator.standalone) && supabaseAuth.session()?.access_token && window.Notification?.permission === "default") setTimeout(() => dialog("Vill du slå på notiser för Digihits? Du får en notis när det är din tur eller när du får en matchinbjudan.", () => $("#enable-notifications").click(), false, "AKTIVERA NOTISER"), 700);
 $("#timeline-row").after($("#change-track-area"));
@@ -1356,7 +1357,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v6.23";
+$(".brand small").textContent = "v6.25";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
