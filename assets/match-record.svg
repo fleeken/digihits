@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" fill="none">
+<defs><radialGradient id="record"><stop stop-color="#544069"/><stop offset=".45" stop-color="#232448"/><stop offset="1" stop-color="#0a1433"/></radialGradient><linearGradient id="label" x2="1" y2="1"><stop stop-color="#ffbe8b"/><stop offset="1" stop-color="#ef8d8b"/></linearGradient></defs>
+<path fill="#f8e5d2" d="M0 0h1000v420H0z"/>
+<path fill="#eaa087" d="M0 330c180 10 265-190 465-154S711 50 1000 83v337H0z"/>
+<path fill="#f3c07d" d="M0 356c210 12 298-177 475-136S744 99 1000 139v281H0z"/>
+<path fill="#7da7a0" d="M0 390c230 8 299-154 487-118s237-102 513-77v225H0z"/>
+<path fill="#8e75ac" d="M0 420c228 10 352-122 504-93s250-91 496-71v164H0z"/>
+<path fill="#51466f" d="M370 420c115-72 202-19 304-73s199-30 326-26v99z"/>
+<circle cx="825" cy="173" r="246" fill="url(#record)"/>
+<g stroke="#ae86ba" stroke-opacity=".4"><circle cx="825" cy="173" r="224"/><circle cx="825" cy="173" r="209"/><circle cx="825" cy="173" r="193"/><circle cx="825" cy="173" r="177"/><circle cx="825" cy="173" r="159"/><circle cx="825" cy="173" r="140"/><circle cx="825" cy="173" r="118"/></g>
+<circle cx="825" cy="173" r="88" fill="url(#label)"/><circle cx="825" cy="173" r="11" fill="#242443"/>
+<g fill="#fff8ed"><path d="m510 45 4 13 13 4-13 4-4 13-4-13-13-4 13-4Z"/><path d="m570 102 3 9 9 3-9 3-3 9-3-9-9-3 9-3Z"/></g>
+</svg>

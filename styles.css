@@ -549,7 +549,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .hero .account-row,.menu-page-section .friend-row,.menu-page-section .action-card,.menu-page-section .level-panel{border-color:var(--line);}
 .menu-page-section .achievement.earned{color:var(--ink)!important;}
 .hero::before{content:none;}
-.home-illustration{display:block;width:100%;height:auto;object-fit:contain;background:#070e2a;}
+.home-intro{display:grid;grid-template-columns:minmax(150px,.55fr) minmax(0,1.45fr);gap:12px;align-items:center;margin-bottom:12px;}
+.home-greeting h2{font:700 clamp(24px,3vw,34px)/1.2 Georgia,serif;margin:0 0 12px;color:var(--ink);}
+.home-greeting p{font-size:clamp(14px,1.6vw,18px);line-height:1.6;margin:0;color:var(--ink);}
+/* Egen liggande Hem-illustration: hela bilden visas, ingen klippning eller förskjutning. */
+.home-illustration{width:100%;background:transparent;}
+.home-illustration img{display:block;width:100%;height:auto;object-fit:contain;mix-blend-mode:multiply;}
 .menu-page-section .match-code,.menu-page-section .match-code strong,.menu-page-section .level-head button{color:#355873!important;}
 .menu-page-section .history-match.history-walkover{border-color:#4c7898;}
 .menu-page-section .action-card h3::before{content:"♫";display:block;width:42px;height:42px;line-height:42px;margin-bottom:12px;border:1px solid #b89dc9;border-radius:13px;color:#76518f;background:#e7d9ee;text-align:center;font-family:Georgia,serif;font-size:26px;}
@@ -560,20 +565,29 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
 .auth-card,.hero,.menu-page-section{box-shadow:none;}
 /* Fulla sidor i stället för flera inramade paneler. Spelkort/statusramar behålls. */
 .view>.panel:not(.welcome-card),.view>.menu-page-section{border:0!important;border-radius:0!important;margin:0;box-shadow:none;background:transparent!important;}
-.hero{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(340px,1.15fr);gap:clamp(24px,5vw,72px);padding:0;align-items:center;}
-.hero .home-illustration{max-height:720px;}
-.hero .account-row{border:0;border-radius:0;padding:24px 0;}
-.menu-page-section .action-card{border:0;border-radius:0;padding:24px 0;}
-.match-actions{gap:clamp(24px,5vw,72px);padding:24px 0;}
+.hero{display:block;padding:0;}
+.hero .account-row{border:0;border-radius:0;padding:20px 0;margin-top:0;border-top:1px solid #bdadc166;}
+.menu-page-section .action-card{border:0;border-radius:0;padding:16px 0;}
+.match-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,3vw,40px);padding:16px 0;}
+.match-actions .action-card{min-width:0;}.match-actions .button{width:100%;padding:12px 8px;white-space:normal;line-height:1.4;}
 .friends-content{padding:18px 0;}
 .view>.auth-card{width:100%;max-width:none;padding:clamp(24px,5vw,64px) 0;}
 .auth-card .inner-panel{width:100%;max-width:680px;margin-inline:auto;}
 .bottom-menu{width:100%;max-width:none;border-radius:0;}
-@media(max-width:760px){.hero{grid-template-columns:1fr;gap:0;}.hero .home-illustration{max-height:none;}.match-actions{grid-template-columns:1fr;}.hero .account-row{padding:24px 16px;}}
+@media(max-width:760px){.home-intro{grid-template-columns:1fr;gap:14px;margin-bottom:18px;}.home-greeting h2{font-size:24px;}.home-greeting p{font-size:14px;}.home-illustration{border-radius:22px;}.hero .account-row{padding:20px 0;}.match-actions h3{font-size:18px!important;}.match-actions .action-card p{font-size:12px;}.match-actions .button{font-size:10px;}}
+@media(max-width:350px){.match-actions{grid-template-columns:1fr;}}
 .guess-view::after,.timeline-view::after{color:#c591b926;}
-.round-player-strip{background:#ffffff03;border-color:#77617f;}
+.round-player-strip{background:transparent;border:0;}
 .round-player-strip .round-player.is-current>i{border-color:#81dcf1;box-shadow:0 0 0 4px #81dcf12b;}
 .round-player-strip .round-player small{background:#b8e9f3;color:#163b49;border:1px solid #81dcf1;}
+.round-player-strip>div{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px!important;min-width:0!important;width:100%;}
+.round-player-strip .round-player{width:100%;min-width:0;grid-template-columns:48px minmax(0,1fr);padding:12px;border:1px solid #424263;border-radius:18px;background:#171e3c;gap:6px 12px;}
+.round-player-strip .round-player strong{font-size:14px;white-space:normal;overflow-wrap:anywhere;}
+.round-player-strip .round-player b{font-size:20px;color:#fff3df;}
+.round-player-strip .round-player small{position:static;grid-column:2;justify-self:start;max-width:100%;font-size:9px;white-space:normal;padding:3px 7px;}
+.round-player-strip .round-player.is-current{border-color:#ef9a89;}
+.round-player-strip .round-player.is-current>i{box-shadow:none;border-color:#ef9a89;}
+.round-player-strip .round-player.is-current small{background:#f09283;color:#292039;border-color:#f09283;}
 .replay-row .button{min-height:54px;border-radius:17px;box-shadow:none;}
 .song-timeline{color:var(--night-muted);}.song-timeline>div{background:#55405d;border-color:#a886b4;height:7px;}
 .song-timeline i{background:linear-gradient(90deg,#ef9a89,#b49bce);box-shadow:none;}
@@ -615,3 +629,45 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
  .overview-player{padding:13px;}.friend-search{gap:10px;}.bottom-menu{border-radius:0;}
 }
 @media(prefers-reduced-motion:reduce){.button,.account-button,.match-open{transition:none;}}
+/* Fyrbildsreferensen: skivomslag + ljus matchinformation, mörka deltagarrader. */
+.view:is([data-view-panel="match"],[data-view-panel="lobby"]) .lobby-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,.36fr);grid-template-areas:"cover cover" "info actions";gap:0;background:var(--surface);color:var(--ink);border-radius:28px;overflow:hidden;}
+.match-cover{grid-area:cover;min-height:260px;background:#f8e5d2 url("assets/match-record.svg?v=6.15") right center/cover no-repeat;display:flex;align-items:center;padding:30px clamp(24px,5vw,64px);}
+.match-cover p{font:700 clamp(38px,5.5vw,66px)/.98 Georgia,serif;letter-spacing:-1.5px;margin:0;color:#111832;}
+.match-cover em{color:#874f70;font-style:normal;}
+.lobby-layout>.match-view,.lobby-layout>.lobby-main{grid-area:info;background:var(--surface);border:0;border-radius:0;margin:0;padding:clamp(20px,3vw,36px);color:var(--ink);box-shadow:none;min-width:0;}
+.lobby-layout>.lobby-side{grid-area:actions;background:var(--surface);border:0;border-radius:0;margin:0;padding:clamp(20px,3vw,36px) 20px;box-shadow:none;}
+.lobby-layout .lobby-title-row h1{color:var(--ink);font:700 28px/1.15 Georgia,serif;}
+.lobby-layout .match-summary{border:0;border-bottom:1px solid #c8b7c5;border-radius:0;padding:14px 0;margin-top:10px;}
+.lobby-layout .match-summary strong,.lobby-layout .side-code strong{color:#355873;}
+.lobby-layout .match-metrics>div{border:1px solid #c8b7c5;background:transparent!important;color:var(--ink);}
+.lobby-layout .overview-players{gap:14px;}
+.lobby-layout .overview-player{background:#171e3c!important;border-color:#404260;border-radius:20px;color:#fff3df;padding:18px;}
+.lobby-layout .overview-player-header{font-size:17px;line-height:1.4;}
+.lobby-layout .overview-player-stats>div{border-color:#57516c;background:transparent!important;padding:12px 5px;}
+.lobby-layout .overview-player-stats strong{font-size:19px;}
+.lobby-layout .overview-player small{color:#d7cddd;}
+.lobby-layout .match-friend-invites{color:var(--ink);border:0;padding:20px 0 0;}
+.lobby-layout .match-friend-invites small{color:var(--muted);}
+.lobby-layout .lobby-stage{border:0;min-height:180px;margin-top:16px;}
+.lobby-layout .lobby-code-card{background:#171e3c;border-color:#454466;color:#fff3df;}
+.lobby-layout .lobby-side .button,.lobby-layout .lobby-back{width:100%;min-height:48px;margin:0;}
+.lobby-layout .next-round{background:#111832;color:#fff3df;border-color:#111832;}
+.lobby-layout .next-round.is-visible{display:block;}
+.menu-page-section .action-card{padding:20px!important;border:1px solid #c3b0ca!important;border-radius:22px;background:#ede1ed!important;}
+.menu-page-section .action-card:nth-child(2){background:#e1e9df!important;border-color:#b6c7b7!important;}
+.menu-page-section .action-card h3::before{border:0;background:transparent;margin-bottom:14px;padding:0;font-size:34px;}
+.menu-page-section .action-card:nth-child(2) h3::before{background:transparent;}
+.brand{border-bottom:0;margin-bottom:12px;}
+.bottom-menu{box-shadow:none;border-color:#cec0c8;}
+.bottom-menu button[aria-current]{background:transparent;color:#111832;font-weight:900;}
+.bottom-menu button[aria-current]::after{content:"";width:5px;height:5px;background:#ef9a89;border-radius:50%;position:absolute;bottom:0;}
+@media(max-width:760px){
+ .view:is([data-view-panel="match"],[data-view-panel="lobby"]) .lobby-layout{grid-template-columns:1fr;grid-template-areas:"cover" "info" "actions";border-radius:0;}
+ .match-cover{min-height:220px;padding:24px;background-position:65% center;}
+ .match-cover p{font-size:42px;}
+ .lobby-layout>.match-view,.lobby-layout>.lobby-main{padding:24px 16px;}
+ .lobby-layout>.lobby-side{padding:0 16px 24px;gap:10px;}
+ .home-intro{grid-template-columns:1fr;gap:0;}.home-greeting{padding:6px 4px 0;}.home-illustration{margin-top:-10px;}
+ .menu-page-section .action-card{padding:16px!important;}
+ .round-player-strip{padding:12px 0 18px!important;}
+}
