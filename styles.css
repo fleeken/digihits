@@ -488,5 +488,32 @@ button:focus-visible{outline:3px solid #edaa82;outline-offset:3px;}
 .bottom-menu button[aria-current]{color:#101a37;background:#e9dfd8;}
 .bottom-menu button[aria-current] svg{stroke-width:2.2;}
 [data-accordion],.hero{scroll-margin-top:16px;}
+.bottom-menu{grid-template-columns:repeat(5,minmax(0,1fr));}
+.menu-page-section .accordion-label::before{content:none!important;}
+.menu-page-section .accordion-toggle:disabled{opacity:1!important;cursor:default;color:#343044;}
+.menu-page-section .accordion-content{display:block!important;}
+.menu-page-section .accordion-content h3{text-decoration:underline;text-underline-offset:6px;}
+/* Varm skiffer och dämpade accenter knyter ihop spelvyerna med pappersytan. */
+.panel:not(.hero):not(.accordion):not(.welcome-card){background:linear-gradient(140deg,#393749,#292938);border-color:#797281;box-shadow:0 10px 25px #39313d18;}
+.account-row,.friend-row,.action-card,.history-match,.overview-player,.match-friend-invites,.level-panel{background:linear-gradient(135deg,#454052,#343140);border-color:#85798a;box-shadow:none;}
+.match.active{background:linear-gradient(135deg,#3d514a,#303f3c);border-color:#9abdaf;}
+.match.opponent{background:linear-gradient(135deg,#554c46,#403b39);border-color:#d0b58a;}
+.match.waiting{background:linear-gradient(135deg,#45505a,#343e49);border-color:#9bb9c7;}
+.match.solo{background:linear-gradient(135deg,#564660,#403748);border-color:#bba4cc;}
+.round-player-strip{background:#ffffff06;border-color:#7b71814d;}
+input,select,textarea{background-color:#2e2c3b;border-color:#8a7d8c;box-shadow:none;}
+.button-secondary,.lobby-back,.copy-code,.account-button{background:#514957;border-color:#938293;color:#fff4e7;box-shadow:none;}
+.timeline-button,#match-chat,#lobby-chat{background:#42576a!important;border-color:#9bb6c8!important;color:#f4f5f7!important;}
+.button-leave,.account-danger{background:#5b3c46;border-color:#d39199;color:#ffd7d2;}
+.result-timeline{background:#2c2939;border-color:#85758b;}
+.result-check{background:#3c3648;border-color:#887a90;}
+.result-check.good{background:#354c40;border-color:#8db799;}
+.result-check.bad{background:#56363e;border-color:#d88b92;}
+.secret-card{background:linear-gradient(145deg,#5a4464,#383244);border-color:#c2a0d4;box-shadow:0 5px 14px #32223630;}
+.timeline-row .slot{background:#44334f;border-color:#c3a0d8;}
+.song-timeline>div{background:#534659;border-color:#948499;}
+.modal-card,dialog{background:#36313f;border-color:#b4a1b0;}
+.level-panel{color:#fff5eb!important;}
+.stat-grid>div{background:#e9dfd6;border-color:#cec0c4;color:#3e3548;}
 @media(max-width:640px){.app-shell{width:calc(100% - 24px);padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}.brand{gap:8px;padding-inline:2px;}.brand .brand-button{font-size:27px}.brand .install-home{font-size:9px!important;padding:9px!important}.panel{border-radius:23px}.hero{padding:18px}.accordion-toggle{font-size:18px;padding:18px}.welcome-card{min-height:440px;padding:32px 22px}.overview-player{padding:12px}.bottom-menu{border-radius:20px 20px 0 0}}
 @media(max-width:640px){.app-shell{padding-top:max(28px,calc(env(safe-area-inset-top,0px) + 14px))!important;}}
