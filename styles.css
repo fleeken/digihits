@@ -492,28 +492,54 @@ button:focus-visible{outline:3px solid #edaa82;outline-offset:3px;}
 .menu-page-section .accordion-label::before{content:none!important;}
 .menu-page-section .accordion-toggle:disabled{opacity:1!important;cursor:default;color:#343044;}
 .menu-page-section .accordion-content{display:block!important;}
+.menu-status-row{display:flex;justify-content:flex-end;padding:14px 18px 0;}
+.menu-status-row:not(:has(.badge:not([hidden]))){display:none;}
 .menu-page-section .accordion-content h3{text-decoration:underline;text-underline-offset:6px;}
-/* Varm skiffer och dämpade accenter knyter ihop spelvyerna med pappersytan. */
-.panel:not(.hero):not(.accordion):not(.welcome-card){background:linear-gradient(140deg,#393749,#292938);border-color:#797281;box-shadow:0 10px 25px #39313d18;}
-.account-row,.friend-row,.action-card,.history-match,.overview-player,.match-friend-invites,.level-panel{background:linear-gradient(135deg,#454052,#343140);border-color:#85798a;box-shadow:none;}
-.match.active{background:linear-gradient(135deg,#3d514a,#303f3c);border-color:#9abdaf;}
-.match.opponent{background:linear-gradient(135deg,#554c46,#403b39);border-color:#d0b58a;}
-.match.waiting{background:linear-gradient(135deg,#45505a,#343e49);border-color:#9bb9c7;}
-.match.solo{background:linear-gradient(135deg,#564660,#403748);border-color:#bba4cc;}
-.round-player-strip{background:#ffffff06;border-color:#7b71814d;}
-input,select,textarea{background-color:#2e2c3b;border-color:#8a7d8c;box-shadow:none;}
-.button-secondary,.lobby-back,.copy-code,.account-button{background:#514957;border-color:#938293;color:#fff4e7;box-shadow:none;}
-.timeline-button,#match-chat,#lobby-chat{background:#42576a!important;border-color:#9bb6c8!important;color:#f4f5f7!important;}
-.button-leave,.account-danger{background:#5b3c46;border-color:#d39199;color:#ffd7d2;}
-.result-timeline{background:#2c2939;border-color:#85758b;}
-.result-check{background:#3c3648;border-color:#887a90;}
-.result-check.good{background:#354c40;border-color:#8db799;}
-.result-check.bad{background:#56363e;border-color:#d88b92;}
-.secret-card{background:linear-gradient(145deg,#5a4464,#383244);border-color:#c2a0d4;box-shadow:0 5px 14px #32223630;}
-.timeline-row .slot{background:#44334f;border-color:#c3a0d8;}
-.song-timeline>div{background:#534659;border-color:#948499;}
-.modal-card,dialog{background:#36313f;border-color:#b4a1b0;}
-.level-panel{color:#fff5eb!important;}
-.stat-grid>div{background:#e9dfd6;border-color:#cec0c4;color:#3e3548;}
+/* v5.99: sammanhållen varm palett, med separata textfärger för ljusa/mörka ytor. */
+:root{--paper:#f3eadf;--paper-card:#fff8ef;--ink:#302b38;--ink-muted:#665b68;--night:#292632;--night-card:#373140;--night-border:#817186;--on-night:#fff5e9;--on-night-muted:#cec1d0;--sage:#bbd4bd;--lavender:#cbb6dc;--apricot:#edbd8e;--dusty-blue:#bfd1e0;}
+body{background:radial-gradient(ellipse at 12% 0%,#e7d8c9,transparent 55%),var(--paper);}
+.brand .brand-button{color:var(--ink);}.brand small{color:var(--ink-muted);}
+.accordion{background:var(--paper-card)!important;border-color:#d2c4b9!important;color:var(--ink);}
+.accordion-content,.accordion-content h3,.menu-page-section .accordion-toggle:disabled{color:var(--ink);}
+.hero{background:linear-gradient(135deg,#f7e4d0,#efdbcb)!important;border-color:#cfb9ad;}.hero>h1{color:var(--ink);}
+.panel:not(.hero):not(.accordion):not(.welcome-card){background:var(--night);border-color:#66596e;box-shadow:0 8px 22px #30233218;}
+.account-row,.friend-row,.action-card,.history-match,.overview-player,.match-friend-invites,.level-panel{background:var(--night-card);border-color:var(--night-border);color:var(--on-night);box-shadow:none;}
+.match.active{background:#303f39;border-color:#90b39c;}.match.opponent{background:#453a30;border-color:#cba873;}.match.waiting{background:#323d49;border-color:#92adc3;}.match.solo{background:#44354e;border-color:#b397c7;}
+.match-open{box-shadow:none;}.match.active .match-open{background:#24382e;color:#d0ebd8;border-color:#90b39c;}.match.opponent .match-open{background:#3a3027;color:#f4dab0;border-color:#cba873;}.match.waiting .match-open{background:#293541;color:#d7e9f5;border-color:#92adc3;}.match.solo .match-open{background:#36293f;color:#ebd8f8;border-color:#b397c7;}
+.round-player-strip{background:#ffffff04;border-color:#62546c;}
+input,select,textarea{background-color:#24212d;border-color:#918298;color:var(--on-night);box-shadow:none;}
+input::placeholder,textarea::placeholder{color:#c7baca;}
+.button-green,.button-primary{background:var(--sage);border-color:#cfe2d0;color:#20342a;box-shadow:none;}
+.button-purple{background:var(--lavender);border-color:#dcc9e8;color:#34223f;box-shadow:none;}
+.button-yellow{background:#edd09b;border-color:#f6e0ba;color:#413118;box-shadow:none;}
+.change-track-button{background:var(--apricot)!important;border-color:#f6d4b0!important;color:#402a1b!important;box-shadow:none!important;}
+.button-secondary,.lobby-back,.copy-code,.account-button{background:#4a4051;border-color:#a38caf;color:var(--on-night);box-shadow:none;}
+.timeline-button,#match-chat,#lobby-chat{background:var(--dusty-blue)!important;border-color:#d4e2ec!important;color:#26384a!important;}
+.button-leave,.account-danger{background:#54323f;border-color:#dd95a0;color:#ffd8dc;}
+.result-timeline{background:#211e29;border-color:#776580;}.result-check{background:var(--night-card);border-color:#8e7798;}.result-check.good{background:#2e4235;border-color:#97b69c;color:#d5edd8;}.result-check.bad{background:#50313c;border-color:#d48c9c;color:#ffd5dc;}
+.secret-card{background:linear-gradient(145deg,#513e5e,#312838);border-color:#c0a1d2;box-shadow:0 5px 14px #32223630;}.timeline-row .slot{background:#35283e;border-color:#c3a0d8;}
+.song-timeline>div{background:#574761;border-color:#a38cac;}.song-timeline{color:var(--on-night-muted);}.song-timeline i{background:linear-gradient(90deg,#edbd8e,#cbb6dc);}
+.modal-card,dialog{background:var(--night-card);border-color:#ad94b6;color:var(--on-night);}.dialog-card #dialog-message{color:#e5d9e6;}
+.level-panel{color:var(--on-night)!important;}.level-next,.level-head small{color:var(--on-night-muted);}
+.menu-page-section :is(.friend-empty,.muted,.section-subtitle){color:var(--ink-muted);}
+.menu-page-section :is(.friend-row,.action-card,.history-match,.level-panel) :is(.muted,.friend-empty){color:var(--on-night-muted);}
+.friend-feedback{color:#25613e;}.friend-feedback.error{color:#a03249;}
+.stat-grid>div{background:#e9ded2;border-color:#baa99f;color:var(--ink);}.stat-grid small,.stat-grid strong{color:var(--ink);}
+#stat-wins{color:#28623f!important;}#stat-losses{color:#a03249!important;}
+.bottom-menu{background:#fff8effa;border-color:#cbbcaf;box-shadow:0 -4px 20px #392b3712;}.bottom-menu button{color:#655765;}.bottom-menu button[aria-current]{color:#fff5e9;background:#423348;}
+.brand .install-home{color:#44354a!important;border-color:#b3a1b2!important;background:#f5e8dc!important;}
+.badge-turn,.match.active .match-status,.turn-message:not(.waiting){background:#7be6a2!important;color:#133025!important;border:1px solid #b1f4c9!important;box-shadow:0 0 0 3px #68d18c20,0 3px 10px #16382424;font-weight:900;}
+.badge-friend{background:#edbd8e!important;color:#402a1b!important;border-color:#b77d4c!important;font-weight:900;}
+.badge-waiting,.match.opponent .match-status,.turn-message.waiting{background:#f0cd87!important;color:#473315!important;border:1px solid #ffe1a7!important;}
+.match.waiting .match-status{background:#bfd1e0!important;color:#26384a!important;border:1px solid #d9e8f3!important;}
+.match-status{padding:5px 9px;border-radius:8px;font-size:10px;line-height:1.3;max-width:calc(100% - 94px);}
+.turn-message{display:table;padding:7px 12px;border-radius:10px;}.turn-message[hidden]{display:none!important;}
+.match.active{border:2px solid #79d59a;box-shadow:0 0 0 3px #79d59a18;}
+.match:not(.solo) .match-player-list{margin-top:48px;}
+.badge-turn.has-turn::after{display:none!important;}
+.round-player-strip .round-player.is-current>i{border-color:#81dcf1;box-shadow:0 0 0 4px #81dcf12b;}
+.round-player-strip .round-player small{background:#b8e9f3;color:#163b49;border:1px solid #81dcf1;}
+#my-matches-section .match-badges .badge{padding:5px 7px;line-height:1.2;}
+@media(max-width:380px){#my-matches-section .accordion-toggle{padding-inline:14px;font-size:18px;}#my-matches-section .match-badges .badge{padding:4px 5px;font-size:8px;}}
 @media(max-width:640px){.app-shell{width:calc(100% - 24px);padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}.brand{gap:8px;padding-inline:2px;}.brand .brand-button{font-size:27px}.brand .install-home{font-size:9px!important;padding:9px!important}.panel{border-radius:23px}.hero{padding:18px}.accordion-toggle{font-size:18px;padding:18px}.welcome-card{min-height:440px;padding:32px 22px}.overview-player{padding:12px}.bottom-menu{border-radius:20px 20px 0 0}}
 @media(max-width:640px){.app-shell{padding-top:max(28px,calc(env(safe-area-inset-top,0px) + 14px))!important;}}
