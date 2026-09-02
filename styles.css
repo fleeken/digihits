@@ -553,6 +553,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .home-greeting{position:absolute;z-index:1;top:clamp(12px,3vw,40px);left:clamp(12px,3vw,40px);max-width:56%;}
 .home-greeting h2{font:700 clamp(22px,3vw,40px)/1.2 Georgia,serif;margin:0 0 8px;color:var(--ink);}
 .home-greeting p{font-size:clamp(12px,1.6vw,18px);line-height:1.5;margin:0;color:var(--ink);}
+.greeting-line{position:relative;display:inline-block;}
+.greeting-line>i{position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);font:normal 20px/1 Georgia,serif;color:#a28bbc;pointer-events:none;}
+.greeting-line:last-child>i{font-size:16px;color:#d28c64;}
+.greeting-decoration{display:flex;gap:15px;align-items:center;margin-top:5px;font:normal 20px/1 Georgia,serif;color:#a28bbc;pointer-events:none;}
+.greeting-decoration span{font-size:12px;color:#d28c64;}
 /* Egen liggande Hem-illustration: hela bilden visas, ingen klippning eller förskjutning. */
 .home-illustration{width:100%;background:transparent;}
 .home-illustration img{display:block;width:100%;height:auto;object-fit:contain;mix-blend-mode:multiply;}
