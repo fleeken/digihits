@@ -402,4 +402,18 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 .round-player-strip .round-player b{font-size:8px;color:#b8c9de;white-space:nowrap;}
 .round-player-strip .round-player small{position:absolute;left:2px;top:56px;padding:2px 6px;border-radius:99px;background:#71ebde;color:#06221e;font-size:6px;font-weight:1000;white-space:nowrap;}
 @media(max-width:640px){.round-player-strip>div{justify-content:center!important;gap:10px!important}.round-player-strip .round-player{grid-template-columns:42px auto;min-width:98px}.round-player-strip .round-player>i{width:42px;height:42px}.round-player-strip .round-player small{top:50px}}
+
+/* v5.95: avslöja kortet som byts ut */
+#card-animation-stage.is-swap{background:#020712e8;backdrop-filter:blur(7px);}
+.swap-reveal-copy{top:14%;left:0;right:0;text-align:center;color:#dff8ff;font-size:13px;font-weight:1000;letter-spacing:.12em;}
+.swap-flip-scene{width:190px;height:260px;perspective:1100px;}
+.swap-flip-card{position:relative;width:100%;height:100%;transform-style:preserve-3d;animation:swap-card-turn 1.8s .4s cubic-bezier(.45,.05,.2,1) forwards;}
+.swap-flip-face{position:absolute;inset:0;box-sizing:border-box;padding:20px;border:2px solid #58dfff;border-radius:18px;background:linear-gradient(145deg,#102a4b,#10132c);box-shadow:0 0 32px #4fd9ff77,inset 0 0 24px #ffffff0a;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:#fff;}
+.swap-flip-face>span{font-size:44px;color:#bd79ff;text-shadow:0 0 16px #a45cff;}
+.swap-flip-face>strong{font-size:16px;line-height:1.25;}
+.swap-flip-face>small{font-size:14px;color:#bcd0e7;}
+.swap-flip-front{transform:rotateY(180deg);border-color:#b877ff;box-shadow:0 0 34px #a65cff88,inset 0 0 25px #7447b744;}
+.swap-flip-front>b{font-size:14px;color:#e8edf7;line-height:1.3;}
+.swap-flip-front>small{font-size:30px;font-weight:1000;color:#ffd04f;}
+@keyframes swap-card-turn{0%{transform:rotateY(0deg)}100%{transform:rotateY(180deg)}}
 @media(max-width:640px){.app-shell{padding-top:max(28px,calc(env(safe-area-inset-top,0px) + 14px))!important;}}
