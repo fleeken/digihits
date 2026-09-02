@@ -155,11 +155,28 @@ async function animateTimelineOutcome(correct) {
 }
 function renderRoundPlayers() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode), players = match?.players || [];
-  document.querySelectorAll(".round-player-strip").forEach((strip) => {
-    if (isSoloMatch(match) || players.length < 2) { strip.hidden = true; strip.replaceChildren(); return; }
-    strip.hidden = false;
-    strip.innerHTML = `<div>${players.map((player) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Number(player.last_round?.score?.correct) || (player.locked_timeline || []).length || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.id || player.user_id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.id || player.user_id)}"><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
+  const finalSummary = $("#final-match-overview"), isFinal = finalSummary && !finalSummary.hidden;
+  const round = Math.max(1, Number(match?.round) || 0, ...players.map((player) => Number(player.rounds_started) || 0));
+  document.querySelectorAll(".view-round-number").forEach((label) => {
+    label.hidden = !match || (label.closest('[data-view-panel="result"]') && isFinal);
+    label.innerHTML = `Omgång <strong>${round}</strong>`;
   });
+  document.querySelectorAll(".round-player-strip").forEach((strip) => {
+    if (isSoloMatch(match) || !players.length || (strip.id === "result-player-strip" && isFinal)) { strip.hidden = true; strip.replaceChildren(); return; }
+    strip.hidden = false;
+    const markup = `<div>${players.map((player) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.id || player.user_id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.id || player.user_id)}"><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
+    if (strip.innerHTML !== markup) strip.innerHTML = markup;
+  });
+}
+function updateRoundStartButton() {
+  if (roundLoading) return;
+  const button = $("#next-round"), match = state.matches.find((item) => item.code === state.activeMatchCode);
+  if (!button || !match) return;
+  const pending = state.pendingResult?.matchCode === match.code || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === match.code)) || (match.status === "active" && ["guess", "timeline", "result"].includes(state.roundResumeViews[match.code]));
+  const started = (match.players || []).some((player) => Number(player.rounds_started) > 0);
+  button.textContent = pending ? (isSoloMatch(match) ? "ÅTERUPPTA MATCH" : "ÅTERUPPTA OMGÅNG") : started ? "STARTA NÄSTA OMGÅNG" : "STARTA MATCH";
+  button.disabled = false;
+  button.classList.toggle("is-visible", match.status === "active");
 }
 // Enda källan för matchtyp: S0 är reserverat för solomatcher.
 // Därmed kan en onlinematch aldrig hamna i solo-flöde eller solostatistik.
@@ -670,7 +687,8 @@ function showView(view, focusMatches = false, fromHistory = false) {
     const selected = ["match", "lobby", "guess", "timeline", "result", "chat", "matches"].includes(view) ? "matches" : ["friends", "career", "game-history"].includes(view) ? view : "home";
     bottomMenu.querySelectorAll("button").forEach((button) => { if (button.dataset.bottomMenu === selected) button.setAttribute("aria-current", "page"); else button.removeAttribute("aria-current"); });
   }
-  if (view === "guess" || view === "timeline") renderRoundPlayers();
+  if (["match", "guess", "timeline", "result"].includes(view)) renderRoundPlayers();
+  if (view === "match") updateRoundStartButton();
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
   });
@@ -788,9 +806,9 @@ function openMatch(matchCode) {
   $("#turn-message").hidden = soloMatch;
   $("#turn-message").textContent = isYourTurn ? "DIN TUR" : isWaiting ? "VÄNTAR PÅ MOTSPELARE" : "VÄNTAR PÅ MOTSPELARE";
   $("#turn-message").classList.toggle("waiting", !isYourTurn);
-  const pendingRound = state.pendingResult?.matchCode === matchCode || (state.currentCard && (!state.currentCardMatchCode || state.currentCardMatchCode === matchCode)) || (isYourTurn && ["guess", "timeline", "result"].includes(state.roundResumeViews[matchCode]));
+  // Button state is shared with return navigation and completed loading.
   $("#next-round").classList.toggle("is-visible", isYourTurn);
-  if (!roundLoading) $("#next-round").textContent = pendingRound ? (soloMatch ? "ÅTERUPPTA MATCH" : "ÅTERUPPTA OMGÅNG") : !matchStarted ? "STARTA MATCH" : "STARTA NÄSTA OMGÅNG";
+  updateRoundStartButton();
   $("#overview-players").hidden = true;
   $("#overview-players").innerHTML = soloMatch ? `<button class="timeline-button show-player-round" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : "";
   let friendBox = $("#match-friend-invites");
@@ -804,6 +822,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
     const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,user_id,display_name,turn_order,locked_timeline,last_round,rounds_started,swap_cards&order=turn_order`);
     const match = state.matches.find((item) => item.id === matchId), friendBox = $("#match-friend-invites");
+    if (match) { match.players = players; if (match.code === state.activeMatchCode) renderRoundPlayers(); }
     if (friendBox && match && !solo) { friendBox.hidden = false; const locked = match.locked || players.some((player) => Number(player.rounds_started || 0) >= 2); if (locked) friendBox.innerHTML = `<small>BJUD IN VÄN TILL MATCHEN</small><p>MATCHEN ÄR LÅST EFTERSOM OMGÅNG TVÅ REDAN PÅBÖRJATS.</p>`; else { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))), sent = new Map(state.sentMatchInvites.filter((invite) => String(invite.match_code) === String(match.code)).map((invite) => [String(invite.recipient_id), invite])); matchInviteCandidates = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE")) && !sent.has(String(friend.friend_id))); const sentRows = [...sent.values()].map((invite) => `<p class="match-invite-status ${invite.status}">${escapeHtml(invite.recipient_name || "Spelaren")} · ${invite.status === "pending" ? "INBJUDAN SKICKAD" : invite.status === "accepted" ? "INBJUDAN ACCEPTERAD" : "INBJUDAN AVVISAD"}</p>`).join(""); friendBox.innerHTML = `<small>BJUD IN VÄN TILL MATCHEN</small>${matchInviteCandidates.length ? `<button class="button button-green" id="open-invite-friends" type="button">BJUD IN VÄN TILL MATCHEN</button>` : `<p>DU HAR INGA FLER VÄNNER ATT BJUD IN TILL DENNA MATCH.</p>`}${sentRows}`; } }
     if (friendBox && match && !solo) { const joinRequests = await supabaseAuth.dataRequest("rpc/digihits_my_match_join_requests", { match_code_input: match.code }, "POST").catch(() => []); if (joinRequests.length) friendBox.insertAdjacentHTML("beforeend", joinRequests.map((request) => `<article class="block-join-request"><strong>${escapeHtml(request.requester_name)} som du har blockerat vill gå med i denna match.</strong><div><button class="button button-secondary" data-match-join-request="${request.request_id}" type="button">AVVISA</button><button class="button button-green" data-match-join-request="${request.request_id}" data-allow-match-join="true" type="button">TILLÅT</button></div></article>`).join("")); }
     if (!solo) $("#overview-players-count").textContent = String(players.length);
@@ -911,6 +930,8 @@ async function syncMatches() {
   evaluateCareerAchievements();
   save(); render();
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode);
+  renderRoundPlayers();
+  if (currentView === "match") updateRoundStartButton();
   const activeMatchChanged = !previousActive || previousActive.status !== activeMatch?.status || previousActive.title !== activeMatch?.title || previousActive.round !== activeMatch?.round || previousActive.locked !== activeMatch?.locked;
   if ((currentView === "lobby" || currentView === "match") && activeMatch && activeMatchChanged) openMatch(activeMatch.code);
   if (["guess", "timeline"].includes(currentView) && !resultIsLocked && activeMatch && activeMatch.status !== "active") openMatch(activeMatch.code);
@@ -1019,7 +1040,7 @@ $("#chat-form").addEventListener("submit", async (event) => { event.preventDefau
 $("#friend-chat-back").addEventListener("click", () => showView("home", true));
 $("#friend-chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const body = $("#friend-chat-input").value.trim(); if (!state.friendChatId || !body) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_message", { friend: state.friendChatId, message_body: body }, "POST"); $("#friend-chat-input").value = ""; await loadFriendChat(); } catch (error) { alert(error.message); } });
 document.addEventListener("click", (event) => { const achievement = event.target.closest("[data-achievement-info]"); if (!achievement) return; dialog(achievement.dataset.achievementLabel + "\n\n" + achievement.dataset.achievementDescription + "\n\nBelöning: +3 onlinepoäng."); });
-window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify()) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = /STARTA MATCH/.test(label) ? "STARTAR MATCH…" : "LADDAR OMGÅNG…"; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; showView(state.roundResumeViews[state.activeMatchCode] || "guess"); pausedForNavigation = true; resumeRoundTrack(); return; } state.roundUnlocked = []; save(); await markRoundStarted(); button.textContent = loadingLabel; await dealCard(); resetTurnInput(); enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) button.textContent = label; } };
+window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify()) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = /STARTA MATCH/.test(label) ? "STARTAR MATCH…" : "LADDAR OMGÅNG…"; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; showView(state.roundResumeViews[state.activeMatchCode] || "guess"); pausedForNavigation = true; resumeRoundTrack(); return; } state.roundUnlocked = []; save(); await markRoundStarted(); button.textContent = loadingLabel; await dealCard(); resetTurnInput(); enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) button.textContent = label; updateRoundStartButton(); } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 document.addEventListener("click", (event) => { const button = event.target.closest(".final-player-round"); if (button) { const id = button.dataset.playerRound; returnToFinalResult = true; showLatestRound({ ...(latestRounds[id] || {}), historyScore: historyPlayerScores[id] }); } });
@@ -1287,7 +1308,7 @@ $("#signup-form").addEventListener("submit", async (event) => {
   finally { $("#signup-progress").hidden = true; }
 });
 
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=6.20", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=6.21", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {});
 // Första renderingen sker efter att avatarens delar har initierats.
 if ((window.matchMedia?.("(display-mode: standalone)").matches || navigator.standalone) && supabaseAuth.session()?.access_token && window.Notification?.permission === "default") setTimeout(() => dialog("Vill du slå på notiser för Digihits? Du får en notis när det är din tur eller när du får en matchinbjudan.", () => $("#enable-notifications").click(), false, "AKTIVERA NOTISER"), 700);
 $("#timeline-row").after($("#change-track-area"));
@@ -1333,7 +1354,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v6.20";
+$(".brand small").textContent = "v6.21";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });

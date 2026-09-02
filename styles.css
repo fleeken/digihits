@@ -429,7 +429,7 @@ body{background:var(--paper);color:var(--night-text);isolation:isolate;}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url("assets/music-atmosphere.svg?v=6.11") center/cover no-repeat;opacity:.1;}
 .app-shell{width:100%;max-width:none;margin:0;padding:max(24px,calc(env(safe-area-inset-top,0px) + 14px)) clamp(16px,3vw,48px) calc(110px + env(safe-area-inset-bottom,0px));}
 .brand{margin:0 0 18px;padding:8px 4px 16px;gap:12px;align-items:center;border-bottom:1px solid #b79bb84d;}
-.brand .brand-button{font:700 clamp(29px,5vw,38px)/1.1 Georgia,"Times New Roman",serif;letter-spacing:-1.5px;color:var(--ink);text-shadow:none;}
+.brand .brand-button{font:700 clamp(29px,5vw,38px)/1.1 Georgia,"Times New Roman",serif;letter-spacing:-1.5px;color:#2872b3;text-shadow:none;}
 .brand small{font:600 10px/1 system-ui,sans-serif;color:var(--muted);letter-spacing:0;margin-left:4px;}
 .brand .install-home{background:#fff7eb!important;border:1px solid #9c83ae!important;border-radius:14px;color:#40314f!important;box-shadow:none;padding:10px 12px;font-size:10px!important;}
 .panel{background:linear-gradient(145deg,#252042ed,#0b1530f5);border:1px solid #85718e;border-radius:26px;box-shadow:0 12px 30px #37233d14;}
@@ -637,10 +637,7 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
 }
 @media(prefers-reduced-motion:reduce){.button,.account-button,.match-open{transition:none;}}
 /* Fyrbildsreferensen: skivomslag + ljus matchinformation, mörka deltagarrader. */
-.view:is([data-view-panel="match"],[data-view-panel="lobby"]) .lobby-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,.36fr);grid-template-areas:"cover cover" "info actions";gap:0;background:var(--surface);color:var(--ink);border-radius:28px;overflow:hidden;}
-.match-cover{grid-area:cover;min-height:260px;background:#f8e5d2 url("assets/match-record.svg?v=6.15") right center/cover no-repeat;display:flex;align-items:center;padding:30px clamp(24px,5vw,64px);}
-.match-cover p{font:700 clamp(38px,5.5vw,66px)/.98 Georgia,serif;letter-spacing:-1.5px;margin:0;color:#111832;}
-.match-cover em{color:#874f70;font-style:normal;}
+.view:is([data-view-panel="match"],[data-view-panel="lobby"]) .lobby-layout{display:grid;grid-template-columns:245px minmax(0,1fr);grid-template-areas:"round round" "players players" "actions info";gap:0;background:var(--surface);color:var(--ink);border-radius:28px;overflow:hidden;}
 .lobby-layout>.match-view,.lobby-layout>.lobby-main{grid-area:info;background:var(--surface);border:0;border-radius:0;margin:0;padding:clamp(20px,3vw,36px);color:var(--ink);box-shadow:none;min-width:0;}
 .lobby-layout>.lobby-side{grid-area:actions;background:var(--surface);border:0;border-radius:0;margin:0;padding:clamp(20px,3vw,36px) 20px;box-shadow:none;}
 .lobby-layout .lobby-title-row h1{color:var(--ink);font:700 28px/1.15 Georgia,serif;}
@@ -658,7 +655,7 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
 .lobby-layout .lobby-stage{border:0;min-height:180px;margin-top:16px;}
 .lobby-layout .lobby-code-card{background:#171e3c;border-color:#454466;color:#fff3df;}
 .lobby-layout .lobby-side .button,.lobby-layout .lobby-back{width:100%;min-height:48px;margin:0;}
-.lobby-layout .next-round{background:#111832;color:#fff3df;border-color:#111832;}
+.lobby-layout .next-round,.lobby-layout .next-round:disabled{background:#7be6a2!important;color:#103522!important;border-color:#3daf69!important;opacity:1;}
 .lobby-layout .next-round.is-visible{display:block;}
 .menu-page-section .action-card{padding:20px!important;border:1px solid #c3b0ca!important;border-radius:22px;background:#ede1ed!important;}
 .menu-page-section .action-card:nth-child(2){background:#e1e9df!important;border-color:#b6c7b7!important;}
@@ -669,9 +666,7 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
 .bottom-menu button[aria-current]{background:transparent;color:#111832;font-weight:900;}
 .bottom-menu button[aria-current]::after{content:"";width:5px;height:5px;background:#ef9a89;border-radius:50%;position:absolute;bottom:0;}
 @media(max-width:760px){
- .view:is([data-view-panel="match"],[data-view-panel="lobby"]) .lobby-layout{grid-template-columns:1fr;grid-template-areas:"cover" "info" "actions";border-radius:0;}
- .match-cover{min-height:220px;padding:24px;background-position:65% center;}
- .match-cover p{font-size:42px;}
+ .view:is([data-view-panel="match"],[data-view-panel="lobby"]) .lobby-layout{grid-template-columns:1fr;grid-template-areas:"round" "players" "actions" "info";border-radius:0;}
  .lobby-layout>.match-view,.lobby-layout>.lobby-main{padding:24px 16px;}
  .lobby-layout>.lobby-side{padding:0 16px 24px;gap:10px;}
  .home-intro{display:block;margin-bottom:4px;}.home-greeting{padding:0;}.home-greeting h2{font-size:22px;}.home-greeting p{font-size:12px;}.home-illustration{margin-top:0;}
@@ -683,3 +678,20 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
 .profile-toggle[hidden]{display:none!important;}
 .profile-card>.back-link{color:#634477;margin:10px 0 20px;}
 .profile-card .account-row{border-top:0;padding-top:0;}
+/* Shared match header: current turn, scores and round, without a decorative cover. */
+body:has(.view.active:is([data-view-panel="match"],[data-view-panel="lobby"],[data-view-panel="guess"],[data-view-panel="timeline"],[data-view-panel="result"],[data-view-panel="chat"],[data-view-panel="avatar"])) .brand-button{color:#88c9f5;}
+body:has([data-view-panel="matches"].active)::before{background:none;}
+.menu-page-section .match-group-title{color:#223555;}
+.menu-page-section .match-empty{color:#625a6a;}
+.view-round-number{margin:0;padding:14px 18px 6px;text-align:right;font-size:14px;line-height:1.5;font-weight:600;color:#fff3df;}
+.view-round-number strong{color:#88c9f5;margin-left:5px;}
+.view-round-number[hidden]{display:none!important;}
+.lobby-layout>.view-round-number{grid-area:round;color:#223555;}
+.lobby-layout>.view-round-number strong{color:#2872b3;}
+.lobby-layout>.round-player-strip{grid-area:players;min-width:0;margin:0 14px 12px;border-radius:18px;background:#171e3c;}
+.round-player-strip>div{display:flex!important;flex-wrap:nowrap;justify-content:center!important;gap:14px!important;width:max-content;min-width:100%!important;}
+.round-player-strip .round-player{flex:0 0 auto;width:auto;max-width:180px;padding:10px;grid-template-columns:44px minmax(0,1fr);border-color:transparent;background:transparent;}
+.round-player-strip .round-player strong{color:#fff3df;}
+.round-player-strip .round-player.is-current{border-color:#72c6ee;}
+.round-player-strip .round-player.is-current>i{border-color:#72c6ee;box-shadow:0 0 0 3px #72c6ee30;}
+.round-player-strip .round-player.is-current small{background:#a9def5;color:#16384d;border-color:#72c6ee;}
