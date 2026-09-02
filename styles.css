@@ -606,6 +606,8 @@ body{background:radial-gradient(ellipse at 0% 0%,#ecd0ba 0,transparent 48%),radi
 .menu-page-section .match.active{border-color:#2c8755!important;}.menu-page-section .match.opponent{border-color:#b48720!important;}.menu-page-section .match.waiting{border-color:#417ba2!important;}.menu-page-section .match.solo{border-color:#8858a5!important;}
 .match-open{min-height:42px;border-radius:16px;font-size:11px;letter-spacing:.025em;}
 .menu-page-section .match.active .match-open{background:#24563e;border-color:#36895b;color:#fff8ef;}.menu-page-section .match.opponent .match-open{background:#6a5123;border-color:#9e7a2d;color:#fff8ef;}.menu-page-section .match.waiting .match-open{background:#355775;border-color:#5683aa;color:#fff8ef;}.menu-page-section .match.solo .match-open{background:#644479;border-color:#9865b2;color:#fff8ef;}
+.menu-page-section .match.opponent{border-color:#f0cd87!important;}
+.menu-page-section .match.opponent .match-open{background:#f0cd87;border-color:#f0cd87;color:#473315;}
 .panel:not(.hero):not(.accordion):not(.welcome-card){background:radial-gradient(ellipse at 100% 0%,#342548 0,transparent 55%),#111630;border-color:#796486;box-shadow:0 10px 26px #201c321f;}
 .overview-player{border:1.5px solid #887198;border-radius:22px;}
 .match-metrics>div,.overview-player-stats>div{border-color:#786582;}
