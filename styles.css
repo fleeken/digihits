@@ -549,7 +549,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .hero .account-row,.menu-page-section .friend-row,.menu-page-section .action-card,.menu-page-section .level-panel{border-color:var(--line);}
 .menu-page-section .achievement.earned{color:var(--ink)!important;}
 .hero::before{content:none;}
-.home-intro{display:block;position:relative;margin-bottom:12px;}
+.home-intro{display:block;position:relative;margin-bottom:4px;}
 .home-greeting{position:absolute;z-index:1;top:clamp(12px,3vw,40px);left:clamp(12px,3vw,40px);max-width:56%;}
 .home-greeting h2{font:700 clamp(22px,3vw,40px)/1.2 Georgia,serif;margin:0 0 8px;color:var(--ink);}
 .home-greeting p{font-size:clamp(12px,1.6vw,18px);line-height:1.5;margin:0;color:var(--ink);}
@@ -570,6 +570,7 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
 .hero .account-row{border:0;border-radius:0;padding:20px 0;margin-top:0;border-top:1px solid #bdadc166;}
 .menu-page-section .action-card{border:0;border-radius:0;padding:16px 0;}
 .match-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,3vw,40px);padding:16px 0;}
+[data-view-panel="home"] .match-actions{padding-top:4px;}
 .match-actions .action-card{min-width:0;}.match-actions .button{width:100%;padding:12px 8px;white-space:normal;line-height:1.4;}
 .friends-content{padding:18px 0;}
 .view>.auth-card{width:100%;max-width:none;padding:clamp(24px,5vw,64px) 0;}
@@ -668,7 +669,7 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
  .match-cover p{font-size:42px;}
  .lobby-layout>.match-view,.lobby-layout>.lobby-main{padding:24px 16px;}
  .lobby-layout>.lobby-side{padding:0 16px 24px;gap:10px;}
- .home-intro{display:block;}.home-greeting{padding:0;}.home-greeting h2{font-size:22px;}.home-greeting p{font-size:12px;}.home-illustration{margin-top:0;}
+ .home-intro{display:block;margin-bottom:4px;}.home-greeting{padding:0;}.home-greeting h2{font-size:22px;}.home-greeting p{font-size:12px;}.home-illustration{margin-top:0;}
  .menu-page-section .action-card{padding:16px!important;}
  .round-player-strip{padding:12px 0 18px!important;}
 }
