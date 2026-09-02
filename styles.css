@@ -733,3 +733,10 @@ body:has([data-view-panel="matches"].active)::before{background:none;}
 /* Keep the decorative music background below the logo/header. */
 body::before{clip-path:inset(140px 0 0);}
 [data-view-panel="match"] .lobby-layout>.lobby-side{padding-top:24px;}
+/* Softer corners on content boxes; full-width banners and navigation stay flat. */
+.view:is([data-view-panel="match"],[data-view-panel="lobby"]) .lobby-layout{border-radius:24px;}
+.app-shell .menu-page-section :is(.match,.friend-row,.history-match,.action-card,.level-panel){border-radius:24px;}
+.app-shell .lobby-layout .overview-player{border-radius:22px;}
+.app-shell :is(.stat-grid,.solo-card-stats,.overview-player-stats,.match-metrics)>div{border-radius:16px;}
+.app-shell :is(.result-check,.achievement,.invite-picker>div){border-radius:16px;}
+.app-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea){border-radius:16px;}
