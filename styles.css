@@ -543,3 +543,41 @@ input::placeholder,textarea::placeholder{color:#c7baca;}
 @media(max-width:380px){#my-matches-section .accordion-toggle{padding-inline:14px;font-size:18px;}#my-matches-section .match-badges .badge{padding:4px 5px;font-size:8px;}}
 @media(max-width:640px){.app-shell{width:calc(100% - 24px);padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}.brand{gap:8px;padding-inline:2px;}.brand .brand-button{font-size:27px}.brand .install-home{font-size:9px!important;padding:9px!important}.panel{border-radius:23px}.hero{padding:18px}.accordion-toggle{font-size:18px;padding:18px}.welcome-card{min-height:440px;padding:32px 22px}.overview-player{padding:12px}.bottom-menu{border-radius:20px 20px 0 0}}
 @media(max-width:640px){.app-shell{padding-top:max(28px,calc(env(safe-area-inset-top,0px) + 14px))!important;}}
+
+/* v6.00: öppna innehållsboxar och samlade menynotiser. Knappar behåller sin fyllning. */
+.menu-status-row{display:none!important;}
+.bottom-menu button{position:relative;}
+.menu-count{position:absolute;top:-3px;right:calc(50% - 29px);min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px;border-radius:99px;background:#17653d;color:#fff;border:2px solid #fff8ef;font-size:10px;line-height:1;font-weight:900;box-shadow:0 2px 5px #173c2520;}
+.menu-count[hidden]{display:none!important;}
+.hero .account-row,.menu-page-section :is(.match,.friend-row,.action-card,.history-match,.level-panel,.stat-grid>div,.solo-card-stats>div){background:transparent!important;box-shadow:none!important;color:#302b38!important;}
+.hero .account-row{border-color:#8f7a8e;}
+.menu-page-section .match.active{border-color:#28764b;}.menu-page-section .match.opponent{border-color:#a16a23;}.menu-page-section .match.waiting{border-color:#406d91;}.menu-page-section .match.solo{border-color:#855b9d;}
+.menu-page-section :is(.friend-row,.level-panel){border-color:#876793;}.menu-page-section :is(.action-card,.history-match){border-color:#998591;}
+.menu-page-section :is(.match,.friend-row,.action-card,.history-match,.level-panel) :is(h3,p,strong,b,small),.hero .account-row :is(strong,p,span){color:#302b38;}
+.menu-page-section :is(.muted,.friend-empty,.level-next,.level-head small,.solo-card-stats small),.hero .account-field-label,.hero .player-name>span{color:#655368!important;}
+.menu-page-section .solo-card-stats>div:first-child strong{color:#25613e!important;}.menu-page-section .solo-card-stats>div:nth-child(2) strong{color:#a03249!important;}.menu-page-section .solo-card-stats>div:nth-child(3) strong{color:#302b38!important;}
+.menu-page-section .match-code,.menu-page-section .match-code strong{color:#345d80;}.menu-page-section .already-friend{color:#25613e!important;}
+.menu-page-section .achievement{background:transparent!important;border-color:#99879f!important;opacity:1!important;color:#655368!important;}.menu-page-section .achievement.earned{border:2px solid #28764b!important;color:#25613e!important;}.menu-page-section .achievement.earned small{color:#25613e!important;}
+.menu-page-section .level-head b{color:#302b38!important;}.menu-page-section .level-progress{background:#e6d5c6;border-color:#997146;}.menu-page-section .level-progress strong{color:#302218!important;text-shadow:none;}
+.menu-page-section .level-head button{color:#315b7d!important;background:transparent!important;border-color:#527794!important;}
+.overview-player,.overview-player-stats>div,.match-metrics>div,.result-check,.result-timeline,.match-friend-invites{background:transparent!important;box-shadow:none!important;}
+.match-view :is(.overview-player,.match-friend-invites) small,.result-check small{color:#ded3e1;}
+.menu-page-section .friend-feedback.error,.menu-page-section .delete-error{color:#a03249!important;}
+.hero .avatar-change-link{color:#654278!important;}
+[data-view-panel="home"] .button-green{background:#28724e!important;border-color:#205d40!important;color:#ffffff!important;box-shadow:0 3px 8px #205d401c;}
+[data-view-panel="home"] .button-purple{background:#765083!important;border-color:#603e6c!important;color:#ffffff!important;box-shadow:0 3px 8px #603e6c1c;}
+[data-view-panel="home"] .account-button{background:#4a4051;border-color:#796681;color:#ffffff;}
+[data-view-panel="home"] .account-danger{background:#763b49;border-color:#a44f60;color:#ffffff;}
+
+/* v6.01: originalets vänstra mobilbild, avgränsad med CSS utan omgenerering. */
+.app-shell:has([data-view-panel="welcome"].active)>.brand{display:none;}
+.app-shell:has([data-view-panel="welcome"].active){padding-bottom:24px;}
+.welcome-card{width:min(100%,390px);aspect-ratio:359/750;min-height:0;margin:0 auto;padding:0;display:block;border:1px solid #30364d;border-radius:32px;background-image:linear-gradient(180deg,#070e2a 0%,#070e2a 37%,transparent 47%,transparent 73%,#070e2a 81%,#070e2a 100%),url("assets/welcome-original.jpg");background-size:100% 100%,427.86% 111.73%;background-position:center,1.529% 50%;background-repeat:no-repeat;box-shadow:0 12px 32px #2420352b;}
+.welcome-card .welcome-inner{display:flex;flex-direction:column;align-items:center;height:100%;padding:clamp(28px,8vw,48px) 24px 28px;margin:0;}
+.welcome-card .welcome-inner::before{content:none;}
+.welcome-card .welcome-inner h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,13vw,62px);line-height:1.1;color:#fff4e5;letter-spacing:-2px;}
+.welcome-card .welcome-inner p{margin:16px 0 0;font-size:17px;font-weight:700;color:#f5a592;}
+.welcome-card .welcome-actions{display:grid;grid-template-columns:1fr;width:100%;gap:10px;margin: auto 0 0;}
+.welcome-card .welcome-actions .button{width:100%;min-height:48px;margin:0;border-radius:24px;font-size:13px;font-weight:800;}
+.welcome-card .welcome-actions .button-primary{background:#f09283!important;border-color:#ffc0aa!important;color:#28202f!important;}
+.welcome-card .welcome-actions .button-secondary{background:#26233b;color:#fff3e5;border:1px solid #b6a1b9;}

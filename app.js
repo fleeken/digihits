@@ -22,6 +22,7 @@ state.recentTrackIds ||= [];
 state.changeTrackCards ??= 0;
 state.pendingSwapAward ||= null;
 state.achievements ||= {};
+state.menuSeenByUser ||= {};
 state.avatar ||= { skin: "Mellan", hair: "Kort", beard: "Ingen", hat: "Ingen", top: "T-shirt", legs: "Jeans", shoes: "Sneakers", accessory: "Inget", piercing: "Ingen" };
 state.avatar.eyes ||= "Runda";
 state.career ||= { onlineMatchesCreated: 0, playedWith: [], dailyOpponents: {}, fullHouse: false };
@@ -476,6 +477,7 @@ const achievementNames = { firstWin:"Första vinsten", firstSwap:"Första byt-l�
 function friendAchievementMarkup(friend) { const earned = (Array.isArray(friend?.career_achievements) ? friend.career_achievements : []).filter((id) => achievementNames[id]); return `<section class="achievement-list"><h3>UTMÄRKELSER</h3>${earned.length ? `<div>${earned.map((id) => `<span class="achievement earned"><small>${achievementNames[id]}</small></span>`).join("")}</div>` : "<p>INGA UTMÄRKELSER UPPLÅSTA ÄN</p>"}</section>`; }
 function persistCareer() { const points = Number(state.stats?.wins || 0) * 3 - Number(state.stats?.walkoverLeaves || 0) + Number(state.stats?.achievementXp || 0), achievementKeys = Object.keys(state.achievements || {}).filter((id) => state.achievements[id]), key = `${points}|${achievementKeys.join(",")}`; if (key === lastCareerSync || !supabaseAuth.session()?.access_token) return; lastCareerSync = key; supabaseAuth.dataRequest("rpc/digihits_set_career", { career_points_input: points, achievement_keys: achievementKeys }, "POST").catch(() => supabaseAuth.dataRequest("rpc/digihits_set_career", { career_points_input: points }, "POST")).catch(() => { lastCareerSync = ""; }); }
 function renderFriends() {
+  updateBottomBadges();
   const requests = $("#friend-requests"), sent = $("#friend-sent-requests"), sentMatches = $("#friend-sent-match-invites"), friends = $("#friends-list"), invites = $("#friend-invites"); if (!requests || !sent || !sentMatches || !friends || !invites) return;
   const requestCount = state.friendRequests.length, inviteCount = state.friendInvites.length; $("#friend-request-count").textContent = `Vänförfrågan ${requestCount}`; $("#friend-request-count").hidden = !requestCount; $("#friend-match-invite-count").textContent = `Ny match ${inviteCount}`; $("#friend-match-invite-count").hidden = !inviteCount;
   invites.innerHTML = `<h3 class="friend-section-title">Inkommande matchinbjudningar</h3>${state.friendInvites.length ? state.friendInvites.map((invite) => `<article class="friend-row"><strong>${escapeHtml(invite.sender_name)} har bjudit in dig till match</strong><div class="friend-actions"><button class="button button-green" data-join-friend-match="${invite.match_code}" data-invite-id="${invite.invite_id}" type="button">GÅ MED</button><button class="button button-secondary" data-decline-match-invite="${invite.invite_id}" type="button">AVVISA</button></div></article>`).join("") : `<p class="friend-empty">Du har inga inkommande matchinbjudningar.</p>`}`;
@@ -571,6 +573,29 @@ function render() {
   alignResetButtons(); renderFriends();
 }
 
+function updateBottomBadges() {
+  const menu = document.getElementById("bottom-menu");
+  if (!menu || !state.userId) return;
+  const seen = state.menuSeenByUser[state.userId] ||= { career: [], history: [] };
+  const earned = Object.keys(state.achievements).filter((id) => state.achievements[id]);
+  const historyIds = state.history.map((entry) => String(entry.id ?? entry.code)).filter((id) => id !== "undefined");
+  let changed = false;
+  for (const [view, key, ids] of [["career", "career", earned], ["game-history", "history", historyIds]]) {
+    if (currentView === view && ids.some((id) => !seen[key].includes(id))) { seen[key] = [...new Set([...seen[key], ...ids])]; changed = true; }
+  }
+  if (changed) save();
+  const turns = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active");
+  const invitations = new Set((state.friendInvites || []).map((invite) => String(invite.match_code || invite.id)).filter((code) => !turns.some((match) => String(match.code) === code)));
+  const counts = { home: 0, matches: turns.length + invitations.size, friends: (state.friendRequests || []).length, career: earned.filter((id) => !seen.career.includes(id)).length, "game-history": historyIds.filter((id) => !seen.history.includes(id)).length };
+  menu.querySelectorAll("[data-bottom-menu]").forEach((button) => {
+    let badge = button.querySelector(".menu-count");
+    if (!badge) { badge = document.createElement("b"); badge.className = "menu-count"; badge.setAttribute("aria-live", "polite"); button.append(badge); }
+    const count = counts[button.dataset.bottomMenu] || 0;
+    badge.hidden = count === 0;
+    badge.textContent = String(count);
+    button.setAttribute("aria-label", `${button.querySelector("span").textContent}${count ? `, ${count} att uppmärksamma` : ""}`);
+  });
+}
 function initializeMenuPages() {
   const home = document.querySelector('[data-view-panel="home"]');
   for (const [view, id] of [["matches", "my-matches-section"], ["friends", "friends-section"], ["career", "career-section"], ["game-history", "game-history-section"]]) {
@@ -605,6 +630,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
   if (view !== "chat") { clearInterval(chatPoll); chatPoll = 0; }
   if (view === "timeline") { $("#change-track-area").hidden = !state.changeTrackCards; $("#change-track-area").querySelectorAll(".no-change-cards").forEach((element) => element.remove()); }
   currentView = view;
+  updateBottomBadges();
   const bottomMenu = $("#bottom-menu");
   if (bottomMenu) {
     bottomMenu.hidden = ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(view);
@@ -1228,7 +1254,7 @@ $("#signup-form").addEventListener("submit", async (event) => {
   finally { $("#signup-progress").hidden = true; }
 });
 
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=5.99", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=6.01", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {});
 // Första renderingen sker efter att avatarens delar har initierats.
 if ((window.matchMedia?.("(display-mode: standalone)").matches || navigator.standalone) && supabaseAuth.session()?.access_token && window.Notification?.permission === "default") setTimeout(() => dialog("Vill du slå på notiser för Digihits? Du får en notis när det är din tur eller när du får en matchinbjudan.", () => $("#enable-notifications").click(), false, "AKTIVERA NOTISER"), 700);
 $("#timeline-row").after($("#change-track-area"));
@@ -1274,7 +1300,7 @@ function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) retur
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-rig]"); if (!select) return; state.avatar ||= {}; state.avatar.traits = { ...avatarRig(state.avatar), [select.dataset.avatarRig]: select.value }; save(); renderAvatar(); });
 document.addEventListener("click", (event) => { const genre = event.target.closest("[data-avatar-rig-genre]"), random = event.target.closest("[data-avatar-rig-random]"); if (!genre && !random) return; state.avatar ||= {}; state.avatar.traits = random ? Object.fromEntries(Object.entries(avatarRigOptions).map(([part, values]) => [part, values[Math.floor(Math.random() * values.length)]])) : { ...avatarRig(state.avatar), ...avatarRigPresets[genre.dataset.avatarRigGenre] }; save(); renderAvatar(); });
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const choice = ownAvatarChoice(), accountAvatar = $("#change-avatar"); state.avatar.genre = choice.genre; state.avatar.variant = choice.variant; save(); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(choice.genre, choice.variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" role="img" aria-label="${choice.genre}-avatar"></div><div class="avatar-choice-copy"><p>Välj en musikgenre och sedan en av sex färdiga avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" class="${genre === choice.genre ? "is-selected" : ""}" data-avatar-style="${genre}">${genre.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === choice.variant ? "is-selected" : ""}" style="${avatarArtStyle(choice.genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
-$(".brand small").textContent = "v5.99";
+$(".brand small").textContent = "v6.01";
 render();
 const unsuitableAppleVersion = /(cover|karaoke|instrumental|tribute|live|sped up|slowed|nightcore|re-recorded|remix)/i;
 supabaseAuth.spotify = () => ({ name: "Apple-previews" });
