@@ -568,6 +568,9 @@ input::placeholder,textarea::placeholder{color:#c7baca;}
 [data-view-panel="home"] .button-purple{background:#765083!important;border-color:#603e6c!important;color:#ffffff!important;box-shadow:0 3px 8px #603e6c1c;}
 [data-view-panel="home"] .account-button{background:#4a4051;border-color:#796681;color:#ffffff;}
 [data-view-panel="home"] .account-danger{background:#763b49;border-color:#a44f60;color:#ffffff;}
+/* Gemensam färgmall för alla röda åtgärdsknappar. */
+:root{--danger-bg:#763b49;--danger-border:#a44f60;--danger-text:#ffffff;}
+button:is(.account-danger,.button-leave,.button-red,.reset-button,.delete-icon){background:var(--danger-bg)!important;border:1px solid var(--danger-border)!important;color:var(--danger-text)!important;box-shadow:none!important;}
 
 /* v6.01: originalets vänstra mobilbild, avgränsad med CSS utan omgenerering. */
 .app-shell:has([data-view-panel="welcome"].active)>.brand{display:none;}
