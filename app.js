@@ -1,4 +1,4 @@
-const APP_VERSION = "6.42";
+const APP_VERSION = "6.54";
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-final-v642.png";
@@ -301,6 +301,8 @@ function resumeRoundTrack() { if (!pausedForNavigation || !state.currentCard || 
 const $ = (selector) => document.querySelector(selector);
 if (document.documentElement.classList.contains("spotify-callback")) $("#spotify-connecting").hidden = false;
 let currentView = "welcome", chatPoll = 0, realtimeFallbackPoll = 0, realtimeRefreshing = false;
+let profileReturnView = "home", profileReturnMenu = "home";
+const menuForView = (view) => ["match", "lobby", "guess", "timeline", "result", "chat", "matches"].includes(view) ? "matches" : ["friends", "career", "game-history"].includes(view) ? view : "home";
 let resultIsLocked = false;
 const code = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
 function dialog(message, action, danger = false, confirmText = "FORTSÄTT", cancelText = "AVBRYT") {
@@ -705,16 +707,18 @@ function showView(view, focusMatches = false, fromHistory = false) {
   if (!gameView) stopCurrentTrack(true);
   if (view !== "chat") { clearInterval(chatPoll); chatPoll = 0; }
   if (view === "timeline") { $("#change-track-area").hidden = !state.changeTrackCards; $("#change-track-area").querySelectorAll(".no-change-cards").forEach((element) => element.remove()); }
+  const profileLayer = ["profile", "avatar", "change-password"].includes(view);
+  if (view === "profile" && !["profile", "avatar", "change-password"].includes(currentView)) { profileReturnView = currentView; profileReturnMenu = menuForView(currentView); }
   currentView = view;
-  const selectedMenu = ["match", "lobby", "guess", "timeline", "result", "chat", "matches"].includes(view) ? "matches" : ["friends", "career", "game-history"].includes(view) ? view : "home";
-  menuViewState[selectedMenu] = view;
+  const selectedMenu = profileLayer ? profileReturnMenu : menuForView(view);
+  if (!profileLayer) menuViewState[selectedMenu] = view;
   updateBottomBadges();
   const bottomMenu = $("#bottom-menu");
   if (bottomMenu) {
     bottomMenu.hidden = ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(view);
     const profileToggle = document.querySelector(".profile-toggle");
-    if (profileToggle) profileToggle.hidden = bottomMenu.hidden;
-    const selected = ["match", "lobby", "guess", "timeline", "result", "chat", "matches"].includes(view) ? "matches" : ["friends", "career", "game-history"].includes(view) ? view : "home";
+    if (profileToggle) { const avatar = ownAvatarChoice(); profileToggle.hidden = bottomMenu.hidden; profileToggle.className = "profile-toggle avatar-art"; profileToggle.style.cssText = avatarArtStyle(avatar.genre, avatar.variant); profileToggle.replaceChildren(); profileToggle.setAttribute("aria-label", "Min profil"); }
+    const selected = selectedMenu;
     bottomMenu.querySelectorAll("button").forEach((button) => { if (button.dataset.bottomMenu === selected) button.setAttribute("aria-current", "page"); else button.removeAttribute("aria-current"); });
   }
   if (["match", "guess", "timeline", "result"].includes(view)) renderRoundPlayers();
