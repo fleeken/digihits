@@ -607,6 +607,7 @@ function render() {
     ["soloDaily", "★", "Solisten", "Slutför en omgång i en solomatch idag.", "solo"],
     ["fullGuard", "◆", "Helgardering", "Gissa artist och låttitel rätt och placera kortet rätt i samma omgång.", "solo ELLER online"],
     ["fullSpeed", "↯", "Full fart", "Slutför minst en soloomgång och en onlineomgång under samma dag.", "solo OCH online"],
+    ["soloWin", "★", "Solovinst", "Vinn en solomatch.", "solo"],
     ["friendshipTone", "♥", "Vänskapston", "Bli vän med fem olika personer.", "online"],
     ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer.", "online"],
     ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust.", "online"],
@@ -620,7 +621,7 @@ function render() {
     ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher.", "online"]
   ];
   const todayAchievements = state.dailyAchievements[localDateKey()] || {};
-  const dailyAchievementIds = new Set(["eveningDj", "hattrick", "quickStart", "socialToneDaily", "soloDaily", "fullGuard", "fullSpeed"]);
+  const dailyAchievementIds = new Set(["eveningDj", "hattrick", "quickStart", "socialToneDaily", "soloDaily", "fullGuard", "fullSpeed", "soloWin"]);
   const achievementButton = ([id, icon, label, description, mode]) => "<button class=\"achievement " + ((dailyAchievementIds.has(id) ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small><span>" + label + "</span><em>" + mode + "</em></small></button>";
   const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Permanenta utmärkelser</h3><div>" + achievements.filter(([id]) => !dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
@@ -1288,7 +1289,7 @@ $("#lock-placement").addEventListener("click", async () => {
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
   let soloOutcome;
   if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); } catch (error) { alert(error.message); return; } }
-  if (soloOutcome?.won) { state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); }
+  if (soloOutcome?.won) { grantDailyAchievement("soloWin", "Solovinst"); state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); finishAchievementAwards(); }
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
   else if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
   else if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards >= 3) dialog("Du gissade rätt för både artist och låtnamn, men du har redan 3/3 byt-låt-kort.");
