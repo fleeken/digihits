@@ -1,7 +1,7 @@
-const APP_VERSION = "6.38";
+const APP_VERSION = "6.39";
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
-if (currentHomeImage) currentHomeImage.src = "assets/home-friends-lamp-v638.png";
+if (currentHomeImage) currentHomeImage.src = "assets/home-friends-seamless-v639.png";
 const storageKey = "digihits-home-v1";
 const state = JSON.parse(localStorage.getItem(storageKey) || "null") || {
   playerName: "Spelare",
