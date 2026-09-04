@@ -22,6 +22,7 @@ state.recentTrackIds ||= [];
 state.changeTrackCards ??= 0;
 state.pendingSwapAward ||= null;
 state.achievements ||= {};
+state.dailyAchievements ||= {};
 state.menuSeenByUser ||= {};
 state.avatar ||= { skin: "Mellan", hair: "Kort", beard: "Ingen", hat: "Ingen", top: "T-shirt", legs: "Jeans", shoes: "Sneakers", accessory: "Inget", piercing: "Ingen" };
 state.avatar.eyes ||= "Runda";
@@ -60,6 +61,7 @@ state.seenFinalChanceNotices ||= {};
 let currentPlacementCorrect = true, roundLoading = false;
 let viewingLatestRound = false, viewingHistoryResult = false, returnToFinalResult = false, latestRoundReturnView = "match", historyResultEntry = null, historyResultRounds = 0, historyPlayerScores = {}, matchInviteCandidates = [];
 let achievementPopupQueue = [];
+const menuViewState = { home: "home", matches: "matches", friends: "friends", career: "career", "game-history": "game-history" };
 let pendingTimelineDeal = null;
 let skipCardDeal = false;
 const activeCardDealAnimations = new Set();
@@ -426,6 +428,18 @@ function grantAchievement(id, label) {
   achievementPopupQueue.push(label);
   return true;
 }
+function localDateKey(date = new Date()) {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+}
+function grantDailyAchievement(id, label) {
+  const today = localDateKey();
+  state.dailyAchievements[today] ||= {};
+  if (state.dailyAchievements[today][id]) return false;
+  state.dailyAchievements[today][id] = true;
+  state.stats.achievementXp += 3;
+  achievementPopupQueue.push(label);
+  return true;
+}
 function showAchievementPopups() {
   if (!$("#app-dialog").hidden) { setTimeout(showAchievementPopups, 250); return; }
   const label = achievementPopupQueue.shift();
@@ -438,7 +452,7 @@ function finishAchievementAwards() {
 }
 function evaluateCareerAchievements(comeback = false) {
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
-  const todayOpponents = new Set(state.career.dailyOpponents[new Date().toISOString().slice(0, 10)] || []).size;
+  const todayOpponents = new Set(state.career.dailyOpponents[localDateKey()] || []).size;
   if (state.stats.wins >= 1) grantAchievement("firstWin", "Första vinsten");
   if (state.stats.streak >= 3) grantAchievement("streak3", "3 vinster i rad");
   if (state.stats.wins >= 10) grantAchievement("wins10", "10 onlinevinster");
@@ -452,7 +466,7 @@ function evaluateCareerAchievements(comeback = false) {
   if (state.career.playedWith.length >= 5) grantAchievement("socialPlayer", "Sällskapsspelare");
   if (state.career.friendIds.length >= 5) grantAchievement("friendshipTone", "Vänskapston");
   if (state.career.fullHouse) grantAchievement("fullHouse", "Fullt hus");
-  if (todayOpponents >= 3) grantAchievement("eveningDj", "Kvällens DJ");
+  if (todayOpponents >= 3) grantDailyAchievement("eveningDj", "Kvällens DJ");
   if (state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp >= 90) grantAchievement("goldRecord", "Guldskiva nådd");
   finishAchievementAwards();
 }
@@ -463,7 +477,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#final-match-overview")?.setAttribute("hidden", ""); $(".result-head").hidden = false; $(".result-checks").hidden = false; $(".result-actions").hidden = false; $("#result-timeline").hidden = false;
   const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode));
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
-  if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "TILLBAKA TILL DINA MATCHER"; wrongButton.addEventListener("click", async () => { if (!currentPlacementCorrect) await animateTimelineOutcome(false); state.roundUnlocked = []; save(); showView("home", true); }); $("#result-back").after(wrongButton); }
+  if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.hidden = true; $("#result-back").after(wrongButton); }
   if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.className = "lobby-back wrong-match-button"; overviewButton.type = "button"; overviewButton.textContent = "TILL MATCHÖVERSIKT"; overviewButton.addEventListener("click", async () => { if (!currentPlacementCorrect) await animateTimelineOutcome(false); openMatch(state.activeMatchCode); }); wrongButton.after(overviewButton); }
   const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
@@ -489,7 +503,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const onlyContinue = !$("#result-continue").hidden && $("#result-lock").hidden;
   $(".result-actions").style.gridTemplateColumns = onlyContinue ? "minmax(0,300px)" : "";
   $(".result-actions").style.justifyContent = onlyContinue ? "center" : "";
-  $("#result-back").hidden = true; wrongButton.hidden = correct || solo; overviewButton.hidden = correct || solo || score.correct >= 10;
+  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = correct || score.correct >= 10;
   $("#result-lock").textContent = "🔒 AVSLUTA OMGÅNG & LÅS IN MINA OLÅSTA KORT";
 }
 
@@ -546,7 +560,7 @@ function render() {
     ["matchmaker", "✦", "Matchmakaren", "Spela fem onlinematcher med minst en annan deltagare."],
     ["hattrick", "3", "Hattrick", "Lås in tre kort rätt i samma omgång."],
     ["fullHouse", "8", "Fullt hus", "Spela en onlinematch med minst fyra spelare."],
-    ["eveningDj", "♫", "Kvällens DJ", "Spela mot tre olika personer samma dag."],
+    ["eveningDj", "♫", "Kvällens DJ · DAGLIG", "Spela mot tre olika personer samma dag. Kan låsas upp på nytt efter midnatt."],
     ["friendshipTone", "♥", "Vänskapston", "Bli vän med fem olika personer."],
     ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer."],
     ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust."],
@@ -559,7 +573,8 @@ function render() {
     ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 90 onlinepoäng."],
     ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher."]
   ];
-  const achievementMarkup = "<section class=\"achievement-list\"><h3>UTMÄRKELSER</h3><div>" + achievements.map(([id, icon, label, description]) => "<button class=\"achievement " + (state.achievements[id] ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>").join("") + "</div></section>";
+  const todayAchievements = state.dailyAchievements[localDateKey()] || {};
+  const achievementMarkup = "<section class=\"achievement-list\"><h3>UTMÄRKELSER</h3><div>" + achievements.map(([id, icon, label, description]) => "<button class=\"achievement " + ((id === "eveningDj" ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>").join("") + "</div></section>";
   levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>" + achievementMarkup;
   levelPanel.querySelector("button").onclick = () => { dialog("Poäng, utmärkelser och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\n\nUtmärkelser:\nVarje utmärkelse ger +3 poäng. Tryck på en utmärkelse för att se exakt hur den låses upp.\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); };
   renderAvatar();
@@ -687,6 +702,8 @@ function showView(view, focusMatches = false, fromHistory = false) {
   if (view !== "chat") { clearInterval(chatPoll); chatPoll = 0; }
   if (view === "timeline") { $("#change-track-area").hidden = !state.changeTrackCards; $("#change-track-area").querySelectorAll(".no-change-cards").forEach((element) => element.remove()); }
   currentView = view;
+  const selectedMenu = ["match", "lobby", "guess", "timeline", "result", "chat", "matches"].includes(view) ? "matches" : ["friends", "career", "game-history"].includes(view) ? view : "home";
+  menuViewState[selectedMenu] = view;
   updateBottomBadges();
   const bottomMenu = $("#bottom-menu");
   if (bottomMenu) {
@@ -713,7 +730,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-bottom-menu]");
   if (!button) return;
-  showView(button.dataset.bottomMenu);
+  showView(menuViewState[button.dataset.bottomMenu] || button.dataset.bottomMenu);
 });
 function openLobby(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
@@ -877,9 +894,11 @@ function showLatestRound(round) {
   if (round.outcome !== "wrong") latestTimeline.sort((a, b) => a.year - b.year);
   round.timeline = latestTimeline;
   let wrongButton = $("#wrong-matches");
-  if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.className = "lobby-back wrong-match-button"; wrongButton.type = "button"; wrongButton.textContent = "← TILL MINA MATCHER"; wrongButton.addEventListener("click", () => showView("home", true)); $("#result-back").after(wrongButton); }
+  if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.hidden = true; $("#result-back").after(wrongButton); }
   const wrong = round.outcome === "wrong"; $("#result-back").hidden = false; $("#result-back").textContent = "← Tillbaka"; wrongButton.hidden = true; $("#placement-result").className = `result-check ${wrong ? "bad" : "good"}`; $("#placement-result").textContent = solo ? (wrong ? "✕  Fel placerat" : "☑  Rätt placerat") : wrong ? "✕  Fel placering" : "☑  Rätt placering";
-  const overviewButton = $("#wrong-overview"); if (overviewButton) overviewButton.hidden = true;
+  let overviewButton = $("#wrong-overview");
+  if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.className = "lobby-back wrong-match-button"; overviewButton.type = "button"; overviewButton.textContent = "TILL MATCHÖVERSIKT"; overviewButton.addEventListener("click", () => openMatch(state.activeMatchCode)); $("#result-back").after(overviewButton); }
+  overviewButton.hidden = !state.activeMatchCode;
   $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => { const status = card.status || (wrong ? "OLÅST" : "LÅST"), unlocked = !solo && (isUnlockedStatus(status) || (wrong && status === "RÄTT PLACERAT")); return `<article class="year-card ${status === "STARTKORT" || status === "LÅST" ? "locked-card" : /FEL ?PLACERAT/.test(status) ? "misplaced-card" : unlocked ? "unlocked-card" : solo ? "correct-card" : "locked-card"}"${status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${card.year}</strong><small><span class="card-song">${card.title}<br>${card.artist}</span><span class="card-status">${cardStatusLabel(unlocked ? "OLÅST" : status)}</span></small></article>`; }).join("");
   $("#result-continue").hidden = true; $("#result-lock").hidden = true; showView("result");
 }
@@ -1170,7 +1189,7 @@ async function markRoundStarted() {
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=id,rounds_started`);
   const player = players[0];
   if (player) { const rounds = (player.rounds_started || 0) + 1, startedAt = new Date().toISOString(); await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: rounds, updated_at: startedAt }, "PATCH"); if (!isSoloMatch(match)) await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { turn_started_at: startedAt, turn_reminder_sent_at: null, turn_notice: null, updated_at: startedAt }, "PATCH"); const local = state.matches.find((match) => match.code === state.activeMatchCode); if (local) { local.round = rounds; save(); } }
-  if (!isSoloMatch(match)) { const participants = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=user_id`), others = participants.map((item) => String(item.user_id)).filter((id) => id !== String(user.id)), today = new Date().toISOString().slice(0, 10); if (participants.length >= 2 && state.career.createdMatchCodes.includes(String(match.code))) state.career.startedMatchCodes = [...new Set([...state.career.startedMatchCodes, String(match.code)])]; state.career.fullHouse ||= participants.length >= 4; state.career.playedWith = [...new Set([...state.career.playedWith, ...others])]; state.career.dailyOpponents[today] = [...new Set([...(state.career.dailyOpponents[today] || []), ...others])]; save(); evaluateCareerAchievements(); }
+  if (!isSoloMatch(match)) { const participants = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=user_id`), others = participants.map((item) => String(item.user_id)).filter((id) => id !== String(user.id)), today = localDateKey(); if (participants.length >= 2 && state.career.createdMatchCodes.includes(String(match.code))) state.career.startedMatchCodes = [...new Set([...state.career.startedMatchCodes, String(match.code)])]; state.career.fullHouse ||= participants.length >= 4; state.career.playedWith = [...new Set([...state.career.playedWith, ...others])]; state.career.dailyOpponents[today] = [...new Set([...(state.career.dailyOpponents[today] || []), ...others])]; save(); evaluateCareerAchievements(); }
 }
 async function restoreResultView() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
@@ -1197,7 +1216,7 @@ $("#lock-placement").addEventListener("click", async () => {
   }
   if (solo) { const score = soloProgress(state.matches.find((match) => match.code === state.activeMatchCode)); currentPlacementCorrect ? score.correct += 1 : score.mistakes += 1; resultSnapshot.score = { ...score }; save(); }
   let earnedSwapCard = false;
-  if (hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) { state.pendingSwapAward = { matchCode: state.activeMatchCode, cardId: resultCard.id }; state.swapUsedThisRound = false; save(); earnedSwapCard = true; }
+  if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) { state.pendingSwapAward = { matchCode: state.activeMatchCode, cardId: resultCard.id }; state.swapUsedThisRound = false; save(); earnedSwapCard = true; }
   if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
   if (solo || currentPlacementCorrect) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect }; save(); }
   resultIsLocked = true; $("#result-back").hidden = true;
@@ -1207,7 +1226,7 @@ $("#lock-placement").addEventListener("click", async () => {
   if (soloOutcome?.won) { state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); }
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
   else if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
-  else if (hasCorrectSongGuess(resultCard) && state.changeTrackCards >= 3) dialog("Du gissade rätt för både artist och låtnamn, men du har redan 3/3 byt-låt-kort.");
+  else if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards >= 3) dialog("Du gissade rätt för både artist och låtnamn, men du har redan 3/3 byt-låt-kort.");
   else if (!currentPlacementCorrect && !solo) dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare.");
 });
 $("#result-continue").addEventListener("click", async () => { const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode)); await animateTimelineOutcome(currentPlacementCorrect); state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { if (solo) await markRoundStarted(); else await saveRoundUnlocked(); await dealCard(); await settlePendingSwapAward(); await syncMatches(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); await enterNewCardGuess(); });
