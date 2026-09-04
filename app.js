@@ -778,6 +778,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-bottom-menu]");
   if (!button) return;
+  if (!$("#app-dialog").hidden && $("#dialog-message").classList.contains("level-rules")) $("#app-dialog").hidden = true;
   showView(menuViewState[button.dataset.bottomMenu] || button.dataset.bottomMenu);
 });
 function openLobby(matchCode) {
