@@ -506,7 +506,7 @@ function evaluateCareerAchievements(comeback = false) {
   if (state.career.playedWith.length >= 5) grantAchievement("socialPlayer", "Sällskapsspelare");
   if (state.career.friendIds.length >= 5) grantAchievement("friendshipTone", "Vänskapston");
   if (state.career.fullHouse) grantAchievement("fullHouse", "Fullt hus");
-  if (todayOpponents >= 3) grantDailyAchievement("eveningDj", "Kvällens DJ");
+  
   if (state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp >= 90) grantAchievement("goldRecord", "Guldskiva nådd");
   finishAchievementAwards();
 }
@@ -606,7 +606,7 @@ function render() {
     ["socialToneDaily", "♥", "Social ton", "Slutför en omgång i en onlinematch idag.", "online"],
     ["soloDaily", "★", "Solisten", "Slutför en omgång i en solomatch idag.", "solo"],
     ["fullGuard", "◆", "Helgardering", "Gissa artist och låttitel rätt och placera kortet rätt i samma omgång.", "solo ELLER online"],
-    ["fullSpeed", "↯", "Full fart", "Slutför minst en soloomgång och en onlineomgång under samma dag.", "solo OCH online"],
+    ["fullSpeed", "↯", "Full fart", "Slutför minst fem omgångar i solomatch och minst fem omgångar i onlinematch samma dag.", "solo OCH online"],
     ["soloWin", "★", "Solovinst", "Vinn en solomatch.", "solo"],
     ["friendshipTone", "♥", "Vänskapston", "Bli vän med fem olika personer.", "online"],
     ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer.", "online"],
@@ -1266,13 +1266,14 @@ $("#lock-placement").addEventListener("click", async () => {
   const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) }, placedPosition: placedAt };
   currentPlacementCorrect = placementIsCorrect();
   const today = localDateKey();
-  state.dailyProgress[today] ||= { solo: false, online: false, rounds: 0 };
+  state.dailyProgress[today] ||= { solo: false, online: false, rounds: 0, soloRounds: 0, onlineRounds: 0 };
   const daily = state.dailyProgress[today], firstRoundToday = daily.rounds === 0, songCorrect = hasCorrectSongGuess(resultCard);
-  daily.rounds += 1; daily.solo ||= solo; daily.online ||= !solo;
+  daily.rounds += 1; daily.solo ||= solo; daily.online ||= !solo; daily.soloRounds = Number(daily.soloRounds || 0) + (solo ? 1 : 0); daily.onlineRounds = Number(daily.onlineRounds || 0) + (solo ? 0 : 1);
   if (firstRoundToday && currentPlacementCorrect) grantDailyAchievement("quickStart", "Snabbstart");
   grantDailyAchievement(solo ? "soloDaily" : "socialToneDaily", solo ? "Solisten" : "Social ton");
   if (songCorrect && currentPlacementCorrect) grantDailyAchievement("fullGuard", "Helgardering");
-  if (daily.solo && daily.online) grantDailyAchievement("fullSpeed", "Full fart");
+  if (new Set(state.career.dailyOpponents[today] || []).size >= 3) grantDailyAchievement("eveningDj", "Kvällens DJ");
+  if (daily.soloRounds >= 5 && daily.onlineRounds >= 5) grantDailyAchievement("fullSpeed", "Full fart");
   save();
   if (currentPlacementCorrect && state.roundUnlocked.length + 1 >= 3) grantDailyAchievement("hattrick", "Hattrick");
   if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; save(); evaluateCareerAchievements(); }
