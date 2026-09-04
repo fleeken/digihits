@@ -40,7 +40,7 @@
         <div class="panel welcome-card">
           <div class="inner-panel welcome-inner">
             <h1>Digihits</h1>
-            <p>Musik. Minnen. Magi.</p>
+            <p>Musik. Minnen. Gemenskap.</p>
             <div class="welcome-actions">
               <button class="button button-primary" data-view="login">LOGGA IN</button>
               <button class="button button-secondary" data-view="signup">SKAPA KONTO</button>
@@ -85,7 +85,7 @@
 
       <section class="view" data-view-panel="lobby">
         <section class="lobby-layout">
-          <aside class="lobby-side panel"><button class="lobby-back" data-view="home">← TILL MINA MATCHER</button><button class="button button-primary" id="lobby-chat" type="button">VISA CHATT</button><button class="button button-leave" id="lobby-leave" type="button">LÄMNA MATCHEN</button></aside>
+          <aside class="lobby-side panel"><button class="button button-primary" id="lobby-chat" type="button">VISA CHATT</button><button class="button button-leave" id="lobby-leave" type="button">LÄMNA MATCHEN</button></aside>
           <section class="panel lobby-main"><div class="lobby-title-row"><h1>Väntar på motspelare</h1><button class="lobby-unlock" type="button">🔓 OLÅST MATCH</button></div><div class="lobby-stage"><div class="lobby-code-card"><small>MATCHKOD</small><strong id="lobby-code">------</strong><button class="copy-code" id="copy-lobby-code" type="button">KOPIERA KOD</button></div></div></section>
         </section>
       </section>
@@ -113,7 +113,7 @@
 
       <section class="view" data-view-panel="profile"><section class="hero panel profile-card"><button class="back-link" data-view="home" type="button">← Tillbaka</button><div class="account-row"><div class="account-row-top"><div><span class="status-dot"></span><strong> INLOGGAD</strong><span class="account-field-label">E-POSTADRESS</span><p id="player-email">spelare@digihits.se</p><div class="player-name"><span>SPELARNAMN</span><strong id="player-name">Spelare</strong></div></div><div class="account-avatar-wrap"><button class="mini-avatar account-avatar mini-pop" id="change-avatar" type="button" aria-label="Ändra avatar"></button><button class="avatar-change-link" id="change-avatar-link" type="button">ÄNDRA AVATAR</button></div></div><div class="account-actions"><button class="account-button" id="change-password">BYT LÖSENORD</button><button class="account-button" id="logout">LOGGA UT</button><button class="account-button account-danger" id="delete-account">RADERA KONTO</button></div></div></section></section>
       <section class="view" data-view-panel="home">
-        <section class="hero panel"><div class="home-intro"><div class="home-greeting"><h2>Hej! 👋</h2><p><span class="greeting-line">Dags för musik, minnen<i aria-hidden="true">♪</i></span><br /><span class="greeting-line">och massor av skratt.<i aria-hidden="true">✦</i></span></p><div class="greeting-decoration" aria-hidden="true">♫ <span>✦</span> ♪</div></div><div class="home-illustration"><img src="assets/home-friends.png?v=6.27" width="1536" height="1024" alt="Fyra vänner spelar musikspel tillsammans runt ett skivbord." decoding="async" /></div></div></section>
+        <section class="hero panel"><div class="home-intro"><div class="home-greeting"><h2>Hej! 👋</h2><p><span class="greeting-line">Dags för musik, minnen</span><br /><span class="greeting-line">och gemenskap.</span></p></div><div class="home-illustration"><img src="assets/home-friends.png?v=6.28" width="1536" height="1024" alt="Fyra vänner spelar musikspel tillsammans runt ett skivbord." decoding="async" /></div></div></section>
         <section class="panel accordion" data-accordion>
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Skapa eller gå med i match</span><span class="accordion-mark">›</span></button>
           <div class="accordion-content"><div class="match-actions"><article class="action-card"><h3>Skapa ny match</h3><p>Spela solo på egen hand eller online mot andra.</p><button class="button button-purple" id="create-solo-match">SKAPA NY SOLOMATCH</button><button class="button button-green" id="create-match">SKAPA NY ONLINEMATCH</button></article><article class="action-card"><h3>Gå med i match</h3><p>Skriv koden du fått av din vän.</p><label class="sr-only" for="match-code">Matchkod</label><input id="match-code" maxlength="6" placeholder="Skriv kod" autocomplete="off" /><button class="button button-green" id="join-match">GÅ MED I MATCHEN</button></article></div></div>
