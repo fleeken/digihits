@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.75";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.76";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -953,4 +953,25 @@ body::before{clip-path:inset(140px 0 0);}
 }
 .view[data-view-panel="matches"] .match-list-panel>.match.solo{
   background:#f1e6f8!important;border-color:#a37ac0!important;
+}
+
+
+/* v6.76: clean full-width match cards, aligned with invitation panels. */
+.view[data-view-panel="matches"] #matches{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;}
+.view[data-view-panel="matches"] .match-list-panel{
+  width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;
+  margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;overflow:visible!important;
+}
+.view[data-view-panel="matches"] .match-list-panel>.match-group-title{
+  margin:0 2px 10px!important;padding:0!important;
+}
+.view[data-view-panel="matches"] .match-list-panel>.match{
+  width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;
+  margin:0 0 14px!important;padding:18px!important;border-radius:22px!important;overflow:hidden!important;
+}
+.view[data-view-panel="matches"] .match-list-panel>.match:last-child{margin-bottom:0!important;}
+.view[data-view-panel="matches"] .match-list-panel>.match.solo{
+  background:#f1e6f8!important;border:3px solid #a37ac0!important;
+  box-shadow:0 5px 14px #55326b20!important;
 }
