@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.68";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.69";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -886,3 +886,24 @@ body::before{clip-path:inset(140px 0 0);}
 .view[data-view-panel="career"] .career-section-panel{box-sizing:border-box!important;width:100%!important;margin:0!important;padding:16px!important;background:var(--surface)!important;border:1px solid #cbbbc7!important;border-radius:22px!important;box-shadow:0 5px 16px #39213d0a!important;color:var(--ink)!important;overflow:hidden!important;}
 .view[data-view-panel="career"] .career-section-panel>h3{margin:0 0 14px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;color:#2872b3!important;}
 .view[data-view-panel="career"] .career-section-panel .achievement{box-sizing:border-box!important;min-width:0!important;}
+
+
+/* v6.69: coloured matches and the four history areas use distinct outer boxes. */
+.view[data-view-panel="matches"] .match-list-panel>.match.active,
+.view[data-view-panel="matches"] .match-list-panel>.match.opponent,
+.view[data-view-panel="matches"] .match-list-panel>.match.waiting{
+  border-width:3px!important;border-style:solid!important;border-radius:22px!important;
+  padding:18px!important;box-shadow:0 5px 14px #24152d1f!important;
+}
+.view[data-view-panel="matches"] .match-list-panel>.match.active{background:#e8f8ef!important;border-color:var(--green)!important;}
+.view[data-view-panel="matches"] .match-list-panel>.match.opponent{background:#fff5d6!important;border-color:var(--yellow)!important;}
+.view[data-view-panel="matches"] .match-list-panel>.match.waiting{background:#e5f5fb!important;border-color:var(--blue)!important;}
+.view[data-view-panel="game-history"]>.menu-page-section{padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;}
+.view[data-view-panel="game-history"] .history-panels,
+.view[data-view-panel="game-history"] #history{display:grid!important;gap:14px!important;background:transparent!important;padding:0!important;margin:0!important;}
+.view[data-view-panel="game-history"] .history-section-panel{
+  width:100%!important;box-sizing:border-box!important;padding:18px!important;border:2px solid #d5b7c8!important;
+  border-radius:20px!important;background:#fff8ee!important;box-shadow:0 5px 14px #24152d17!important;
+}
+.view[data-view-panel="game-history"] .history-section-panel>.section-subtitle{margin-top:0!important;}
+.view[data-view-panel="game-history"] .history-section-panel>*:last-child{margin-bottom:0!important;}
