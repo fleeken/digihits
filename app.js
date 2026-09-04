@@ -1,4 +1,4 @@
-const APP_VERSION = "6.69";
+const APP_VERSION = "6.70";
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -590,34 +590,34 @@ function render() {
   const levelPanel = $("#level-panel");
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
   const achievements = [
-    ["firstWin", "★", "Första vinsten", "Vinn din första onlinematch."],
-    ["firstSwap", "♫", "Första byt-låt-kortet", "Gissa både rätt artist och låtnamn i en onlinematch."],
-    ["matchmaker", "✦", "Matchmakaren", "Spela fem onlinematcher med minst en annan deltagare."],
-    ["hattrick", "3", "Hattrick", "Lås in tre kort rätt i samma omgång."],
-    ["fullHouse", "8", "Fullt hus", "Spela en onlinematch med minst fyra spelare."],
-    ["eveningDj", "♫", "Kvällens DJ · DAGLIG", "Spela mot tre olika personer samma dag."],
-    ["dailyStart", "▶", "Dagens start · DAGLIG", "Spela en match idag."],
-    ["doubleHit", "✌", "Dubbelträff · DAGLIG", "Gissa både artist och låttitel rätt i samma omgång."],
-    ["quickStart", "⚡", "Snabbstart · DAGLIG", "Placera rätt redan i dagens första spelade omgång."],
-    ["socialToneDaily", "♥", "Social ton · DAGLIG", "Spela en onlinematch idag."],
-    ["soloDaily", "★", "Solisten · DAGLIG", "Spela en solomatch idag."],
-    ["fullGuard", "◆", "Helgardering · DAGLIG", "Gissa artist och låttitel rätt och placera kortet rätt."],
-    ["fullSpeed", "↯", "Full fart · DAGLIG", "Spela både solo och online samma dag."],
-    ["friendshipTone", "♥", "Vänskapston", "Bli vän med fem olika personer."],
-    ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer."],
-    ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust."],
-    ["streak3", "🔥", "3 vinster i rad", "Vinn tre onlinematcher i följd."],
-    ["threeFriends", "♟", "3 olika vänner", "Vinn mot tre olika vänner."],
-    ["fiveFriends", "♛", "5 olika vänner", "Vinn mot fem olika vänner."],
-    ["wins10", "10", "10 onlinevinster", "Vinn totalt tio onlinematcher."],
-    ["correct100", "100", "100 rätt placerade", "Placera totalt 100 kort rätt i onlinematcher."],
-    ["streak5", "⚡", "5 vinster i rad", "Vinn fem onlinematcher i följd."],
-    ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 90 onlinepoäng."],
-    ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher."]
+    ["firstWin", "★", "Första vinsten", "Vinn din första onlinematch.", "ONLINE"],
+    ["firstSwap", "♫", "Första byt-låt-kortet", "Gissa både rätt artist och låtnamn i en onlinematch.", "ONLINE"],
+    ["matchmaker", "✦", "Matchmakaren", "Spela fem onlinematcher med minst en annan deltagare.", "ONLINE"],
+    ["hattrick", "3", "Hattrick", "Lås in tre kort rätt i samma omgång.", "ONLINE"],
+    ["fullHouse", "8", "Fullt hus", "Spela en onlinematch med minst fyra spelare.", "ONLINE"],
+    ["eveningDj", "♫", "Kvällens DJ", "Slutför omgångar mot tre olika personer under samma dag.", "ONLINE"],
+    ["dailyStart", "▶", "Dagens start", "Slutför dagens första omgång så att resultatvyn visas.", "SOLO ELLER ONLINE"],
+    ["doubleHit", "✌", "Dubbelträff", "Gissa både artist och låttitel rätt i samma slutförda omgång.", "SOLO ELLER ONLINE"],
+    ["quickStart", "⚡", "Snabbstart", "Placera rätt i dagens första slutförda omgång.", "SOLO ELLER ONLINE"],
+    ["socialToneDaily", "♥", "Social ton", "Slutför en omgång i en onlinematch idag.", "ONLINE"],
+    ["soloDaily", "★", "Solisten", "Slutför en omgång i en solomatch idag.", "SOLO"],
+    ["fullGuard", "◆", "Helgardering", "Gissa artist och låttitel rätt och placera kortet rätt i samma omgång.", "SOLO ELLER ONLINE"],
+    ["fullSpeed", "↯", "Full fart", "Slutför minst en soloomgång och en onlineomgång under samma dag.", "SOLO + ONLINE"],
+    ["friendshipTone", "♥", "Vänskapston", "Bli vän med fem olika personer.", "ONLINE"],
+    ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer.", "ONLINE"],
+    ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust.", "ONLINE"],
+    ["streak3", "🔥", "3 vinster i rad", "Vinn tre onlinematcher i följd.", "ONLINE"],
+    ["threeFriends", "♟", "3 olika vänner", "Vinn mot tre olika vänner.", "ONLINE"],
+    ["fiveFriends", "♛", "5 olika vänner", "Vinn mot fem olika vänner.", "ONLINE"],
+    ["wins10", "10", "10 onlinevinster", "Vinn totalt tio onlinematcher.", "ONLINE"],
+    ["correct100", "100", "100 rätt placerade", "Placera totalt 100 kort rätt i onlinematcher.", "ONLINE"],
+    ["streak5", "⚡", "5 vinster i rad", "Vinn fem onlinematcher i följd.", "ONLINE"],
+    ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 90 onlinepoäng.", "ONLINE"],
+    ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher.", "ONLINE"]
   ];
   const todayAchievements = state.dailyAchievements[localDateKey()] || {};
   const dailyAchievementIds = new Set(["eveningDj", "dailyStart", "doubleHit", "quickStart", "socialToneDaily", "soloDaily", "fullGuard", "fullSpeed"]);
-  const achievementButton = ([id, icon, label, description]) => "<button class=\"achievement " + ((dailyAchievementIds.has(id) ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>";
+  const achievementButton = ([id, icon, label, description, mode]) => "<button class=\"achievement " + ((dailyAchievementIds.has(id) ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small><span>" + label + "</span><em>" + mode + "</em></small></button>";
   const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Permanenta utmärkelser</h3><div>" + achievements.filter(([id]) => !dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   levelPanel.innerHTML = "<section class=\"career-section-panel career-level-panel\"><div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small></section>" + dailyMarkup + permanentMarkup;

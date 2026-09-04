@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.69";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.70";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -907,3 +907,10 @@ body::before{clip-path:inset(140px 0 0);}
 }
 .view[data-view-panel="game-history"] .history-section-panel>.section-subtitle{margin-top:0!important;}
 .view[data-view-panel="game-history"] .history-section-panel>*:last-child{margin-bottom:0!important;}
+
+
+/* v6.70: achievement name and game mode are always shown on separate lines. */
+.view[data-view-panel="career"] .achievement>small{display:grid!important;gap:3px!important;min-width:0!important;text-align:left!important;}
+.view[data-view-panel="career"] .achievement>small>span{display:block!important;font:inherit!important;color:inherit!important;}
+.view[data-view-panel="career"] .achievement>small>em{display:block!important;font-style:normal!important;font-size:7px!important;line-height:1.2!important;letter-spacing:.08em!important;color:#765e71!important;}
+.view[data-view-panel="career"] .achievement.earned>small>em{color:#27704c!important;}
