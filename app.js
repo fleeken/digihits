@@ -1,4 +1,4 @@
-const APP_VERSION = "6.66";
+const APP_VERSION = "6.67";
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -582,8 +582,10 @@ function render() {
     ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher."]
   ];
   const todayAchievements = state.dailyAchievements[localDateKey()] || {};
-  const achievementMarkup = "<section class=\"achievement-list\"><h3>UTMÄRKELSER</h3><div>" + achievements.map(([id, icon, label, description]) => "<button class=\"achievement " + ((id === "eveningDj" ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>").join("") + "</div></section>";
-  levelPanel.innerHTML = "<div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small>" + achievementMarkup;
+  const achievementButton = ([id, icon, label, description]) => "<button class=\"achievement " + ((id === "eveningDj" ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>";
+  const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser</h3><div>" + achievements.filter(([id]) => id === "eveningDj").map(achievementButton).join("") + "</div></section>";
+  const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Permanenta utmärkelser</h3><div>" + achievements.filter(([id]) => id !== "eveningDj").map(achievementButton).join("") + "</div></section>";
+  levelPanel.innerHTML = "<section class=\"career-section-panel career-level-panel\"><div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small></section>" + dailyMarkup + permanentMarkup;
   levelPanel.querySelector("button").onclick = () => { dialog("Poäng, utmärkelser och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\n\nUtmärkelser:\nVarje utmärkelse ger +3 poäng. Tryck på en utmärkelse för att se exakt hur den låses upp.\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); };
   renderAvatar();
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
