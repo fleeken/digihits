@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.60";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.61";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -836,3 +836,10 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* v6.60: remove the baked rectangular artwork edge with one browser-safe mask. */
 .view[data-view-panel="home"] .home-illustration img{-webkit-mask-image:radial-gradient(ellipse closest-side at 50% 52%,#000 86%,transparent 100%)!important;mask-image:radial-gradient(ellipse closest-side at 50% 52%,#000 86%,transparent 100%)!important;-webkit-mask-composite:initial!important;mask-composite:initial!important;}
+
+/* v6.61: clearer rounded content groups outside Home and Career. */
+.view:is([data-view-panel="matches"],[data-view-panel="friends"],[data-view-panel="game-history"])>.menu-page-section{background:var(--surface)!important;border:1px solid #cbbbc7!important;border-radius:26px!important;padding:clamp(16px,3vw,24px)!important;box-shadow:0 6px 18px #39213d0a!important;}
+.view:is([data-view-panel="matches"],[data-view-panel="friends"],[data-view-panel="game-history"]) :is(.match-group-title,.friend-section-title,.section-subtitle){display:block!important;margin:18px 0 12px!important;padding:12px 15px!important;background:#eee3ea!important;border:1px solid #cbb8c9!important;border-radius:16px!important;color:#2872b3!important;line-height:1.3!important;}
+.view[data-view-panel="friends"] :is(.friend-search,#friend-requests,#friend-sent-requests,#friend-invites,#friend-sent-match-invites){margin:12px 0!important;padding:14px!important;background:#faf2e8!important;border:1px solid #d2c3c9!important;border-radius:20px!important;}
+.view[data-view-panel="game-history"] .reset-row{margin:0 0 14px!important;padding:10px!important;background:#faf2e8!important;border-radius:16px!important;}
+@media(max-width:640px){.view:is([data-view-panel="matches"],[data-view-panel="friends"],[data-view-panel="game-history"])>.menu-page-section{padding:14px!important;border-radius:22px!important;}}
