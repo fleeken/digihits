@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.70";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.71";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -914,3 +914,33 @@ body::before{clip-path:inset(140px 0 0);}
 .view[data-view-panel="career"] .achievement>small>span{display:block!important;font:inherit!important;color:inherit!important;}
 .view[data-view-panel="career"] .achievement>small>em{display:block!important;font-style:normal!important;font-size:7px!important;line-height:1.2!important;letter-spacing:.08em!important;color:#765e71!important;}
 .view[data-view-panel="career"] .achievement.earned>small>em{color:#27704c!important;}
+
+
+/* v6.71: centred history panels without nested reset boxes or horizontal overflow. */
+.view[data-view-panel="game-history"],
+.view[data-view-panel="game-history"]>.menu-page-section,
+.view[data-view-panel="game-history"] .accordion-content,
+.view[data-view-panel="game-history"] .history-panels,
+.view[data-view-panel="game-history"] #history{
+  width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow-x:hidden!important;
+}
+.view[data-view-panel="game-history"] .history-panels,
+.view[data-view-panel="game-history"] #history{justify-items:center!important;}
+.view[data-view-panel="game-history"] .history-section-panel{
+  display:grid!important;gap:12px!important;width:calc(100% - 24px)!important;max-width:760px!important;
+  min-width:0!important;margin:0 auto!important;padding:16px!important;overflow:hidden!important;
+}
+.view[data-view-panel="game-history"] .history-section-panel .reset-row{
+  display:flex!important;justify-content:center!important;width:100%!important;margin:0!important;padding:0!important;
+  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+.view[data-view-panel="game-history"] .history-section-panel .reset-button{width:auto!important;max-width:100%!important;white-space:normal!important;text-align:center!important;}
+.view[data-view-panel="game-history"] .history-section-panel :is(.stat-grid,.history-match){
+  width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;box-sizing:border-box!important;
+}
+.view[data-view-panel="game-history"] .history-section-panel .history-match+.history-match{margin-top:12px!important;}
+.view[data-view-panel="game-history"] .history-section-panel .history-match>*{max-width:100%!important;min-width:0!important;box-sizing:border-box!important;}
+@media(max-width:480px){
+  .view[data-view-panel="game-history"] .history-section-panel{width:calc(100% - 12px)!important;padding:14px!important;}
+  .view[data-view-panel="game-history"] .history-section-panel .stat-grid{grid-template-columns:1fr!important;}
+}
