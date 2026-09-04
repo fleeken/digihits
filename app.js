@@ -459,7 +459,7 @@ function grantAchievement(id, label) {
   if (state.achievements[id]) return false;
   state.achievements[id] = true;
   state.stats.achievementXp += 3;
-  achievementPopupQueue.push(label);
+  achievementPopupQueue.push({ id, label });
   return true;
 }
 function localDateKey(date = new Date()) {
@@ -471,14 +471,19 @@ function grantDailyAchievement(id, label) {
   if (state.dailyAchievements[today][id]) return false;
   state.dailyAchievements[today][id] = true;
   state.stats.achievementXp += 3;
-  achievementPopupQueue.push(label);
+  achievementPopupQueue.push({ id, label });
   return true;
 }
 function showAchievementPopups() {
   if (currentView !== "result" || !achievementPopupQueue.length) return;
   if (!$("#app-dialog").hidden) { setTimeout(showAchievementPopups, 250); return; }
-  const label = achievementPopupQueue.shift();
-  dialog("Utmärkelse upplåst: " + label + "!\n\nDu får +3 onlinepoäng.", showAchievementPopups, false, "OK");
+  const award = achievementPopupQueue.shift();
+  dialog("Utmärkelse upplåst: " + award.label + "!\n\nDu får +3 onlinepoäng.", showAchievementPopups, false, "OK", "MER INFO");
+  $("#dialog-cancel").className = "button button-primary";
+  $("#dialog-cancel").onclick = () => {
+    const card = document.querySelector('[data-achievement-info="' + award.id + '"]');
+    dialog(card?.dataset.achievementLabel + "\n\n" + (card?.dataset.achievementDescription || "Kravet för utmärkelsen visas här."), showAchievementPopups, false, "OK");
+  };
 }
 function finishAchievementAwards() {
   if (!achievementPopupQueue.length) return;
@@ -593,11 +598,10 @@ function render() {
     ["firstWin", "★", "Första vinsten", "Vinn din första onlinematch.", "online"],
     ["firstSwap", "♫", "Första byt-låt-kortet", "Gissa både rätt artist och låtnamn i en onlinematch.", "online"],
     ["matchmaker", "✦", "Matchmakaren", "Spela fem onlinematcher med minst en annan deltagare.", "online"],
-    ["hattrick", "3", "Hattrick", "Lås in tre kort rätt i samma omgång.", "online"],
+
     ["fullHouse", "8", "Fullt hus", "Spela en onlinematch med minst fyra spelare.", "online"],
     ["eveningDj", "♫", "Kvällens DJ", "Slutför omgångar mot tre olika personer under samma dag.", "online"],
-    ["dailyStart", "▶", "Dagens start", "Slutför dagens första omgång så att resultatvyn visas.", "solo ELLER online"],
-    ["doubleHit", "✌", "Dubbelträff", "Gissa både artist och låttitel rätt i samma slutförda omgång.", "solo ELLER online"],
+    ["hattrick", "3", "Hattrick", "Lås in tre kort rätt i samma slutförda omgång.", "solo ELLER online"],
     ["quickStart", "⚡", "Snabbstart", "Placera rätt i dagens första slutförda omgång.", "solo ELLER online"],
     ["socialToneDaily", "♥", "Social ton", "Slutför en omgång i en onlinematch idag.", "online"],
     ["soloDaily", "★", "Solisten", "Slutför en omgång i en solomatch idag.", "solo"],
@@ -616,7 +620,7 @@ function render() {
     ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher.", "online"]
   ];
   const todayAchievements = state.dailyAchievements[localDateKey()] || {};
-  const dailyAchievementIds = new Set(["eveningDj", "dailyStart", "doubleHit", "quickStart", "socialToneDaily", "soloDaily", "fullGuard", "fullSpeed"]);
+  const dailyAchievementIds = new Set(["eveningDj", "hattrick", "quickStart", "socialToneDaily", "soloDaily", "fullGuard", "fullSpeed"]);
   const achievementButton = ([id, icon, label, description, mode]) => "<button class=\"achievement " + ((dailyAchievementIds.has(id) ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small><span>" + label + "</span><em>" + mode + "</em></small></button>";
   const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Permanenta utmärkelser</h3><div>" + achievements.filter(([id]) => !dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
@@ -1264,14 +1268,13 @@ $("#lock-placement").addEventListener("click", async () => {
   state.dailyProgress[today] ||= { solo: false, online: false, rounds: 0 };
   const daily = state.dailyProgress[today], firstRoundToday = daily.rounds === 0, songCorrect = hasCorrectSongGuess(resultCard);
   daily.rounds += 1; daily.solo ||= solo; daily.online ||= !solo;
-  grantDailyAchievement("dailyStart", "Dagens start");
-  if (songCorrect) grantDailyAchievement("doubleHit", "Dubbelträff");
   if (firstRoundToday && currentPlacementCorrect) grantDailyAchievement("quickStart", "Snabbstart");
   grantDailyAchievement(solo ? "soloDaily" : "socialToneDaily", solo ? "Solisten" : "Social ton");
   if (songCorrect && currentPlacementCorrect) grantDailyAchievement("fullGuard", "Helgardering");
   if (daily.solo && daily.online) grantDailyAchievement("fullSpeed", "Full fart");
   save();
-  if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; if (state.roundUnlocked.length + 1 >= 3) grantAchievement("hattrick", "Hattrick"); save(); evaluateCareerAchievements(); }
+  if (currentPlacementCorrect && state.roundUnlocked.length + 1 >= 3) grantDailyAchievement("hattrick", "Hattrick");
+  if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; save(); evaluateCareerAchievements(); }
   if (!solo) {
     const match = state.matches.find((item) => item.code === state.activeMatchCode), player = (match?.players || []).find((item) => String(item.user_id) === String(state.userId)), savedScore = player?.last_round?.score || {}, priorCorrect = Math.max(1, Number(savedScore.correct) || state.lockedTimeline.length), priorMistakes = Number.isFinite(Number(savedScore.mistakes)) && savedScore.mistakes !== "" ? Math.max(0, Number(savedScore.mistakes)) : Math.max(0, Number(player?.rounds_started || 0) - Math.max(0, priorCorrect - 1));
     resultSnapshot.score = { correct: currentPlacementCorrect ? priorCorrect + state.roundUnlocked.length + 1 : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };

@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.85";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.86";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -1025,3 +1025,14 @@ body::before{clip-path:inset(140px 0 0);}
 #dialog-message.level-rules .level-rule-line{display:block!important;margin:0!important;}
 #dialog-message.level-rules .level-rule-item{margin:2px 0!important;}
 #dialog-message.level-rules .level-rule-gap{display:block!important;height:9px!important;}
+
+
+/* v6.86: compact, content-sized solo and online stat cards. */
+.view[data-view-panel="game-history"] .history-section-panel .stat-grid{
+  display:flex!important;flex-wrap:wrap!important;justify-content:center!important;align-items:stretch!important;
+  gap:10px!important;width:auto!important;max-width:100%!important;margin:0 auto!important;padding:0!important;
+}
+.view[data-view-panel="game-history"] .history-section-panel .stat-grid>div{
+  flex:0 1 auto!important;width:auto!important;min-width:110px!important;max-width:100%!important;
+  padding:10px 12px!important;box-sizing:border-box!important;
+}
