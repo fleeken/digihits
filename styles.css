@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.79";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.80";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -1007,4 +1007,14 @@ body::before{clip-path:inset(140px 0 0);}
 .view[data-view-panel="matches"] #matches>.match-list-panel>.match{
   width:100%!important;max-width:100%!important;min-width:0!important;
   margin-left:0!important;margin-right:0!important;box-sizing:border-box!important;
+}
+
+
+/* v6.80: wrapped information bullets keep a true hanging indent. */
+#dialog-message.level-rules .level-rule-item{
+  position:relative!important;display:block!important;padding-left:18px!important;text-indent:0!important;
+  white-space:normal!important;text-align:left!important;
+}
+#dialog-message.level-rules .level-rule-item::before{
+  content:"•"!important;position:absolute!important;left:2px!important;top:0!important;
 }
