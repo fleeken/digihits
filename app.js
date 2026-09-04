@@ -1,4 +1,4 @@
-const APP_VERSION = "6.71";
+const APP_VERSION = "6.72"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -602,7 +602,7 @@ function render() {
     ["socialToneDaily", "♥", "Social ton", "Slutför en omgång i en onlinematch idag.", "ONLINE"],
     ["soloDaily", "★", "Solisten", "Slutför en omgång i en solomatch idag.", "SOLO"],
     ["fullGuard", "◆", "Helgardering", "Gissa artist och låttitel rätt och placera kortet rätt i samma omgång.", "SOLO ELLER ONLINE"],
-    ["fullSpeed", "↯", "Full fart", "Slutför minst en soloomgång och en onlineomgång under samma dag.", "SOLO + ONLINE"],
+    ["fullSpeed", "↯", "Full fart", "Slutför minst en soloomgång och en onlineomgång under samma dag.", "SOLO OCH ONLINE"],
     ["friendshipTone", "♥", "Vänskapston", "Bli vän med fem olika personer.", "ONLINE"],
     ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer.", "ONLINE"],
     ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust.", "ONLINE"],
