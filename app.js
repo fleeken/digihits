@@ -1,4 +1,4 @@
-const APP_VERSION = "6.33";
+const APP_VERSION = "6.34";
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/welcome-hd-v630.png";

@@ -759,3 +759,9 @@ body::before{clip-path:inset(140px 0 0);}
 .match-turn-banner .view-round-number{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);padding:4px 10px;background:#1d3150;border-radius:999px;pointer-events:none;}
 .match-turn-banner .round-player-strip{position:relative;z-index:1;}
 .app-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea){border-radius:16px;}
+
+/* v6.34: håll hemtexten fri från bildens dekorsymboler. */
+[data-view-panel="home"] .home-greeting{position:static;max-width:none;margin:0 0 18px;padding:0;}
+[data-view-panel="home"] .home-greeting p{position:relative;z-index:1;display:block;background:#fff7eb;padding:12px 0;color:var(--ink);}
+[data-view-panel="home"] .home-illustration{display:grid;place-items:center;}
+[data-view-panel="home"] .home-illustration img{width:min(100%,620px);height:auto;mix-blend-mode:normal;}
