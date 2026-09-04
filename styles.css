@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.54";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.55";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -812,3 +812,18 @@ body::before{clip-path:inset(140px 0 0);}
 /* v6.54: the profile control displays the player’s selected avatar. */
 .profile-toggle.avatar-art{border:2px solid #fff!important;background-color:#111832!important;background-repeat:no-repeat!important;background-size:200% 300%!important;background-position:var(--avatar-x) var(--avatar-y)!important;box-shadow:0 2px 8px #18213a35!important;color:transparent!important;overflow:hidden!important;}
 .profile-toggle.avatar-art::before,.profile-toggle.avatar-art::after{content:none!important;display:none!important;}
+
+/* v6.55: balanced player-avatar rows with the round centred over the group. */
+.match-turn-banner{display:block!important;}
+.match-turn-banner .view-round-number{display:table!important;width:auto!important;margin:0 auto 7px!important;padding:3px 12px 5px!important;text-align:center!important;}
+.match-turn-banner .round-player-strip{--players-per-row:4;width:100%!important;overflow:visible!important;}
+.match-turn-banner .round-player-strip[data-player-count="1"]{--players-per-row:1;}
+.match-turn-banner .round-player-strip[data-player-count="2"]{--players-per-row:2;}
+.match-turn-banner .round-player-strip[data-player-count="3"]{--players-per-row:3;}
+.match-turn-banner .round-player-strip[data-player-count="4"]{--players-per-row:4;}
+.match-turn-banner .round-player-strip>div{display:flex!important;flex-wrap:wrap!important;align-items:flex-start!important;justify-content:center!important;width:100%!important;min-width:0!important;gap:0!important;}
+.match-turn-banner .round-player{display:grid!important;grid-template-columns:1fr!important;justify-items:center!important;align-content:start!important;flex:0 0 calc(100% / var(--players-per-row))!important;width:auto!important;max-width:none!important;min-width:0!important;padding:5px 4px!important;gap:3px!important;text-align:center!important;}
+.match-turn-banner .round-player>i,.match-turn-banner .round-player>span,.match-turn-banner .round-player>small{grid-column:1!important;justify-self:center!important;}
+.match-turn-banner .round-player>span{display:grid!important;justify-items:center!important;min-width:0!important;}
+.match-turn-banner .round-player strong{width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;text-align:center!important;}
+.match-turn-banner .round-player small,.match-turn-banner .round-player.is-current small{justify-self:center!important;text-align:center!important;}
