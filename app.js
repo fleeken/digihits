@@ -26,6 +26,7 @@ state.recentTrackIds ||= [];
 state.changeTrackCards ??= 0;
 state.pendingSwapAward ||= null;
 state.achievements ||= {};
+state.achievementYear ||= new Date().getFullYear();
 state.dailyAchievements ||= {};
 state.dailyProgress ||= {};
 state.achievementAccounts ||= {};
@@ -316,30 +317,31 @@ function dialogProgress(message) { const progress = document.createElement("div"
 function closeDialogProgress() { $("#dialog-progress")?.remove(); $("#dialog-confirm").hidden = false; $("#app-dialog").hidden = true; }
 window.alert = (message) => dialog(String(message));
 
+function resetAnnualAchievements() {
+  const year = new Date().getFullYear();
+  if (Number(state.achievementYear) !== year) { state.achievements = {}; state.achievementYear = year; }
+}
 function save() {
   state.history = state.history.slice(0, 5);
-  if (state.userId) state.achievementAccounts[state.userId] = { achievements: { ...state.achievements }, dailyAchievements: { ...state.dailyAchievements }, dailyProgress: { ...state.dailyProgress } };
+  if (state.userId) state.achievementAccounts[state.userId] = { achievements: { ...state.achievements }, achievementYear: state.achievementYear, dailyAchievements: { ...state.dailyAchievements }, dailyProgress: { ...state.dailyProgress } };
   localStorage.setItem(storageKey, JSON.stringify(state));
 }
 function activateAchievementAccount(userId) {
   const id = String(userId), previousId = state.userId && String(state.userId);
-  if (previousId) state.achievementAccounts[previousId] = { achievements: { ...state.achievements }, dailyAchievements: { ...state.dailyAchievements }, dailyProgress: { ...state.dailyProgress } };
+  if (previousId) state.achievementAccounts[previousId] = { achievements: { ...state.achievements }, achievementYear: state.achievementYear, dailyAchievements: { ...state.dailyAchievements }, dailyProgress: { ...state.dailyProgress } };
   const saved = state.achievementAccounts[id];
   state.userId = id;
   state.achievements = saved ? { ...(saved.achievements || {}) } : previousId && previousId !== id ? {} : { ...state.achievements };
+  state.achievementYear = saved?.achievementYear || state.achievementYear;
   state.dailyAchievements = saved ? { ...(saved.dailyAchievements || {}) } : previousId && previousId !== id ? {} : { ...state.dailyAchievements };
   state.dailyProgress = saved ? { ...(saved.dailyProgress || {}) } : previousId && previousId !== id ? {} : { ...state.dailyProgress };
   achievementPopupQueue = [];
+  resetAnnualAchievements();
   save();
 }
-async function loadPermanentAchievements(userId) {
-  try {
-    const rows = await supabaseAuth.dataRequest("digihits_profiles?id=eq." + encodeURIComponent(userId) + "&select=career_achievements");
-    const keys = Array.isArray(rows?.[0]?.career_achievements) ? rows[0].career_achievements : [];
-    keys.forEach((id) => state.achievements[id] = true);
-    state.stats.achievementXp = Math.max(Number(state.stats.achievementXp) || 0, Object.values(state.achievements).filter(Boolean).length * 3);
-    save();
-  } catch { /* lokalt kontosparande används om profilen inte kan läsas */ }
+async function loadPermanentAchievements() {
+  resetAnnualAchievements();
+  save();
 }
 const avatarChoices = { skin: ["Ljus", "Mellan", "Mörk"], hair: ["Kort", "Lockigt", "Långt", "Mohawk", "Flätor"], beard: ["Ingen", "Skägg", "Mustasch", "Stubb"], hat: ["Ingen", "Keps", "Beanie", "Hatt", "Cowboyhatt"], top: ["T-shirt", "Skinnjacka", "Hoodie", "Glitterjacka", "Kavaj"], legs: ["Jeans", "Skinnbyxor", "Vida byxor", "Kjol"], shoes: ["Sneakers", "Boots", "Platåskor", "Cowboyboots"], accessory: ["Inget", "Solglasögon", "Kedja", "Hörlurar", "Gitarr"], piercing: ["Ingen", "Näsring", "Öronring", "Ögonbrynspiercing"] };
 const avatarGenres = { Pop: { top: "Glitterjacka", shoes: "Sneakers", accessory: "Solglasögon", hair: "Långt" }, Rock: { top: "Skinnjacka", legs: "Skinnbyxor", shoes: "Boots", accessory: "Gitarr", beard: "Stubb" }, Hiphop: { top: "Hoodie", hat: "Keps", shoes: "Sneakers", accessory: "Kedja" }, Disco: { top: "Glitterjacka", legs: "Vida byxor", shoes: "Platåskor", accessory: "Solglasögon" }, Country: { top: "Kavaj", hat: "Cowboyhatt", shoes: "Cowboyboots", legs: "Jeans" }, Punk: { hair: "Mohawk", top: "Skinnjacka", shoes: "Boots", piercing: "Näsring" }, EDM: { top: "Hoodie", accessory: "Hörlurar", hair: "Flätor", shoes: "Sneakers" }, Jazz: { top: "Kavaj", hat: "Hatt", shoes: "Boots", accessory: "Solglasögon" } };
@@ -456,6 +458,7 @@ function settleResult(match, userId, players = []) {
   if (!won && !alreadyArchived && !state.selfWalkovers.includes(match.id)) { const message = `Du förlorade matchen mot ${winner}. Matchens resultat går att se på startsidan under Historik.`; if (window.Notification?.permission === "granted") new Notification("Digihits", { body: message }); dialog(message, () => showHistoryResult(entry), false, "VISA SLUTRESULTAT", "OK"); }
 }
 function grantAchievement(id, label) {
+  resetAnnualAchievements();
   if (state.achievements[id]) return false;
   state.achievements[id] = true;
   state.stats.achievementXp += 3;
@@ -578,6 +581,7 @@ async function syncFriends() {
 }
 function alignResetButtons() { document.querySelectorAll(".section-subtitle").forEach((title) => { const reset = title.nextElementSibling; if (!reset?.classList.contains("reset-row") || title.parentElement.classList.contains("section-heading")) return; const heading = document.createElement("div"); heading.className = "section-heading"; title.before(heading); heading.append(title, reset); }); }
 function render() {
+  resetAnnualAchievements();
   persistCareer();
   updateTurnBadge();
   $("#player-name").textContent = state.playerName;
@@ -627,10 +631,10 @@ function render() {
   const todayAchievements = state.dailyAchievements[localDateKey()] || {};
   const dailyAchievementIds = new Set(["eveningDj", "hattrick", "quickStart", "socialToneDaily", "soloDaily", "fullGuard", "fullSpeed", "soloWin", "soloFlawless", "triple"]);
   const achievementButton = ([id, icon, label, description, mode]) => "<button class=\"achievement " + ((dailyAchievementIds.has(id) ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small><span>" + label + "</span><em>" + mode + "</em></small></button>";
-  const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
-  const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Permanenta utmärkelser</h3><div>" + achievements.filter(([id]) => !dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
+  const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser · nollställs kl 00:00</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
+  const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Årliga utmärkelser · nollställs vid årsskiftet</h3><div>" + achievements.filter(([id]) => !dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   levelPanel.innerHTML = "<section class=\"career-section-panel career-level-panel\"><div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small></section>" + dailyMarkup + permanentMarkup;
-  levelPanel.querySelector("button").onclick = () => { dialog("Poängregler:\n• Vinst: +3 poäng\n• Förlust: 0 poäng\n• Lämnar walk over: −1 poäng\n\nUtmärkelser:\n• Varje utmärkelse ger +3 poäng\n• Tryck på en utmärkelse för att se exakt hur den låses upp\n• Dagliga utmärkelser nollställs varje dag kl 00:00\n• Permanenta utmärkelser kan bara låsas upp en gång per Digihits-konto\n\nNivåer:\n• Uppvärmning: 0 eller mindre\n• Soundcheck: 1–8\n• Genombrott: 9–23\n• Hitmakare: 24–49\n• Listetta: 50–89\n• Guldskiva: 90–149\n• Platinaskiva: 150–249\n• Digihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); $("#dialog-message").innerHTML = $("#dialog-message").textContent.split("\n").map((line) => line.startsWith("• ") ? `<span class="level-rule-item">${escapeHtml(line.slice(2))}</span>` : line ? `<span class="level-rule-line">${escapeHtml(line)}</span>` : `<span class="level-rule-gap"></span>`).join(""); };
+  levelPanel.querySelector("button").onclick = () => { dialog("Poängregler:\n• Vinst: +3 poäng\n• Förlust: 0 poäng\n• Lämnar walk over: −1 poäng\n\nUtmärkelser:\n• Varje utmärkelse ger +3 poäng\n• Tryck på en utmärkelse för att se exakt hur den låses upp\n• Dagliga utmärkelser nollställs varje dag kl 00:00\n• Årliga utmärkelser nollställs vid årsskiftet\n\nNivåer:\n• Uppvärmning: 0 eller mindre\n• Soundcheck: 1–8\n• Genombrott: 9–23\n• Hitmakare: 24–49\n• Listetta: 50–89\n• Guldskiva: 90–149\n• Platinaskiva: 150–249\n• Digihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); $("#dialog-message").innerHTML = $("#dialog-message").textContent.split("\n").map((line) => line.startsWith("• ") ? `<span class="level-rule-item">${escapeHtml(line.slice(2))}</span>` : line ? `<span class="level-rule-line">${escapeHtml(line)}</span>` : `<span class="level-rule-gap"></span>`).join(""); };
   renderAvatar();
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
   $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
