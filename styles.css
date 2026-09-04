@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.46";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.47";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -779,3 +779,11 @@ body::before{clip-path:inset(140px 0 0);}
 .home-hero{display:block;margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible;color:var(--ink);}
 .view[data-view-panel="home"] .home-illustration{overflow:visible!important;}
 .view[data-view-panel="home"] .home-illustration img{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 5%,#000 94%,transparent 100%);-webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 5%,#000 94%,transparent 100%);mask-composite:intersect;}
+
+/* v6.47: polished, centred red trash controls; solo delete sits beside open. */
+.menu-page-section .match .delete-icon{display:grid!important;place-items:center!important;padding:0!important;width:38px!important;height:38px!important;border:1px solid #a82839!important;border-radius:11px!important;background:#d83f4f!important;color:transparent!important;box-shadow:0 2px 5px #7b1e2b2e!important;}
+.menu-page-section .match .delete-icon::before{position:static!important;display:block!important;width:18px!important;height:19px!important;background:#fff!important;transform:none!important;}
+.menu-page-section .match.solo .match-footer{display:grid!important;grid-template-columns:minmax(0,1fr) 44px!important;align-items:stretch!important;gap:10px!important;}
+.menu-page-section .match.solo .match-open{width:auto!important;min-width:0!important;margin:0!important;text-align:center!important;}
+.menu-page-section .match.solo .match-card-actions{display:block!important;width:44px!important;height:100%!important;}
+.menu-page-section .match.solo .match-card-actions .delete-icon{position:relative!important;inset:auto!important;width:44px!important;height:100%!important;min-height:44px!important;margin:0!important;}
