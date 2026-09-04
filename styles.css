@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.51";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.52";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -800,3 +800,7 @@ body::before{clip-path:inset(140px 0 0);}
 /* v6.50: exact two-axis centring with the trash lid raised one pixel. */
 .menu-page-section .match .delete-icon{display:grid!important;place-items:center!important;line-height:0!important;}
 .menu-page-section .match .delete-icon::before{position:absolute!important;left:50%!important;top:50%!important;width:24px!important;height:24px!important;margin:0!important;transform:translate(-50%,-50%)!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h16'/%3E%3Cpath d='M9 2.5h6v3.5H9z'/%3E%3Cpath d='M6.5 8l1 13h9l1-13'/%3E%3Cpath d='M10 11v6M14 11v6'/%3E%3C/g%3E%3C/svg%3E")!important;background-position:center!important;background-size:24px 24px!important;background-repeat:no-repeat!important;}
+
+/* v6.52: native polished emoji trash can on the existing red control. */
+.menu-page-section .match .delete-icon{display:grid!important;place-items:center!important;padding:0!important;background:#d83f4f!important;border:1px solid #b52f40!important;color:#fff!important;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;font-size:21px!important;font-weight:400!important;line-height:1!important;text-indent:0!important;}
+.menu-page-section .match .delete-icon::before,.menu-page-section .match .delete-icon::after{display:none!important;content:none!important;}
