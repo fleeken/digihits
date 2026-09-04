@@ -617,7 +617,7 @@ body:has(.view.active:is([data-view-panel="guess"],[data-view-panel="timeline"],
 .menu-count[hidden]{display:none!important;}
 .app-shell:has([data-view-panel="welcome"].active)>.brand{display:none;}
 .app-shell:has([data-view-panel="welcome"].active){padding-bottom:24px;}
-.welcome-card{position:relative;isolation:isolate;width:min(100%,390px);aspect-ratio:1/2;min-height:0;margin:0 auto;padding:0;display:block;border:1px solid #30364d;border-radius:32px;background-image:url("assets/welcome-hd.png?v=6.10");background-size:100% 100%;background-position:center;background-repeat:no-repeat;background-color:#070e2a;box-shadow:0 12px 32px #2420352b;}
+.welcome-card{position:relative;isolation:isolate;width:min(100%,390px);aspect-ratio:1/2;min-height:0;margin:0 auto;padding:0;display:block;border:1px solid #30364d;border-radius:32px;background-image:url("assets/welcome-hd-v629.png");background-size:100% 100%;background-position:center;background-repeat:no-repeat;background-color:#070e2a;box-shadow:0 12px 32px #2420352b;}
 .welcome-card .welcome-inner{position:absolute;inset:0;padding:0;border:0;background:none;margin:0;display:block;}
 .welcome-turn-copy{backface-visibility:hidden;will-change:transform,opacity;}
 .welcome-card .welcome-inner::before{content:none;}
