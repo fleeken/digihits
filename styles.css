@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.65";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.66";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -871,3 +871,11 @@ body::before{clip-path:inset(140px 0 0);}
 .view[data-view-panel="matches"] :is(#friend-invites,#friend-sent-match-invites)>.friend-row:last-child{border-bottom:0!important;padding-bottom:0!important;}
 .view[data-view-panel="matches"] :is(#friend-invites,#friend-sent-match-invites)>.friend-section-title+.friend-empty{margin:0!important;}
 .view[data-view-panel="matches"] #matches{width:100%!important;min-width:0!important;}
+
+/* v6.66: Solo and online match lists each share one outer section panel. */
+.view[data-view-panel="matches"] #matches{display:grid!important;gap:14px!important;}
+.view[data-view-panel="matches"] .match-list-panel{box-sizing:border-box!important;width:100%!important;margin:0!important;padding:16px!important;background:var(--surface)!important;border:1px solid #cbbbc7!important;border-radius:22px!important;box-shadow:0 5px 16px #39213d0a!important;overflow:hidden!important;}
+.view[data-view-panel="matches"] .match-list-panel>.match-group-title{margin:0 0 12px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;}
+.view[data-view-panel="matches"] .match-list-panel>.match{width:100%!important;max-width:100%!important;margin:0 0 12px!important;box-sizing:border-box!important;}
+.view[data-view-panel="matches"] .match-list-panel>.match:last-child{margin-bottom:0!important;}
+.view[data-view-panel="matches"] .match-list-panel>.match-empty{margin:0!important;}
