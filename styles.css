@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.80";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.81";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -1018,3 +1018,10 @@ body::before{clip-path:inset(140px 0 0);}
 #dialog-message.level-rules .level-rule-item::before{
   content:"•"!important;position:absolute!important;left:2px!important;top:0!important;
 }
+
+
+/* v6.81: compact career information spacing. */
+#dialog-message.level-rules{white-space:normal!important;line-height:1.35!important;}
+#dialog-message.level-rules .level-rule-line{display:block!important;margin:0!important;}
+#dialog-message.level-rules .level-rule-item{margin:2px 0!important;}
+#dialog-message.level-rules .level-rule-gap{display:block!important;height:9px!important;}
