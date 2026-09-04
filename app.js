@@ -1360,6 +1360,29 @@ $("#reset-password-form").addEventListener("submit", async (event) => {
   try { await supabaseAuth.updatePassword(supabaseAuth.session()?.access_token, next); alert("Lösenordet är ändrat."); showView("login"); }
   catch (error) { alert(error.message); }
 });
+function alignGuessFormToKeyboard() {
+  const focused = document.activeElement;
+  if (currentView !== "guess" || !["guess-artist", "guess-track"].includes(focused?.id)) return;
+  const viewport = window.visualViewport;
+  const button = document.querySelector("#guess-form button[type=\"submit\"]");
+  if (!viewport || !button || viewport.height >= window.innerHeight - 80) return;
+  const keyboardTop = viewport.offsetTop + viewport.height;
+  const distance = button.getBoundingClientRect().bottom - keyboardTop;
+  if (Math.abs(distance) > 1) window.scrollBy({ top: distance, left: 0, behavior: "auto" });
+}
+function scheduleGuessKeyboardAlignment() {
+  requestAnimationFrame(() => {
+    alignGuessFormToKeyboard();
+    setTimeout(alignGuessFormToKeyboard, 150);
+    setTimeout(alignGuessFormToKeyboard, 350);
+  });
+}
+document.addEventListener("focusin", (event) => {
+  if (["guess-artist", "guess-track"].includes(event.target?.id)) scheduleGuessKeyboardAlignment();
+});
+window.visualViewport?.addEventListener("resize", scheduleGuessKeyboardAlignment);
+window.visualViewport?.addEventListener("scroll", scheduleGuessKeyboardAlignment);
+
 document.querySelectorAll("input, textarea").forEach((field) => { if (field.type === "password") field.autocomplete = /login|current/.test(field.id) ? "current-password" : "new-password"; else if (field.type === "email") field.autocomplete = "email"; else field.autocomplete = "off"; field.setAttribute("autocorrect", "off"); field.setAttribute("autocapitalize", "off"); field.spellcheck = false; });
 document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view, button.classList.contains("lobby-back"))));
 document.querySelectorAll("[data-accordion]").forEach((section) => {
