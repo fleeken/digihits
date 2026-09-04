@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.94";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.95";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -1038,3 +1038,24 @@ body::before{clip-path:inset(140px 0 0);}
 }
 
 .view[data-view-panel="game-history"] .history-section-panel:nth-child(2) .stat-grid>div{flex:1 1 110px!important;}
+
+
+/* v6.95: DigiHits wordmark. */
+.brand .brand-button{
+  display:flex!important;align-items:center!important;gap:6px!important;
+  font:inherit!important;letter-spacing:0!important;text-shadow:none!important;
+}
+.digihits-wordmark{
+  display:inline-flex!important;align-items:baseline!important;gap:0!important;
+  font-family:Georgia,"Times New Roman",serif!important;font-size:31px!important;
+  line-height:1!important;letter-spacing:-1.8px!important;font-style:italic!important;
+}
+.digihits-wordmark i{
+  display:inline-grid!important;place-items:center!important;width:22px!important;height:22px!important;
+  margin:0 4px 0 0!important;border-radius:50%!important;background:#e7d9ee!important;
+  color:#76518f!important;font:700 15px/1 Georgia,serif!important;transform:rotate(-8deg)!important;
+}
+.digihits-wordmark b{color:#2872b3!important;font-weight:700!important;}
+.digihits-wordmark strong{color:#76518f!important;font-weight:700!important;}
+.brand .brand-button::after{content:none!important;}
+@media(max-width:480px){.digihits-wordmark{font-size:27px!important;}.digihits-wordmark i{width:20px!important;height:20px!important;font-size:14px!important;}}
