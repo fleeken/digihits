@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.74";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.75";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -943,4 +943,14 @@ body::before{clip-path:inset(140px 0 0);}
 @media(max-width:480px){
   .view[data-view-panel="game-history"] .history-section-panel{width:calc(100% - 12px)!important;padding:14px!important;}
   .view[data-view-panel="game-history"] .history-section-panel .stat-grid{grid-template-columns:1fr!important;}
+}
+
+
+/* v6.75: coloured match cards align with request panels; solo uses a full light-purple fill. */
+.view[data-view-panel="matches"] .match-list-panel{overflow:visible!important;}
+.view[data-view-panel="matches"] .match-list-panel>.match{
+  width:calc(100% + 32px)!important;max-width:none!important;margin-left:-16px!important;margin-right:-16px!important;
+}
+.view[data-view-panel="matches"] .match-list-panel>.match.solo{
+  background:#f1e6f8!important;border-color:#a37ac0!important;
 }
