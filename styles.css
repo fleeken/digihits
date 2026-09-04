@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.63";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.64";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -851,3 +851,13 @@ body::before{clip-path:inset(140px 0 0);}
 .view:is([data-view-panel="matches"],[data-view-panel="friends"],[data-view-panel="game-history"])>.menu-page-section,.view:is([data-view-panel="matches"],[data-view-panel="friends"],[data-view-panel="game-history"]) .accordion-content{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;}
 .view:is([data-view-panel="matches"],[data-view-panel="friends"],[data-view-panel="game-history"]) :is(.match,.friend-row,.history-match,.friend-search,#friend-requests,#friend-sent-requests,#friend-invites,#friend-sent-match-invites,.reset-row){box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow-wrap:anywhere!important;}
 .view:is([data-view-panel="matches"],[data-view-panel="friends"],[data-view-panel="game-history"]) :is(input,button,select,textarea){max-width:100%!important;min-width:0!important;}
+
+/* v6.64: Friends uses exactly four outer section panels, without nested boxes. */
+.view[data-view-panel="friends"]>.menu-page-section{padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;}
+.view[data-view-panel="friends"] .friends-content{display:grid!important;gap:14px!important;padding:0!important;}
+.view[data-view-panel="friends"] :is(.friend-search,#friend-requests,#friend-sent-requests,#friends-list){box-sizing:border-box!important;width:100%!important;margin:0!important;padding:16px!important;background:var(--surface)!important;border:1px solid #cbbbc7!important;border-radius:22px!important;box-shadow:0 5px 16px #39213d0a!important;overflow:hidden!important;}
+.view[data-view-panel="friends"] :is(#friend-invites,#friend-sent-match-invites){margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;}
+.view[data-view-panel="friends"] .friend-section-title{margin:0 0 12px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;}
+.view[data-view-panel="friends"] .friend-row{margin:0!important;padding:12px 0!important;background:transparent!important;border:0!important;border-bottom:1px solid #ddd0d5!important;border-radius:0!important;box-shadow:none!important;}
+.view[data-view-panel="friends"] :is(#friend-requests,#friend-sent-requests,#friends-list)>.friend-row:last-child{border-bottom:0!important;padding-bottom:0!important;}
+.view[data-view-panel="friends"] :is(#friend-requests,#friend-sent-requests,#friends-list)>.friend-section-title+.friend-empty{margin:0!important;}
