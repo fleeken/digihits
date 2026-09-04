@@ -779,7 +779,7 @@ document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-bottom-menu]");
   if (!button) return;
   if (!$("#app-dialog").hidden && $("#dialog-message").classList.contains("level-rules")) $("#app-dialog").hidden = true;
-  showView(menuViewState[button.dataset.bottomMenu] || button.dataset.bottomMenu);
+  showView(button.dataset.bottomMenu);
 });
 function openLobby(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
