@@ -779,7 +779,9 @@ document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-bottom-menu]");
   if (!button) return;
   if (!$("#app-dialog").hidden && $("#dialog-message").classList.contains("level-rules")) $("#app-dialog").hidden = true;
-  showView(button.dataset.bottomMenu);
+  const targetMenu = button.dataset.bottomMenu;
+  const activeMenu = ["profile", "avatar", "change-password"].includes(currentView) ? profileReturnMenu : menuForView(currentView);
+  showView(targetMenu === activeMenu ? targetMenu : (menuViewState[targetMenu] || targetMenu));
 });
 function openLobby(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
