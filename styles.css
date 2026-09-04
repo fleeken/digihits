@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.47";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.48";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -787,3 +787,8 @@ body::before{clip-path:inset(140px 0 0);}
 .menu-page-section .match.solo .match-open{width:auto!important;min-width:0!important;margin:0!important;text-align:center!important;}
 .menu-page-section .match.solo .match-card-actions{display:block!important;width:44px!important;height:100%!important;}
 .menu-page-section .match.solo .match-card-actions .delete-icon{position:relative!important;inset:auto!important;width:44px!important;height:100%!important;min-height:44px!important;margin:0!important;}
+
+/* v6.48: crisp red outline trash icon with an exact centred hit target. */
+.menu-page-section .match .delete-icon{display:grid!important;place-items:center!important;padding:0!important;border:2px solid #d83f4f!important;border-radius:10px!important;background:#fff!important;box-shadow:none!important;overflow:hidden!important;}
+.menu-page-section .match .delete-icon::before{content:""!important;position:static!important;display:block!important;width:23px!important;height:23px!important;border:0!important;border-radius:0!important;background-color:transparent!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23d83f4f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M9 3h6l1 4H8l1-4M7 7l1 14h8l1-14M10 11v6M14 11v6'/%3E%3C/g%3E%3C/svg%3E")!important;background-position:center!important;background-size:23px 23px!important;background-repeat:no-repeat!important;-webkit-mask:none!important;mask:none!important;transform:none!important;box-shadow:none!important;}
+.menu-page-section .match .delete-icon::after{display:none!important;content:none!important;}
