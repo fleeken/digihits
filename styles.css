@@ -419,7 +419,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;}
 
 /* v6.06 — sammanhållet tema. Layout/spelregler ligger kvar ovanför. */
 :root{
-  --paper:#f6eddf;--surface:#fff7eb;--ink:#111832;--muted:#625a6a;
+  --paper:#f5e1d6;--surface:#fff7eb;--ink:#111832;--muted:#625a6a;
   --night:#070e2a;--night-soft:#242447;--night-text:#fff3df;--night-muted:#c7bfd5;
   --line:#bdadc1;--coral:#f09283;--lilac:#bb9ed3;--green:#7be6a2;--yellow:#f0cd87;
   --blue:#a4cce5;--purple:#c4a6df;--danger-bg:#763b49;--danger-border:#a44f60;--danger-text:#fff;
@@ -560,7 +560,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .greeting-decoration span{font-size:12px;color:#d28c64;}
 /* Egen liggande Hem-illustration: hela bilden visas, ingen klippning eller förskjutning. */
 .home-illustration{width:100%;background:transparent;}
-.home-illustration img{display:block;width:100%;height:auto;object-fit:contain;mix-blend-mode:multiply;}
+.home-illustration img{display:block;width:100%;height:auto;object-fit:contain;mix-blend-mode:normal;}
 .menu-page-section .match-code,.menu-page-section .match-code strong,.menu-page-section .level-head button{color:#355873!important;}
 .menu-page-section .history-match.history-walkover{border-color:#4c7898;}
 .menu-page-section .action-card h3::before{content:"♫";display:block;width:42px;height:42px;line-height:42px;margin-bottom:12px;border:1px solid #b89dc9;border-radius:13px;color:#76518f;background:#e7d9ee;text-align:center;font-family:Georgia,serif;font-size:26px;}
@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.42";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.43";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
