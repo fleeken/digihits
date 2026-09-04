@@ -1,4 +1,4 @@
-const APP_VERSION = "6.67";
+const APP_VERSION = "6.68";
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -27,6 +27,8 @@ state.changeTrackCards ??= 0;
 state.pendingSwapAward ||= null;
 state.achievements ||= {};
 state.dailyAchievements ||= {};
+state.dailyProgress ||= {};
+state.achievementAccounts ||= {};
 state.menuSeenByUser ||= {};
 state.avatar ||= { skin: "Mellan", hair: "Kort", beard: "Ingen", hat: "Ingen", top: "T-shirt", legs: "Jeans", shoes: "Sneakers", accessory: "Inget", piercing: "Ingen" };
 state.avatar.eyes ||= "Runda";
@@ -314,7 +316,31 @@ function dialogProgress(message) { const progress = document.createElement("div"
 function closeDialogProgress() { $("#dialog-progress")?.remove(); $("#dialog-confirm").hidden = false; $("#app-dialog").hidden = true; }
 window.alert = (message) => dialog(String(message));
 
-function save() { state.history = state.history.slice(0, 5); localStorage.setItem(storageKey, JSON.stringify(state)); }
+function save() {
+  state.history = state.history.slice(0, 5);
+  if (state.userId) state.achievementAccounts[state.userId] = { achievements: { ...state.achievements }, dailyAchievements: { ...state.dailyAchievements }, dailyProgress: { ...state.dailyProgress } };
+  localStorage.setItem(storageKey, JSON.stringify(state));
+}
+function activateAchievementAccount(userId) {
+  const id = String(userId), previousId = state.userId && String(state.userId);
+  if (previousId) state.achievementAccounts[previousId] = { achievements: { ...state.achievements }, dailyAchievements: { ...state.dailyAchievements }, dailyProgress: { ...state.dailyProgress } };
+  const saved = state.achievementAccounts[id];
+  state.userId = id;
+  state.achievements = saved ? { ...(saved.achievements || {}) } : previousId && previousId !== id ? {} : { ...state.achievements };
+  state.dailyAchievements = saved ? { ...(saved.dailyAchievements || {}) } : previousId && previousId !== id ? {} : { ...state.dailyAchievements };
+  state.dailyProgress = saved ? { ...(saved.dailyProgress || {}) } : previousId && previousId !== id ? {} : { ...state.dailyProgress };
+  achievementPopupQueue = [];
+  save();
+}
+async function loadPermanentAchievements(userId) {
+  try {
+    const rows = await supabaseAuth.dataRequest("digihits_profiles?id=eq." + encodeURIComponent(userId) + "&select=career_achievements");
+    const keys = Array.isArray(rows?.[0]?.career_achievements) ? rows[0].career_achievements : [];
+    keys.forEach((id) => state.achievements[id] = true);
+    state.stats.achievementXp = Math.max(Number(state.stats.achievementXp) || 0, Object.values(state.achievements).filter(Boolean).length * 3);
+    save();
+  } catch { /* lokalt kontosparande används om profilen inte kan läsas */ }
+}
 const avatarChoices = { skin: ["Ljus", "Mellan", "Mörk"], hair: ["Kort", "Lockigt", "Långt", "Mohawk", "Flätor"], beard: ["Ingen", "Skägg", "Mustasch", "Stubb"], hat: ["Ingen", "Keps", "Beanie", "Hatt", "Cowboyhatt"], top: ["T-shirt", "Skinnjacka", "Hoodie", "Glitterjacka", "Kavaj"], legs: ["Jeans", "Skinnbyxor", "Vida byxor", "Kjol"], shoes: ["Sneakers", "Boots", "Platåskor", "Cowboyboots"], accessory: ["Inget", "Solglasögon", "Kedja", "Hörlurar", "Gitarr"], piercing: ["Ingen", "Näsring", "Öronring", "Ögonbrynspiercing"] };
 const avatarGenres = { Pop: { top: "Glitterjacka", shoes: "Sneakers", accessory: "Solglasögon", hair: "Långt" }, Rock: { top: "Skinnjacka", legs: "Skinnbyxor", shoes: "Boots", accessory: "Gitarr", beard: "Stubb" }, Hiphop: { top: "Hoodie", hat: "Keps", shoes: "Sneakers", accessory: "Kedja" }, Disco: { top: "Glitterjacka", legs: "Vida byxor", shoes: "Platåskor", accessory: "Solglasögon" }, Country: { top: "Kavaj", hat: "Cowboyhatt", shoes: "Cowboyboots", legs: "Jeans" }, Punk: { hair: "Mohawk", top: "Skinnjacka", shoes: "Boots", piercing: "Näsring" }, EDM: { top: "Hoodie", accessory: "Hörlurar", hair: "Flätor", shoes: "Sneakers" }, Jazz: { top: "Kavaj", hat: "Hatt", shoes: "Boots", accessory: "Solglasögon" } };
 const avatarRandom = (part) => avatarChoices[part][Math.floor(Math.random() * avatarChoices[part].length)];
@@ -449,14 +475,15 @@ function grantDailyAchievement(id, label) {
   return true;
 }
 function showAchievementPopups() {
+  if (currentView !== "result" || !achievementPopupQueue.length) return;
   if (!$("#app-dialog").hidden) { setTimeout(showAchievementPopups, 250); return; }
   const label = achievementPopupQueue.shift();
-  if (!label) return;
   dialog("Utmärkelse upplåst: " + label + "!\n\nDu får +3 onlinepoäng.", showAchievementPopups, false, "OK");
 }
 function finishAchievementAwards() {
   if (!achievementPopupQueue.length) return;
-  save(); render(); showAchievementPopups();
+  save(); render();
+  if (currentView === "result") showAchievementPopups();
 }
 function evaluateCareerAchievements(comeback = false) {
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
@@ -568,7 +595,14 @@ function render() {
     ["matchmaker", "✦", "Matchmakaren", "Spela fem onlinematcher med minst en annan deltagare."],
     ["hattrick", "3", "Hattrick", "Lås in tre kort rätt i samma omgång."],
     ["fullHouse", "8", "Fullt hus", "Spela en onlinematch med minst fyra spelare."],
-    ["eveningDj", "♫", "Kvällens DJ · DAGLIG", "Spela mot tre olika personer samma dag. Kan låsas upp på nytt efter midnatt."],
+    ["eveningDj", "♫", "Kvällens DJ · DAGLIG", "Spela mot tre olika personer samma dag."],
+    ["dailyStart", "▶", "Dagens start · DAGLIG", "Spela en match idag."],
+    ["doubleHit", "✌", "Dubbelträff · DAGLIG", "Gissa både artist och låttitel rätt i samma omgång."],
+    ["quickStart", "⚡", "Snabbstart · DAGLIG", "Placera rätt redan i dagens första spelade omgång."],
+    ["socialToneDaily", "♥", "Social ton · DAGLIG", "Spela en onlinematch idag."],
+    ["soloDaily", "★", "Solisten · DAGLIG", "Spela en solomatch idag."],
+    ["fullGuard", "◆", "Helgardering · DAGLIG", "Gissa artist och låttitel rätt och placera kortet rätt."],
+    ["fullSpeed", "↯", "Full fart · DAGLIG", "Spela både solo och online samma dag."],
     ["friendshipTone", "♥", "Vänskapston", "Bli vän med fem olika personer."],
     ["socialPlayer", "☻", "Sällskapsspelare", "Spela mot fem olika personer."],
     ["comeback", "↟", "Vändningen", "Vinn en onlinematch direkt efter en förlust."],
@@ -582,9 +616,10 @@ function render() {
     ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher."]
   ];
   const todayAchievements = state.dailyAchievements[localDateKey()] || {};
-  const achievementButton = ([id, icon, label, description]) => "<button class=\"achievement " + ((id === "eveningDj" ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>";
-  const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser</h3><div>" + achievements.filter(([id]) => id === "eveningDj").map(achievementButton).join("") + "</div></section>";
-  const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Permanenta utmärkelser</h3><div>" + achievements.filter(([id]) => id !== "eveningDj").map(achievementButton).join("") + "</div></section>";
+  const dailyAchievementIds = new Set(["eveningDj", "dailyStart", "doubleHit", "quickStart", "socialToneDaily", "soloDaily", "fullGuard", "fullSpeed"]);
+  const achievementButton = ([id, icon, label, description]) => "<button class=\"achievement " + ((dailyAchievementIds.has(id) ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small>" + label + "</small></button>";
+  const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
+  const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Permanenta utmärkelser</h3><div>" + achievements.filter(([id]) => !dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   levelPanel.innerHTML = "<section class=\"career-section-panel career-level-panel\"><div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small></section>" + dailyMarkup + permanentMarkup;
   levelPanel.querySelector("button").onclick = () => { dialog("Poäng, utmärkelser och nivåer gäller endast onlinematcher.\n\nPoängregler:\nVinst: +3 poäng\nFörlust: 0 poäng\nLämnar walk over: −1 poäng\n\nUtmärkelser:\nVarje utmärkelse ger +3 poäng. Tryck på en utmärkelse för att se exakt hur den låses upp.\n\nNivåer:\nUppvärmning: 0 eller mindre\nSoundcheck: 1–8\nGenombrott: 9–23\nHitmakare: 24–49\nListetta: 50–89\nGuldskiva: 90–149\nPlatinaskiva: 150–249\nDigihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); };
   renderAvatar();
@@ -730,6 +765,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
   });
+  if (view === "result") setTimeout(showAchievementPopups, 0);
   if (gameView) resumeRoundTrack();
   playWelcomeTurn?.();
   if (!fromHistory) history.pushState({ view }, "", `#${view}`);
@@ -1221,6 +1257,17 @@ $("#lock-placement").addEventListener("click", async () => {
   const solo = isSoloMatch(state.matches.find((match) => match.code === state.activeMatchCode));
   const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) }, placedPosition: placedAt };
   currentPlacementCorrect = placementIsCorrect();
+  const today = localDateKey();
+  state.dailyProgress[today] ||= { solo: false, online: false, rounds: 0 };
+  const daily = state.dailyProgress[today], firstRoundToday = daily.rounds === 0, songCorrect = hasCorrectSongGuess(resultCard);
+  daily.rounds += 1; daily.solo ||= solo; daily.online ||= !solo;
+  grantDailyAchievement("dailyStart", "Dagens start");
+  if (songCorrect) grantDailyAchievement("doubleHit", "Dubbelträff");
+  if (firstRoundToday && currentPlacementCorrect) grantDailyAchievement("quickStart", "Snabbstart");
+  grantDailyAchievement(solo ? "soloDaily" : "socialToneDaily", solo ? "Solisten" : "Social ton");
+  if (songCorrect && currentPlacementCorrect) grantDailyAchievement("fullGuard", "Helgardering");
+  if (daily.solo && daily.online) grantDailyAchievement("fullSpeed", "Full fart");
+  save();
   if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; if (state.roundUnlocked.length + 1 >= 3) grantAchievement("hattrick", "Hattrick"); save(); evaluateCareerAchievements(); }
   if (!solo) {
     const match = state.matches.find((item) => item.code === state.activeMatchCode), player = (match?.players || []).find((item) => String(item.user_id) === String(state.userId)), savedScore = player?.last_round?.score || {}, priorCorrect = Math.max(1, Number(savedScore.correct) || state.lockedTimeline.length), priorMistakes = Number.isFinite(Number(savedScore.mistakes)) && savedScore.mistakes !== "" ? Math.max(0, Number(savedScore.mistakes)) : Math.max(0, Number(player?.rounds_started || 0) - Math.max(0, priorCorrect - 1));
@@ -1270,7 +1317,7 @@ $("#reset-online-stats")?.addEventListener("click", () => dialog("Nollställ sta
 $("#reset-solo-history")?.addEventListener("click", () => dialog("Nollställ avslutade solomatcher?", () => { state.history = state.history.filter((match) => match.mode !== "solo"); save(); render(); }, true, "NOLLSTÄLL"));
 $("#reset-online-history")?.addEventListener("click", () => dialog("Nollställ avslutade onlinematcher?", () => { state.history = state.history.filter((match) => match.mode === "solo"); save(); render(); }, true, "NOLLSTÄLL"));
 $("#change-password").addEventListener("click", () => showView("change-password"));
-$("#logout").addEventListener("click", () => { supabaseAuth.signOut(); showView("welcome"); });
+$("#logout").addEventListener("click", () => { achievementPopupQueue = []; save(); supabaseAuth.signOut(); showView("welcome"); });
 $("#delete-account").addEventListener("click", () => { $("#delete-confirmation").value = ""; $("#delete-error").hidden = true; $("#delete-modal").hidden = false; $("#delete-confirmation").focus(); });
 $("#delete-cancel").addEventListener("click", () => { $("#delete-modal").hidden = true; });
 $("#delete-account-form").addEventListener("submit", (event) => {
@@ -1326,6 +1373,7 @@ $("#login-form").addEventListener("submit", async (event) => {
     const data = await supabaseAuth.signIn($("#login-email").value.trim(), $("#login-password").value);
     $("#player-email").textContent = data.user.email;
     state.playerName = data.user.user_metadata?.display_name || state.playerName;
+    activateAchievementAccount(data.user.id); await loadPermanentAchievements(data.user.id);
     save(); render(); closeHomeAccordions(); showView("home"); startRealtime(); syncMatches().catch(() => {}); syncFriends().catch(() => {});
   } catch (error) { alert(error.message); }
   finally { submit.disabled = false; $("#login-progress").hidden = true; }
@@ -1359,14 +1407,15 @@ document.querySelectorAll('input[type="password"]').forEach((input) => {
 const verification = supabaseAuth.consumeVerification();
 if (verification || new URLSearchParams(location.search).get("reset") === "1") {
   if (verification?.type === "recovery" || new URLSearchParams(location.search).get("reset") === "1") showView("reset-password");
-  else supabaseAuth.user(verification.session.access_token).then((user) => {
+  else supabaseAuth.user(verification.session.access_token).then(async (user) => {
     $("#player-email").textContent = user.email;
     state.playerName = user.user_metadata?.display_name || state.playerName;
+    activateAchievementAccount(user.id); await loadPermanentAchievements(user.id);
     save(); render(); syncMatches().catch(() => {}); startRealtime(); showView("home");
   }).catch(() => showView("login"));
 } else if (supabaseAuth.session()?.access_token) {
   supabaseAuth.user(supabaseAuth.session().access_token).then(async (user) => {
-    $("#player-email").textContent = user.email; state.playerName = user.user_metadata?.display_name || state.playerName; state.userId = user.id; save(); render();
+    $("#player-email").textContent = user.email; state.playerName = user.user_metadata?.display_name || state.playerName; activateAchievementAccount(user.id); await loadPermanentAchievements(user.id); render();
     await syncMatches(); await syncFriends(); await restoreRoundUnlocked(); startRealtime();
     try { const spotify = await supabaseAuth.consumeSpotify(); if (spotify) { render(); dialog(`Spotify Premium är anslutet som ${spotify.name}.`); } } catch (error) { alert(error.message); }
     const view = location.hash.slice(1) || "home";
