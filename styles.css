@@ -762,7 +762,7 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* Visible app version: kept in CSS so mobile HTML cache cannot leave an old label. */
 .brand-button>small{display:none!important;}
-.brand-button::after{content:"v6.57";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
+.brand-button::after{content:"v6.58";margin-left:6px;font:700 9px/1 system-ui,sans-serif;letter-spacing:.04em;vertical-align:middle;}
 
 /* v6.42: seamless home, logo-blue headings, restored corner trash controls */
 .view[data-view-panel="home"]>.hero.panel,.view[data-view-panel="home"] .home-intro,.view[data-view-panel="home"] .home-greeting,.view[data-view-panel="home"] .home-illustration{background:transparent!important;border:0!important;box-shadow:none!important;}
@@ -830,3 +830,6 @@ body::before{clip-path:inset(140px 0 0);}
 
 /* v6.57: explicit live avatar image in the circular profile control. */
 .profile-toggle.avatar-art{background-image:var(--avatar-art)!important;}
+
+/* v6.58: remove cross-browser mask-composite artifact from home artwork. */
+.view[data-view-panel="home"] .home-illustration img{-webkit-mask-image:none!important;-webkit-mask-composite:initial!important;mask-image:none!important;mask-composite:initial!important;}
