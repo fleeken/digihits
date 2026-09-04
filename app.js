@@ -447,12 +447,12 @@ function settleResult(match, userId, players = []) {
   const alreadySettled = state.settledResults.includes(match.id), alreadyArchived = state.archivedResults.includes(match.id);
   const won = result.winner_id === userId;
   const winner = players.find((player) => String(player.user_id) === String(result.winner_id))?.display_name || "Motspelaren", opponent = players.find((player) => String(player.user_id) !== String(userId))?.display_name || "Motspelaren";
-  const comeback = won && state.stats.comebackReady;
+  const comeback = won && state.stats.comebackReady, winnerPlayer = players.find((player) => String(player.user_id) === String(userId)), flawless = won && result.type !== "walkover" && Number(winnerPlayer?.last_round?.score?.mistakes || 0) === 0;
   if (!alreadySettled) { state.stats.wins += won ? 1 : 0; state.stats.losses += won ? 0 : 1; state.stats.walkovers += won && result.type === "walkover" ? 1 : 0; state.stats.currentStreak = won ? state.stats.currentStreak + 1 : 0; state.stats.streak = Math.max(state.stats.streak, state.stats.currentStreak); state.stats.comebackReady = won ? false : true; state.settledResults.push(match.id); }
   const entry = { id: match.id, code: match.code, mode: "online", title: `${state.playerName}, ${opponent}`, opponentName: opponent, leaveReason: result.type === "walkover" ? (won ? "DU VANN - WALK OVER" : "DU LÄMNADE - WALK OVER") : won ? "DU VANN MATCHEN" : "DU FÖRLORADE MATCHEN", result };
   if (!alreadyArchived) { state.history.unshift(entry); state.archivedResults.push(match.id); }
   save();
-  if (won) evaluateCareerAchievements(comeback);
+  if (won) evaluateCareerAchievements(comeback, flawless);
   if (!won && !alreadyArchived && !state.selfWalkovers.includes(match.id)) { const message = `Du förlorade matchen mot ${winner}. Matchens resultat går att se på startsidan under Historik.`; if (window.Notification?.permission === "granted") new Notification("Digihits", { body: message }); dialog(message, () => showHistoryResult(entry), false, "VISA SLUTRESULTAT", "OK"); }
 }
 function grantAchievement(id, label) {
@@ -490,7 +490,7 @@ function finishAchievementAwards() {
   save(); render();
   if (currentView === "result") showAchievementPopups();
 }
-function evaluateCareerAchievements(comeback = false) {
+function evaluateCareerAchievements(comeback = false, flawless = false) {
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
   const todayOpponents = new Set(state.career.dailyOpponents[localDateKey()] || []).size;
   if (state.stats.wins >= 1) grantAchievement("firstWin", "Första vinsten");
@@ -498,6 +498,7 @@ function evaluateCareerAchievements(comeback = false) {
   if (state.stats.wins >= 10) grantAchievement("wins10", "10 onlinevinster");
   if (state.stats.wins >= 25) grantAchievement("wins25", "25 onlinevinster");
   if (state.stats.streak >= 5) grantAchievement("streak5", "5 vinster i rad");
+  if (flawless) grantAchievement("flawless", "Felfri");
   if (comeback) grantAchievement("comeback", "Vändningen");
   if (state.onlineCorrect >= 100) grantAchievement("correct100", "100 rätt placerade kort");
   if (opponents >= 3) grantAchievement("threeFriends", "Vunnit mot 3 vänner");
@@ -617,6 +618,7 @@ function render() {
     ["wins10", "10", "10 onlinevinster", "Vinn totalt tio onlinematcher.", "online"],
     ["correct100", "100", "100 rätt placerade", "Placera totalt 100 kort rätt i onlinematcher.", "online"],
     ["streak5", "⚡", "5 vinster i rad", "Vinn fem onlinematcher i följd.", "online"],
+    ["flawless", "✓", "Felfri", "Vinn en onlinematch utan en enda felplacering.", "online"],
     ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 90 onlinepoäng.", "online"],
     ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher.", "online"]
   ];
