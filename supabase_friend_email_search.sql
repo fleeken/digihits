@@ -1,7 +1,8 @@
 -- Kör en gång i Supabase SQL Editor. Vänförfrågan kan sedan sökas via spelarnamn eller e-post.
+drop function if exists public.digihits_find_friend(text);
 create or replace function public.digihits_find_friend(requested text)
-returns table(user_id text, display_name text) language sql security definer set search_path = public, auth as $$
-  select p.user_id::text, p.display_name
+returns table(user_id text, display_name text, avatar_genre text, avatar_variant integer, career_points integer) language sql security definer set search_path = public, auth as $
+  select p.user_id::text, p.display_name, p.avatar_genre, p.avatar_variant, coalesce(p.career_points, 0)
   from public.digihits_profiles p
   join auth.users u on u.id::text = p.user_id::text
   where lower(p.display_name_key) = lower(trim(requested))
