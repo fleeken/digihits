@@ -1,4 +1,4 @@
-const APP_VERSION = "6.98"
+const APP_VERSION = "6.99"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1087,6 +1087,19 @@ async function createOnlineMatch(inviteFriendId = null) {
   if (inviteFriendId) await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: matchCode, recipient: inviteFriendId }, "POST");
   rememberTrack(starter); state.changeTrackCards = 0; state.career.createdMatchCodes.push(matchCode); save(); await syncMatches(); if (inviteFriendId) await syncFriends(); openMatch(matchCode);
 }
+async function createRandomOnlineMatch() {
+  const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
+  const waiting = await supabaseAuth.dataRequest("online_matches?status=eq.waiting&phase=eq.waiting&code=like.R0%25&select=id,code,updated_at&order=updated_at.asc&limit=12");
+  for (const candidate of waiting || []) {
+    const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${candidate.id}&active=eq.true&select=user_id`);
+    if (players.length !== 1 || String(players[0].user_id) === String(user.id)) continue;
+    try { await joinOnlineMatch(candidate.code); return; } catch { /* en annan spelare kan ha hunnit före; prova nästa köade match */ }
+  }
+  const matchCode = `R0${code().slice(2)}`, starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
+  const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", turn_started_at: null, updated_at: new Date().toISOString() }, "POST");
+  await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
+  rememberTrack(starter); state.changeTrackCards = 0; state.career.createdMatchCodes.push(matchCode); save(); await syncMatches(); openMatch(matchCode); dialog("Ingen slumpvald spelare väntade just nu. Matchen ligger i kön tills ett annat registrerat konto väljer Slumpvald okänd.");
+}
 async function createSoloMatch() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), matchCode = `S0${code().slice(2)}`;
   const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
@@ -1113,7 +1126,7 @@ async function joinOnlineMatch(matchCode, allowOwnBlock = false) {
 
 $("#create-match-menu")?.addEventListener("click", showMatchModeDialog);
 document.addEventListener("click", (event) => { const category = event.target.closest("[data-match-category]")?.dataset.matchCategory; if (!category) return; if (category === "online") showOnlineModeDialog(); else if (category === "solo") showSoloModeDialog(); else showRoomSetup(); });
-document.addEventListener("click", async (event) => { const mode = event.target.closest("[data-match-mode]")?.dataset.matchMode; if (!mode) return; try { if (mode === "self") { $("#app-dialog").hidden = true; await createSoloMatch(); } else if (mode === "friend") { if (!state.friends.length) return dialog("Du har inga vänner i vänskapslistan ännu."); $("#dialog-title").textContent = "Spela mot en vän"; $("#dialog-message").innerHTML = `<div class="invite-picker">${state.friends.map((friend) => `<div><strong>${escapeHtml(friend.display_name)}</strong><button class="button button-green" data-create-friend-match="${friend.friend_id}" type="button">VÄLJ</button></div>`).join("")}</div>`; } else if (mode === "random") { $("#app-dialog").hidden = true; await createOnlineMatch(); } else if (mode === "computer") { $("#app-dialog").hidden = true; await createLocalMatch("computer"); } else showRoomSetup(); } catch (error) { alert(error.message); } });
+document.addEventListener("click", async (event) => { const mode = event.target.closest("[data-match-mode]")?.dataset.matchMode; if (!mode) return; try { if (mode === "self") { $("#app-dialog").hidden = true; await createSoloMatch(); } else if (mode === "friend") { if (!state.friends.length) return dialog("Du har inga vänner i vänskapslistan ännu."); $("#dialog-title").textContent = "Spela mot en vän"; $("#dialog-message").innerHTML = `<div class="invite-picker">${state.friends.map((friend) => `<div><strong>${escapeHtml(friend.display_name)}</strong><button class="button button-green" data-create-friend-match="${friend.friend_id}" type="button">VÄLJ</button></div>`).join("")}</div>`; } else if (mode === "random") { $("#app-dialog").hidden = true; await createRandomOnlineMatch(); } else if (mode === "computer") { $("#app-dialog").hidden = true; await createLocalMatch("computer"); } else showRoomSetup(); } catch (error) { alert(error.message); } });
 document.addEventListener("click", (event) => { if (!event.target.closest("#add-room-player")) return; const holder = $("#room-player-inputs"), count = holder.children.length; if (count >= 8) return; holder.insertAdjacentHTML("beforeend", `<input maxlength="18" placeholder="Spelare ${count + 1}" aria-label="Spelare ${count + 1}">`); });
 document.addEventListener("submit", async (event) => { if (event.target.id !== "room-player-form") return; event.preventDefault(); const names = [...event.target.querySelectorAll("input")].map((input) => input.value.trim()).filter(Boolean), error = $("#room-player-error"); if (names.length < 2) { error.textContent = "Lägg till minst två spelarnamn."; error.hidden = false; return; } if (new Set(names.map((name) => name.toLowerCase())).size !== names.length) { error.textContent = "Alla deltagare behöver olika namn."; error.hidden = false; return; } $("#app-dialog").hidden = true; $("#dialog-confirm").hidden = false; try { await createLocalMatch("room", names); } catch (failure) { alert(failure.message); } });
 $("#join-match").addEventListener("click", async () => {
