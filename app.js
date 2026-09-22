@@ -1,4 +1,4 @@
-const APP_VERSION = "7.04"
+const APP_VERSION = "7.05"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -580,7 +580,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const onlyContinue = !$("#result-continue").hidden && $("#result-lock").hidden;
   $(".result-actions").style.gridTemplateColumns = onlyContinue ? "minmax(0,300px)" : "";
   $(".result-actions").style.justifyContent = onlyContinue ? "center" : "";
-  const roomMatch = localMatch(activeMatch)?.mode === "room"; overviewButton.textContent = roomMatch ? "NÄSTA SPELARES TUR" : "TILL MATCHÖVERSIKT"; overviewButton.className = roomMatch ? "button button-green wrong-match-button" : "lobby-back wrong-match-button";
+  const roomMatch = localMatch(activeMatch)?.mode === "room"; overviewButton.textContent = roomMatch ? "LÄMNA ÖVER TUREN →" : "TILL MATCHÖVERSIKT"; overviewButton.className = roomMatch ? "button button-green wrong-match-button" : "lobby-back wrong-match-button";
   $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = correct || score.correct >= 10;
   $("#result-lock").textContent = "🔒 AVSLUTA OMGÅNG & LÅS IN MINA OLÅSTA KORT";
 }
