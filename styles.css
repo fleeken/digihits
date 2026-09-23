@@ -1070,3 +1070,9 @@ body::before{clip-path:inset(140px 0 0);}
 .room-avatar-picker{display:grid;gap:12px;text-align:left;}
 .room-avatar-picker .avatar-art{min-height:72px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y);}
 .room-avatar-picker .is-selected{outline:3px solid #c38a59;}
+/* Room participant order and removal. */
+.room-player-row{grid-template-columns:24px minmax(0,1fr) 34px 34px 34px;gap:5px;}
+.room-player-number{font-weight:900;color:#f3dfca;text-align:center;}
+.room-player-row>button{width:34px;}
+.room-player-row>[data-room-remove]{background:#d83f4f;border-color:#a82839;color:#fff;}
+#app-dialog .dialog-card:has(.room-player-form){box-sizing:border-box;max-height:calc(100dvh - 36px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
