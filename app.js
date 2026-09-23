@@ -1,4 +1,4 @@
-const APP_VERSION = "7.20"
+const APP_VERSION = "7.21"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -243,10 +243,10 @@ document.addEventListener("click", (event) => {
   save(); decorateLocalMatch(match); renderRoundPlayers(); showRoomAvatarPicker(match, index);
 });
 function roomPlayerRow(number) { return `<div class="room-player-row"><span class="room-player-number">${number}.</span><input maxlength="18" placeholder="Ange spelare ${number}" aria-label="Spelare ${number}"><button type="button" data-room-up aria-label="Flytta upp">↑</button><button type="button" data-room-down aria-label="Flytta ner">↓</button><button type="button" data-room-remove aria-label="Ta bort spelare ${number}">🗑</button></div>`; }
-function renumberRoomPlayers() { const rows = [...$("#room-player-inputs").children]; rows.forEach((row, index) => { row.querySelector(".room-player-number").textContent = `${index + 1}.`; const input = row.querySelector("input"); input.setAttribute("aria-label", `Spelare ${index + 1}`); input.placeholder = `Ange spelare ${index + 1}`; row.querySelector("[data-room-remove]").setAttribute("aria-label", `Ta bort spelare ${index + 1}`); }); $("#room-player-limit").hidden = rows.length < 8; $("#add-room-player").hidden = rows.length >= 8; }
+function renumberRoomPlayers() { const rows = [...$("#room-player-inputs").children]; rows.forEach((row, index) => { row.querySelector(".room-player-number").textContent = `${index + 1}.`; const input = row.querySelector("input"); input.setAttribute("aria-label", `Spelare ${index + 1}`); input.placeholder = `Ange spelare ${index + 1}`; row.querySelector("[data-room-remove]").setAttribute("aria-label", `Ta bort spelare ${index + 1}`); }); $("#add-room-player").hidden = rows.length >= 8; }
 function showRoomSetup() {
   $("#dialog-title").textContent = "Spelare i samma rum";
-  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><form id="room-player-form" class="room-player-form"><p>Lägg till deltagarna i den ordning mobilen ska skickas runt. Ändra turordningen med pilarna.</p><div id="room-player-inputs">${[1, 2].map(roomPlayerRow).join("")}</div><small id="room-player-limit" class="room-player-limit" hidden>Max 8 spelare</small><button class="button button-secondary" id="add-room-player" type="button">+ LÄGG TILL SPELARE</button><button class="button button-green" type="submit">STARTA MATCH</button><small id="room-player-error" class="friend-feedback error" hidden></small></form>`;
+  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><form id="room-player-form" class="room-player-form"><p>Lägg till deltagarna i den ordning mobilen ska skickas runt. Ändra turordningen med pilarna.</p><div id="room-player-inputs">${[1, 2].map(roomPlayerRow).join("")}</div><small id="room-player-limit" class="room-player-limit">Max 8 spelare</small><button class="button button-secondary" id="add-room-player" type="button">+ LÄGG TILL SPELARE</button><button class="button button-green" type="submit">STARTA MATCH</button><small id="room-player-error" class="friend-feedback error" hidden></small></form>`;
   $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
 }
 function expandedMatchDeck(deck = []) {
