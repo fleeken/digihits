@@ -1,4 +1,4 @@
-const APP_VERSION = "7.15"
+const APP_VERSION = "7.16"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -179,7 +179,7 @@ function renderRoundPlayers() {
     if (hidden) { strip.hidden = true; return; }
     strip.hidden = false;
     strip.dataset.playerCount = String(players.length);
-    const markup = `<div>${players.map((player) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
+    const markup = `<div>${players.map((player, index) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = localMatch(match)?.mode === "room" ? avatarChoice({ display_name: player.display_name, ...localMatch(match).players[index]?.avatar }) : String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"${localMatch(match)?.mode === "room" ? ` data-room-avatar-index="${index}"` : ""}><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
     // Compare source markup, not browser-normalized HTML; retain avatars and scroll on unchanged syncs.
     if (roundStripMarkup.get(strip) !== markup) { strip.innerHTML = markup; roundStripMarkup.set(strip, markup); }
   });
@@ -204,7 +204,7 @@ function decorateLocalMatch(match) {
   match.title = local.mode === "computer" ? `${local.players[0].name}, Datorn` : local.players.map((player) => player.name).join(", ");
   match.status = "active"; match.currentUserId = state.userId; match.solo = false;
   match.round = Math.max(1, ...local.players.map((player) => Number(player.rounds) || 0));
-  match.players = local.players.map((player, index) => ({ id: `${match.code}-${index}`, user_id: index === local.current ? state.userId : `local-${index}`, display_name: player.name, turn_order: index, rounds_started: player.rounds || 0, locked_timeline: player.timeline || [], last_round: player.lastRound || null, swap_cards: 0 }));
+  match.players = local.players.map((player, index) => ({ id: `${match.code}-${index}`, user_id: index === local.current ? state.userId : `local-${index}`, display_name: player.name, avatar_genre: player.avatar?.genre, avatar_variant: player.avatar?.variant, turn_order: index, rounds_started: player.rounds || 0, locked_timeline: player.timeline || [], last_round: player.lastRound || null, swap_cards: 0 }));
   return match;
 }
 async function createLocalMatch(mode, names) {
@@ -223,6 +223,25 @@ function showMatchModeDialog() {
 }
 function showOnlineModeDialog() { $("#dialog-title").textContent = "Online · Spela mot"; $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><div class="match-mode-dialog online-options"><button data-match-mode="friend">DINA VÄNNER<small>Välj någon i vänskapslistan</small></button><button data-match-mode="random">SLUMPVALD OKÄND SPELARE<small>Motståndaren blir en slumpvald person som inte är med i din vänskapslista.</small></button></div>`; }
 function showSoloModeDialog() { $("#dialog-title").textContent = "Solo · Spela mot"; $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><div class="match-mode-dialog solo-options"><button data-match-mode="self">DIG SJÄLV<small>Spela en klassisk solomatch</small></button><button data-match-mode="computer">DATORN<small>Datorn gör egna drag mellan dina turer</small></button></div>`; }
+function showRoomAvatarPicker(match, index) {
+  const player = localMatch(match)?.players[index]; if (!player) return;
+  const selected = avatarChoice({ display_name: player.name, ...player.avatar });
+  $("#dialog-title").textContent = `Avatar för ${player.name}`;
+  $("#dialog-message").innerHTML = `<div class="room-avatar-picker"><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" data-room-avatar-genre="${genre}" class="${genre === selected.genre ? "is-selected" : ""}">${genre}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, variant) => `<button type="button" class="avatar-art ${variant === selected.variant ? "is-selected" : ""}" style="${avatarArtStyle(selected.genre, variant)}" data-room-avatar-variant="${variant}" aria-label="Avatar ${variant + 1}"></button>`).join("")}</div></div>`;
+  $("#dialog-message").dataset.roomAvatarIndex = String(index);
+  $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false;
+  $("#dialog-confirm").textContent = "KLAR"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; };
+  $("#app-dialog").hidden = false;
+}
+document.addEventListener("click", (event) => {
+  const genre = event.target.closest("[data-room-avatar-genre]"), variant = event.target.closest("[data-room-avatar-variant]");
+  if (!genre && !variant) return;
+  const match = state.matches.find((item) => item.code === state.activeMatchCode), local = localMatch(match), index = Number($("#dialog-message").dataset.roomAvatarIndex);
+  if (local?.mode !== "room" || !local.players[index]) return;
+  const selected = avatarChoice({ display_name: local.players[index].name, ...local.players[index].avatar });
+  local.players[index].avatar = { genre: genre?.dataset.roomAvatarGenre || selected.genre, variant: variant ? Number(variant.dataset.roomAvatarVariant) : selected.variant };
+  save(); decorateLocalMatch(match); renderRoundPlayers(); showRoomAvatarPicker(match, index);
+});
 function showRoomSetup() {
   $("#dialog-title").textContent = "Spelare i samma rum";
   $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><form id="room-player-form" class="room-player-form"><p>Lägg till deltagarna i den ordning mobilen ska skickas runt. Ändra turordningen med pilarna.</p><div id="room-player-inputs"><div class="room-player-row"><input maxlength="18" placeholder="Spelare 1" aria-label="Spelare 1"><button type="button" data-room-up aria-label="Flytta upp">↑</button><button type="button" data-room-down aria-label="Flytta ner">↓</button></div><div class="room-player-row"><input maxlength="18" placeholder="Spelare 2" aria-label="Spelare 2"><button type="button" data-room-up aria-label="Flytta upp">↑</button><button type="button" data-room-down aria-label="Flytta ner">↓</button></div></div><button class="button button-secondary" id="add-room-player" type="button">+ LÄGG TILL SPELARE</button><button class="button button-green" type="submit">STARTA MATCH</button><small id="room-player-error" class="friend-feedback error" hidden></small></form>`;
@@ -1131,6 +1150,7 @@ async function joinOnlineMatch(matchCode, allowOwnBlock = false) {
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openMatch(matchCode);
 }
 
+$("#dialog-close").addEventListener("click", () => { $("#app-dialog").hidden = true; });
 $("#create-match-menu")?.addEventListener("click", showMatchModeDialog);
 document.addEventListener("click", (event) => { const category = event.target.closest("[data-match-category]")?.dataset.matchCategory; if (!category) return; if (category === "online") showOnlineModeDialog(); else if (category === "solo") showSoloModeDialog(); else showRoomSetup(); });
 document.addEventListener("click", (event) => { if (event.target.closest("[data-match-back]")) showMatchModeDialog(); });
@@ -1194,7 +1214,7 @@ window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 document.addEventListener("click", (event) => { const button = event.target.closest(".final-player-round"); if (button) { const id = button.dataset.playerRound; returnToFinalResult = true; showLatestRound({ ...(latestRounds[id] || {}), historyScore: historyPlayerScores[id] }); } });
-document.addEventListener("click", (event) => { const button = event.target.closest("[data-round-player]"); if (!button) return; const storedRound = latestRounds[button.dataset.roundPlayer]; if (!storedRound) { dialog("Spelaren har ingen spelad omgång ännu."); return; } const shouldLockCards = !button.classList.contains("is-current") && storedRound.outcome !== "wrong", lockStatus = (card) => ({ ...card, status: shouldLockCards && ["OLÅST", "LÅST DENNA OMGÅNG"].includes(card.status) ? "LÅST" : card.status }), round = { ...storedRound, cards: (storedRound.cards || []).map(lockStatus), timeline: (storedRound.timeline || []).map(lockStatus) }; latestRoundReturnView = currentView; showLatestRound(round); });
+document.addEventListener("click", (event) => { const button = event.target.closest("[data-round-player]"); if (!button) return; const avatar = event.target.closest("i.avatar-art"), room = localMatch(); if (avatar && room?.mode === "room") { showRoomAvatarPicker(state.matches.find((item) => item.code === state.activeMatchCode), Number(button.dataset.roomAvatarIndex)); return; } const storedRound = latestRounds[button.dataset.roundPlayer]; if (!storedRound) { dialog("Spelaren har ingen spelad omgång ännu."); return; } const shouldLockCards = !button.classList.contains("is-current") && storedRound.outcome !== "wrong", lockStatus = (card) => ({ ...card, status: shouldLockCards && ["OLÅST", "LÅST DENNA OMGÅNG"].includes(card.status) ? "LÅST" : card.status }), round = { ...storedRound, cards: (storedRound.cards || []).map(lockStatus), timeline: (storedRound.timeline || []).map(lockStatus) }; latestRoundReturnView = currentView; showLatestRound(round); });
 $("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } const playerState = await spotifyPlayer?.getCurrentState().catch(() => null), expected = state.selectedTracks[activeCard().id]?.uri, sameTrack = expected && playerState?.track_window?.current_track?.uri === expected, actuallyPlaying = Boolean(playerState && !playerState.paused); if (actuallyPlaying && sameTrack) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && sameTrack) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } catch (error) { songStarting = false; setPlayButton(false); if (/ansluta spelaren|starta låten|spelaren kunde inte laddas/i.test(error.message)) dialog("Spotify behöver anslutas igen innan låten kan spelas.", () => { resetSpotifyPlayer(); supabaseAuth.disconnectSpotify(); supabaseAuth.connectSpotify(true).catch((issue) => alert(issue.message)); }, false, "ANSLUT KONTO"); else alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { if (trackStartPromise) await trackStartPromise; loadedSpotifyCardId = null; trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } catch (error) { alert(error.message); } });
 [$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); }));
