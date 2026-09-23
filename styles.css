@@ -1075,7 +1075,14 @@ body::before{clip-path:inset(140px 0 0);}
 .room-player-number{font-weight:900;color:#f3dfca;text-align:center;}
 .room-player-row>button{width:34px;}
 .room-player-row>[data-room-remove]{background:#d83f4f;border-color:#a82839;color:#fff;}
-/* Scroll the entire room setup overlay; prevent the page behind it from moving. */
+/* Keep the room actions visible while the participant list scrolls. */
 html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:not([hidden]):has(.room-player-form)){overflow:hidden;}
-#app-dialog:has(.room-player-form){box-sizing:border-box;height:100dvh;overflow-y:auto;overscroll-behavior:contain;align-items:start;-webkit-overflow-scrolling:touch;}
-#app-dialog .dialog-card:has(.room-player-form){box-sizing:border-box;max-height:none;overflow:visible;margin:0 auto;}
+#app-dialog:has(.room-player-form){box-sizing:border-box;height:100dvh;overflow:hidden;}
+#app-dialog .dialog-card:has(.room-player-form){box-sizing:border-box;display:flex;flex-direction:column;max-height:calc(100dvh - 36px);overflow:hidden;}
+#app-dialog .dialog-card:has(.room-player-form) #dialog-message{display:flex;flex-direction:column;flex:1;min-height:0;margin-bottom:0;overflow:hidden;}
+#app-dialog .dialog-card:has(.room-player-form) .modal-actions{display:none;}
+#room-player-form{display:flex;flex-direction:column;flex:1;min-height:0;}
+#room-player-form #room-player-inputs{display:grid;gap:8px;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;}
+#room-player-form>button{flex-shrink:0;}
+#room-player-form .room-player-limit{display:block;color:#ff6477;font-weight:900;text-align:center;}
+#room-player-form .room-player-limit[hidden]{display:none;}
