@@ -1082,7 +1082,7 @@ html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:
 #app-dialog .dialog-card:has(.room-player-form) #dialog-message{display:block;overflow:visible;}
 #app-dialog .dialog-card:has(.room-player-form) .modal-actions{display:none;}
 #room-player-form{display:grid;gap:12px;}
-#room-player-form #room-player-inputs{display:grid;gap:8px;height:min(32dvh,240px);min-height:100px;overflow-y:scroll;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;}
+#room-player-form #room-player-inputs{display:grid;gap:8px;align-content:start;grid-auto-rows:max-content;max-height:min(32dvh,240px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;}
 #room-player-form #add-room-player[hidden]{display:none;}
 #room-player-form .room-player-limit{display:block;color:#fff;font-weight:900;text-align:center;}
 #room-player-form .room-player-limit[hidden]{display:none;}
