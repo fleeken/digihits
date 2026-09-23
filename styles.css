@@ -1075,6 +1075,8 @@ body::before{clip-path:inset(140px 0 0);}
 .room-player-number{font-weight:900;color:#f3dfca;text-align:center;}
 .room-player-row>button{width:34px;}
 .room-player-row>[data-room-remove]{background:#d83f4f;border-color:#a82839;color:#fff;}
+.room-player-row:has([data-room-remove][hidden]){grid-template-columns:24px minmax(0,1fr) 34px 34px;}
+.room-player-row>[data-room-remove][hidden]{display:none;}
 /* The player list has its own definite height; the dialog also scrolls on short screens. */
 html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:not([hidden]):has(.room-player-form)){overflow:hidden;}
 #app-dialog:has(.room-player-form){box-sizing:border-box;height:100dvh;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
