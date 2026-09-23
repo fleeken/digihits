@@ -189,8 +189,9 @@ function updateRoundStartButton() {
   const button = $("#next-round"), match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!button || !match) return;
   const pending = state.pendingResult?.matchCode === match.code || (match.status === "active" && ["guess", "timeline", "result"].includes(state.roundResumeViews[match.code]));
-  const started = (match.players || []).some((player) => Number(player.rounds_started) > 0);
-  button.textContent = pending ? "ÅTERUPPTA MATCH" : started ? "STARTA NÄSTA OMGÅNG" : "STARTA MATCH";
+  const room = localMatch(match)?.mode === "room";
+  const started = room ? localMatch(match).players.some((player) => Number(player.rounds) > 0) : (match.players || []).some((player) => Number(player.rounds_started) > 0);
+  button.textContent = pending ? "ÅTERUPPTA MATCH" : started ? room ? "SPELA MIN RUNDA" : "STARTA NÄSTA OMGÅNG" : "STARTA MATCH";
   button.disabled = false;
   button.classList.toggle("is-visible", match.status === "active");
 }
