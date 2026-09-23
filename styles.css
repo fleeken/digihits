@@ -1078,6 +1078,7 @@ body::before{clip-path:inset(140px 0 0);}
 /* The player list has its own definite height; the dialog also scrolls on short screens. */
 html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:not([hidden]):has(.room-player-form)){overflow:hidden;}
 #app-dialog:has(.room-player-form){box-sizing:border-box;height:100dvh;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+#app-dialog[hidden]{display:none!important;}
 #app-dialog .dialog-card:has(.room-player-form){box-sizing:border-box;display:block;max-height:calc(100dvh - 36px);margin:auto 0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
 #app-dialog .dialog-card:has(.room-player-form) #dialog-message{display:block;overflow:visible;}
 #app-dialog .dialog-card:has(.room-player-form) .modal-actions{display:none;}
