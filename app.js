@@ -556,7 +556,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode), solo = isSoloMatch(activeMatch) && !localMatch(activeMatch);
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.hidden = true; $("#result-back").after(wrongButton); }
-  if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.type = "button"; overviewButton.addEventListener("click", async () => { const match = state.matches.find((item) => item.code === state.activeMatchCode), local = localMatch(match), readyName = overviewButton.dataset.roomHandoverName; if (readyName) { delete overviewButton.dataset.roomHandoverName; roomHandoverDialog(readyName, () => openMatch(match.code)); return; } if (!currentPlacementCorrect) await animateTimelineOutcome(false); if (local && !viewingLatestRound) { delete state.roundResumeViews[match.code]; save(); const outcome = await handoverTurn(); resultIsLocked = true; if (local.mode === "room") roomHandoverDialog(outcome.nextPlayerName, () => openMatch(match.code)); else await openMatch(match.code); return; } await openMatch(state.activeMatchCode); }); wrongButton.after(overviewButton); }
+  if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.type = "button"; overviewButton.addEventListener("click", async () => { const match = state.matches.find((item) => item.code === state.activeMatchCode), local = localMatch(match), readyName = overviewButton.dataset.roomHandoverName; if (readyName || (local?.mode === "room" && !currentPlacementCorrect)) { delete overviewButton.dataset.roomHandoverName; roomHandoverDialog(readyName || local.players[local.current].name, () => openMatch(match.code)); return; } if (!currentPlacementCorrect) await animateTimelineOutcome(false); if (local && !viewingLatestRound) { delete state.roundResumeViews[match.code]; save(); const outcome = await handoverTurn(); resultIsLocked = true; if (local.mode === "room") roomHandoverDialog(outcome.nextPlayerName, () => openMatch(match.code)); else await openMatch(match.code); return; } await openMatch(state.activeMatchCode); }); wrongButton.after(overviewButton); }
   delete overviewButton.dataset.roomHandoverName;
   const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
@@ -573,7 +573,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#result-song").textContent = `${card.artist} – ${card.title} (${card.year})`;
   renderGuessChecks(card, guess);
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
-  $("#placement-result").textContent = solo ? (correct ? "☑  Rätt placerat" : "✕  Fel placerat") : correct ? "☑  Rätt placering" : "✕  Fel placering · Du förlorar dina olåsta kort.";
+  $("#placement-result").textContent = solo ? (correct ? "☑  Rätt placerat" : "✕  Fel placerat") : correct ? "☑  Rätt placering" : localMatch(activeMatch)?.mode === "room" ? "✕  Fel placering" : "✕  Fel placering · Du förlorar dina olåsta kort.";
   const timeline = snapshot?.timeline || [...locked.map((item, index) => ({ ...item, status: index === 0 ? "STARTKORT" : "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
   $("#result-timeline").classList.remove("timeline-centered"); $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "STARTKORT" || item.status === "LÅST" ? "locked-card" : /FEL ?PLACERAT/.test(item.status) ? "misplaced-card" : !solo && isUnlockedStatus(item.status) ? "unlocked-card" : solo ? "correct-card" : "locked-card"}"${item.status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${cardStatusLabel(item.status)}</span></small></article>`).join("");
   $("#result-continue").hidden = !correct && !solo;
@@ -583,7 +583,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $(".result-actions").style.gridTemplateColumns = onlyContinue ? "minmax(0,300px)" : "";
   $(".result-actions").style.justifyContent = onlyContinue ? "center" : "";
   const localTurnMatch = Boolean(localMatch(activeMatch)); overviewButton.textContent = localTurnMatch ? "LÄMNA ÖVER TUREN →" : "TILL MATCHÖVERSIKT"; overviewButton.className = localTurnMatch ? "button button-green wrong-match-button" : "lobby-back wrong-match-button";
-  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = correct || score.correct >= 10;
+  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = correct || score.correct >= 10 || (localMatch(activeMatch)?.mode === "room" && !overviewButton.dataset.roomHandoverName);
   $("#result-lock").textContent = "🔒 AVSLUTA OMGÅNG & LÅS IN MINA OLÅSTA KORT";
 }
 
@@ -1351,7 +1351,7 @@ async function restoreResultView() {
   if (!round) { openMatch(match.code); return; }
   if (round.outcome === "wrong") {
     const card = (round.cards || []).at(-1);
-    if (card) { currentPlacementCorrect = false; renderRoundResult(false, card, { timeline: round.timeline, guess: round.guess, unlocked: (round.cards || []).slice(0, -1), locked: [] }); showView("result", false, true); return; }
+    if (card) { currentPlacementCorrect = false; renderRoundResult(false, card, { timeline: round.timeline, guess: round.guess, unlocked: (round.cards || []).slice(0, -1), locked: [] }); if (localMatch(match)?.mode === "room") { $("#wrong-overview").dataset.roomHandoverName = localMatch(match).players[localMatch(match).current].name; $("#wrong-overview").hidden = false; } showView("result", false, true); return; }
   }
   showLatestRound(round);
 }
@@ -1384,7 +1384,7 @@ $("#lock-placement").addEventListener("click", async () => {
   resultIsLocked = true; $("#result-back").hidden = true;
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
   let soloOutcome;
-  if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); } catch (error) { alert(error.message); return; } }
+  if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); if (localMatch()?.mode === "room" && !soloOutcome?.won) { $("#wrong-overview").dataset.roomHandoverName = soloOutcome.nextPlayerName; $("#wrong-overview").hidden = false; } } catch (error) { alert(error.message); return; } }
   if (soloOutcome?.won) { grantDailyAchievement("soloWin", "Solovinst"); if (Number(soloOutcome.soloSummary?.mistakes || 0) === 0) grantDailyAchievement("soloFlawless", "Felfri"); state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); finishAchievementAwards(); }
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
   else if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
