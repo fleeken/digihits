@@ -573,7 +573,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $("#result-song").textContent = `${card.artist} – ${card.title} (${card.year})`;
   renderGuessChecks(card, guess);
   $("#placement-result").className = `result-check ${correct ? "good" : "bad"}`;
-  $("#placement-result").textContent = solo ? (correct ? "☑  Rätt placerat" : "✕  Fel placerat") : correct ? "☑  Rätt placering" : localMatch(activeMatch)?.mode === "room" ? "✕  Fel placering" : "✕  Fel placering · Du förlorar dina olåsta kort.";
+  $("#placement-result").textContent = solo ? (correct ? "☑  Rätt placerat" : "✕  Fel placerat") : correct ? "☑  Rätt placering" : "✕  Fel placering · Du förlorar dina olåsta kort.";
   const timeline = snapshot?.timeline || [...locked.map((item, index) => ({ ...item, status: index === 0 ? "STARTKORT" : "LÅST" })), ...cards].sort((a, b) => a.year - b.year);
   $("#result-timeline").classList.remove("timeline-centered"); $("#result-timeline").innerHTML = timeline.map((item) => `<article class="year-card ${item.status === "STARTKORT" || item.status === "LÅST" ? "locked-card" : /FEL ?PLACERAT/.test(item.status) ? "misplaced-card" : !solo && isUnlockedStatus(item.status) ? "unlocked-card" : solo ? "correct-card" : "locked-card"}"${item.status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${item.year}</strong><small><span class="card-song">${item.title}<br>${item.artist}</span><span class="card-status">${cardStatusLabel(item.status)}</span></small></article>`).join("");
   $("#result-continue").hidden = !correct && !solo;
