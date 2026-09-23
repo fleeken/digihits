@@ -1059,3 +1059,7 @@ body::before{clip-path:inset(140px 0 0);}
 .view[data-view-panel="matches"] .match.room .match-open{
   background:#c38a59!important;border-color:#a86f43!important;color:#27180e!important;
 }
+/* Incoming match invitations: equal action buttons. */
+#friend-invites .friend-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:190px;max-width:100%;flex-shrink:0;}
+#friend-invites .friend-actions .button{box-sizing:border-box;width:100%;min-width:0;min-height:42px;margin:0;display:grid;place-items:center;text-align:center;}
+@media(max-width:480px){#friend-invites .friend-row{flex-wrap:wrap;}#friend-invites .friend-actions{width:100%;}}
