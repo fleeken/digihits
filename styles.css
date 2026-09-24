@@ -1078,6 +1078,7 @@ body::before{clip-path:inset(140px 0 0);}
 .room-player-row:has([data-room-remove][hidden]){grid-template-columns:24px minmax(0,1fr) 34px 34px;}
 .room-player-row>[data-room-remove][hidden]{display:none;}
 #chat-back{display:block;width:max-content;max-width:100%;margin:0 auto 14px;padding:9px 16px;border:1px solid #a4cce5;border-radius:10px;background:#a4cce5;color:#223a50;font-size:12px;font-weight:900;text-align:center;}
+#match-chat[hidden],#lobby-chat[hidden]{display:none!important;}
 /* The player list has its own definite height; the dialog also scrolls on short screens. */
 html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:not([hidden]):has(.room-player-form)){overflow:hidden;}
 #app-dialog:has(.room-player-form){box-sizing:border-box;height:100dvh;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
