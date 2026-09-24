@@ -1,4 +1,4 @@
-const APP_VERSION = "7.26"
+const APP_VERSION = "7.27"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -869,8 +869,9 @@ function openLobby(matchCode) {
 
 const escapeHtml = (value) => String(value || "").replace(/[&<>"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character]);
 function refreshChatButtons(match = state.matches.find((item) => item.code === state.activeMatchCode)) {
-  const unread = Number(match && !isSoloMatch(match) ? state.chatUnread[match.code] || 0 : 0);
-  [$("#lobby-chat"), $("#match-chat")].filter(Boolean).forEach((button) => { button.hidden = !match || isSoloMatch(match); button.innerHTML = `VISA CHATT${unread ? ` <span class="chat-badge">${unread}</span>` : ""}`; });
+  const online = Boolean(match && !isSoloMatch(match) && !localMatch(match));
+  const unread = Number(online ? state.chatUnread[match.code] || 0 : 0);
+  [$("#lobby-chat"), $("#match-chat")].filter(Boolean).forEach((button) => { button.hidden = !online; button.innerHTML = `VISA CHATT${unread ? ` <span class="chat-badge">${unread}</span>` : ""}`; });
 }
 async function loadChat() {
   const match = state.matches.find((item) => item.code === state.chatMatchCode);
@@ -884,7 +885,7 @@ async function loadChat() {
 }
 async function openChat(matchCode = state.activeMatchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
-  if (!match || isSoloMatch(match)) { dialog("Chatt finns bara i onlinematcher."); return; }
+  if (!match || isSoloMatch(match) || localMatch(match)) { dialog("Chatt finns bara i onlinematcher."); return; }
   state.chatMatchCode = match.code; state.chatReturnView = currentView; state.chatUnread[match.code] = 0; save();
   $("#chat-title").textContent = match.title; $("#chat-input").value = ""; showView("chat"); await loadChat(); clearInterval(chatPoll); chatPoll = setInterval(() => { if (currentView === "chat") loadChat().catch(() => {}); }, 2500);
 }
@@ -964,7 +965,7 @@ function openMatch(matchCode) {
   friendBox.hidden = true; friendBox.innerHTML = ""; let overviewLoading = $("#overview-loading"); if (!overviewLoading) { overviewLoading = document.createElement("div"); overviewLoading.id = "overview-loading"; overviewLoading.className = "overview-loading"; overviewLoading.innerHTML = "<i></i>LADDAR MATCHÖVERSIKT…"; $("#overview-players").before(overviewLoading); }
   showView("match");
   if (local) { overviewLoading.hidden = true; $("#match-chat").hidden = true; $("#overview-players").hidden = false; $("#overview-players-count").textContent = String(local.players.length); $("#overview-players-count").parentElement.querySelector("small").textContent = "SPELARE"; $("#overview-round").textContent = String(Math.max(1, ...local.players.map((player) => player.rounds || 0))); $("#overview-round-label").textContent = "OMGÅNG"; $("#overview-target").textContent = "10"; $("#overview-target-label").textContent = "FÖRST TILL"; $("#overview-players").innerHTML = local.players.map((player, index) => { const playerId = `${match.code}-${index}`; latestRounds[playerId] = player.lastRound; return `<article class="overview-player ${index === local.current ? "your-turn" : ""}"><div class="overview-player-header"><span class="turn-order">${index + 1}</span><strong>${escapeHtml(player.name)}</strong>${index === local.current ? "<small class=\"already-friend\">NÄSTA TUR</small>" : ""}</div><div class="overview-player-stats"><div><strong>${(player.timeline || []).length}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${player.mistakes || 0}</strong><small>FELPLACERADE</small></div><div><strong>${player.rounds || 0}</strong><small>OMGÅNGAR</small></div></div><button class="timeline-button show-player-round" data-player-round="${playerId}" type="button">VISA SENASTE SPELADE OMGÅNG</button></article>`; }).join(""); }
-  else if (match.id) { $("#match-chat").hidden = false; overviewLoading.hidden = false; loadOverviewPlayers(match.id, isYourTurn, soloMatch); }
+  else if (match.id) { $("#match-chat").hidden = soloMatch; overviewLoading.hidden = false; loadOverviewPlayers(match.id, isYourTurn, soloMatch); }
   else overviewLoading.hidden = true;
 }
 async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
