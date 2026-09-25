@@ -1,4 +1,4 @@
-const APP_VERSION = "7.27"
+const APP_VERSION = "7.28"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -218,7 +218,7 @@ async function createLocalMatch(mode, names) {
 }
 function showMatchModeDialog() {
   $("#dialog-title").textContent = "Välj att spela";
-  $("#dialog-message").innerHTML = `<div class="match-category-dialog"><button class="online" data-match-category="online">ONLINE<small>Spela mot en vän eller en slumpvald okänd</small></button><button class="solo" data-match-category="solo">SOLO<small>Spela själv eller mot datorn</small></button><button class="room" data-match-category="room">SAMMA FYSISKA RUM<small>Lägg till deltagare och skicka runt mobilen</small></button></div>`;
+  $("#dialog-message").innerHTML = `<div class="match-category-dialog"><button class="online" data-match-category="online"><span class="match-category-name"><span aria-hidden="true">👥</span> ONLINE</span><small>Spela mot en vän eller en slumpvald okänd</small></button><button class="solo" data-match-category="solo"><span class="match-category-name"><span aria-hidden="true">👤</span> SOLO</span><small>Spela själv eller mot datorn</small></button><button class="room" data-match-category="room"><span class="match-category-name"><span aria-hidden="true">🏠</span> SAMMA FYSISKA RUM</span><small>Lägg till deltagare och skicka runt mobilen</small></button></div>`;
   $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false; $("#dialog-confirm").textContent = "STÄNG"; $("#dialog-confirm").className = "button button-secondary"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false;
 }
 function showOnlineModeDialog() { $("#dialog-title").textContent = "Online · Spela mot"; $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><div class="match-mode-dialog online-options"><button data-match-mode="friend">DINA VÄNNER<small>Välj någon i vänskapslistan</small></button><button data-match-mode="random">SLUMPVALD OKÄND SPELARE<small>Motståndaren blir en slumpvald person som inte är med i din vänskapslista.</small></button></div>`; }
