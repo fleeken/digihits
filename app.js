@@ -1,4 +1,4 @@
-const APP_VERSION = "7.29"
+const APP_VERSION = "7.30"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -188,10 +188,13 @@ function updateRoundStartButton() {
   if (roundLoading) return;
   const button = $("#next-round"), match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!button || !match) return;
-  const pending = state.pendingResult?.matchCode === match.code || (match.status === "active" && ["guess", "timeline", "result"].includes(state.roundResumeViews[match.code]));
-  const room = localMatch(match)?.mode === "room";
-  const started = room ? localMatch(match).players.some((player) => Number(player.rounds) > 0) : (match.players || []).some((player) => Number(player.rounds_started) > 0);
-  button.textContent = pending ? "ÅTERUPPTA MATCH" : started ? room ? "SPELA MIN RUNDA" : "STARTA NÄSTA OMGÅNG" : "STARTA MATCH";
+  const local = localMatch(match), player = local ? local.players[local.current] : (match.players || []).find((item) => String(item.user_id) === String(state.userId));
+  const roundsStarted = Math.max(0, Number(local ? player?.rounds : player?.rounds_started) || 0);
+  const roundsCompleted = Math.max(0, Number(player?.lastRound?.rounds ?? player?.last_round?.rounds) || 0);
+  const pending = state.pendingResult?.matchCode === match.code || (match.status === "active" && ["guess", "timeline", "result"].includes(state.roundResumeViews[match.code])) || (state.currentCardMatchCode === match.code && Boolean(state.currentCard)) || (!local && roundsStarted > roundsCompleted);
+  const started = local ? local.players.some((item) => Number(item.rounds) > 0) : (match.players || []).some((item) => Number(item.rounds_started) > 0);
+  const roundNumber = local ? roundsStarted + 1 : Math.max(1, roundsStarted + (pending ? 0 : 1));
+  button.textContent = !started && !pending ? "STARTA MATCH" : `SPELA OMGÅNG ${roundNumber}`;
   button.disabled = false;
   button.classList.toggle("is-visible", match.status === "active");
 }
