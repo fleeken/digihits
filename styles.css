@@ -1104,7 +1104,7 @@ html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:
 #room-player-form .room-player-limit{display:block;color:#fff;font-weight:900;text-align:center;}
 #room-player-form .room-player-limit[hidden]{display:none;}
 
-.friend-search>.friend-add-heading{grid-column:1/-1;font-size:14px;font-weight:900;color:#301b36;}
+.friend-search>.friend-add-heading{grid-column:1/-1;font-size:14px;font-weight:900;color:#2872b3;}
 .friend-search>div{grid-column:1/-1;}
 
 html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{padding-top:12px;}
