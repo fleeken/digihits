@@ -1,4 +1,4 @@
-const APP_VERSION = "7.31"
+const APP_VERSION = "7.32"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -31,6 +31,13 @@ state.dailyAchievements ||= {};
 state.dailyProgress ||= {};
 state.achievementAccounts ||= {};
 state.menuSeenByUser ||= {};
+const appZoomLevels = [100, 110, 120, 130, 140];
+state.appZoom = appZoomLevels.includes(Number(state.appZoom)) ? Number(state.appZoom) : 100;
+function applyAppZoom() {
+  document.documentElement.style.zoom = String(state.appZoom / 100);
+  document.querySelectorAll("[data-app-zoom]").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.appZoom) === state.appZoom)));
+}
+applyAppZoom();
 state.avatar ||= { skin: "Mellan", hair: "Kort", beard: "Ingen", hat: "Ingen", top: "T-shirt", legs: "Jeans", shoes: "Sneakers", accessory: "Inget", piercing: "Ingen" };
 state.avatar.eyes ||= "Runda";
 state.career ||= { onlineMatchesCreated: 0, playedWith: [], dailyOpponents: {}, fullHouse: false };
@@ -461,6 +468,8 @@ function renderAvatar() {
 function openAvatarEditor() { showView("avatar"); }
 $("#change-avatar")?.addEventListener("click", openAvatarEditor);
 $("#change-avatar-link")?.addEventListener("click", openAvatarEditor);
+$("#toggle-app-zoom")?.addEventListener("click", () => { const setting = $("#app-zoom-setting"); setting.hidden = !setting.hidden; $("#toggle-app-zoom").setAttribute("aria-expanded", String(!setting.hidden)); });
+$("#app-zoom-setting")?.addEventListener("click", (event) => { const button = event.target.closest("[data-app-zoom]"); if (!button) return; state.appZoom = Number(button.dataset.appZoom); save(); applyAppZoom(); });
 $("#avatar-back")?.addEventListener("click", () => showView("profile"));
 function showTurnNotice(match) {
   if (isSoloMatch(match) || !["active", "opponent"].includes(match?.status) || (match.players || []).length < 2) return;
