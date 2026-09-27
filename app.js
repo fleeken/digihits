@@ -1,4 +1,4 @@
-const APP_VERSION = "7.39"
+const APP_VERSION = "7.40"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1494,10 +1494,11 @@ $("#reset-password-form").addEventListener("submit", async (event) => {
   catch (error) { alert(error.message); }
 });
 document.querySelectorAll("input, textarea").forEach((field) => { if (field.type === "password") field.autocomplete = /login|current/.test(field.id) ? "current-password" : "new-password"; else if (field.type === "email") field.autocomplete = "email"; else field.autocomplete = "off"; field.setAttribute("autocorrect", "off"); field.setAttribute("autocapitalize", "off"); field.spellcheck = false; });
-document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => {
-  if (button.classList.contains("profile-toggle") && ["profile", "avatar", "change-password"].includes(currentView)) showView(profileReturnView);
-  else showView(button.dataset.view, button.classList.contains("lobby-back"));
-}));
+document.querySelector(".profile-toggle")?.addEventListener("click", () => {
+  const profileOpen = ["profile", "avatar", "change-password"].some((view) => document.querySelector(`[data-view-panel="${view}"].active`));
+  showView(profileOpen ? (["profile", "avatar", "change-password", "welcome"].includes(profileReturnView) ? "home" : profileReturnView) : "profile");
+});
+document.querySelectorAll("[data-view]:not(.profile-toggle)").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view, button.classList.contains("lobby-back"))));
 document.querySelectorAll("[data-accordion]").forEach((section) => {
   section.querySelector(".accordion-toggle").addEventListener("click", () => {
     const open = section.classList.toggle("is-open");
