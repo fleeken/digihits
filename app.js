@@ -1,4 +1,4 @@
-const APP_VERSION = "7.34"
+const APP_VERSION = "7.35"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1519,7 +1519,7 @@ $("#signup-form").addEventListener("submit", async (event) => {
   try {
     const name = $("#signup-name").value.trim();
     const email = $("#signup-email").value.trim();
-    if (!/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)*\.[a-zA-Z]{2,}$/.test(email)) { alert("Ange en giltig e-postadress som slutar med till exempel .se eller .com."); $("#signup-email").focus(); return; }
+    if (!/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)*\.[a-zA-Z]{2,}$/.test(email)) { alert("Ange en giltig e-postadress med en ändelse som .se, .com, .net, .org eller liknande."); $("#signup-email").focus(); return; }
     if (await supabaseAuth.playerNameTaken(name)) { alert("Spelarnamnet är redan registrerat. Välj ett annat spelarnamn."); $("#signup-name").focus(); return; }
     const data = await supabaseAuth.signUp(name, email, $("#signup-password").value);
     state.playerName = name; $("#player-email").textContent = email; save(); render();
