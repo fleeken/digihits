@@ -1,4 +1,4 @@
-const APP_VERSION = "7.30"
+const APP_VERSION = "7.31"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -68,7 +68,7 @@ state.seenTurnNotices ||= {};
 state.seenFinalChanceNotices ||= {};
 let currentPlacementCorrect = true, roundLoading = false;
 let viewingLatestRound = false, viewingHistoryResult = false, returnToFinalResult = false, latestRoundReturnView = "match", historyResultEntry = null, historyResultRounds = 0, historyPlayerScores = {}, matchInviteCandidates = [];
-let achievementPopupQueue = [];
+let achievementsChanged = false;
 const menuViewState = { home: "home", matches: "matches", friends: "friends", career: "career", "game-history": "game-history" };
 let pendingTimelineDeal = null;
 let skipCardDeal = false;
@@ -393,7 +393,7 @@ function activateAchievementAccount(userId) {
   state.achievementYear = saved?.achievementYear || state.achievementYear;
   state.dailyAchievements = saved ? { ...(saved.dailyAchievements || {}) } : previousId && previousId !== id ? {} : { ...state.dailyAchievements };
   state.dailyProgress = saved ? { ...(saved.dailyProgress || {}) } : previousId && previousId !== id ? {} : { ...state.dailyProgress };
-  achievementPopupQueue = [];
+  achievementsChanged = false;
   resetAnnualAchievements();
   save();
 }
@@ -520,7 +520,8 @@ function grantAchievement(id, label) {
   if (state.achievements[id]) return false;
   state.achievements[id] = true;
   state.stats.achievementXp += 3;
-  achievementPopupQueue.push({ id, label });
+  achievementsChanged = true;
+  save(); updateBottomBadges();
   return true;
 }
 function localDateKey(date = new Date()) {
@@ -532,24 +533,14 @@ function grantDailyAchievement(id, label) {
   if (state.dailyAchievements[today][id]) return false;
   state.dailyAchievements[today][id] = true;
   state.stats.achievementXp += 3;
-  achievementPopupQueue.push({ id, label });
+  achievementsChanged = true;
+  save(); updateBottomBadges();
   return true;
 }
-function showAchievementPopups() {
-  if (currentView !== "result" || !achievementPopupQueue.length) return;
-  if (!$("#app-dialog").hidden) { setTimeout(showAchievementPopups, 250); return; }
-  const award = achievementPopupQueue.shift();
-  dialog("Utmärkelse upplåst: " + award.label + "!\n\nDu får +3 onlinepoäng.", showAchievementPopups, false, "OK", "MER INFO");
-  $("#dialog-cancel").className = "button button-primary";
-  $("#dialog-cancel").onclick = () => {
-    const card = document.querySelector('[data-achievement-info="' + award.id + '"]');
-    dialog(card?.dataset.achievementLabel + "\n\n" + (card?.dataset.achievementDescription || "Kravet för utmärkelsen visas här."), showAchievementPopups, false, "OK");
-  };
-}
 function finishAchievementAwards() {
-  if (!achievementPopupQueue.length) return;
+  if (!achievementsChanged) return;
+  achievementsChanged = false;
   save(); render();
-  if (currentView === "result") showAchievementPopups();
 }
 function evaluateCareerAchievements(comeback = false, flawless = false) {
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
@@ -691,7 +682,7 @@ function render() {
   const todayAchievements = state.dailyAchievements[localDateKey()] || {};
   const dailyAchievementIds = new Set(["eveningDj", "hattrick", "quickStart", "socialToneDaily", "soloDaily", "fullGuard", "fullSpeed", "soloWin", "soloFlawless", "triple"]);
   const achievementButton = ([id, icon, label, description, mode]) => "<button class=\"achievement " + ((dailyAchievementIds.has(id) ? todayAchievements[id] : state.achievements[id]) ? "earned" : "") + "\" data-achievement-info=\"" + id + "\" data-achievement-label=\"" + label + "\" data-achievement-description=\"" + description + "\" type=\"button\"><b>" + icon + "</b><small><span>" + label + "</span><em>" + mode + "</em></small></button>";
-  const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser · nollställs kl 00:00</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
+  const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser · nollställs dagligen kl 00:00</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Årliga utmärkelser · nollställs vid årsskiftet</h3><div>" + achievements.filter(([id]) => !dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   levelPanel.innerHTML = "<section class=\"career-section-panel career-level-panel\"><div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small></section>" + dailyMarkup + permanentMarkup;
   levelPanel.querySelector("button").onclick = () => { dialog("Poängregler:\n• Vinst: +3 poäng\n• Förlust: 0 poäng\n• Lämnar walk over: −1 poäng\n\nUtmärkelser:\n• Varje utmärkelse ger +3 poäng\n• Tryck på en utmärkelse för att se exakt hur den låses upp\n• Dagliga utmärkelser nollställs varje dag kl 00:00\n• Årliga utmärkelser nollställs vid årsskiftet\n\nNivåer:\n• Uppvärmning: 0 eller mindre\n• Soundcheck: 1–8\n• Genombrott: 9–23\n• Hitmakare: 24–49\n• Listetta: 50–89\n• Guldskiva: 90–149\n• Platinaskiva: 150–249\n• Digihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); $("#dialog-message").innerHTML = $("#dialog-message").textContent.split("\n").map((line) => line.startsWith("• ") ? `<span class="level-rule-item">${escapeHtml(line.slice(2))}</span>` : line ? `<span class="level-rule-line">${escapeHtml(line)}</span>` : `<span class="level-rule-gap"></span>`).join(""); };
@@ -738,7 +729,8 @@ function updateBottomBadges() {
   const menu = document.getElementById("bottom-menu");
   if (!menu || !state.userId) return;
   const seen = state.menuSeenByUser[state.userId] ||= { career: [], history: [] };
-  const earned = Object.keys(state.achievements).filter((id) => state.achievements[id]);
+  const today = localDateKey();
+  const earned = [...Object.keys(state.achievements).filter((id) => state.achievements[id]), ...Object.keys(state.dailyAchievements[today] || {}).filter((id) => state.dailyAchievements[today][id]).map((id) => `daily:${today}:${id}`)];
   const historyIds = state.history.map((entry) => String(entry.id ?? entry.code)).filter((id) => id !== "undefined");
   let changed = false;
   for (const [view, key, ids] of [["career", "career", earned], ["game-history", "history", historyIds]]) {
@@ -841,7 +833,6 @@ function showView(view, focusMatches = false, fromHistory = false) {
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
   });
-  if (view === "result") setTimeout(showAchievementPopups, 0);
   if (gameView) resumeRoundTrack();
   playWelcomeTurn?.();
   if (!fromHistory) history.pushState({ view }, "", `#${view}`);
@@ -1410,6 +1401,7 @@ $("#lock-placement").addEventListener("click", async () => {
   if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) { if (solo && state.changeTrackCards >= 2) grantDailyAchievement("triple", "Trippel"); state.pendingSwapAward = { matchCode: state.activeMatchCode, cardId: resultCard.id }; state.swapUsedThisRound = false; save(); earnedSwapCard = true; }
   if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
   if (solo || currentPlacementCorrect) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect }; save(); }
+  finishAchievementAwards();
   resultIsLocked = true; $("#result-back").hidden = true;
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
   let soloOutcome;
@@ -1450,7 +1442,7 @@ $("#reset-online-stats")?.addEventListener("click", () => dialog("Nollställ sta
 $("#reset-solo-history")?.addEventListener("click", () => dialog("Nollställ avslutade solomatcher?", () => { state.history = state.history.filter((match) => match.mode !== "solo"); save(); render(); }, true, "NOLLSTÄLL"));
 $("#reset-online-history")?.addEventListener("click", () => dialog("Nollställ avslutade onlinematcher?", () => { state.history = state.history.filter((match) => match.mode === "solo"); save(); render(); }, true, "NOLLSTÄLL"));
 $("#change-password").addEventListener("click", () => showView("change-password"));
-$("#logout").addEventListener("click", () => { achievementPopupQueue = []; save(); supabaseAuth.signOut(); showView("welcome"); });
+$("#logout").addEventListener("click", () => { achievementsChanged = false; save(); supabaseAuth.signOut(); showView("welcome"); });
 $("#delete-account").addEventListener("click", () => { $("#delete-confirmation").value = ""; $("#delete-error").hidden = true; $("#delete-modal").hidden = false; $("#delete-confirmation").focus(); });
 $("#delete-cancel").addEventListener("click", () => { $("#delete-modal").hidden = true; });
 $("#delete-account-form").addEventListener("submit", (event) => {
