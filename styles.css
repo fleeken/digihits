@@ -1108,3 +1108,5 @@ html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:
 .friend-search>div{grid-column:1/-1;}
 
 html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{padding-top:32px;}
+
+.view[data-view-panel="home"]{margin-top:-8px;}
