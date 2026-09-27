@@ -34,7 +34,7 @@
   </head>
   <body>
     <main class="app-shell">
-<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v7.35</small></button><div class="brand-actions"><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button><button class="install-home" id="enable-notifications" type="button">AKTIVERA NOTISER</button><button class="profile-toggle" data-view="profile" type="button" aria-label="Min profil" title="Min profil" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3Z"/></svg></button></div></header>
+<header class="brand"><button class="brand-button" id="brand-home">Digihits <small>v7.36</small></button><div class="brand-actions"><button class="install-home" id="install-app" type="button">LÄGG TILL PÅ HEMSKÄRMEN</button><button class="install-home" id="enable-notifications" type="button">AKTIVERA NOTISER</button><button class="profile-toggle" data-view="profile" type="button" aria-label="Min profil" title="Min profil" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3Z"/></svg></button></div></header>
 
       <section class="view active" data-view-panel="welcome">
         <div class="panel welcome-card">
@@ -73,8 +73,8 @@
           <h1>Skapa konto</h1>
           <p class="form-intro">Alla fält är obligatoriska. E-postadressen behöver verifieras.</p>
           <form id="signup-form" class="auth-form">
-            <label class="sr-only" for="signup-name">Spelarnamn</label><input id="signup-name" maxlength="18" placeholder="Spelarnamn *" required />
-            <small>Spelarnamnet är unikt och kan inte ändras efteråt.</small>
+            <label class="sr-only" for="signup-name">Användarnamn</label><input id="signup-name" maxlength="18" placeholder="Användarnamn *" required />
+            <small>Användarnamnet är unikt och kan inte ändras efteråt.</small>
             <label class="sr-only" for="signup-email">E-post</label><input id="signup-email" type="email" placeholder="E-post *" required />
             <label class="sr-only" for="signup-password">Lösenord</label><input id="signup-password" type="password" minlength="8" placeholder="Lösenord *" required />
             <button class="button button-green" type="submit">SKAPA KONTO</button>
@@ -111,7 +111,7 @@
 
       <section class="view" data-view-panel="avatar"><section class="avatar-edit-view panel"><button class="back-link" id="avatar-back" type="button">← Tillbaka</button><h1>Min artist-avatar</h1><p class="avatar-intro">Välj en artiststil och gör din profil mer personlig.</p><section id="avatar-panel" class="avatar-panel"></section></section></section>
 
-      <section class="view" data-view-panel="profile"><section class="hero panel profile-card"><button class="back-link" data-view="home" type="button">← Tillbaka</button><div class="account-row"><div class="account-row-top"><div><span class="status-dot"></span><strong> INLOGGAD</strong><span class="account-field-label">E-POSTADRESS</span><p id="player-email">spelare@digihits.se</p><div class="player-name"><span>SPELARNAMN</span><strong id="player-name">Spelare</strong></div></div><div class="account-avatar-wrap"><button class="mini-avatar account-avatar mini-pop" id="change-avatar" type="button" aria-label="Ändra avatar"></button><button class="avatar-change-link" id="change-avatar-link" type="button">ÄNDRA AVATAR</button></div></div><div class="app-zoom-setting" id="app-zoom-setting"><strong>ZOOM IN/UT – APPENS STORLEK</strong><div class="app-zoom-levels" role="group" aria-label="Appens storlek"><button type="button" data-app-zoom="100" aria-pressed="false">100%</button><button type="button" data-app-zoom="110" aria-pressed="false">110%</button><button type="button" data-app-zoom="120" aria-pressed="false">120%</button><button type="button" data-app-zoom="130" aria-pressed="false">130%</button><button type="button" data-app-zoom="140" aria-pressed="false">140%</button></div></div><div class="account-actions"><button class="account-button" id="change-password">BYT LÖSENORD</button><button class="account-button" id="logout">LOGGA UT</button><button class="account-button account-danger" id="delete-account">RADERA KONTO</button></div></div></section></section>
+      <section class="view" data-view-panel="profile"><section class="hero panel profile-card"><button class="back-link" data-view="home" type="button">← Tillbaka</button><div class="account-row"><div class="account-row-top"><div><span class="status-dot"></span><strong> INLOGGAD</strong><span class="account-field-label">E-POSTADRESS</span><p id="player-email">spelare@digihits.se</p><div class="player-name"><span>ANVÄNDARNAMN</span><strong id="player-name">Spelare</strong></div></div><div class="account-avatar-wrap"><button class="mini-avatar account-avatar mini-pop" id="change-avatar" type="button" aria-label="Ändra avatar"></button><button class="avatar-change-link" id="change-avatar-link" type="button">ÄNDRA AVATAR</button></div></div><div class="app-zoom-setting" id="app-zoom-setting"><strong>ZOOM IN/UT – APPENS STORLEK</strong><div class="app-zoom-levels" role="group" aria-label="Appens storlek"><button type="button" data-app-zoom="100" aria-pressed="false">100%</button><button type="button" data-app-zoom="110" aria-pressed="false">110%</button><button type="button" data-app-zoom="120" aria-pressed="false">120%</button><button type="button" data-app-zoom="130" aria-pressed="false">130%</button><button type="button" data-app-zoom="140" aria-pressed="false">140%</button></div></div><div class="account-actions"><button class="account-button" id="change-password">BYT LÖSENORD</button><button class="account-button" id="logout">LOGGA UT</button><button class="account-button account-danger" id="delete-account">RADERA KONTO</button></div></div></section></section>
       <section class="view" data-view-panel="home">
         <section class="home-hero"><div class="home-intro"><div class="home-greeting"><h2>Hej! 👋</h2><p><span class="greeting-line">Dags för musik, minnen</span><br /><span class="greeting-line">och gemenskap.</span></p></div><div class="home-illustration"><img src="assets/home-friends-clean-lamp-v659.webp?v=6.77" width="1536" height="1024" alt="Fyra vänner spelar musikspel tillsammans runt ett skivbord." decoding="async" /></div></div></section>
         <section class="panel accordion" data-accordion>
@@ -124,7 +124,7 @@
         </section>
         <section class="panel accordion" data-accordion id="friends-section">
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Mina vänner</span><span class="match-badges friend-badges"><span class="badge badge-friend" id="friend-request-count">Vänförfrågan 0</span></span><span class="accordion-mark">›</span></button>
-          <div class="accordion-content"><div class="friends-content"><form id="friend-search-form" class="friend-search"><label class="sr-only" for="friend-search">Spelarnamn</label><div><input id="friend-search" placeholder="Ange spelarnamn här" autocomplete="off" /><button class="button button-green" type="submit">SÖK</button></div></form><p id="friend-feedback" class="friend-feedback" hidden></p><section id="friend-search-result" hidden></section><section id="friend-requests"></section><section id="friend-sent-requests"></section><section id="friends-list"></section></div></div>
+          <div class="accordion-content"><div class="friends-content"><form id="friend-search-form" class="friend-search"><label class="friend-add-heading" for="friend-search">Lägg till en vän</label><div><input id="friend-search" placeholder="Ange användarnamn här" autocomplete="off" /><button class="button button-green" type="submit">SÖK</button></div></form><p id="friend-feedback" class="friend-feedback" hidden></p><section id="friend-search-result" hidden></section><section id="friend-requests"></section><section id="friend-sent-requests"></section><section id="friends-list"></section></div></div>
         </section>
         <section class="panel accordion" data-accordion id="career-section">
           <button class="accordion-toggle" type="button" aria-expanded="false"><span class="accordion-label">Min musikkarriär</span><span class="accordion-mark">›</span></button>
@@ -147,6 +147,6 @@
     <script src="auth.js?v=4.03"></script>
     <script src="tracks.js"></script>
     <script src="push-config.js?v=3.17"></script>
-<script src="app.js?v=7.33"></script><script>document.querySelector("#brand-home small").textContent="v7.35"</script>
+<script src="app.js?v=7.33"></script><script>document.querySelector("#brand-home small").textContent="v7.36"</script>
   </body>
 </html>
