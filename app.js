@@ -1,4 +1,4 @@
-const APP_VERSION = "7.41"
+const APP_VERSION = "7.42"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -32,9 +32,14 @@ state.dailyProgress ||= {};
 state.achievementAccounts ||= {};
 state.menuSeenByUser ||= {};
 const appZoomLevels = [100, 110, 120, 130, 140];
+if (state.appZoomScaleVersion !== 2) {
+  state.appZoom = Math.max(100, (Number(state.appZoom) || 110) - 10);
+  state.appZoomScaleVersion = 2;
+  localStorage.setItem(storageKey, JSON.stringify(state));
+}
 state.appZoom = appZoomLevels.includes(Number(state.appZoom)) ? Number(state.appZoom) : 100;
 function applyAppZoom() {
-  document.documentElement.style.zoom = String(state.appZoom / 100);
+  document.documentElement.style.zoom = String((state.appZoom + 10) / 100);
   document.documentElement.dataset.appZoom = String(state.appZoom);
   document.querySelectorAll("[data-app-zoom]").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.appZoom) === state.appZoom)));
 }
