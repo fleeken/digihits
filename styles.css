@@ -1110,4 +1110,4 @@ html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:
 html[data-app-zoom="130"] .view[data-view-panel="home"] .home-illustration{padding-top:32px;}
 html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{padding-top:42px;}
 
-.view[data-view-panel="home"]{margin-top:-14px;}
+.view[data-view-panel="home"]{margin-top:-20px;}
