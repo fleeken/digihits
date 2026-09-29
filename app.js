@@ -1,4 +1,4 @@
-const APP_VERSION = "7.50"
+const APP_VERSION = "7.51"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -387,7 +387,8 @@ let currentView = "welcome", chatPoll = 0, realtimeFallbackPoll = 0, realtimeRef
 let profileReturnView = "home", profileReturnMenu = "home";
 const menuForView = (view) => ["match", "lobby", "guess", "timeline", "result", "chat", "matches"].includes(view) ? "matches" : ["friends", "career", "game-history"].includes(view) ? view : "home";
 let resultIsLocked = false;
-const code = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+const matchCodeCharacters = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const code = () => Array.from({ length: 6 }, () => matchCodeCharacters[Math.floor(Math.random() * matchCodeCharacters.length)]).join("");
 function dialog(message, action, danger = false, confirmText = "FORTSÄTT", cancelText = "AVBRYT") {
   $("#dialog-progress")?.remove(); $("#dialog-message").classList.remove("level-rules"); $("#dialog-message").textContent = message; $("#dialog-cancel").hidden = !action; $("#dialog-confirm").hidden = false; $("#dialog-cancel").textContent = cancelText; $("#dialog-confirm").textContent = action ? confirmText : "OK"; $("#dialog-confirm").className = `button ${danger ? "button-leave" : "button-primary"}`; $("#app-dialog").hidden = false;
   $("#dialog-cancel").onclick = () => { $("#app-dialog").hidden = true; };
