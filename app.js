@@ -883,6 +883,7 @@ function openLobby(matchCode) {
   if (match.code.startsWith("M0") && match.status !== "waiting") return openMatch(matchCode);
   state.activeMatchCode = matchCode; save();
   const room = match.code.startsWith("M0");
+  $(".lobby-main").classList.toggle("is-room-lobby", room);
   $(".lobby-main .lobby-title-row h1").textContent = room ? "Spelarlobby" : "Väntar på motspelare";
   $(".lobby-main .lobby-unlock").hidden = room;
   $("#room-lobby").hidden = !room;
