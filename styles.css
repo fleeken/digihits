@@ -1072,7 +1072,7 @@ body::before{clip-path:inset(140px 0 0);}
 @media(max-width:480px){#friend-invites .friend-row{flex-wrap:wrap;}#friend-invites .friend-actions{width:100%;}}
 /* Close control for the create-match steps and per-player room avatar picker. */
 .dialog-card{position:relative;}
-#dialog-close{display:none;position:absolute;right:14px;top:14px;z-index:3;width:36px;height:36px;border:1px solid #b59ab8;border-radius:50%;background:#fff;color:#36233c;font-size:24px;line-height:1;cursor:pointer;}
+#dialog-close{display:grid;place-items:center;position:absolute;right:14px;top:14px;z-index:3;width:36px;height:36px;border:1px solid #b59ab8;border-radius:50%;background:#fff;color:#36233c;font-size:24px;line-height:1;cursor:pointer;}
 #app-dialog:has(.match-category-dialog,.match-mode-dialog,.room-player-form,.invite-picker,.room-avatar-picker) #dialog-close{display:grid;place-items:center;}
 .room-avatar-picker{display:grid;gap:12px;text-align:left;}
 .room-avatar-picker .avatar-art{min-height:72px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y);}

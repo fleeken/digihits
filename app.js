@@ -1,4 +1,4 @@
-const APP_VERSION = "7.44"
+const APP_VERSION = "7.45"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -383,7 +383,7 @@ function dialog(message, action, danger = false, confirmText = "FORTSÄTT", canc
   $("#dialog-cancel").onclick = () => { $("#app-dialog").hidden = true; };
   $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; action?.(); };
 }
-function dialogProgress(message) { $("#dialog-progress")?.remove(); const progress = document.createElement("div"); progress.id = "dialog-progress"; progress.className = "dialog-progress"; progress.innerHTML = "<i></i>"; $("#dialog-message").textContent = message; $("#dialog-message").after(progress); $("#dialog-cancel").hidden = true; const close = $("#dialog-confirm"); close.hidden = false; close.textContent = "STÄNG"; close.className = "button button-secondary"; close.onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false; }
+function dialogProgress(message) { $("#dialog-progress")?.remove(); const progress = document.createElement("div"); progress.id = "dialog-progress"; progress.className = "dialog-progress"; progress.innerHTML = "<i></i>"; $("#dialog-message").textContent = message; $("#dialog-message").after(progress); $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false; }
 function closeDialogProgress() { $("#dialog-progress")?.remove(); $("#dialog-confirm").hidden = false; $("#app-dialog").hidden = true; }
 function roomHandoverDialog(name, action) { dialog(`Skicka mobilen till ${name}.`, action, false, "REDO"); $("#dialog-confirm").className = "button button-green"; }
 window.alert = (message) => dialog(String(message));
