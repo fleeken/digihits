@@ -1159,6 +1159,9 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 .room-live-track .room-live-card.is-revealed{border-color:#4fc9ee;background:#102b3a}
 .room-last-error{margin:8px 0 0;color:#ff8b9d;font-size:10px;font-weight:900}
 .room-lobby[hidden]{display:none!important}
+.lobby-main.is-room-lobby .lobby-stage{display:none}
+.lobby-main.is-room-lobby .lobby-title-row{justify-content:center}
+.lobby-main.is-room-lobby .lobby-title-row h1{text-align:center}
 .lobby-layout .room-lobby-stage{min-height:0;margin-top:12px}
 .lobby-layout .room-lobby-stage .lobby-code-card{padding:12px 24px;gap:3px}
 .lobby-layout .room-lobby-stage .lobby-code-card strong{font-size:22px}
