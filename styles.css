@@ -1254,3 +1254,21 @@ html:has(.modal:not([hidden])),body:has(.modal:not([hidden])){overflow:hidden}
 [data-view-panel="match"].multi-room-match .room-live-stats>div:nth-child(2) strong{color:#ffb1be}
 [data-view-panel="match"].multi-room-match .room-live-stats>div:nth-child(3) strong{color:#9bdcff}
 [data-view-panel="match"].multi-room-match .room-live-kick{display:block;width:max-content;max-width:100%;margin:18px auto 0}
+
+[data-view-panel="match"].multi-room-match .room-live-heading{justify-content:flex-start;flex-wrap:nowrap;gap:14px}
+[data-view-panel="match"].multi-room-match .room-live-avatar{display:block;flex:0 0 58px;width:58px;height:58px;border:2px solid #92d9f3;border-radius:13px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y);background-repeat:no-repeat;background-color:#122443}
+
+.view[data-view-panel="lobby"].room-lobby-view .lobby-layout{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"info" "actions";gap:0}
+.view[data-view-panel="lobby"].room-lobby-view .lobby-layout>.lobby-main{min-height:calc(100dvh - 360px)}
+.view[data-view-panel="lobby"].room-lobby-view .lobby-layout>.lobby-side{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;border-top:1px solid #d5c8cf}
+.view[data-view-panel="lobby"].room-lobby-view .lobby-side .button{width:auto;flex:1 1 180px;max-width:340px;min-height:52px;margin:0!important}
+.view[data-view-panel="lobby"].room-lobby-view #lobby-room-invite{background:#68d995;color:#113824}
+@media(max-width:640px){.view[data-view-panel="lobby"].room-lobby-view .lobby-layout>.lobby-main{min-height:calc(100dvh - 310px)}.view[data-view-panel="lobby"].room-lobby-view .lobby-side .button{max-width:none}}
+
+.room-guest-only .bottom-menu,.room-guest-only .profile-toggle{display:none!important}
+.room-guest-only #brand-home{cursor:default}
+
+[data-view-panel="match"].multi-room-match .room-zoom-setting{border:0;padding:0 0 6px;max-width:570px}
+[data-view-panel="match"].multi-room-match .room-zoom-setting>strong{color:#e9f4ff;font-size:13px}
+[data-view-panel="match"].multi-room-match .room-zoom-setting .app-zoom-levels button{background:#243958;border-color:#7794ba;color:#f6fbff;font-size:13px}
+[data-view-panel="match"].multi-room-match .room-zoom-setting .app-zoom-levels button[aria-pressed="true"]{background:#70e69e;border-color:#3daf69;color:#103522}
