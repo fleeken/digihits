@@ -1515,6 +1515,7 @@ $("#change-password").addEventListener("click", () => showView("change-password"
 $("#logout").addEventListener("click", () => { achievementsChanged = false; save(); supabaseAuth.signOut(); showView("welcome"); });
 $("#delete-account").addEventListener("click", () => { $("#delete-confirmation").value = ""; $("#delete-error").hidden = true; $("#delete-modal").hidden = false; $("#delete-confirmation").focus(); });
 $("#delete-cancel").addEventListener("click", () => { $("#delete-modal").hidden = true; });
+$("#delete-close").addEventListener("click", () => { $("#delete-modal").hidden = true; });
 $("#delete-account-form").addEventListener("submit", (event) => {
   event.preventDefault(); const confirmation = $("#delete-confirmation").value;
   if (confirmation !== "RADERA") { $("#delete-error").hidden = false; return; }

@@ -1124,3 +1124,6 @@ html[data-app-zoom="130"] .view[data-view-panel="home"] .home-illustration{paddi
 html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{padding-top:42px;}
 
 .view[data-view-panel="home"]{margin-top:-20px;}
+
+#delete-close{display:grid;place-items:center;position:absolute;right:14px;top:14px;width:36px;height:36px;border:1px solid #b59ab8;border-radius:50%;background:#fff;color:#36233c;font-size:24px;line-height:1;cursor:pointer}
+#delete-modal .dialog-card{padding-top:56px}
