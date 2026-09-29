@@ -32,11 +32,35 @@ begin
   then raise exception 'Ogiltig placering.'; end if;
   update public.online_players set room_live_placement = jsonb_build_object(
     'phase', live_phase, 'position', case when live_phase in ('placing','revealed') then placed_position else null end,
-    'card_id', p.current_card->>'id', 'updated_at', now()
+    'card_id', p.current_card->>'id', 'updated_at', now(),
+    'artist', case when p.room_live_placement->>'card_id' = p.current_card->>'id' then coalesce(p.room_live_placement->>'artist', '') else '' end,
+    'title', case when p.room_live_placement->>'card_id' = p.current_card->>'id' then coalesce(p.room_live_placement->>'title', '') else '' end
   ), updated_at = now() where id = p.id;
 end; $$;
 revoke all on function public.digihits_publish_room_placement(text,integer,text) from public, anon;
 grant execute on function public.digihits_publish_room_placement(text,integer,text) to authenticated;
+
+-- Publish only the current player's draft, without exposing or changing the secret card.
+create or replace function public.digihits_publish_room_guess(
+  match_code_input text, guess_artist text, guess_title text
+) returns void language plpgsql security definer set search_path = public as $$
+declare m public.online_matches%rowtype; p public.online_players%rowtype;
+begin
+  if auth.uid() is null or match_code_input !~ '^M0[A-Z2-9]{4}$'
+    or not exists (select 1 from public.digihits_room_matches where match_code = match_code_input)
+  then raise exception 'Ogiltig rumsmatch.'; end if;
+  select * into m from public.online_matches where code = match_code_input;
+  if m.id is null or m.status <> 'active' or m.current_user_id::text <> auth.uid()::text
+  then raise exception 'Det är inte din tur.'; end if;
+  select * into p from public.online_players where match_id = m.id and user_id = auth.uid()::text and active for update;
+  if p.id is null or p.current_card is null then raise exception 'Inget kort att gissa på.'; end if;
+  update public.online_players set room_live_placement = jsonb_build_object(
+    'phase', 'guessing', 'position', null, 'card_id', p.current_card->>'id',
+    'artist', left(coalesce(guess_artist, ''), 120), 'title', left(coalesce(guess_title, ''), 120), 'updated_at', now()
+  ), updated_at = now() where id = p.id;
+end; $$;
+revoke all on function public.digihits_publish_room_guess(text,text,text) from public, anon;
+grant execute on function public.digihits_publish_room_guess(text,text,text) to authenticated;
 
 create or replace function public.digihits_register_room_match(match_code_input text)
 returns void language plpgsql security definer set search_path = public as $$

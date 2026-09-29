@@ -1,4 +1,4 @@
-const APP_VERSION = "7.47"
+const APP_VERSION = "7.48"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -995,6 +995,7 @@ function openMatch(matchCode) {
   else if (match.id) { $("#match-chat").hidden = soloMatch; overviewLoading.hidden = false; loadOverviewPlayers(match.id, isYourTurn, soloMatch); }
   else overviewLoading.hidden = true;
 }
+const roomRevealedCards = new Set(), roomTimelineExpanded = new Set();
 function renderRoomTimelines(match, players) {
   const panel = $("#room-live-timelines");
   if (!panel || match.code !== state.activeMatchCode) return;
@@ -1012,15 +1013,43 @@ function renderRoomTimelines(match, players) {
     const currentCard = `<article class="year-card room-live-card ${played ? "is-revealed" : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.title)}<br>${escapeHtml(played.artist)}` : "HEMLIGT KORT"}</small></article>`;
     const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.title)}<br>${escapeHtml(card.artist)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
     const last = player.last_round, wrong = last?.outcome === "wrong" ? (last.cards || []).at(-1) : null;
-    return `<article class="room-live-player ${active ? "is-current" : ""}"><div class="room-live-heading"><strong>${name}${active ? " · TUR NU" : ""}</strong><span>${correct}/10 rätt · ${mistakes} felplacerade</span></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${wrong ? `<p class="room-last-error">Senast felplacerat: ${escapeHtml(wrong.artist)} – ${escapeHtml(wrong.title)} (${escapeHtml(wrong.year)})</p>` : ""}</article>`;
+    const guessing = active && (!live || live.phase === "guessing"), spectator = active && String(player.user_id) !== String(state.userId);
+    const cardKey = `${match.code}:${player.user_id}:${player.current_card?.id || ""}`, flipped = roomRevealedCards.has(cardKey);
+    const guess = guessing && spectator ? `<div class="room-live-guess"><p><span>Artist</span><strong>${escapeHtml(live?.artist) || "Väntar på gissning…"}</strong></p><p><span>Låtnamn</span><strong>${escapeHtml(live?.title) || "Väntar på gissning…"}</strong></p></div>` : "";
+    const spectatorCard = spectator && player.current_card ? `<div class="room-spectator-card ${flipped ? "is-flipped" : ""}"><strong>${flipped ? escapeHtml(player.current_card.artist) : "HEMLIGT KORT"}</strong>${flipped ? `<span>${escapeHtml(player.current_card.title)}</span><small>Släppt ${escapeHtml(player.current_card.year)}</small>` : "<span>♫</span>"}<button class="button button-purple" data-room-reveal="${escapeHtml(cardKey)}" type="button" aria-pressed="${flipped}">${flipped ? "DÖLJ KORTET" : "VÄND PÅ KORTET"}</button></div>` : "";
+    const showTimeline = !guessing || roomTimelineExpanded.has(cardKey);
+    const timelineToggle = guessing && active ? `<button class="timeline-button room-timeline-toggle" data-room-timeline="${escapeHtml(cardKey)}" type="button" aria-expanded="${showTimeline}">${showTimeline ? "DÖLJ TIDSLINJEN" : "VISA TIDSLINJEN"}</button>` : "";
+    return `<article class="room-live-player ${active ? "is-current" : ""}"><div class="room-live-heading"><strong>${name}${active ? " · TUR NU" : ""}</strong><span>${correct}/10 rätt · ${mistakes} felplacerade</span></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${timelineToggle}${showTimeline ? `<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>` : ""}${wrong ? `<p class="room-last-error">Senast felplacerat: ${escapeHtml(wrong.artist)} – ${escapeHtml(wrong.title)} (${escapeHtml(wrong.year)})</p>` : ""}</article>`;
   }).join("")}`;
-  if (panel.dataset.markup !== markup) { panel.innerHTML = markup; panel.dataset.markup = markup; }
+  if (panel.dataset.markup !== markup) {
+    const scrolls = [...panel.querySelectorAll(".room-live-track")].map((track) => track.scrollLeft);
+    panel.innerHTML = markup;
+    panel.querySelectorAll(".room-live-track").forEach((track, index) => { track.scrollLeft = scrolls[index] || 0; });
+    panel.dataset.markup = markup;
+  }
 }
 
 let roomLiveWrite = Promise.resolve();
+let roomGuessTimer = null, pendingRoomGuess = null;
+function flushRoomGuess() {
+  clearTimeout(roomGuessTimer);
+  roomGuessTimer = null;
+  const guess = pendingRoomGuess;
+  pendingRoomGuess = null;
+  if (!guess || guess.matchCode !== state.activeMatchCode || guess.cardId !== activeCard()?.id) return roomLiveWrite;
+  roomLiveWrite = roomLiveWrite.catch(() => {}).then(() => supabaseAuth.dataRequest("rpc/digihits_publish_room_guess", { match_code_input: guess.matchCode, guess_artist: guess.artist, guess_title: guess.title }, "POST"));
+  return roomLiveWrite;
+}
+function scheduleRoomGuess() {
+  const card = activeCard(), matchCode = state.activeMatchCode;
+  if (!matchCode?.startsWith("M0") || !card) return;
+  pendingRoomGuess = { matchCode, cardId: card.id, artist: $("#guess-artist").value, title: $("#guess-track").value };
+  if (!roomGuessTimer) roomGuessTimer = setTimeout(() => flushRoomGuess().catch(() => {}), 300);
+}
 function publishRoomPlacement(phase, position = null) {
   const matchCode = state.activeMatchCode;
   if (!matchCode?.startsWith("M0")) return Promise.resolve();
+  flushRoomGuess();
   roomLiveWrite = roomLiveWrite.catch(() => {}).then(() => supabaseAuth.dataRequest("rpc/digihits_publish_room_placement", { match_code_input: matchCode, placed_position: position, live_phase: phase }, "POST"));
   return roomLiveWrite;
 }
@@ -1319,12 +1348,20 @@ document.addEventListener("click", (event) => { const achievement = event.target
 window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify() && !state.activeMatchCode?.startsWith("M0")) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = /STARTA MATCH/.test(label) ? "STARTAR MATCH…" : "LADDAR OMGÅNG…"; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; showView(state.roundResumeViews[state.activeMatchCode] || "guess"); pausedForNavigation = true; resumeRoundTrack(); return; } state.roundUnlocked = []; save(); await markRoundStarted(); button.textContent = loadingLabel; await dealCard(); resetTurnInput(); enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) button.textContent = label; updateRoundStartButton(); } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
+$("#room-live-timelines").addEventListener("click", (event) => {
+  const flip = event.target.closest("[data-room-reveal]"), toggle = event.target.closest("[data-room-timeline]");
+  if (!flip && !toggle) return;
+  const collection = flip ? roomRevealedCards : roomTimelineExpanded, key = (flip || toggle).dataset[flip ? "roomReveal" : "roomTimeline"];
+  if (collection.has(key)) collection.delete(key); else collection.add(key);
+  const match = state.matches.find((item) => item.code === state.activeMatchCode);
+  if (match?.id) renderRoomTimelines(match, match.players || []);
+});
 document.addEventListener("click", (event) => { const button = event.target.closest(".final-player-round"); if (button) { const id = button.dataset.playerRound; returnToFinalResult = true; showLatestRound({ ...(latestRounds[id] || {}), historyScore: historyPlayerScores[id] }); } });
 document.addEventListener("click", (event) => { const button = event.target.closest("[data-round-player]"); if (!button) return; const avatar = event.target.closest("i.avatar-art"), room = localMatch(); if (avatar && room?.mode === "room") { showRoomAvatarPicker(state.matches.find((item) => item.code === state.activeMatchCode), Number(button.dataset.roomAvatarIndex)); return; } const storedRound = latestRounds[button.dataset.roundPlayer]; if (!storedRound) { dialog("Spelaren har ingen spelad omgång ännu."); return; } const shouldLockCards = !button.classList.contains("is-current") && storedRound.outcome !== "wrong", lockStatus = (card) => ({ ...card, status: shouldLockCards && ["OLÅST", "LÅST DENNA OMGÅNG"].includes(card.status) ? "LÅST" : card.status }), round = { ...storedRound, cards: (storedRound.cards || []).map(lockStatus), timeline: (storedRound.timeline || []).map(lockStatus) }; latestRoundReturnView = currentView; showLatestRound(round); });
 $("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } const playerState = await spotifyPlayer?.getCurrentState().catch(() => null), expected = state.selectedTracks[activeCard().id]?.uri, sameTrack = expected && playerState?.track_window?.current_track?.uri === expected, actuallyPlaying = Boolean(playerState && !playerState.paused); if (actuallyPlaying && sameTrack) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && sameTrack) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } catch (error) { songStarting = false; setPlayButton(false); if (/ansluta spelaren|starta låten|spelaren kunde inte laddas/i.test(error.message)) dialog("Spotify behöver anslutas igen innan låten kan spelas.", () => { resetSpotifyPlayer(); supabaseAuth.disconnectSpotify(); supabaseAuth.connectSpotify(true).catch((issue) => alert(issue.message)); }, false, "ANSLUT KONTO"); else alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { if (trackStartPromise) await trackStartPromise; loadedSpotifyCardId = null; trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } catch (error) { alert(error.message); } });
-[$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); }));
-$("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); publishRoomPlacement("choosing").catch((error) => dialog(error.message)); });
+[$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); scheduleRoomGuess(); }));
+$("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); scheduleRoomGuess(); publishRoomPlacement("choosing").catch((error) => dialog(error.message)); });
 let dragTarget = null, dragOffsetX = 0, dragOffsetY = 0;
 function startDrag(card, event) {
   const bounds = card.getBoundingClientRect(); dragOffsetX = event.clientX - bounds.left; dragOffsetY = event.clientY - bounds.top;
