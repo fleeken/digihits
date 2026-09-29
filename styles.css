@@ -1184,9 +1184,7 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 .room-lobby-actions .button:disabled{opacity:.45;cursor:not-allowed}
 .room-lobby-actions #room-lobby-ready.is-ready{background:#195b33;border-color:#278c4b;color:#fff}
 .room-lobby-actions p{margin:0;text-align:center;color:#5d5366;font-weight:900}
-html:has(body.room-invitation-open){overflow:hidden}
-html:has(#app-dialog:not([hidden]) :is(.room-invitation,#guest-room-form,#multi-room-form)){zoom:1!important}
-body.room-invitation-open{position:fixed;top:var(--room-invitation-scroll-top);left:0;right:0;width:100%;overflow:hidden}
+html:has(.modal:not([hidden])),body:has(.modal:not([hidden])){overflow:hidden}
 #app-dialog:has(.room-invitation){box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
 #app-dialog .dialog-card:has(.room-invitation){box-sizing:border-box;display:flex;flex-direction:column;height:min(540px,calc(100dvh - 36px));min-height:0;max-height:calc(100dvh - 36px);padding:18px;overflow:hidden}
 #app-dialog .dialog-card:has(.room-invitation) #dialog-message{display:block;flex:1 1 auto;min-height:0;margin:12px 0 0;overflow-y:scroll;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin}
@@ -1199,3 +1197,7 @@ body.room-invitation-open{position:fixed;top:var(--room-invitation-scroll-top);l
 :is(#guest-room-form,#multi-room-form) .guest-room-fields{display:grid;grid-auto-rows:max-content;gap:10px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;text-align:left;padding:2px 3px 10px}
 :is(#guest-room-form,#multi-room-form) .guest-room-fields p{margin:0;text-align:center}
 :is(#guest-room-form,#multi-room-form)>.button,:is(#guest-room-form,#multi-room-form)>small{flex:0 0 auto;margin:0}
+.modal:not([hidden]){z-index:80;zoom:var(--dialog-inverse-zoom,1);box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
+.modal:not([hidden]) .modal-card{box-sizing:border-box;max-height:calc(100dvh - 36px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+#app-dialog:has(.room-player-form){align-items:center;overflow:hidden}
+#app-dialog .dialog-card:has(.room-player-form){margin:0}
