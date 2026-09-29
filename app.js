@@ -996,9 +996,11 @@ function openMatch(matchCode) {
   else overviewLoading.hidden = true;
 }
 const roomRevealedCards = new Set(), roomTimelineExpanded = new Set();
+let roomLivePlayers = [];
 function renderRoomTimelines(match, players) {
   const panel = $("#room-live-timelines");
   if (!panel || match.code !== state.activeMatchCode) return;
+  roomLivePlayers = players;
   panel.hidden = false;
   const markup = `<h2>Spelarnas tidslinjer</h2><p>Följ den aktuella turen och se allas kort och felplaceringar.</p>${players.map((player) => {
     const active = String(match.currentUserId) === String(player.user_id), locked = Array.isArray(player.locked_timeline) ? player.locked_timeline : [], unlocked = active && Array.isArray(player.turn_cards) ? player.turn_cards : [];
@@ -1354,7 +1356,7 @@ $("#room-live-timelines").addEventListener("click", (event) => {
   const collection = flip ? roomRevealedCards : roomTimelineExpanded, key = (flip || toggle).dataset[flip ? "roomReveal" : "roomTimeline"];
   if (collection.has(key)) collection.delete(key); else collection.add(key);
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
-  if (match?.id) renderRoomTimelines(match, match.players || []);
+  if (match?.id) renderRoomTimelines(match, roomLivePlayers);
 });
 document.addEventListener("click", (event) => { const button = event.target.closest(".final-player-round"); if (button) { const id = button.dataset.playerRound; returnToFinalResult = true; showLatestRound({ ...(latestRounds[id] || {}), historyScore: historyPlayerScores[id] }); } });
 document.addEventListener("click", (event) => { const button = event.target.closest("[data-round-player]"); if (!button) return; const avatar = event.target.closest("i.avatar-art"), room = localMatch(); if (avatar && room?.mode === "room") { showRoomAvatarPicker(state.matches.find((item) => item.code === state.activeMatchCode), Number(button.dataset.roomAvatarIndex)); return; } const storedRound = latestRounds[button.dataset.roundPlayer]; if (!storedRound) { dialog("Spelaren har ingen spelad omgång ännu."); return; } const shouldLockCards = !button.classList.contains("is-current") && storedRound.outcome !== "wrong", lockStatus = (card) => ({ ...card, status: shouldLockCards && ["OLÅST", "LÅST DENNA OMGÅNG"].includes(card.status) ? "LÅST" : card.status }), round = { ...storedRound, cards: (storedRound.cards || []).map(lockStatus), timeline: (storedRound.timeline || []).map(lockStatus) }; latestRoundReturnView = currentView; showLatestRound(round); });
