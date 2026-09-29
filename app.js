@@ -1,4 +1,4 @@
-const APP_VERSION = "7.49"
+const APP_VERSION = "7.50"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -879,6 +879,7 @@ document.addEventListener("click", (event) => {
 function openLobby(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
+  if (match.code.startsWith("M0") && match.status !== "waiting") return openMatch(matchCode);
   state.activeMatchCode = matchCode; save();
   const room = match.code.startsWith("M0");
   $(".lobby-main .lobby-title-row h1").textContent = room ? "Spelarlobby" : "Väntar på motspelare";
@@ -977,6 +978,7 @@ function handleFriendChatRealtime(payload) {
 function openMatch(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
+  if (match.code.startsWith("M0") && match.status === "waiting") return openLobby(matchCode);
   const local = localMatch(match), soloMatch = isSoloMatch(match) && !local;
   $("#room-live-timelines").hidden = !match.code.startsWith("M0");
   const matchLeave = document.querySelector('[data-view-panel="match"] .button-leave');
@@ -1216,7 +1218,8 @@ async function syncMatches() {
   renderRoundPlayers();
   if (currentView === "match") updateRoundStartButton();
   const activeMatchChanged = !previousActive || previousActive.status !== activeMatch?.status || previousActive.title !== activeMatch?.title || previousActive.round !== activeMatch?.round || previousActive.locked !== activeMatch?.locked;
-  if ((currentView === "lobby" || currentView === "match") && activeMatch && activeMatchChanged) openMatch(activeMatch.code);
+  if (currentView === "lobby" && activeMatch && activeMatch.status !== "waiting") openMatch(activeMatch.code);
+  else if (currentView === "match" && activeMatch && activeMatchChanged) openMatch(activeMatch.code);
   if (["guess", "timeline"].includes(currentView) && !resultIsLocked && activeMatch && activeMatch.status !== "active") openMatch(activeMatch.code);
   if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
   state.matches.forEach((match) => { showTurnNotice(match); showFinalChanceNotice(match); });
