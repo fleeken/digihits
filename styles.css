@@ -1169,6 +1169,10 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 .room-lobby-player .avatar-art,.room-lobby-avatar .avatar-art{display:block;width:64px;height:64px;border:2px solid #4fc9ee;border-radius:12px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y)}
 .room-lobby-player strong,.room-lobby-player small{display:block;overflow-wrap:anywhere}
 .room-lobby-player small{margin-top:6px;font-size:11px;color:#9ff0bc;font-weight:900}
+.room-lobby-player .room-ready-status{display:flex;align-items:center;gap:7px}
+.room-ready-status::before{content:"";display:block;flex:0 0 10px;width:10px;height:10px;border-radius:50%;background:#35c874}
+.room-lobby-player .room-ready-status.is-pending{color:#ff7888}
+.room-ready-status.is-pending::before{background:#f34c64}
 .room-lobby-player .button{grid-column:1/-1;width:100%;min-height:38px;margin:0}
 .room-lobby-profile{display:grid;gap:12px;padding:16px;border:1px solid #c8b7c5;border-radius:15px;background:#fff9f4}
 .room-lobby-profile h2{margin:0;font-size:18px}
@@ -1185,5 +1189,7 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 html:has(body.room-invitation-open){overflow:hidden}
 body.room-invitation-open{position:fixed;top:var(--room-invitation-scroll-top);left:0;right:0;width:100%;overflow:hidden}
 #app-dialog:has(.room-invitation){box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
-#app-dialog .dialog-card:has(.room-invitation){box-sizing:border-box;min-height:0;max-height:calc(100dvh - 36px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
-#app-dialog .dialog-card:has(.room-invitation) #dialog-message{display:block;overflow:visible}
+#app-dialog .dialog-card:has(.room-invitation){box-sizing:border-box;display:flex;flex-direction:column;height:min(540px,calc(100dvh - 36px));min-height:0;max-height:calc(100dvh - 36px);padding:18px;overflow:hidden}
+#app-dialog .dialog-card:has(.room-invitation) #dialog-message{display:block;flex:1 1 auto;min-height:0;margin:12px 0 0;overflow-y:scroll;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin}
+#app-dialog .dialog-card:has(.room-invitation) .modal-actions{flex:0 0 auto}
+#app-dialog .dialog-card:has(.room-invitation) .room-invitation{padding:2px 3px 10px}
