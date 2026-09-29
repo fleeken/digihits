@@ -1,4 +1,4 @@
-const APP_VERSION = "7.45"
+const APP_VERSION = "7.48"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -192,7 +192,7 @@ function renderRoundPlayers() {
     if (hidden) { strip.hidden = true; return; }
     strip.hidden = false;
     strip.dataset.playerCount = String(players.length);
-    const markup = `<div>${players.map((player, index) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = localMatch(match)?.mode === "room" ? avatarChoice({ display_name: player.display_name, ...localMatch(match).players[index]?.avatar }) : String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"${localMatch(match)?.mode === "room" ? ` data-room-avatar-index="${index}"` : ""}><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
+    const markup = `<div>${players.map((player, index) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = localMatch(match)?.mode === "room" ? avatarChoice({ display_name: player.display_name, ...localMatch(match).players[index]?.avatar }) : match.code.startsWith("M0") ? avatarChoice(player) : String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"${localMatch(match)?.mode === "room" ? ` data-room-avatar-index="${index}"` : ""}><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
     // Compare source markup, not browser-normalized HTML; retain avatars and scroll on unchanged syncs.
     if (roundStripMarkup.get(strip) !== markup) { strip.innerHTML = markup; roundStripMarkup.set(strip, markup); }
   });
@@ -234,8 +234,8 @@ async function createLocalMatch(mode, names) {
 }
 function showMatchModeDialog() {
   $("#dialog-title").textContent = "Välj att spela";
-  $("#dialog-message").innerHTML = `<div class="match-category-dialog"><button class="online" data-match-category="online"><span class="match-category-icon" aria-hidden="true">🧑‍🤝‍🧑</span><span class="match-category-copy"><strong>ONLINE</strong><small>Spela mot en vän eller en slumpvald okänd</small></span></button><button class="solo" data-match-category="solo"><span class="match-category-icon" aria-hidden="true">🕺</span><span class="match-category-copy"><strong>SOLO</strong><small>Spela själv eller mot datorn</small></span></button><button class="room" data-match-category="room"><span class="match-category-icon" aria-hidden="true">🏠</span><span class="match-category-copy"><strong>SAMMA FYSISKA RUM</strong><small>Lägg till deltagare och skicka runt mobilen</small></span></button></div>`;
-  $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false; $("#dialog-confirm").textContent = "STÄNG"; $("#dialog-confirm").className = "button button-secondary"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false;
+  $("#dialog-message").innerHTML = `<div class="match-category-dialog"><button class="online" data-match-category="online"><span class="match-category-icon" aria-hidden="true">🧑‍🤝‍🧑</span><span class="match-category-copy"><strong>ONLINE</strong><small>Spela mot en vän eller en slumpvald okänd</small></span></button><button class="solo" data-match-category="solo"><span class="match-category-icon" aria-hidden="true">🕺</span><span class="match-category-copy"><strong>SOLO</strong><small>Spela själv eller mot datorn</small></span></button><button class="room" data-match-category="room"><span class="match-category-icon" aria-hidden="true">🏠</span><span class="match-category-copy"><strong>SAMMA FYSISKA RUM</strong><small>Välj en mobil eller flera anslutna mobiler</small></span></button></div>`;
+  $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
 }
 function showOnlineModeDialog() { $("#dialog-title").textContent = "Online · Spela mot"; $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><div class="match-mode-dialog online-options"><button data-match-mode="friend">DINA VÄNNER<small>Välj någon i vänskapslistan</small></button><button data-match-mode="random">SLUMPVALD OKÄND SPELARE<small>Motståndaren blir en slumpvald person som inte är med i din vänskapslista.</small></button></div>`; }
 function showSoloModeDialog() { $("#dialog-title").textContent = "Solo · Spela mot"; $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><div class="match-mode-dialog solo-options"><button data-match-mode="self">DIG SJÄLV<small>Spela en klassisk solomatch</small></button><button data-match-mode="computer">DATORN<small>Datorn gör egna drag mellan dina turer</small></button></div>`; }
@@ -261,9 +261,19 @@ document.addEventListener("click", (event) => {
 function roomPlayerRow(number) { return `<div class="room-player-row"><span class="room-player-number">${number}.</span><input maxlength="18" placeholder="Ange spelare ${number}" aria-label="Spelare ${number}"><button type="button" data-room-up aria-label="Flytta upp">↑</button><button type="button" data-room-down aria-label="Flytta ner">↓</button><button type="button" data-room-remove aria-label="Ta bort spelare ${number}">🗑</button></div>`; }
 function renumberRoomPlayers() { const rows = [...$("#room-player-inputs").children]; rows.forEach((row, index) => { row.querySelector(".room-player-number").textContent = `${index + 1}.`; const input = row.querySelector("input"); input.setAttribute("aria-label", `Spelare ${index + 1}`); input.placeholder = `Ange spelare ${index + 1}`; const remove = row.querySelector("[data-room-remove]"); remove.setAttribute("aria-label", `Ta bort spelare ${index + 1}`); remove.hidden = rows.length <= 2; }); $("#add-room-player").hidden = rows.length >= 8; }
 function showRoomSetup() {
-  $("#dialog-title").textContent = "Spelare i samma rum";
-  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><form id="room-player-form" class="room-player-form"><p>Lägg till deltagarna i den ordning mobilen ska skickas runt. Ändra turordningen med pilarna.</p><div id="room-player-inputs">${[1, 2].map(roomPlayerRow).join("")}</div><small id="room-player-limit" class="room-player-limit">2–8 spelare</small><button class="button button-secondary" id="add-room-player" type="button">+ LÄGG TILL SPELARE</button><button class="button button-green" type="submit">STARTA MATCH</button><small id="room-player-error" class="friend-feedback error" hidden></small></form>`;
+  $("#dialog-title").textContent = "Skicka runt en mobil";
+  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-room-back type="button">← TILLBAKA</button><form id="room-player-form" class="room-player-form"><p>Lägg till deltagarna i den ordning mobilen ska skickas runt. Ändra turordningen med pilarna.</p><div id="room-player-inputs">${[1, 2].map(roomPlayerRow).join("")}</div><small id="room-player-limit" class="room-player-limit">2–8 spelare</small><button class="button button-secondary" id="add-room-player" type="button">+ LÄGG TILL SPELARE</button><button class="button button-green" type="submit">STARTA MATCH</button><small id="room-player-error" class="friend-feedback error" hidden></small></form>`;
   $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; renumberRoomPlayers(); $("#app-dialog").hidden = false;
+}
+function showRoomModes() {
+  $("#dialog-title").textContent = "Samma fysiska rum";
+  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><div class="match-mode-dialog room-options"><button type="button" data-room-mode="pass">SKICKA RUNT EN MOBIL<small>Ange spelarna manuellt och turas om på en telefon.</small></button><button type="button" data-room-mode="multi">FLERA MOBILER ANSLUTER<small>Skicka en länk eller visa QR-koden. Varje gäst väljer namn och avatar.</small></button></div>`;
+  $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
+}
+function showMultiRoomSetup() {
+  $("#dialog-title").textContent = "Flera mobiler ansluter";
+  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-room-back type="button">← TILLBAKA</button><form id="multi-room-form" class="room-player-form"><label for="room-host-name">Ditt deltagarnamn</label><input id="room-host-name" maxlength="18" required value="${escapeHtml(state.playerName)}" autocomplete="nickname"><button class="button button-green" type="submit">SKAPA MATCH</button><small class="friend-feedback error" id="multi-room-error" hidden></small></form>`;
+  $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
 }
 function expandedMatchDeck(deck = []) {
   const existing = new Set(deck.map((card) => `${normaliseTrackText(card.artist)}:${normaliseTrackText(card.title)}`));
@@ -709,18 +719,18 @@ function render() {
   $("#change-track-area").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box"; $("#lock-placement").style.cssText += ";width:300px;max-width:100%;box-sizing:border-box";
   const matches = $("#matches");
   const renderCard = (match) => {
-    const local = localMatch(match), localMode = local?.mode, room = localMode === "room", solo = isSoloMatch(match) && !room;
+    const local = localMatch(match), localMode = local?.mode, room = localMode === "room" || match.code.startsWith("M0"), solo = isSoloMatch(match) && !room;
     const localSoloPlayer = localMode === "computer" ? local.players[0] : null;
     const soloScore = solo ? localSoloPlayer ? { correct: Math.max(1, (localSoloPlayer.timeline || []).length), mistakes: Math.max(0, Number(localSoloPlayer.mistakes) || 0) } : soloProgress(match) : null;
     const soloRounds = localSoloPlayer ? Math.max(0, Number(localSoloPlayer.rounds) || 0) : Math.max(1, Number(match.round) || 1);
     const label = room ? "ÖPPNA RUMSMATCH" : solo ? localMode === "computer" ? "ÖPPNA MATCH MOT DATORN" : "ÖPPNA MATCH MOT DIG SJÄLV" : match.status === "active" ? "ÖPPNA MATCH" : "VISA MATCHÖVERSIKT";
-    const status = room ? `${local.players[local.current]?.name || "Spelare"}${/s$/i.test(local.players[local.current]?.name || "") ? "" : "s"} tur` : solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
+    const status = room && local ? `${local.players[local.current]?.name || "Spelare"}${/s$/i.test(local.players[local.current]?.name || "") ? "" : "s"} tur` : solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
     const matchPlayers = match.players?.length ? match.players : String(match.title || "").split(", ").filter(Boolean).map((display_name) => ({ display_name }));
     const playerRows = matchPlayers.map((player) => { const correct = Math.max(1, Number(player.last_round?.score?.correct) || (player.locked_timeline || []).length || 0); return `<div><strong>${escapeHtml(player.display_name)} <b>(${correct}/10p)</b></strong></div>`; }).join("");
     const unread = !solo && !room ? Number(state.chatUnread[match.code] || 0) : 0;
     return `<article class="match ${room ? "room" : solo ? "solo" : match.status}">${solo ? "" : `<div class="match-status match-status-top">${room ? `<span class="room-status-dot" aria-hidden="true">●</span> ${escapeHtml(status)}` : `● ${status}`}</div>${unread ? `<button class="match-chat-alert" data-open-chat="${match.code}" title="Nya chattmeddelanden" aria-label="Öppna chatt" type="button">✉<b>${unread}</b></button>` : ""}<button class="match-icon delete-icon match-delete-top" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button>`}${solo ? `<div class="match-top"><strong>Solomatch</strong></div><div class="solo-card-stats"><div><strong>${soloScore.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${soloScore.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${soloRounds}</strong><small>${soloRounds === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<div class="match-player-list">${playerRows}</div>`}<div class="match-footer"><button class="match-open" data-open-match="${match.code}" type="button">${label}</button>${solo ? `<div class="match-card-actions"><button class="match-icon delete-icon" data-delete-match="${match.code}" title="Lämna match" aria-label="Lämna match" type="button">🗑</button></div>` : ""}</div>${solo || room ? "" : `<div class="match-code match-code-bottom">MATCHKOD <strong>${match.code}</strong></div>`}</article>`;
   };
-  const roomMatches = state.matches.filter((match) => localMatch(match)?.mode === "room");
+  const roomMatches = state.matches.filter((match) => localMatch(match)?.mode === "room" || match.code.startsWith("M0"));
   const soloMatches = state.matches.filter((match) => isSoloMatch(match) && localMatch(match)?.mode !== "room");
   const active = state.matches.filter((match) => !isSoloMatch(match) && (match.status === "active" || match.status === "opponent"));
   const waitingMatches = state.matches.filter((match) => !isSoloMatch(match) && match.status === "waiting");
@@ -732,7 +742,7 @@ function render() {
     ${active.length ? active.map(renderCard).join("") : `<p class="match-empty">Inga pågående matcher.</p>`}
     <h3 class="match-group-title">Väntar på motspelare</h3>
     ${waitingMatches.length ? waitingMatches.map(renderCard).join("") : `<p class="match-empty">Inga matcher väntar på motspelare.</p>`}` : `<p class="muted">Du har inga matcher ännu.</p>`;
-  const onlineMatches = state.matches.filter((match) => !isSoloMatch(match)).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+  const onlineMatches = state.matches.filter((match) => !isSoloMatch(match) && !match.code.startsWith("M0")).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
   matches.innerHTML = `<section class="match-list-panel"><h3 class="match-group-title">Mina solomatcher</h3>${soloMatches.length ? soloMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga solomatcher.</p>`}</section><section class="match-list-panel room-match-list"><h3 class="match-group-title">Samma fysiska rum</h3>${roomMatches.length ? roomMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga matcher i samma rum.</p>`}</section><section class="match-list-panel"><h3 class="match-group-title">Mina onlinematcher</h3>${onlineMatches.length ? onlineMatches.map(renderCard).join("") : `<p class="match-empty">Du har inga onlinematcher.</p>`}</section>`;
   const historyCard = (match) => { const outcomeClass = /WALK/i.test(match.leaveReason || "") ? "history-walkover" : /VANN/i.test(match.leaveReason || "") ? "history-won" : /FÖRLORADE/i.test(match.leaveReason || "") ? "history-lost" : ""; return `<article class="history-match ${match.mode === "solo" ? "solo-win" : match.leaveReason === "DU LÄMNADE INNAN MATCHSTART" ? "early-leave" : "walkover"} ${outcomeClass}">${match.mode === "online" ? `<strong>MOT ${escapeHtml(match.opponentName || String(match.title || "motspelaren").split(", ").at(-1))}</strong><small class="history-code">MATCHKOD <b>${escapeHtml(match.code || "------")}</b></small><span>${match.leaveReason}</span>` : `<strong>${match.title}</strong>${match.rounds ? `<div class="solo-card-stats"><div><strong>${match.correct}/10</strong><small>RÄTT PLACERADE</small></div><div><strong>${match.mistakes}</strong><small>FELPLACERADE</small></div><div><strong>${match.rounds}</strong><small>${match.rounds === 1 ? "OMGÅNG" : "OMGÅNGAR"}</small></div></div>` : `<span>${match.leaveReason}</span>`}`}${match.mode === "online" && match.result ? `<button class="timeline-button" data-history-result="${match.id}" type="button">VISA SLUTRESULTAT</button>` : ""}</article>`; };
   const soloHistory = state.history.filter((match) => match.mode === "solo"), onlineHistory = state.history.filter((match) => match.mode !== "solo");
@@ -872,6 +882,9 @@ function openLobby(matchCode) {
   state.activeMatchCode = matchCode; save();
   refreshChatButtons(match);
   $("#lobby-code").textContent = match.code;
+  const invite = $("#lobby-room-invite") || Object.assign(document.createElement("button"), { id: "lobby-room-invite", className: "button button-green", textContent: "BJUD IN VIA LÄNK / QR" });
+  if (!invite.isConnected) $("#lobby-chat").before(invite);
+  invite.hidden = !match.code.startsWith("M0"); invite.dataset.roomInvite = match.code;
   $("#copy-lobby-code").textContent = "KOPIERA KOD";
   $("#copy-lobby-code").classList.remove("is-copied");
   showView("lobby");
@@ -931,6 +944,7 @@ function openMatch(matchCode) {
   const match = state.matches.find((item) => item.code === matchCode);
   if (!match) return;
   const local = localMatch(match), soloMatch = isSoloMatch(match) && !local;
+  $("#room-live-timelines").hidden = !match.code.startsWith("M0");
   const matchLeave = document.querySelector('[data-view-panel="match"] .button-leave');
   const isOnlyPlayer = soloMatch || (match.players || []).length <= 1;
   matchLeave.textContent = isOnlyPlayer ? "RADERA MATCH" : "LÄMNA MATCHEN";
@@ -948,6 +962,9 @@ function openMatch(matchCode) {
     } catch (error) { dialog(error.message || "Kunde inte avsluta matchen."); }
   }, true, "JA", "NEJ");
   state.activeMatchCode = matchCode; save();
+  const invite = $("#match-room-invite") || Object.assign(document.createElement("button"), { id: "match-room-invite", className: "button button-green", textContent: "BJUD IN VIA LÄNK / QR" });
+  if (!invite.isConnected) $("#match-chat").before(invite);
+  invite.hidden = !match.code.startsWith("M0"); invite.dataset.roomInvite = match.code;
   refreshChatButtons(match);
   $("#overview-code").textContent = local ? (local.mode === "computer" ? "MOT DATORN" : "SAMMA MOBIL") : soloMatch ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = local || soloMatch ? "SPELTYP" : "MATCHKOD";
@@ -978,13 +995,77 @@ function openMatch(matchCode) {
   else if (match.id) { $("#match-chat").hidden = soloMatch; overviewLoading.hidden = false; loadOverviewPlayers(match.id, isYourTurn, soloMatch); }
   else overviewLoading.hidden = true;
 }
+const roomRevealedCards = new Set(), roomTimelineExpanded = new Set();
+let roomLivePlayers = [];
+function renderRoomTimelines(match, players) {
+  const panel = $("#room-live-timelines");
+  if (!panel || match.code !== state.activeMatchCode) return;
+  roomLivePlayers = players;
+  panel.hidden = false;
+  const markup = `<h2>Spelarnas tidslinjer</h2><p>Följ den aktuella turen och se allas kort och felplaceringar.</p>${players.map((player) => {
+    const active = String(match.currentUserId) === String(player.user_id), locked = Array.isArray(player.locked_timeline) ? player.locked_timeline : [], unlocked = active && Array.isArray(player.turn_cards) ? player.turn_cards : [];
+    const cards = [...locked.map((card, index) => ({ ...card, roomStatus: index === 0 ? "STARTKORT" : "LÅST" })), ...unlocked.map((card) => ({ ...card, roomStatus: "OLÅST" }))].sort((a, b) => Number(a.year) - Number(b.year));
+    const live = active && player.room_live_placement?.card_id === player.current_card?.id ? player.room_live_placement : null;
+    const position = live && ["placing", "revealed"].includes(live.phase) && Number.isInteger(Number(live.position)) ? Math.max(0, Math.min(cards.length, Number(live.position))) : null;
+    const played = live?.phase === "revealed" ? player.current_card : null;
+    const score = player.last_round?.score || {}, correct = Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0);
+    const mistakes = Number.isFinite(Number(score.mistakes)) && score.mistakes !== "" && score.mistakes != null ? Math.max(0, Number(score.mistakes)) : Math.max(0, Number(player.rounds_started || 0) - Math.max(0, locked.length - 1) - (active && player.current_card ? 1 : 0));
+    const name = escapeHtml(player.display_name || "Spelare");
+    const stage = !active ? "" : live?.phase === "revealed" ? "Visar kortets placering" : position !== null ? "Placerar det hemliga kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar eller väntar på nästa kort";
+    const currentCard = `<article class="year-card room-live-card ${played ? "is-revealed" : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.title)}<br>${escapeHtml(played.artist)}` : "HEMLIGT KORT"}</small></article>`;
+    const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.title)}<br>${escapeHtml(card.artist)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
+    const last = player.last_round, wrong = last?.outcome === "wrong" ? (last.cards || []).at(-1) : null;
+    const guessing = active && (!live || live.phase === "guessing"), spectator = active && String(player.user_id) !== String(state.userId);
+    const cardKey = `${match.code}:${player.user_id}:${player.current_card?.id || ""}`, flipped = roomRevealedCards.has(cardKey);
+    const guess = guessing && spectator ? `<div class="room-live-guess"><p><span>Artist</span><strong>${escapeHtml(live?.artist) || "Väntar på gissning…"}</strong></p><p><span>Låtnamn</span><strong>${escapeHtml(live?.title) || "Väntar på gissning…"}</strong></p></div>` : "";
+    const spectatorCard = spectator && player.current_card ? `<div class="room-spectator-card ${flipped ? "is-flipped" : ""}"><strong>${flipped ? escapeHtml(player.current_card.artist) : "HEMLIGT KORT"}</strong>${flipped ? `<span>${escapeHtml(player.current_card.title)}</span><small>Släppt ${escapeHtml(player.current_card.year)}</small>` : "<span>♫</span>"}<button class="button button-purple" data-room-reveal="${escapeHtml(cardKey)}" type="button" aria-pressed="${flipped}">${flipped ? "DÖLJ KORTET" : "VÄND PÅ KORTET"}</button></div>` : "";
+    const showTimeline = !guessing || roomTimelineExpanded.has(cardKey);
+    const timelineToggle = guessing && active ? `<button class="timeline-button room-timeline-toggle" data-room-timeline="${escapeHtml(cardKey)}" type="button" aria-expanded="${showTimeline}">${showTimeline ? "DÖLJ TIDSLINJEN" : "VISA TIDSLINJEN"}</button>` : "";
+    return `<article class="room-live-player ${active ? "is-current" : ""}"><div class="room-live-heading"><strong>${name}${active ? " · TUR NU" : ""}</strong><span>${correct}/10 rätt · ${mistakes} felplacerade</span></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${timelineToggle}${showTimeline ? `<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>` : ""}${wrong ? `<p class="room-last-error">Senast felplacerat: ${escapeHtml(wrong.artist)} – ${escapeHtml(wrong.title)} (${escapeHtml(wrong.year)})</p>` : ""}</article>`;
+  }).join("")}`;
+  if (panel.dataset.markup !== markup) {
+    const scrolls = [...panel.querySelectorAll(".room-live-track")].map((track) => track.scrollLeft);
+    panel.innerHTML = markup;
+    panel.querySelectorAll(".room-live-track").forEach((track, index) => { track.scrollLeft = scrolls[index] || 0; });
+    panel.dataset.markup = markup;
+  }
+}
+
+let roomLiveWrite = Promise.resolve();
+let roomGuessTimer = null, pendingRoomGuess = null;
+function flushRoomGuess() {
+  clearTimeout(roomGuessTimer);
+  roomGuessTimer = null;
+  const guess = pendingRoomGuess;
+  pendingRoomGuess = null;
+  if (!guess || guess.matchCode !== state.activeMatchCode || guess.cardId !== activeCard()?.id) return roomLiveWrite;
+  roomLiveWrite = roomLiveWrite.catch(() => {}).then(() => supabaseAuth.dataRequest("rpc/digihits_publish_room_guess", { match_code_input: guess.matchCode, guess_artist: guess.artist, guess_title: guess.title }, "POST"));
+  return roomLiveWrite;
+}
+function scheduleRoomGuess() {
+  const card = activeCard(), matchCode = state.activeMatchCode;
+  if (!matchCode?.startsWith("M0") || !card) return;
+  pendingRoomGuess = { matchCode, cardId: card.id, artist: $("#guess-artist").value, title: $("#guess-track").value };
+  if (!roomGuessTimer) roomGuessTimer = setTimeout(() => flushRoomGuess().catch(() => {}), 300);
+}
+function publishRoomPlacement(phase, position = null) {
+  const matchCode = state.activeMatchCode;
+  if (!matchCode?.startsWith("M0")) return Promise.resolve();
+  flushRoomGuess();
+  roomLiveWrite = roomLiveWrite.catch(() => {}).then(() => supabaseAuth.dataRequest("rpc/digihits_publish_room_placement", { match_code_input: matchCode, placed_position: position, live_phase: phase }, "POST"));
+  return roomLiveWrite;
+}
+
 async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
-    const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,user_id,display_name,turn_order,locked_timeline,last_round,rounds_started,swap_cards&order=turn_order`);
+    const room = state.matches.find((item) => item.id === matchId)?.code.startsWith("M0");
+    const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${matchId}&active=eq.true&select=id,user_id,display_name,turn_order,locked_timeline,turn_cards,current_card,room_live_placement,last_round,rounds_started,swap_cards,avatar_genre,avatar_variant&order=turn_order`);
     const match = state.matches.find((item) => item.id === matchId), friendBox = $("#match-friend-invites");
     if (match && !localMatch(match)) { match.players = players; if (match.code === state.activeMatchCode) renderRoundPlayers(); }
-    if (friendBox && match && !solo) { friendBox.hidden = false; const locked = match.locked || players.some((player) => Number(player.rounds_started || 0) >= 2); if (locked) friendBox.innerHTML = `<small>BJUD IN VÄN TILL MATCHEN</small><p>MATCHEN ÄR LÅST EFTERSOM OMGÅNG TVÅ REDAN PÅBÖRJATS.</p>`; else { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))), sent = new Map(state.sentMatchInvites.filter((invite) => String(invite.match_code) === String(match.code)).map((invite) => [String(invite.recipient_id), invite])); matchInviteCandidates = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE")) && !sent.has(String(friend.friend_id))); const sentRows = [...sent.values()].map((invite) => `<p class="match-invite-status ${invite.status}">${escapeHtml(invite.recipient_name || "Spelaren")} · ${invite.status === "pending" ? "INBJUDAN SKICKAD" : invite.status === "accepted" ? "INBJUDAN ACCEPTERAD" : "INBJUDAN AVVISAD"}</p>`).join(""); friendBox.innerHTML = `<small>BJUD IN VÄN TILL MATCHEN</small>${matchInviteCandidates.length ? `<button class="button button-green" id="open-invite-friends" type="button">BJUD IN VÄN TILL MATCHEN</button>` : `<p>DU HAR INGA FLER VÄNNER ATT BJUD IN TILL DENNA MATCH.</p>`}${sentRows}`; } }
-    if (friendBox && match && !solo) { const joinRequests = await supabaseAuth.dataRequest("rpc/digihits_my_match_join_requests", { match_code_input: match.code }, "POST").catch(() => []); if (joinRequests.length) friendBox.insertAdjacentHTML("beforeend", joinRequests.map((request) => `<article class="block-join-request"><strong>${escapeHtml(request.requester_name)} som du har blockerat vill gå med i denna match.</strong><div><button class="button button-secondary" data-match-join-request="${request.request_id}" type="button">AVVISA</button><button class="button button-green" data-match-join-request="${request.request_id}" data-allow-match-join="true" type="button">TILLÅT</button></div></article>`).join("")); }
+    if (room && match) renderRoomTimelines(match, players);
+    else $("#room-live-timelines").hidden = true;
+    if (friendBox && match && !solo && !room) { friendBox.hidden = false; const locked = match.locked || players.some((player) => Number(player.rounds_started || 0) >= 2); if (locked) friendBox.innerHTML = `<small>BJUD IN VÄN TILL MATCHEN</small><p>MATCHEN ÄR LÅST EFTERSOM OMGÅNG TVÅ REDAN PÅBÖRJATS.</p>`; else { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))), sent = new Map(state.sentMatchInvites.filter((invite) => String(invite.match_code) === String(match.code)).map((invite) => [String(invite.recipient_id), invite])); matchInviteCandidates = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE")) && !sent.has(String(friend.friend_id))); const sentRows = [...sent.values()].map((invite) => `<p class="match-invite-status ${invite.status}">${escapeHtml(invite.recipient_name || "Spelaren")} · ${invite.status === "pending" ? "INBJUDAN SKICKAD" : invite.status === "accepted" ? "INBJUDAN ACCEPTERAD" : "INBJUDAN AVVISAD"}</p>`).join(""); friendBox.innerHTML = `<small>BJUD IN VÄN TILL MATCHEN</small>${matchInviteCandidates.length ? `<button class="button button-green" id="open-invite-friends" type="button">BJUD IN VÄN TILL MATCHEN</button>` : `<p>DU HAR INGA FLER VÄNNER ATT BJUD IN TILL DENNA MATCH.</p>`}${sentRows}`; } }
+    if (friendBox && match && !solo && !room) { const joinRequests = await supabaseAuth.dataRequest("rpc/digihits_my_match_join_requests", { match_code_input: match.code }, "POST").catch(() => []); if (joinRequests.length) friendBox.insertAdjacentHTML("beforeend", joinRequests.map((request) => `<article class="block-join-request"><strong>${escapeHtml(request.requester_name)} som du har blockerat vill gå med i denna match.</strong><div><button class="button button-secondary" data-match-join-request="${request.request_id}" type="button">AVVISA</button><button class="button button-green" data-match-join-request="${request.request_id}" data-allow-match-join="true" type="button">TILLÅT</button></div></article>`).join("")); }
     if (!solo) $("#overview-players-count").textContent = String(players.length);
     players.forEach((player) => { latestRounds[player.id] = player.last_round; });
     if (solo) {
@@ -1051,6 +1132,7 @@ function placeCard(position) {
   $("#secret-card").classList.add("is-placed");
   $("#change-track-area").hidden = !state.changeTrackCards;
   $("#lock-placement").classList.add("is-visible");
+  publishRoomPlacement("placing", Number(position)).catch((error) => dialog(error.message));
   $("#placed-message").textContent = "";
 }
 function placementIsCorrect() {
@@ -1086,7 +1168,7 @@ async function syncMatches() {
   const previousActive = state.matches.find((match) => match.code === state.activeMatchCode);
   const previousMatches = new Map(state.matches.map((match) => [String(match.id || match.code), match]));
   const rows = await supabaseAuth.dataRequest(`online_players?user_id=eq.${user.id}&active=eq.true&select=match_id,online_matches(id,code,status,phase,current_user_id,last_result,turn_notice,updated_at)`);
-  let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&active=eq.true&select=id,match_id,user_id,display_name,turn_order,rounds_started,locked_timeline,last_round,swap_cards&order=turn_order`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
+  let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&active=eq.true&select=id,match_id,user_id,display_name,turn_order,rounds_started,locked_timeline,last_round,swap_cards,avatar_genre,avatar_variant&order=turn_order`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
   rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id, players.filter((player) => String(player.match_id) === String(row.match_id))); });
   state.matches = rows.map((row) => { const match = row.online_matches, fetchedPlayers = players.filter((player) => String(player.match_id) === String(row.match_id)), previous = previousMatches.get(String(match?.id || match?.code)), matchPlayers = fetchedPlayers.length ? fetchedPlayers : previous?.players || [], solo = isSoloMatch(match), opponent = matchPlayers.find((player) => String(player.user_id) !== String(user.id))?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : String(match.current_user_id) === String(user.id) ? "active" : "opponent", currentUserId: match.current_user_id, solo, locked: match.phase === "locked" || (solo && match.phase === "solo_locked"), round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), players: matchPlayers, turnNotice: match.turn_notice, lastResult: match.last_result, updatedAt: match.updated_at }; }).filter(Boolean).map(decorateLocalMatch).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
   state.matches.filter((match) => !match.solo && match.players.length >= 2 && state.career.createdMatchCodes.includes(String(match.code))).forEach((match) => { if (!state.career.startedMatchCodes.includes(String(match.code))) state.career.startedMatchCodes.push(String(match.code)); });
@@ -1101,7 +1183,7 @@ async function syncMatches() {
   if (!activeMatch && state.activeMatchCode && ["lobby", "match", "guess", "timeline"].includes(currentView)) showView("home", true);
   state.matches.forEach((match) => { showTurnNotice(match); showFinalChanceNotice(match); });
 }
-async function refreshRealtimeState() { if (realtimeRefreshing || document.visibilityState !== "visible" || !supabaseAuth.session()?.access_token) return; realtimeRefreshing = true; try { await Promise.all([syncMatches(), syncFriends()]); if (currentView === "chat") await loadChat(); else if (currentView === "friend-chat") await loadFriendChat(); else if (currentView === "match") { const match = state.matches.find((item) => item.code === state.activeMatchCode); if (match?.id && !localMatch(match)) await loadOverviewPlayers(match.id, match.status === "active", isSoloMatch(match)); else renderRoundPlayers(); } else await refreshActiveRound(); } catch { /* nästa Realtime- eller reservsynk försöker igen */ } finally { realtimeRefreshing = false; } }
+async function refreshRealtimeState() { if (realtimeRefreshing || document.visibilityState !== "visible" || !supabaseAuth.session()?.access_token) return; realtimeRefreshing = true; try { await syncMatches(); await syncFriends().catch(() => {}); if (currentView === "chat") await loadChat(); else if (currentView === "friend-chat") await loadFriendChat(); else if (currentView === "match") { const match = state.matches.find((item) => item.code === state.activeMatchCode); if (match?.id && !localMatch(match)) await loadOverviewPlayers(match.id, match.status === "active", isSoloMatch(match)); else renderRoundPlayers(); } else await refreshActiveRound(); } catch { /* nästa Realtime- eller reservsynk försöker igen */ } finally { realtimeRefreshing = false; } }
 function startRealtime() { supabaseAuth.subscribeMatches(() => refreshRealtimeState(), handleChatRealtime); clearInterval(realtimeFallbackPoll); realtimeFallbackPoll = setInterval(refreshRealtimeState, 5000); }
 async function refreshActiveRound() {
   if (!["guess", "timeline"].includes(currentView)) return;
@@ -1125,6 +1207,33 @@ async function createOnlineMatch(inviteFriendId = null) {
   await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: state.playerName, turn_order: 0, locked_timeline: [deck[0]], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
   if (inviteFriendId) await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: matchCode, recipient: inviteFriendId }, "POST");
   rememberTrack(starter); state.changeTrackCards = 0; state.career.createdMatchCodes.push(matchCode); save(); await syncMatches(); if (inviteFriendId) await syncFriends(); openMatch(matchCode);
+}
+const roomInvitationUrl = (matchCode) => `${location.origin}${location.pathname}?room=${encodeURIComponent(matchCode)}`;
+async function createMultiRoom(hostName) {
+  const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), matchCode = `M0${code().slice(2)}`;
+  const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
+  const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", turn_started_at: null, updated_at: new Date().toISOString() }, "POST");
+  try {
+    const avatar = ownAvatarChoice();
+    await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: hostName, avatar_genre: avatar.genre, avatar_variant: avatar.variant, turn_order: 0, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
+    await supabaseAuth.dataRequest("rpc/digihits_register_room_match", { match_code_input: matchCode }, "POST");
+  } catch (error) { await supabaseAuth.dataRequest(`online_matches?id=eq.${matches[0].id}`, { status: "finished" }, "PATCH").catch(() => {}); throw error; }
+  rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openLobby(matchCode); showRoomInvitation(matchCode);
+}
+function showRoomInvitation(matchCode) {
+  const url = roomInvitationUrl(matchCode);
+  $("#dialog-title").textContent = "Bjud in till matchen";
+  $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skicka länken eller låt gästerna skanna QR-koden. De väljer själva namn och avatar.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
+  $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false; $("#dialog-confirm").textContent = "OK"; $("#dialog-confirm").className = "button button-primary"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false;
+  if (window.QRCode) new window.QRCode($("#room-qr"), { text: url, width: 190, height: 190, correctLevel: window.QRCode.CorrectLevel.M });
+  else $("#room-qr").textContent = "QR-koden kunde inte laddas. Använd länken nedan.";
+}
+function showGuestRoomJoin(matchCode) {
+  if (!/^M0[A-Z2-9]{4}$/.test(matchCode)) return dialog("Inbjudningslänken är ogiltig.");
+  document.documentElement.classList.remove("booting");
+  $("#dialog-title").textContent = "Gå med som gäst";
+  $("#dialog-message").innerHTML = `<form id="guest-room-form" class="room-player-form" data-code="${matchCode}"><p>Match ${matchCode}. Ange ditt namn och välj en avatar.</p><label for="guest-room-name">Gästnamn</label><input id="guest-room-name" maxlength="18" required autocomplete="nickname"><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" data-guest-genre="${genre}" class="${genre === "Pop" ? "is-selected" : ""}">${genre}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, variant) => `<button type="button" class="avatar-art ${variant === 0 ? "is-selected" : ""}" style="${avatarArtStyle("Pop", variant)}" data-guest-variant="${variant}" aria-label="Avatar ${variant + 1}"></button>`).join("")}</div><button type="submit" class="button button-green">GÅ MED I MATCHEN</button><small id="guest-room-error" class="friend-feedback error" hidden></small></form>`;
+  $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
 }
 async function createRandomOnlineMatch() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
@@ -1164,9 +1273,21 @@ async function joinOnlineMatch(matchCode, allowOwnBlock = false) {
 }
 
 $("#dialog-close").addEventListener("click", () => { $("#app-dialog").hidden = true; });
+document.addEventListener("click", (event) => { const invite = event.target.closest("[data-room-invite]"); if (invite && !invite.hidden) showRoomInvitation(invite.dataset.roomInvite); });
 $("#create-match-menu")?.addEventListener("click", showMatchModeDialog);
-document.addEventListener("click", (event) => { const category = event.target.closest("[data-match-category]")?.dataset.matchCategory; if (!category) return; if (category === "online") showOnlineModeDialog(); else if (category === "solo") showSoloModeDialog(); else showRoomSetup(); });
+document.addEventListener("click", (event) => { const category = event.target.closest("[data-match-category]")?.dataset.matchCategory; if (!category) return; if (category === "online") showOnlineModeDialog(); else if (category === "solo") showSoloModeDialog(); else showRoomModes(); });
 document.addEventListener("click", (event) => { if (event.target.closest("[data-match-back]")) showMatchModeDialog(); });
+document.addEventListener("click", (event) => { if (event.target.closest("[data-room-back]")) showRoomModes(); const mode = event.target.closest("[data-room-mode]")?.dataset.roomMode; if (mode === "pass") showRoomSetup(); if (mode === "multi") showMultiRoomSetup(); });
+document.addEventListener("submit", async (event) => { if (event.target.id !== "multi-room-form") return; event.preventDefault(); const name = $("#room-host-name").value.trim(), error = $("#multi-room-error"), button = event.target.querySelector('[type="submit"]'); if (!name) return; button.disabled = true; try { await createMultiRoom(name); } catch (failure) { error.textContent = failure.message || "Kunde inte skapa matchen."; error.hidden = false; } finally { button.disabled = false; } });
+document.addEventListener("click", async (event) => { if (!event.target.closest("#copy-room-link")) return; try { await navigator.clipboard.writeText($(".room-invitation input").value); event.target.textContent = "LÄNK KOPIERAD"; } catch { $(".room-invitation input").select(); document.execCommand("copy"); event.target.textContent = "LÄNK KOPIERAD"; } });
+document.addEventListener("click", (event) => { const genre = event.target.closest("[data-guest-genre]"), variant = event.target.closest("[data-guest-variant]"); const form = $("#guest-room-form"); if (!form || (!genre && !variant)) return; if (genre) { form.dataset.genre = genre.dataset.guestGenre; form.querySelectorAll("[data-guest-genre]").forEach((button) => button.classList.toggle("is-selected", button === genre)); form.querySelectorAll("[data-guest-variant]").forEach((button) => { button.style.cssText = avatarArtStyle(form.dataset.genre, Number(button.dataset.guestVariant)); }); } if (variant) { form.dataset.variant = variant.dataset.guestVariant; form.querySelectorAll("[data-guest-variant]").forEach((button) => button.classList.toggle("is-selected", button === variant)); } });
+document.addEventListener("submit", async (event) => { if (event.target.id !== "guest-room-form") return; event.preventDefault(); const form = event.target, name = $("#guest-room-name").value.trim(), error = $("#guest-room-error"), button = form.querySelector('[type="submit"]'); if (!name) return; button.disabled = true; try {
+  if (!supabaseAuth.session()?.access_token) await supabaseAuth.signInGuest();
+  const user = await supabaseAuth.user(supabaseAuth.session().access_token);
+  const result = await supabaseAuth.dataRequest("rpc/digihits_join_room_match", { match_code_input: form.dataset.code, guest_name: name, chosen_genre: form.dataset.genre || "Pop", chosen_variant: Number(form.dataset.variant || 0) }, "POST");
+  state.playerName = name; state.userId = user.id; state.avatar.genre = form.dataset.genre || "Pop"; state.avatar.variant = Number(form.dataset.variant || 0); save();
+  await syncMatches(); startRealtime(); $("#app-dialog").hidden = true; history.replaceState({}, "", location.pathname); openMatch(result.match_code || form.dataset.code);
+} catch (failure) { error.textContent = failure.message || "Kunde inte gå med i matchen."; error.hidden = false; } finally { button.disabled = false; } });
 document.addEventListener("click", async (event) => { const mode = event.target.closest("[data-match-mode]")?.dataset.matchMode; if (!mode) return; try { if (mode === "self") { $("#app-dialog").hidden = true; await createSoloMatch(); } else if (mode === "friend") { if (!state.friends.length) return dialog("Du har inga vänner i vänskapslistan ännu."); $("#dialog-title").textContent = "Spela mot en vän"; $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-category="online" type="button">← TILLBAKA</button><div class="invite-picker">${state.friends.map((friend) => `<div><strong>${escapeHtml(friend.display_name)}</strong><button class="button button-green" data-create-friend-match="${friend.friend_id}" type="button">VÄLJ</button></div>`).join("")}</div>`; } else if (mode === "random") { $("#app-dialog").hidden = true; await createRandomOnlineMatch(); } else if (mode === "computer") { $("#app-dialog").hidden = true; await createLocalMatch("computer"); } else showRoomSetup(); } catch (error) { alert(error.message); } });
 function clearRoomPlayerError() { const error = $("#room-player-error"); if (error) { error.hidden = true; error.textContent = ""; } }
 document.addEventListener("input", (event) => { if (event.target.closest("#room-player-inputs")) clearRoomPlayerError(); });
@@ -1195,7 +1316,7 @@ document.addEventListener("click", async (event) => {
   } catch (error) { dialog(error.message || "Det gick inte att gå med i matchen."); }
 });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-invite-friend]"); if (!button) return; const friend = state.friends.find((item) => String(item.friend_id) === String(button.dataset.inviteFriend)); if (state.sentMatchInvites.some((invite) => String(invite.match_code) === String(state.activeMatchCode) && String(invite.recipient_id) === String(button.dataset.inviteFriend))) return dialog("Inbjudan redan skickad."); dialog(`Vill du lägga till ${friend?.display_name || "spelaren"} till denna match?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_invite_friend", { match_code_input: state.activeMatchCode, recipient: button.dataset.inviteFriend }, "POST"); await syncFriends(); openMatch(state.activeMatchCode); } catch (error) { alert(error.message); } }, false, "JA"); });
-document.addEventListener("click", (event) => { if (!event.target.closest("#open-invite-friends")) return; $("#dialog-title").textContent = "Bjud in vän"; $("#dialog-message").innerHTML = matchInviteCandidates.length ? `<div class="invite-picker">${matchInviteCandidates.map((friend) => `<div><strong>${escapeHtml(friend.display_name)}</strong><button class="button button-green" data-invite-friend="${friend.friend_id}" type="button">BJUD IN</button></div>`).join("")}</div>` : "Du har inga fler vänner att bjuda in."; $("#dialog-cancel").hidden = true; $("#dialog-confirm").textContent = "STÄNG"; $("#dialog-confirm").className = "button button-secondary"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false; });
+document.addEventListener("click", (event) => { if (!event.target.closest("#open-invite-friends")) return; $("#dialog-title").textContent = "Bjud in vän"; $("#dialog-message").innerHTML = matchInviteCandidates.length ? `<div class="invite-picker">${matchInviteCandidates.map((friend) => `<div><strong>${escapeHtml(friend.display_name)}</strong><button class="button button-green" data-invite-friend="${friend.friend_id}" type="button">BJUD IN</button></div>`).join("")}</div>` : "Du har inga fler vänner att bjuda in."; $("#dialog-cancel").hidden = true; $("#dialog-confirm").textContent = "OK"; $("#dialog-confirm").className = "button button-secondary"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false; });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-add-match-friend]"); if (!button) return; dialog(`Vill du lägga till ${button.dataset.playerName} i din vänskapslista?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_request", { requested: button.dataset.playerName }, "POST"); state.sentFriendRequests = [...state.sentFriendRequests.filter((item) => String(item.recipient_id) !== String(button.dataset.addMatchFriend)), { recipient_id: String(button.dataset.addMatchFriend), display_name: button.dataset.playerName, status: "pending" }]; save(); button.replaceWith(Object.assign(document.createElement("small"), { className: "already-friend", textContent: "VÄNFÖRFRÅGAN SKICKAD" })); } catch (error) { alert(error.message); } }, false, "JA"); });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-match-join-request]"); if (!button) return; try { await supabaseAuth.dataRequest("rpc/digihits_answer_match_join_request", { request: button.dataset.matchJoinRequest, allow_join: button.dataset.allowMatchJoin === "true" }, "POST"); await syncMatches(); if (state.activeMatchCode) openMatch(state.activeMatchCode); } catch (error) { alert(error.message); } });
 document.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-match-player]"); if (!button) return; const name = button.dataset.playerName || "spelaren"; dialog("Vill du verkligen avvisa " + name + " från matchen?\n\nNär samtliga spelare tryckt på Avvisa " + name + " tas spelaren bort från matchen.", async () => { try { const result = await supabaseAuth.dataRequest("rpc/digihits_vote_remove_match_player", { match_code_input: state.activeMatchCode, remove_player: button.dataset.removeMatchPlayer }, "POST"); const vote = Array.isArray(result) ? result[0] : result; await syncMatches(); openMatch(state.activeMatchCode); if (!vote?.removed) dialog("Din avvisning är sparad. Väntar på övriga spelares avvisning (" + (vote?.votes || 1) + "/" + (vote?.needed || "?") + ")."); } catch (error) { dialog(error.message || "Kunde inte avvisa spelaren."); } }, true, "AVVISA"); });
@@ -1226,15 +1347,23 @@ $("#chat-form").addEventListener("submit", async (event) => { event.preventDefau
 $("#friend-chat-back").addEventListener("click", () => showView("home", true));
 $("#friend-chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const body = $("#friend-chat-input").value.trim(); if (!state.friendChatId || !body) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_message", { friend: state.friendChatId, message_body: body }, "POST"); $("#friend-chat-input").value = ""; await loadFriendChat(); } catch (error) { alert(error.message); } });
 document.addEventListener("click", (event) => { const achievement = event.target.closest("[data-achievement-info]"); if (!achievement) return; dialog(achievement.dataset.achievementLabel + "\n\n" + achievement.dataset.achievementDescription + "\n\nBelöning: +3 onlinepoäng."); });
-window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify()) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = /STARTA MATCH/.test(label) ? "STARTAR MATCH…" : "LADDAR OMGÅNG…"; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; showView(state.roundResumeViews[state.activeMatchCode] || "guess"); pausedForNavigation = true; resumeRoundTrack(); return; } state.roundUnlocked = []; save(); await markRoundStarted(); button.textContent = loadingLabel; await dealCard(); resetTurnInput(); enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) button.textContent = label; updateRoundStartButton(); } };
+window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify() && !state.activeMatchCode?.startsWith("M0")) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = /STARTA MATCH/.test(label) ? "STARTAR MATCH…" : "LADDAR OMGÅNG…"; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; showView(state.roundResumeViews[state.activeMatchCode] || "guess"); pausedForNavigation = true; resumeRoundTrack(); return; } state.roundUnlocked = []; save(); await markRoundStarted(); button.textContent = loadingLabel; await dealCard(); resetTurnInput(); enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) button.textContent = label; updateRoundStartButton(); } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
+$("#room-live-timelines").addEventListener("click", (event) => {
+  const flip = event.target.closest("[data-room-reveal]"), toggle = event.target.closest("[data-room-timeline]");
+  if (!flip && !toggle) return;
+  const collection = flip ? roomRevealedCards : roomTimelineExpanded, key = (flip || toggle).dataset[flip ? "roomReveal" : "roomTimeline"];
+  if (collection.has(key)) collection.delete(key); else collection.add(key);
+  const match = state.matches.find((item) => item.code === state.activeMatchCode);
+  if (match?.id) renderRoomTimelines(match, roomLivePlayers);
+});
 document.addEventListener("click", (event) => { const button = event.target.closest(".final-player-round"); if (button) { const id = button.dataset.playerRound; returnToFinalResult = true; showLatestRound({ ...(latestRounds[id] || {}), historyScore: historyPlayerScores[id] }); } });
 document.addEventListener("click", (event) => { const button = event.target.closest("[data-round-player]"); if (!button) return; const avatar = event.target.closest("i.avatar-art"), room = localMatch(); if (avatar && room?.mode === "room") { showRoomAvatarPicker(state.matches.find((item) => item.code === state.activeMatchCode), Number(button.dataset.roomAvatarIndex)); return; } const storedRound = latestRounds[button.dataset.roundPlayer]; if (!storedRound) { dialog("Spelaren har ingen spelad omgång ännu."); return; } const shouldLockCards = !button.classList.contains("is-current") && storedRound.outcome !== "wrong", lockStatus = (card) => ({ ...card, status: shouldLockCards && ["OLÅST", "LÅST DENNA OMGÅNG"].includes(card.status) ? "LÅST" : card.status }), round = { ...storedRound, cards: (storedRound.cards || []).map(lockStatus), timeline: (storedRound.timeline || []).map(lockStatus) }; latestRoundReturnView = currentView; showLatestRound(round); });
 $("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } const playerState = await spotifyPlayer?.getCurrentState().catch(() => null), expected = state.selectedTracks[activeCard().id]?.uri, sameTrack = expected && playerState?.track_window?.current_track?.uri === expected, actuallyPlaying = Boolean(playerState && !playerState.paused); if (actuallyPlaying && sameTrack) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && sameTrack) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } catch (error) { songStarting = false; setPlayButton(false); if (/ansluta spelaren|starta låten|spelaren kunde inte laddas/i.test(error.message)) dialog("Spotify behöver anslutas igen innan låten kan spelas.", () => { resetSpotifyPlayer(); supabaseAuth.disconnectSpotify(); supabaseAuth.connectSpotify(true).catch((issue) => alert(issue.message)); }, false, "ANSLUT KONTO"); else alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { if (trackStartPromise) await trackStartPromise; loadedSpotifyCardId = null; trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } catch (error) { alert(error.message); } });
-[$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); }));
-$("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); });
+[$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); scheduleRoomGuess(); }));
+$("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); scheduleRoomGuess(); publishRoomPlacement("choosing").catch((error) => dialog(error.message)); });
 let dragTarget = null, dragOffsetX = 0, dragOffsetY = 0;
 function startDrag(card, event) {
   const bounds = card.getBoundingClientRect(); dragOffsetX = event.clientX - bounds.left; dragOffsetY = event.clientY - bounds.top;
@@ -1317,7 +1446,7 @@ async function handoverTurn(savedTimeline = null) {
   const previousScore = minePlayer.last_round?.score || {}, priorCorrect = Math.max(1, Number(previousScore.correct) || (minePlayer.locked_timeline || []).length), priorMistakes = Math.max(0, Number(previousScore.mistakes) || Math.max(0, Number(minePlayer.rounds_started || 0) - Math.max(0, priorCorrect - 1))), score = { correct: currentPlacementCorrect ? priorCorrect + cardsToLock.length : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
   const lastRound = { ended_at: new Date().toISOString(), rounds: Number(minePlayer.rounds_started || 0), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, score, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...roundCards] };
   const currentSwapCards = Math.max(0, Math.min(3, Number(state.changeTrackCards ?? minePlayer.swap_cards) || 0));
-  await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, swap_cards: currentSwapCards, updated_at: new Date().toISOString() }, "PATCH");
+  await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, swap_cards: currentSwapCards, ...(match.code.startsWith("M0") ? { room_live_placement: null } : {}), updated_at: new Date().toISOString() }, "PATCH");
   const lockMatch = match.locked || (minePlayer.rounds_started || 0) >= 2;
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { status: won ? "finished" : "active", current_user_id: won ? null : next.user_id, phase: won ? "finished" : solo ? (lockMatch ? "solo_locked" : "solo") : lockMatch ? "locked" : "turn_ready", last_result: { ...lastRound, player_id: user.id, ...(won ? { winner_id: winnerId, type: solo ? "solo" : "win" } : {}), ...(awaitingFinalChance ? { awaiting_final_chance: true, leader_id: user.id } : {}) }, ...(solo || won ? {} : { turn_started_at: new Date().toISOString(), turn_reminder_sent_at: null, turn_notice: null }), updated_at: new Date().toISOString() }, "PATCH");
   await syncMatches();
@@ -1343,6 +1472,7 @@ async function dealCard() {
   const card = pickFreshTrack(available);
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { deck, used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}`, { current_card: card, updated_at: new Date().toISOString() }, "PATCH");
+  if (match.code.startsWith("M0")) await publishRoomPlacement("guessing");
   state.currentCard = card; state.currentCardMatchCode = match.code; rememberTrack(card); save();
   const starter = !state.roundAnimationSeen[match.code] && state.lockedTimeline.length === 1 ? state.lockedTimeline[0] : null;
   state.roundAnimationSeen[match.code] = true; pendingTimelineDeal = { card, starter }; save();
@@ -1396,6 +1526,7 @@ $("#lock-placement").addEventListener("click", async () => {
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode), solo = isSoloMatch(activeMatch) && !localMatch(activeMatch);
   const resultCard = activeCard(), placedAt = Number($("#placed-card")?.dataset.position), baseTimeline = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" }))].sort((a, b) => a.year - b.year), resultSnapshot = { locked: [...state.lockedTimeline], unlocked: [...state.roundUnlocked], guess: { ...(state.currentGuess || {}) }, placedPosition: placedAt };
   currentPlacementCorrect = placementIsCorrect();
+  if (activeMatch?.code.startsWith("M0")) await publishRoomPlacement("revealed", placedAt).catch((error) => dialog(error.message));
   const today = localDateKey();
   state.dailyProgress[today] ||= { solo: false, online: false, rounds: 0, soloRounds: 0, onlineRounds: 0 };
   const daily = state.dailyProgress[today], firstRoundToday = daily.rounds === 0, songCorrect = hasCorrectSongGuess(resultCard);
@@ -1422,6 +1553,7 @@ $("#lock-placement").addEventListener("click", async () => {
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
   let soloOutcome;
   if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); if (localMatch()?.mode === "room" && !soloOutcome?.won) { $("#wrong-overview").dataset.roomHandoverName = soloOutcome.nextPlayerName; $("#wrong-overview").hidden = false; } } catch (error) { alert(error.message); return; } }
+  if (!currentPlacementCorrect && activeMatch?.code.startsWith("M0") && !soloOutcome?.won) dialog("Felplacerat kort. Turen har gått vidare till nästa spelare.");
   if (soloOutcome?.won) { grantDailyAchievement("soloWin", "Solovinst"); if (Number(soloOutcome.soloSummary?.mistakes || 0) === 0) grantDailyAchievement("soloFlawless", "Felfri"); state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); finishAchievementAwards(); }
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
   else if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
@@ -1460,6 +1592,7 @@ $("#change-password").addEventListener("click", () => showView("change-password"
 $("#logout").addEventListener("click", () => { achievementsChanged = false; save(); supabaseAuth.signOut(); showView("welcome"); });
 $("#delete-account").addEventListener("click", () => { $("#delete-confirmation").value = ""; $("#delete-error").hidden = true; $("#delete-modal").hidden = false; $("#delete-confirmation").focus(); });
 $("#delete-cancel").addEventListener("click", () => { $("#delete-modal").hidden = true; });
+$("#delete-close").addEventListener("click", () => { $("#delete-modal").hidden = true; });
 $("#delete-account-form").addEventListener("submit", (event) => {
   event.preventDefault(); const confirmation = $("#delete-confirmation").value;
   if (confirmation !== "RADERA") { $("#delete-error").hidden = false; return; }
@@ -1560,6 +1693,14 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
   }).catch(() => showView("login"));
 } else if (supabaseAuth.session()?.access_token) {
   supabaseAuth.user(supabaseAuth.session().access_token).then(async (user) => {
+    if (user.is_anonymous) {
+      state.userId = user.id; await syncMatches(); startRealtime();
+      const invitedRoom = new URLSearchParams(location.search).get("room");
+      if (invitedRoom) showGuestRoomJoin(invitedRoom.toUpperCase());
+      else if (state.activeMatchCode && state.matches.some((match) => match.code === state.activeMatchCode)) openMatch(state.activeMatchCode);
+      else showView("home", false, true);
+      return;
+    }
     $("#player-email").textContent = user.email; state.playerName = user.user_metadata?.display_name || state.playerName; activateAchievementAccount(user.id); await loadPermanentAchievements(user.id); render();
     await syncMatches(); await syncFriends(); await restoreRoundUnlocked(); startRealtime();
     try { const spotify = await supabaseAuth.consumeSpotify(); if (spotify) { render(); dialog(`Spotify Premium är anslutet som ${spotify.name}.`); } } catch (error) { alert(error.message); }
@@ -1570,8 +1711,9 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
     else if (view === "chat" && state.chatMatchCode) { showView("chat", false, true); await loadChat(); }
     else if (view === "friend-chat" && state.friendChatId) { showView("friend-chat", false, true); await loadFriendChat(); }
     else showView(view === "welcome" ? "home" : view, new URLSearchParams(location.search).get("matches") === "1", true);
+    const invitedRoom = new URLSearchParams(location.search).get("room"); if (invitedRoom) showGuestRoomJoin(invitedRoom.toUpperCase());
   }).catch((error) => { if (error?.message === "SESSION_EXPIRED") { supabaseAuth.signOut(); showView("welcome"); return; } showView(location.hash.slice(1) || "home", false, true); });
-} else document.documentElement.classList.remove("booting");
+} else { document.documentElement.classList.remove("booting"); const invitedRoom = new URLSearchParams(location.search).get("room"); if (invitedRoom) showGuestRoomJoin(invitedRoom.toUpperCase()); }
 
 // Kontofria Apple Music/iTunes-previews. Ingen Spotify-inloggning eller SDK används.
 let applePreviewAudio = null, applePreviewCardId = null, applePreviewPreparing = null;

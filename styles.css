@@ -1074,6 +1074,19 @@ body::before{clip-path:inset(140px 0 0);}
 .dialog-card{position:relative;}
 #dialog-close{display:grid;place-items:center;position:absolute;right:14px;top:14px;z-index:3;width:36px;height:36px;border:1px solid #b59ab8;border-radius:50%;background:#fff;color:#36233c;font-size:24px;line-height:1;cursor:pointer;}
 #app-dialog:has(.match-category-dialog,.match-mode-dialog,.room-player-form,.invite-picker,.room-avatar-picker) #dialog-close{display:grid;place-items:center;}
+.match-mode-dialog.room-options button{background:#8a5936;border-color:#8a5936;color:#fff}
+.match-mode-dialog.room-options small{color:#fff;opacity:.9}
+.match-mode-dialog.room-options button:last-child{grid-column:auto}
+.room-invitation{display:grid;justify-items:center;gap:12px;text-align:center}
+.room-invitation p{margin:0}
+.room-invitation #room-qr{display:grid;place-items:center;min-height:190px;min-width:190px;padding:10px;background:#fff;color:#36233c;border-radius:12px}
+.room-invitation #room-qr img{max-width:100%}
+.room-invitation input{box-sizing:border-box;width:100%;padding:10px;font:inherit}
+.room-invitation .button{margin:0}
+#guest-room-form .avatar-genre-grid,#guest-room-form .avatar-variant-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#guest-room-form .avatar-genre-grid button{font-size:11px}
+#guest-room-form .avatar-genre-grid .is-selected,#guest-room-form .avatar-variant-grid .is-selected{outline:3px solid #c38a59}
+#guest-room-form .avatar-variant-grid button{min-height:68px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y)}
 .room-avatar-picker{display:grid;gap:12px;text-align:left;}
 .room-avatar-picker .avatar-art{min-height:72px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y);}
 .room-avatar-picker .is-selected{outline:3px solid #c38a59;}
@@ -1111,3 +1124,37 @@ html[data-app-zoom="130"] .view[data-view-panel="home"] .home-illustration{paddi
 html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{padding-top:42px;}
 
 .view[data-view-panel="home"]{margin-top:-20px;}
+
+#delete-close{display:grid;place-items:center;position:absolute;right:14px;top:14px;width:36px;height:36px;border:1px solid #b59ab8;border-radius:50%;background:#fff;color:#36233c;font-size:24px;line-height:1;cursor:pointer}
+#delete-modal .dialog-card{padding-top:56px}
+.room-live-timelines{display:grid;gap:14px;margin-top:20px;padding-top:18px;border-top:1px solid #466076}
+.room-live-timelines[hidden]{display:none!important}
+.room-live-timelines>h2{margin:0;font-size:19px;color:#4fc9ee}
+.room-live-timelines>p{margin:0;color:#b9c7db;font-size:12px}
+.room-live-player{min-width:0;padding:13px;border:1px solid #526178;border-radius:14px;background:#111c2d}
+.room-live-player.is-current{border-color:#4fc9ee;box-shadow:0 0 16px #4fc9ee33}
+.room-live-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px}
+.room-live-heading strong{font-size:14px;color:#fff}
+.room-live-heading span{font-size:11px;font-weight:900;color:#ffcf55}
+.room-live-stage{margin:7px 0;color:#8fffc0;font-size:11px;font-weight:900}
+.room-live-guess{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+.room-live-guess p{min-width:0;margin:0;padding:9px 10px;border:1px solid #466076;border-radius:9px;background:#0b1523}
+.room-live-guess span{display:block;margin-bottom:4px;color:#9cb1c7;font-size:10px;font-weight:900}
+.room-live-guess strong{display:block;color:#fff;font-size:13px;overflow-wrap:anywhere;white-space:pre-wrap}
+@media(max-width:480px){.room-live-guess{grid-template-columns:1fr}}
+.room-spectator-card{display:grid;justify-items:center;gap:9px;width:min(100%,300px);min-height:180px;box-sizing:border-box;margin:14px auto 2px;padding:18px;border:2px dashed #c078ff;border-radius:15px;background:#21154a;text-align:center}
+.room-spectator-card.is-flipped{border-style:solid;border-color:#4fc9ee;background:#102b3a}
+.room-spectator-card>strong{font-size:16px;overflow-wrap:anywhere}
+.room-spectator-card>span{font-size:26px;overflow-wrap:anywhere}
+.room-spectator-card.is-flipped>span{font-size:15px;font-weight:900}
+.room-spectator-card>small{color:#8fffc0;font-size:12px;font-weight:900}
+.room-spectator-card .button{width:100%;min-height:52px;margin:0;font-size:13px}
+.room-timeline-toggle{margin-top:12px}
+.room-live-track{display:flex;align-items:stretch;gap:7px;overflow-x:auto;padding:13px 2px 5px;scrollbar-color:#4fc9ee #111c2d}
+.room-live-track .year-card{box-sizing:border-box;flex:0 0 100px;min-height:128px;transform:none;padding:9px 6px}
+.room-live-track .year-card strong{font-size:18px}
+.room-live-track .year-card small{font-size:9px;overflow-wrap:anywhere}
+.room-live-track .card-status{display:block;margin-top:7px;color:#8fffc0}
+.room-live-track .room-live-card.is-secret{border:2px dashed #c078ff;background:#21154a}
+.room-live-track .room-live-card.is-revealed{border-color:#4fc9ee;background:#102b3a}
+.room-last-error{margin:8px 0 0;color:#ff8b9d;font-size:10px;font-weight:900}
