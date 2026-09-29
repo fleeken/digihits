@@ -1201,3 +1201,44 @@ html:has(.modal:not([hidden])),body:has(.modal:not([hidden])){overflow:hidden}
 .modal:not([hidden]) .modal-card{box-sizing:border-box;max-height:calc(100dvh - 36px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 #app-dialog:has(.room-player-form){align-items:center;overflow:hidden}
 #app-dialog .dialog-card:has(.room-player-form){margin:0}
+/* Flera mobiler: en tydlig spelvy med den aktiva turen i fokus. */
+[data-view-panel="match"].multi-room-match .lobby-layout{display:flex;flex-direction:column;width:100%;max-width:none;overflow:visible;background:#111b32;color:#f8fbff;border-radius:20px}
+[data-view-panel="match"].multi-room-match .lobby-layout>.match-view{order:0;width:100%;box-sizing:border-box;min-height:calc(100dvh - 270px);padding:clamp(18px,3vw,32px);background:#111b32;color:#f8fbff}
+[data-view-panel="match"].multi-room-match .lobby-layout>.lobby-side{order:1;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%;box-sizing:border-box;padding:18px;background:#111b32;border-top:1px solid #465877}
+[data-view-panel="match"].multi-room-match .lobby-side .button{width:auto;min-width:min(100%,190px);flex:1 1 190px;max-width:340px;color:#102d21}
+[data-view-panel="match"].multi-room-match .lobby-side .button-leave{color:#fff;background:#9d3345;border-color:#d35c6b}
+[data-view-panel="match"].multi-room-match .lobby-side #match-chat{color:#fff;background:#385989}
+[data-view-panel="match"].multi-room-match .lobby-side .lobby-back{display:none}
+[data-view-panel="match"].multi-room-match .match-view>.lobby-title-row,[data-view-panel="match"].multi-room-match .match-summary,[data-view-panel="match"].multi-room-match .match-metrics,[data-view-panel="match"].multi-room-match #overview-players,[data-view-panel="match"].multi-room-match #overview-loading,[data-view-panel="match"].multi-room-match #match-friend-invites{display:none!important}
+[data-view-panel="match"].multi-room-match .room-live-timelines{margin:0;padding:0;border:0;gap:18px;color:#f8fbff}
+[data-view-panel="match"].multi-room-match .room-live-intro h2{margin:0 0 5px;color:#fff;font-size:clamp(23px,4vw,34px);line-height:1.15}
+[data-view-panel="match"].multi-room-match .room-live-intro p{margin:0;color:#d7e7f8;font-size:14px}
+[data-view-panel="match"].multi-room-match .room-live-player{padding:clamp(16px,3vw,26px);border:2px solid #546d93;border-radius:20px;background:#1a2945;color:#f8fbff;box-shadow:0 10px 24px #050b1a55}
+[data-view-panel="match"].multi-room-match .room-live-player.is-featured{border-color:#61d9fa;background:#203454}
+[data-view-panel="match"].multi-room-match .room-live-heading{gap:10px}
+[data-view-panel="match"].multi-room-match .room-live-heading strong{font-size:clamp(19px,3vw,27px);color:#fff}
+[data-view-panel="match"].multi-room-match .room-live-heading span{font-size:13px;color:#ffe392;line-height:1.5}
+[data-view-panel="match"].multi-room-match .room-live-stage{margin:10px 0;color:#bdf8d7;font-size:14px}
+[data-view-panel="match"].multi-room-match .room-live-guess{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+[data-view-panel="match"].multi-room-match .room-live-guess p{background:#101c32;border:1px solid #7895b8;padding:15px;border-radius:13px}
+[data-view-panel="match"].multi-room-match .room-live-guess span{font-size:13px;color:#cee2f8}
+[data-view-panel="match"].multi-room-match .room-live-guess strong{font-size:clamp(18px,3vw,25px);color:#fff;line-height:1.3}
+[data-view-panel="match"].multi-room-match .room-spectator-card{width:min(100%,360px);border-color:#ba8bff;background:#2b1f56;color:#fff}
+[data-view-panel="match"].multi-room-match .room-spectator-card>small{color:#d5f9e3}
+[data-view-panel="match"].multi-room-match .room-live-track{gap:12px;padding:22px 5px 14px;scrollbar-color:#7bdaf5 #172844}
+[data-view-panel="match"].multi-room-match .room-live-track .year-card{flex:0 0 112px;min-height:152px;padding:12px 8px;color:#fff;border-radius:14px}
+[data-view-panel="match"].multi-room-match .room-live-track .year-card strong{font-size:23px}
+[data-view-panel="match"].multi-room-match .room-live-track .year-card small{font-size:11px;line-height:1.45;color:#fff;word-break:break-word}
+[data-view-panel="match"].multi-room-match .room-live-track .year-card.locked-card{border:2px solid #66db93!important;background:#164934!important;color:#fff!important;transform:none!important}
+[data-view-panel="match"].multi-room-match .room-live-track .year-card.locked-card strong{color:#c0ffd6!important}
+[data-view-panel="match"].multi-room-match .room-live-track .year-card.unlocked-card{border:2px solid #73c8ff!important;background:#174676!important;transform:translateY(-10px)!important;color:#fff!important}
+[data-view-panel="match"].multi-room-match .room-live-track .year-card.unlocked-card strong{color:#d9f3ff!important}
+[data-view-panel="match"].multi-room-match .room-live-track .card-status{font-size:10px;color:#e8fff0}
+[data-view-panel="match"].multi-room-match .room-live-track .room-live-card.is-secret{border:2px dashed #d7b3ff;background:#382365;color:#fff}
+[data-view-panel="match"].multi-room-match .room-live-track .room-live-card.is-revealed{border:2px solid #85d7ff;background:#16436d;color:#fff}
+[data-view-panel="match"].multi-room-match .room-live-result{margin:14px 0 0;padding:15px;border:2px solid #58e099;border-radius:12px;background:#164934;color:#fff;font-size:16px;font-weight:900;overflow-wrap:anywhere}
+[data-view-panel="match"].multi-room-match .room-live-result.is-wrong{border-color:#ff8597;background:#772b3a}
+@media(max-width:640px){[data-view-panel="match"].multi-room-match{width:100%}[data-view-panel="match"].multi-room-match .lobby-layout{border-radius:0}[data-view-panel="match"].multi-room-match .lobby-layout>.match-view{padding:18px 12px}[data-view-panel="match"].multi-room-match .room-live-guess{grid-template-columns:1fr}[data-view-panel="match"].multi-room-match .lobby-layout>.lobby-side{padding:18px 12px 26px}[data-view-panel="match"].multi-room-match .lobby-side .button{max-width:none}}
+
+.app-shell:has([data-view-panel="match"].multi-room-match){width:min(calc(100% - 24px),1120px)}
+[data-view-panel="match"].multi-room-match>.match-turn-banner{display:none!important}
