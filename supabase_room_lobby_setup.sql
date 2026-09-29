@@ -81,8 +81,9 @@ begin
     avatar_variant = chosen_variant, room_ready = false, updated_at = now()
     where match_id = m.id and user_id = auth.uid()::text and active;
 end; $$;
-revoke all on function public.digihits_update_room_profile(text,text,text,integer) from public, anon;
-grant execute on function public.digihits_update_room_profile(text,text,text,integer) to authenticated;
+-- Names and avatars are chosen before joining; the profile change RPC is kept
+-- for old schema compatibility but cannot be called by room participants.
+revoke all on function public.digihits_update_room_profile(text,text,text,integer) from public, anon, authenticated;
 
 create or replace function public.digihits_start_room_match(match_code_input text)
 returns void language plpgsql security definer set search_path = public as $$

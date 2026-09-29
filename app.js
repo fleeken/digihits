@@ -1,4 +1,4 @@
-const APP_VERSION = "7.56"
+const APP_VERSION = "7.57"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -271,9 +271,14 @@ function showRoomModes() {
   $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
 }
 function showMultiRoomSetup() {
+  const avatar = ownAvatarChoice();
+  lockRoomDialogScroll();
   $("#dialog-title").textContent = "Flera mobiler ansluter";
-  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-room-back type="button">← TILLBAKA</button><form id="multi-room-form" class="room-player-form"><label for="room-host-name">Ditt deltagarnamn</label><input id="room-host-name" maxlength="18" required value="${escapeHtml(state.playerName)}" autocomplete="nickname"><button class="button button-green" type="submit">SKAPA MATCH</button><small class="friend-feedback error" id="multi-room-error" hidden></small></form>`;
+  $("#dialog-message").innerHTML = `<form id="multi-room-form" class="room-player-form" data-genre="${avatar.genre}" data-variant="${avatar.variant}"><div class="guest-room-fields"><button class="dialog-back-step" data-room-back type="button">← TILLBAKA</button><p>Välj ditt namn och din avatar. De låses när du skapar matchen.</p><label for="room-host-name">Ditt deltagarnamn</label><input id="room-host-name" maxlength="18" required value="${escapeHtml(state.playerName)}" autocomplete="nickname">${roomIdentityAvatarFields(avatar)}</div><button class="button button-green" type="submit">SKAPA MATCH</button><small class="friend-feedback error" id="multi-room-error" hidden></small></form>`;
   $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
+}
+function roomIdentityAvatarFields(avatar) {
+  return `<div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" data-room-identity-genre="${genre}" class="${genre === avatar.genre ? "is-selected" : ""}">${genre}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, variant) => `<button type="button" class="avatar-art ${variant === avatar.variant ? "is-selected" : ""}" style="${avatarArtStyle(avatar.genre, variant)}" data-room-identity-variant="${variant}" aria-label="Avatar ${variant + 1}"></button>`).join("")}</div>`;
 }
 function expandedMatchDeck(deck = []) {
   const existing = new Set(deck.map((card) => `${normaliseTrackText(card.artist)}:${normaliseTrackText(card.title)}`));
@@ -900,7 +905,7 @@ function openLobby(matchCode) {
 }
 
 const escapeHtml = (value) => String(value || "").replace(/[&<>"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character]);
-let roomLobbyProfileCode = "";
+let roomLobbyControlsCode = "";
 async function loadRoomLobby(matchId) {
   const match = state.matches.find((item) => item.id === matchId && item.code === state.activeMatchCode);
   if (!match || currentView !== "lobby" || !match.code.startsWith("M0")) return;
@@ -915,19 +920,14 @@ async function loadRoomLobby(matchId) {
   const list = players.map((player) => { const owner = Number(player.turn_order) === 0, self = String(player.user_id) === String(state.userId), choice = avatarChoice(player); return `<article class="room-lobby-player"><i class="avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" aria-hidden="true"></i><div><strong>${escapeHtml(player.display_name)}${self ? " (du)" : ""}</strong><small class="room-ready-status ${player.room_ready ? "is-ready" : "is-pending"}">${owner ? "VÄRD · " : ""}${player.room_ready ? "REDO" : "INTE REDO"}</small></div>${host && !self ? `<button class="button button-leave" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${escapeHtml(player.display_name)}" type="button">TA BORT</button>` : ""}</article>`; }).join("");
   if ($("#room-lobby-players").dataset.markup !== list) { $("#room-lobby-players").innerHTML = list; $("#room-lobby-players").dataset.markup = list; }
   const controls = $("#room-lobby-controls");
-  if (roomLobbyProfileCode !== match.code) {
-    const choice = avatarChoice(mine);
-    controls.innerHTML = `<form id="room-lobby-profile" class="room-lobby-profile"><h2>Mitt namn och min avatar</h2><label>Namn<input id="room-lobby-name" maxlength="18" required value="${escapeHtml(mine.display_name)}"></label><div class="room-lobby-avatar"><i id="room-lobby-preview" class="avatar-art" aria-hidden="true"></i><label>Stil<select id="room-lobby-genre">${avatarStyles.map((genre) => `<option value="${escapeHtml(genre)}">${escapeHtml(genre)}</option>`).join("")}</select></label><label>Avatar<select id="room-lobby-variant">${Array.from({ length: 6 }, (_, index) => `<option value="${index}">Avatar ${index + 1}</option>`).join("")}</select></label></div><button class="button button-secondary" type="submit">SPARA NAMN OCH AVATAR</button></form><div class="room-lobby-actions"><button class="button button-green" id="room-lobby-ready" type="button"></button>${host ? `<button class="button button-green" id="room-lobby-start" type="button">STARTA MATCH</button>` : `<p>Väntar på att värden startar matchen.</p>`}</div>`;
-    $("#room-lobby-genre").value = choice.genre;
-    $("#room-lobby-variant").value = String(choice.variant);
-    roomLobbyProfileCode = match.code;
+  if (roomLobbyControlsCode !== match.code) {
+    controls.innerHTML = `<p class="room-identity-locked">Namn och avatar är låsta för den här matchen.</p><div class="room-lobby-actions"><button class="button button-green" id="room-lobby-ready" type="button"></button>${host ? `<button class="button button-green" id="room-lobby-start" type="button">STARTA MATCH</button>` : `<p>Väntar på att värden startar matchen.</p>`}</div>`;
+    roomLobbyControlsCode = match.code;
   }
-  updateRoomLobbyAvatarPreview();
   const ready = $("#room-lobby-ready"); ready.textContent = mine.room_ready ? "✓ JAG ÄR REDO" : "JAG ÄR REDO"; ready.dataset.ready = String(Boolean(mine.room_ready)); ready.classList.toggle("is-ready", Boolean(mine.room_ready));
   const start = $("#room-lobby-start"); if (start) { start.disabled = players.length < 2 || readyCount !== players.length; start.title = start.disabled ? "Minst två deltagare och alla måste vara redo" : ""; }
   $("#room-lobby-error").hidden = true;
 }
-function updateRoomLobbyAvatarPreview() { const preview = $("#room-lobby-preview"); if (preview && $("#room-lobby-genre")) preview.style.cssText = avatarArtStyle($("#room-lobby-genre").value, Number($("#room-lobby-variant").value)); }
 function refreshChatButtons(match = state.matches.find((item) => item.code === state.activeMatchCode)) {
   const online = Boolean(match && !isSoloMatch(match) && !localMatch(match));
   const unread = Number(online ? state.chatUnread[match.code] || 0 : 0);
@@ -1252,20 +1252,19 @@ async function createOnlineMatch(inviteFriendId = null) {
   rememberTrack(starter); state.changeTrackCards = 0; state.career.createdMatchCodes.push(matchCode); save(); await syncMatches(); if (inviteFriendId) await syncFriends(); openMatch(matchCode);
 }
 const roomInvitationUrl = (matchCode) => `${location.origin}${location.pathname}?room=${encodeURIComponent(matchCode)}`;
-async function createMultiRoom(hostName) {
+async function createMultiRoom(hostName, avatar) {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), matchCode = `M0${code().slice(2)}`;
   const starter = pickFreshTrack(testDeck), deck = [starter, ...testDeck.filter((card) => card.id !== starter.id)];
   const matches = await supabaseAuth.dataRequest("online_matches", { code: matchCode, status: "waiting", deck, used_track_ids: [starter.id], target_cards: 10, current_user_id: user.id, phase: "waiting", turn_started_at: null, updated_at: new Date().toISOString() }, "POST");
   try {
-    const avatar = ownAvatarChoice();
     await supabaseAuth.dataRequest("online_players", { match_id: matches[0].id, user_id: user.id, display_name: hostName, avatar_genre: avatar.genre, avatar_variant: avatar.variant, turn_order: 0, locked_timeline: [starter], turn_cards: [], swap_cards: 0, rounds_started: 0, active: true, history_hidden: false, updated_at: new Date().toISOString() }, "POST");
     await supabaseAuth.dataRequest("rpc/digihits_register_room_match", { match_code_input: matchCode }, "POST");
   } catch (error) { await supabaseAuth.dataRequest(`online_matches?id=eq.${matches[0].id}`, { status: "finished" }, "PATCH").catch(() => {}); throw error; }
-  rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openLobby(matchCode); showRoomInvitation(matchCode);
+  rememberTrack(starter); state.changeTrackCards = 0; state.playerName = hostName; save(); await syncMatches(); openLobby(matchCode); showRoomInvitation(matchCode);
 }
 let roomDialogPageScroll = null;
 const roomDialogScrollObserver = new MutationObserver(() => {
-  if (roomDialogPageScroll === null || (!$("#app-dialog").hidden && $("#dialog-message").querySelector(".room-invitation,#guest-room-form"))) return;
+  if (roomDialogPageScroll === null || (!$("#app-dialog").hidden && $("#dialog-message").querySelector(".room-invitation,#guest-room-form,#multi-room-form"))) return;
   const scrollY = roomDialogPageScroll;
   roomDialogPageScroll = null;
   document.body.classList.remove("room-invitation-open");
@@ -1285,7 +1284,7 @@ function showRoomInvitation(matchCode) {
   lockRoomDialogScroll();
   const url = roomInvitationUrl(matchCode);
   $("#dialog-title").textContent = "Bjud in till matchen";
-  $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skanna QR-koden eller kopiera länken. Alla väljer namn och avatar och trycker JAG ÄR REDO i lobbyn.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
+  $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skanna QR-koden eller kopiera länken. Gäster väljer namn och avatar före lobbyn och trycker sedan JAG ÄR REDO.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
   $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false; $("#dialog-confirm").textContent = "OK"; $("#dialog-confirm").className = "button button-green"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false;
   if (window.QRCode) new window.QRCode($("#room-qr"), { text: url, width: 160, height: 160, correctLevel: window.QRCode.CorrectLevel.M });
   else $("#room-qr").textContent = "QR-koden kunde inte laddas. Använd länken nedan.";
@@ -1295,7 +1294,7 @@ function showGuestRoomJoin(matchCode) {
   lockRoomDialogScroll();
   document.documentElement.classList.remove("booting");
   $("#dialog-title").textContent = "Gå med som gäst";
-  $("#dialog-message").innerHTML = `<form id="guest-room-form" class="room-player-form" data-code="${matchCode}"><div class="guest-room-fields"><p>Match ${matchCode}. Ange ditt namn och välj en avatar.</p><label for="guest-room-name">Gästnamn</label><input id="guest-room-name" maxlength="18" required autocomplete="nickname"><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" data-guest-genre="${genre}" class="${genre === "Pop" ? "is-selected" : ""}">${genre}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, variant) => `<button type="button" class="avatar-art ${variant === 0 ? "is-selected" : ""}" style="${avatarArtStyle("Pop", variant)}" data-guest-variant="${variant}" aria-label="Avatar ${variant + 1}"></button>`).join("")}</div></div><button type="submit" class="button button-green">GÅ MED I MATCHEN</button><small id="guest-room-error" class="friend-feedback error" hidden></small></form>`;
+  $("#dialog-message").innerHTML = `<form id="guest-room-form" class="room-player-form" data-code="${matchCode}" data-genre="Pop" data-variant="0"><div class="guest-room-fields"><p>Match ${matchCode}. Välj ditt namn och din avatar. De låses när du går med.</p><label for="guest-room-name">Gästnamn</label><input id="guest-room-name" maxlength="18" required autocomplete="nickname">${roomIdentityAvatarFields({ genre: "Pop", variant: 0 })}</div><button type="submit" class="button button-green">GÅ MED I MATCHEN</button><small id="guest-room-error" class="friend-feedback error" hidden></small></form>`;
   $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
 }
 async function createRandomOnlineMatch() {
@@ -1341,9 +1340,9 @@ $("#create-match-menu")?.addEventListener("click", showMatchModeDialog);
 document.addEventListener("click", (event) => { const category = event.target.closest("[data-match-category]")?.dataset.matchCategory; if (!category) return; if (category === "online") showOnlineModeDialog(); else if (category === "solo") showSoloModeDialog(); else showRoomModes(); });
 document.addEventListener("click", (event) => { if (event.target.closest("[data-match-back]")) showMatchModeDialog(); });
 document.addEventListener("click", (event) => { if (event.target.closest("[data-room-back]")) showRoomModes(); const mode = event.target.closest("[data-room-mode]")?.dataset.roomMode; if (mode === "pass") showRoomSetup(); if (mode === "multi") showMultiRoomSetup(); });
-document.addEventListener("submit", async (event) => { if (event.target.id !== "multi-room-form") return; event.preventDefault(); const name = $("#room-host-name").value.trim(), error = $("#multi-room-error"), button = event.target.querySelector('[type="submit"]'); if (!name) return; button.disabled = true; try { await createMultiRoom(name); } catch (failure) { error.textContent = failure.message || "Kunde inte skapa matchen."; error.hidden = false; } finally { button.disabled = false; } });
+document.addEventListener("submit", async (event) => { if (event.target.id !== "multi-room-form") return; event.preventDefault(); const form = event.target, name = $("#room-host-name").value.trim(), error = $("#multi-room-error"), button = form.querySelector('[type="submit"]'); if (!name) return; button.disabled = true; try { await createMultiRoom(name, { genre: form.dataset.genre, variant: Number(form.dataset.variant) }); } catch (failure) { error.textContent = failure.message || "Kunde inte skapa matchen."; error.hidden = false; } finally { button.disabled = false; } });
 document.addEventListener("click", async (event) => { if (!event.target.closest("#copy-room-link")) return; try { await navigator.clipboard.writeText($(".room-invitation input").value); event.target.textContent = "LÄNK KOPIERAD"; } catch { $(".room-invitation input").select(); document.execCommand("copy"); event.target.textContent = "LÄNK KOPIERAD"; } });
-document.addEventListener("click", (event) => { const genre = event.target.closest("[data-guest-genre]"), variant = event.target.closest("[data-guest-variant]"); const form = $("#guest-room-form"); if (!form || (!genre && !variant)) return; if (genre) { form.dataset.genre = genre.dataset.guestGenre; form.querySelectorAll("[data-guest-genre]").forEach((button) => button.classList.toggle("is-selected", button === genre)); form.querySelectorAll("[data-guest-variant]").forEach((button) => { button.style.cssText = avatarArtStyle(form.dataset.genre, Number(button.dataset.guestVariant)); }); } if (variant) { form.dataset.variant = variant.dataset.guestVariant; form.querySelectorAll("[data-guest-variant]").forEach((button) => button.classList.toggle("is-selected", button === variant)); } });
+document.addEventListener("click", (event) => { const genre = event.target.closest("[data-room-identity-genre]"), variant = event.target.closest("[data-room-identity-variant]"); const form = event.target.closest("#guest-room-form,#multi-room-form"); if (!form || (!genre && !variant)) return; if (genre) { form.dataset.genre = genre.dataset.roomIdentityGenre; form.querySelectorAll("[data-room-identity-genre]").forEach((button) => button.classList.toggle("is-selected", button === genre)); form.querySelectorAll("[data-room-identity-variant]").forEach((button) => { button.style.cssText = avatarArtStyle(form.dataset.genre, Number(button.dataset.roomIdentityVariant)); }); } if (variant) { form.dataset.variant = variant.dataset.roomIdentityVariant; form.querySelectorAll("[data-room-identity-variant]").forEach((button) => button.classList.toggle("is-selected", button === variant)); } });
 document.addEventListener("submit", async (event) => { if (event.target.id !== "guest-room-form") return; event.preventDefault(); const form = event.target, name = $("#guest-room-name").value.trim(), error = $("#guest-room-error"), button = form.querySelector('[type="submit"]'); if (!name) return; button.disabled = true; try {
   if (!supabaseAuth.session()?.access_token) await supabaseAuth.signInGuest();
   const user = await supabaseAuth.user(supabaseAuth.session().access_token);
@@ -1406,7 +1405,7 @@ $("#copy-lobby-code").addEventListener("click", async () => {
 });
 async function leaveRoom(match) {
   await supabaseAuth.dataRequest("rpc/digihits_leave_room_match", { match_code_input: match.code }, "POST");
-  roomLobbyProfileCode = "";
+  roomLobbyControlsCode = "";
   await syncMatches();
   showView("home", true);
 }
@@ -1416,7 +1415,6 @@ $("#lobby-leave").addEventListener("click", () => {
   const host = (match.players || []).some((player) => String(player.user_id) === String(state.userId) && Number(player.turn_order) === 0);
   dialog(host ? "Vill du avsluta matchen för alla deltagare?" : "Vill du lämna matchen? De andra kan fortsätta spela.", () => leaveRoom(match).catch((error) => dialog(error.message)), true, host ? "AVSLUTA" : "LÄMNA");
 });
-$("#room-lobby").addEventListener("change", (event) => { if (event.target.matches("#room-lobby-genre, #room-lobby-variant")) updateRoomLobbyAvatarPreview(); });
 $("#room-lobby").addEventListener("click", async (event) => {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match?.id) return;
@@ -1428,16 +1426,6 @@ $("#room-lobby").addEventListener("click", async (event) => {
     await supabaseAuth.dataRequest(ready ? "rpc/digihits_set_room_ready" : "rpc/digihits_start_room_match", ready ? { match_code_input: match.code, is_ready: ready.dataset.ready !== "true" } : { match_code_input: match.code }, "POST");
     if (start) { await syncMatches(); openMatch(match.code); await window.resumeDigihitsRound(); } else await loadRoomLobby(match.id);
   } catch (error) { $("#room-lobby-error").textContent = error.message; $("#room-lobby-error").hidden = false; } finally { button.disabled = false; }
-});
-$("#room-lobby").addEventListener("submit", async (event) => {
-  if (event.target.id !== "room-lobby-profile") return;
-  event.preventDefault();
-  const match = state.matches.find((item) => item.code === state.activeMatchCode), button = event.target.querySelector('button[type="submit"]');
-  if (!match?.id) return;
-  button.disabled = true;
-  try { const name = $("#room-lobby-name").value.trim(); await supabaseAuth.dataRequest("rpc/digihits_update_room_profile", { match_code_input: match.code, new_name: name, chosen_genre: $("#room-lobby-genre").value, chosen_variant: Number($("#room-lobby-variant").value) }, "POST"); state.playerName = name; save(); roomLobbyProfileCode = ""; await loadRoomLobby(match.id); }
-  catch (error) { $("#room-lobby-error").textContent = error.message; $("#room-lobby-error").hidden = false; }
-  finally { button.disabled = false; }
 });
 [$("#lobby-chat"), $("#match-chat")].filter(Boolean).forEach((button) => button.addEventListener("click", () => openChat().catch((error) => alert(error.message))));
 $("#chat-back").addEventListener("click", () => { const view = state.chatReturnView === "lobby" ? "lobby" : "match"; if (view === "lobby") openLobby(state.activeMatchCode); else openMatch(state.activeMatchCode); });
