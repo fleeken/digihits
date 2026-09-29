@@ -1127,3 +1127,21 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 
 #delete-close{display:grid;place-items:center;position:absolute;right:14px;top:14px;width:36px;height:36px;border:1px solid #b59ab8;border-radius:50%;background:#fff;color:#36233c;font-size:24px;line-height:1;cursor:pointer}
 #delete-modal .dialog-card{padding-top:56px}
+.room-live-timelines{display:grid;gap:14px;margin-top:20px;padding-top:18px;border-top:1px solid #466076}
+.room-live-timelines[hidden]{display:none!important}
+.room-live-timelines>h2{margin:0;font-size:19px;color:#4fc9ee}
+.room-live-timelines>p{margin:0;color:#b9c7db;font-size:12px}
+.room-live-player{min-width:0;padding:13px;border:1px solid #526178;border-radius:14px;background:#111c2d}
+.room-live-player.is-current{border-color:#4fc9ee;box-shadow:0 0 16px #4fc9ee33}
+.room-live-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px}
+.room-live-heading strong{font-size:14px;color:#fff}
+.room-live-heading span{font-size:11px;font-weight:900;color:#ffcf55}
+.room-live-stage{margin:7px 0;color:#8fffc0;font-size:11px;font-weight:900}
+.room-live-track{display:flex;align-items:stretch;gap:7px;overflow-x:auto;padding:13px 2px 5px;scrollbar-color:#4fc9ee #111c2d}
+.room-live-track .year-card{box-sizing:border-box;flex:0 0 100px;min-height:128px;transform:none;padding:9px 6px}
+.room-live-track .year-card strong{font-size:18px}
+.room-live-track .year-card small{font-size:9px;overflow-wrap:anywhere}
+.room-live-track .card-status{display:block;margin-top:7px;color:#8fffc0}
+.room-live-track .room-live-card.is-secret{border:2px dashed #c078ff;background:#21154a}
+.room-live-track .room-live-card.is-revealed{border-color:#4fc9ee;background:#102b3a}
+.room-last-error{margin:8px 0 0;color:#ff8b9d;font-size:10px;font-weight:900}
