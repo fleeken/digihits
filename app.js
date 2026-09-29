@@ -1,4 +1,4 @@
-const APP_VERSION = "7.60"
+const APP_VERSION = "7.61"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -991,6 +991,7 @@ function openMatch(matchCode) {
   const isMultiRoom = match.code.startsWith("M0");
   $("#room-live-timelines").hidden = !isMultiRoom;
   document.querySelector('[data-view-panel="match"]').classList.toggle("multi-room-match", isMultiRoom);
+  if (!isMultiRoom) $("#match-chat").before($("#next-round"));
   const matchLeave = document.querySelector('[data-view-panel="match"] .button-leave');
   const isOnlyPlayer = soloMatch || (match.players || []).length <= 1;
   const roomHost = match.code.startsWith("M0") && (match.players || []).some((player) => String(player.user_id) === String(state.userId) && Number(player.turn_order) === 0);
@@ -1052,10 +1053,11 @@ function renderRoomTimelines(match, players) {
   panel.hidden = false;
   const livePlayer = players.find((player) => String(player.user_id) === String(match.currentUserId) && player.current_card && player.room_live_placement?.card_id === player.current_card?.id);
   const lastPlayer = players.find((player) => String(player.user_id) === String(match.lastResult?.player_id));
-  const featured = livePlayer || lastPlayer;
-  const ordered = featured ? [featured, ...players.filter((player) => player !== featured)] : players;
+  const currentPlayer = players.find((player) => String(player.user_id) === String(match.currentUserId));
+  const featured = currentPlayer || livePlayer || lastPlayer;
+  const ordered = [featured, lastPlayer, ...players].filter((player, index, entries) => player && entries.indexOf(player) === index);
   const liveTurn = Boolean(livePlayer);
-  const markup = `<div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Senast spelade turen visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {
+  const markup = `<div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {
     const active = player === livePlayer, locked = Array.isArray(player.locked_timeline) ? player.locked_timeline : [], unlocked = String(match.currentUserId) === String(player.user_id) && Array.isArray(player.turn_cards) ? player.turn_cards : [];
     const cards = [...locked.map((card, index) => ({ ...card, roomStatus: index === 0 ? "STARTKORT" : "LÅST" })), ...unlocked.map((card) => ({ ...card, roomStatus: "OLÅST" }))].sort((a, b) => Number(a.year) - Number(b.year));
     const live = active ? player.room_live_placement : null;
@@ -1065,8 +1067,8 @@ function renderRoomTimelines(match, players) {
     const mistakes = Number.isFinite(Number(score.mistakes)) && score.mistakes !== "" && score.mistakes != null ? Math.max(0, Number(score.mistakes)) : Math.max(0, Number(player.rounds_started || 0) - Math.max(0, locked.length - 1) - (active ? 1 : 0));
     const name = escapeHtml(player.display_name || "Spelare");
     const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
-    const kick = host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
-    const stage = active ? revealed ? "Kortet är inlåst – resultat" : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : player === lastPlayer ? `Senast spelade turen · ${player.last_round?.outcome === "wrong" ? "felplacerat kort" : "rätt placerat kort"}` : "Tidslinje";
+    const kick = !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
+    const stage = active ? revealed ? "Kortet är inlåst – resultat" : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : player === currentPlayer ? "Nästa tur" : player === lastPlayer ? `Senast spelade turen · ${player.last_round?.outcome === "wrong" ? "felplacerat kort" : "rätt placerat kort"}` : "Tidslinje";
     const currentCard = `<article class="year-card room-live-card ${played ? "is-revealed" : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.title)}<br>${escapeHtml(played.artist)}` : "HEMLIGT KORT"}</small></article>`;
     const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.title)}<br>${escapeHtml(card.artist)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
     const spectator = active && String(player.user_id) !== String(state.userId);
@@ -1074,14 +1076,17 @@ function renderRoomTimelines(match, players) {
     const guess = spectator && !revealed ? `<div class="room-live-guess"><p><span>Artist</span><strong>${escapeHtml(live?.artist) || "Väntar på gissning…"}</strong></p><p><span>Låtnamn</span><strong>${escapeHtml(live?.title) || "Väntar på gissning…"}</strong></p></div>` : "";
     const spectatorCard = spectator && !revealed && player.current_card ? `<div class="room-spectator-card ${flipped ? "is-flipped" : ""}"><strong>${flipped ? escapeHtml(player.current_card.artist) : "HEMLIGT KORT"}</strong>${flipped ? `<span>${escapeHtml(player.current_card.title)}</span><small>Släppt ${escapeHtml(player.current_card.year)}</small>` : "<span>♫</span>"}<button class="button button-purple" data-room-reveal="${escapeHtml(cardKey)}" type="button" aria-pressed="${flipped}">${flipped ? "DÖLJ KORTET" : "VÄND PÅ KORTET"}</button></div>` : "";
     const result = revealed && position !== null && played ? `<p class="room-live-result ${position > 0 && Number(played.year) < Number(cards[position - 1]?.year) || position < cards.length && Number(played.year) > Number(cards[position]?.year) ? "is-wrong" : "is-correct"}">${position > 0 && Number(played.year) < Number(cards[position - 1]?.year) || position < cards.length && Number(played.year) > Number(cards[position]?.year) ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>` : "";
-    return `<article class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><strong>${name}${active ? " · TUR NU" : ""}</strong><span>${correct}/10 rätt · ${mistakes} felplacerade · ${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3 byt-låt-kort</span></div><p class="room-live-stage">${stage}</p>${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
+    return `<article class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><strong>${name}${player === currentPlayer ? " · TUR NU" : ""}</strong><span>${correct}/10 rätt · ${mistakes} felplacerade · ${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3 byt-låt-kort</span></div><p class="room-live-stage">${stage}</p>${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
   }).join("")}`;
+  const startButton = $("#next-round");
   if (panel.dataset.markup !== markup) {
     const scrolls = new Map([...panel.querySelectorAll(".room-live-player")].map((row) => [row.querySelector(".room-live-heading strong")?.textContent, row.querySelector(".room-live-track")?.scrollLeft || 0]));
     panel.innerHTML = markup;
     panel.querySelectorAll(".room-live-player").forEach((row) => { row.querySelector(".room-live-track").scrollLeft = scrolls.get(row.querySelector(".room-live-heading strong")?.textContent) || 0; });
     panel.dataset.markup = markup;
   }
+  if (String(match.currentUserId) === String(state.userId)) panel.querySelector(".room-live-player")?.before(startButton);
+  else $("#match-chat").before(startButton);
 }
 
 let roomLiveWrite = Promise.resolve();
