@@ -1105,7 +1105,7 @@ body::before{clip-path:inset(140px 0 0);}
 .match-category-dialog .match-category-copy strong{font-size:15px;line-height:1.2;}
 .match-category-dialog .match-category-copy small{display:block;line-height:1.35;}
 /* The player list has its own definite height; the dialog also scrolls on short screens. */
-html:has(#app-dialog:not([hidden]):has(.room-player-form)),body:has(#app-dialog:not([hidden]):has(.room-player-form)){overflow:hidden;}
+html:has(#app-dialog:not([hidden]) .room-player-form),body:has(#app-dialog:not([hidden]) .room-player-form){overflow:hidden;}
 #app-dialog:has(.room-player-form){box-sizing:border-box;height:100dvh;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
 #app-dialog[hidden]{display:none!important;}
 #app-dialog .dialog-card:has(.room-player-form){box-sizing:border-box;display:block;max-height:calc(100dvh - 36px);margin:auto 0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
@@ -1191,7 +1191,7 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 .room-lobby-actions p{margin:0;text-align:center;color:#5d5366;font-weight:900}
 @media(max-width:480px){.room-lobby-avatar{grid-template-columns:64px 1fr}.room-lobby-avatar label:last-child{grid-column:2}}
 html:has(body.room-invitation-open){overflow:hidden}
-html:has(#app-dialog:not([hidden]):has(.room-invitation,#guest-room-form)){zoom:1!important}
+html:has(#app-dialog:not([hidden]) :is(.room-invitation,#guest-room-form)){zoom:1!important}
 body.room-invitation-open{position:fixed;top:var(--room-invitation-scroll-top);left:0;right:0;width:100%;overflow:hidden}
 #app-dialog:has(.room-invitation){box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
 #app-dialog .dialog-card:has(.room-invitation){box-sizing:border-box;display:flex;flex-direction:column;height:min(540px,calc(100dvh - 36px));min-height:0;max-height:calc(100dvh - 36px);padding:18px;overflow:hidden}
