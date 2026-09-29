@@ -1,4 +1,4 @@
-const APP_VERSION = "7.53"
+const APP_VERSION = "7.54"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1263,35 +1263,39 @@ async function createMultiRoom(hostName) {
   } catch (error) { await supabaseAuth.dataRequest(`online_matches?id=eq.${matches[0].id}`, { status: "finished" }, "PATCH").catch(() => {}); throw error; }
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openLobby(matchCode); showRoomInvitation(matchCode);
 }
-let roomInvitationPageScroll = null;
-const roomInvitationScrollObserver = new MutationObserver(() => {
-  if (roomInvitationPageScroll === null || (!$("#app-dialog").hidden && $("#dialog-message").querySelector(".room-invitation"))) return;
-  const scrollY = roomInvitationPageScroll;
-  roomInvitationPageScroll = null;
+let roomDialogPageScroll = null;
+const roomDialogScrollObserver = new MutationObserver(() => {
+  if (roomDialogPageScroll === null || (!$("#app-dialog").hidden && $("#dialog-message").querySelector(".room-invitation,#guest-room-form"))) return;
+  const scrollY = roomDialogPageScroll;
+  roomDialogPageScroll = null;
   document.body.classList.remove("room-invitation-open");
   document.body.style.removeProperty("--room-invitation-scroll-top");
   window.scrollTo(0, scrollY);
 });
-roomInvitationScrollObserver.observe($("#app-dialog"), { attributes: true, attributeFilter: ["hidden"] });
-roomInvitationScrollObserver.observe($("#dialog-message"), { childList: true });
-function showRoomInvitation(matchCode) {
-  if (roomInvitationPageScroll === null) {
-    roomInvitationPageScroll = window.scrollY;
-    document.body.style.setProperty("--room-invitation-scroll-top", `-${roomInvitationPageScroll}px`);
+roomDialogScrollObserver.observe($("#app-dialog"), { attributes: true, attributeFilter: ["hidden"] });
+roomDialogScrollObserver.observe($("#dialog-message"), { childList: true });
+function lockRoomDialogScroll() {
+  if (roomDialogPageScroll === null) {
+    roomDialogPageScroll = window.scrollY;
+    document.body.style.setProperty("--room-invitation-scroll-top", `-${roomDialogPageScroll}px`);
     document.body.classList.add("room-invitation-open");
   }
+}
+function showRoomInvitation(matchCode) {
+  lockRoomDialogScroll();
   const url = roomInvitationUrl(matchCode);
   $("#dialog-title").textContent = "Bjud in till matchen";
   $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skanna QR-koden eller kopiera länken. Alla väljer namn och avatar och trycker JAG ÄR REDO i lobbyn.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
-  $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false; $("#dialog-confirm").textContent = "OK"; $("#dialog-confirm").className = "button button-primary"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false;
-  if (window.QRCode) new window.QRCode($("#room-qr"), { text: url, width: 190, height: 190, correctLevel: window.QRCode.CorrectLevel.M });
+  $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false; $("#dialog-confirm").textContent = "OK"; $("#dialog-confirm").className = "button button-green"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false;
+  if (window.QRCode) new window.QRCode($("#room-qr"), { text: url, width: 160, height: 160, correctLevel: window.QRCode.CorrectLevel.M });
   else $("#room-qr").textContent = "QR-koden kunde inte laddas. Använd länken nedan.";
 }
 function showGuestRoomJoin(matchCode) {
   if (!/^M0[A-Z2-9]{4}$/.test(matchCode)) return dialog("Inbjudningslänken är ogiltig.");
+  lockRoomDialogScroll();
   document.documentElement.classList.remove("booting");
   $("#dialog-title").textContent = "Gå med som gäst";
-  $("#dialog-message").innerHTML = `<form id="guest-room-form" class="room-player-form" data-code="${matchCode}"><p>Match ${matchCode}. Ange ditt namn och välj en avatar.</p><label for="guest-room-name">Gästnamn</label><input id="guest-room-name" maxlength="18" required autocomplete="nickname"><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" data-guest-genre="${genre}" class="${genre === "Pop" ? "is-selected" : ""}">${genre}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, variant) => `<button type="button" class="avatar-art ${variant === 0 ? "is-selected" : ""}" style="${avatarArtStyle("Pop", variant)}" data-guest-variant="${variant}" aria-label="Avatar ${variant + 1}"></button>`).join("")}</div><button type="submit" class="button button-green">GÅ MED I MATCHEN</button><small id="guest-room-error" class="friend-feedback error" hidden></small></form>`;
+  $("#dialog-message").innerHTML = `<form id="guest-room-form" class="room-player-form" data-code="${matchCode}"><div class="guest-room-fields"><p>Match ${matchCode}. Ange ditt namn och välj en avatar.</p><label for="guest-room-name">Gästnamn</label><input id="guest-room-name" maxlength="18" required autocomplete="nickname"><div class="avatar-genre-grid">${avatarStyles.map((genre) => `<button type="button" data-guest-genre="${genre}" class="${genre === "Pop" ? "is-selected" : ""}">${genre}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, variant) => `<button type="button" class="avatar-art ${variant === 0 ? "is-selected" : ""}" style="${avatarArtStyle("Pop", variant)}" data-guest-variant="${variant}" aria-label="Avatar ${variant + 1}"></button>`).join("")}</div></div><button type="submit" class="button button-green">GÅ MED I MATCHEN</button><small id="guest-room-error" class="friend-feedback error" hidden></small></form>`;
   $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
 }
 async function createRandomOnlineMatch() {
