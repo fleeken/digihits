@@ -1079,7 +1079,7 @@ body::before{clip-path:inset(140px 0 0);}
 .match-mode-dialog.room-options button:last-child{grid-column:auto}
 .room-invitation{display:grid;justify-items:center;gap:12px;text-align:center}
 .room-invitation p{margin:0}
-.room-invitation #room-qr{display:grid;place-items:center;min-height:190px;min-width:190px;padding:10px;background:#fff;color:#36233c;border-radius:12px}
+.room-invitation #room-qr{display:grid;place-items:center;min-height:160px;min-width:160px;padding:10px;background:#fff;color:#36233c;border-radius:12px}
 .room-invitation #room-qr img{max-width:100%}
 .room-invitation input{box-sizing:border-box;width:100%;padding:10px;font:inherit}
 .room-invitation .button{margin:0}
@@ -1191,9 +1191,17 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 .room-lobby-actions p{margin:0;text-align:center;color:#5d5366;font-weight:900}
 @media(max-width:480px){.room-lobby-avatar{grid-template-columns:64px 1fr}.room-lobby-avatar label:last-child{grid-column:2}}
 html:has(body.room-invitation-open){overflow:hidden}
+html:has(#app-dialog:not([hidden]):has(.room-invitation,#guest-room-form)){zoom:1!important}
 body.room-invitation-open{position:fixed;top:var(--room-invitation-scroll-top);left:0;right:0;width:100%;overflow:hidden}
 #app-dialog:has(.room-invitation){box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
 #app-dialog .dialog-card:has(.room-invitation){box-sizing:border-box;display:flex;flex-direction:column;height:min(540px,calc(100dvh - 36px));min-height:0;max-height:calc(100dvh - 36px);padding:18px;overflow:hidden}
 #app-dialog .dialog-card:has(.room-invitation) #dialog-message{display:block;flex:1 1 auto;min-height:0;margin:12px 0 0;overflow-y:scroll;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin}
 #app-dialog .dialog-card:has(.room-invitation) .modal-actions{flex:0 0 auto}
 #app-dialog .dialog-card:has(.room-invitation) .room-invitation{padding:2px 3px 10px}
+#app-dialog:has(#guest-room-form){box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
+#app-dialog .dialog-card:has(#guest-room-form){box-sizing:border-box;display:flex;flex-direction:column;height:min(620px,calc(100dvh - 36px));min-height:0;max-height:calc(100dvh - 36px);padding:18px;overflow:hidden;margin:0}
+#app-dialog .dialog-card:has(#guest-room-form) #dialog-message{display:block;flex:1 1 auto;min-height:0;margin:12px 0 0;overflow:hidden}
+#app-dialog #guest-room-form{display:flex;flex-direction:column;gap:10px;height:100%;min-height:0;overflow:hidden}
+#guest-room-form .guest-room-fields{display:grid;grid-auto-rows:max-content;gap:10px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;text-align:left;padding:2px 3px 10px}
+#guest-room-form .guest-room-fields p{margin:0;text-align:center}
+#guest-room-form>.button,#guest-room-form>#guest-room-error{flex:0 0 auto;margin:0}
