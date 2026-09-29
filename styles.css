@@ -1182,3 +1182,7 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 .room-lobby-actions #room-lobby-ready.is-ready{background:#195b33;border-color:#278c4b;color:#fff}
 .room-lobby-actions p{margin:0;text-align:center;color:#5d5366;font-weight:900}
 @media(max-width:480px){.room-lobby-avatar{grid-template-columns:64px 1fr}.room-lobby-avatar label:last-child{grid-column:2}}
+html:has(#app-dialog:not([hidden]):has(.room-invitation)),body:has(#app-dialog:not([hidden]):has(.room-invitation)){overflow:hidden}
+#app-dialog:has(.room-invitation){box-sizing:border-box;height:100dvh;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#app-dialog .dialog-card:has(.room-invitation){box-sizing:border-box;max-height:calc(100dvh - 36px);margin:auto 0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#app-dialog .dialog-card:has(.room-invitation) #dialog-message{display:block;overflow:visible}
