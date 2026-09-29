@@ -1074,6 +1074,19 @@ body::before{clip-path:inset(140px 0 0);}
 .dialog-card{position:relative;}
 #dialog-close{display:grid;place-items:center;position:absolute;right:14px;top:14px;z-index:3;width:36px;height:36px;border:1px solid #b59ab8;border-radius:50%;background:#fff;color:#36233c;font-size:24px;line-height:1;cursor:pointer;}
 #app-dialog:has(.match-category-dialog,.match-mode-dialog,.room-player-form,.invite-picker,.room-avatar-picker) #dialog-close{display:grid;place-items:center;}
+.match-mode-dialog.room-options button{background:#8a5936;border-color:#8a5936;color:#fff}
+.match-mode-dialog.room-options small{color:#fff;opacity:.9}
+.match-mode-dialog.room-options button:last-child{grid-column:auto}
+.room-invitation{display:grid;justify-items:center;gap:12px;text-align:center}
+.room-invitation p{margin:0}
+.room-invitation #room-qr{display:grid;place-items:center;min-height:190px;min-width:190px;padding:10px;background:#fff;color:#36233c;border-radius:12px}
+.room-invitation #room-qr img{max-width:100%}
+.room-invitation input{box-sizing:border-box;width:100%;padding:10px;font:inherit}
+.room-invitation .button{margin:0}
+#guest-room-form .avatar-genre-grid,#guest-room-form .avatar-variant-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#guest-room-form .avatar-genre-grid button{font-size:11px}
+#guest-room-form .avatar-genre-grid .is-selected,#guest-room-form .avatar-variant-grid .is-selected{outline:3px solid #c38a59}
+#guest-room-form .avatar-variant-grid button{min-height:68px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y)}
 .room-avatar-picker{display:grid;gap:12px;text-align:left;}
 .room-avatar-picker .avatar-art{min-height:72px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y);}
 .room-avatar-picker .is-selected{outline:3px solid #c38a59;}
