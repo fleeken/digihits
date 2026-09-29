@@ -1,4 +1,4 @@
-const APP_VERSION = "7.43"
+const APP_VERSION = "7.44"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -379,11 +379,11 @@ const menuForView = (view) => ["match", "lobby", "guess", "timeline", "result", 
 let resultIsLocked = false;
 const code = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
 function dialog(message, action, danger = false, confirmText = "FORTSÄTT", cancelText = "AVBRYT") {
-  $("#dialog-message").classList.remove("level-rules"); $("#dialog-message").textContent = message; $("#dialog-cancel").hidden = !action; $("#dialog-cancel").textContent = cancelText; $("#dialog-confirm").textContent = action ? confirmText : "OK"; $("#dialog-confirm").className = `button ${danger ? "button-leave" : "button-primary"}`; $("#app-dialog").hidden = false;
+  $("#dialog-progress")?.remove(); $("#dialog-message").classList.remove("level-rules"); $("#dialog-message").textContent = message; $("#dialog-cancel").hidden = !action; $("#dialog-confirm").hidden = false; $("#dialog-cancel").textContent = cancelText; $("#dialog-confirm").textContent = action ? confirmText : "OK"; $("#dialog-confirm").className = `button ${danger ? "button-leave" : "button-primary"}`; $("#app-dialog").hidden = false;
   $("#dialog-cancel").onclick = () => { $("#app-dialog").hidden = true; };
   $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; action?.(); };
 }
-function dialogProgress(message) { const progress = document.createElement("div"); progress.id = "dialog-progress"; progress.className = "dialog-progress"; progress.innerHTML = "<i></i>"; $("#dialog-message").textContent = message; $("#dialog-message").after(progress); $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false; }
+function dialogProgress(message) { $("#dialog-progress")?.remove(); const progress = document.createElement("div"); progress.id = "dialog-progress"; progress.className = "dialog-progress"; progress.innerHTML = "<i></i>"; $("#dialog-message").textContent = message; $("#dialog-message").after(progress); $("#dialog-cancel").hidden = true; const close = $("#dialog-confirm"); close.hidden = false; close.textContent = "STÄNG"; close.className = "button button-secondary"; close.onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false; }
 function closeDialogProgress() { $("#dialog-progress")?.remove(); $("#dialog-confirm").hidden = false; $("#app-dialog").hidden = true; }
 function roomHandoverDialog(name, action) { dialog(`Skicka mobilen till ${name}.`, action, false, "REDO"); $("#dialog-confirm").className = "button button-green"; }
 window.alert = (message) => dialog(String(message));
@@ -1426,7 +1426,6 @@ $("#lock-placement").addEventListener("click", async () => {
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
   else if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
   else if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards >= 3) dialog("Du gissade rätt för både artist och låtnamn, men du har redan 3/3 byt-låt-kort.");
-  else if (!currentPlacementCorrect && !solo && localMatch()?.mode !== "room") dialog("Du placerade kortet på fel plats. Turen har gått över till nästa spelare.");
 });
 $("#result-continue").addEventListener("click", async () => { const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode), solo = isSoloMatch(activeMatch) && !localMatch(activeMatch); await animateTimelineOutcome(currentPlacementCorrect); state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save(); try { if (solo) await markRoundStarted(); else await saveRoundUnlocked(); await dealCard(); await settlePendingSwapAward(); await syncMatches(); } catch (error) { alert(error.message); return; } resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); await enterNewCardGuess(); });
 $("#change-track-area").addEventListener("click", async (event) => {
