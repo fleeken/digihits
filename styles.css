@@ -1242,3 +1242,5 @@ html:has(.modal:not([hidden])),body:has(.modal:not([hidden])){overflow:hidden}
 
 .app-shell:has([data-view-panel="match"].multi-room-match){width:min(calc(100% - 24px),1120px)}
 [data-view-panel="match"].multi-room-match>.match-turn-banner{display:none!important}
+
+[data-view-panel="match"].multi-room-match .room-live-kick{margin-top:16px;padding:10px 14px;border:1px solid #ff9caa;border-radius:9px;background:#742a3b;color:#fff;font:inherit;font-size:12px;font-weight:900;cursor:pointer}

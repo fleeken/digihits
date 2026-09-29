@@ -1064,6 +1064,8 @@ function renderRoomTimelines(match, players) {
     const score = player.last_round?.score || {}, correct = Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0);
     const mistakes = Number.isFinite(Number(score.mistakes)) && score.mistakes !== "" && score.mistakes != null ? Math.max(0, Number(score.mistakes)) : Math.max(0, Number(player.rounds_started || 0) - Math.max(0, locked.length - 1) - (active ? 1 : 0));
     const name = escapeHtml(player.display_name || "Spelare");
+    const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
+    const kick = host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
     const stage = active ? revealed ? "Kortet är inlåst – resultat" : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : player === lastPlayer ? `Senast spelade turen · ${player.last_round?.outcome === "wrong" ? "felplacerat kort" : "rätt placerat kort"}` : "Tidslinje";
     const currentCard = `<article class="year-card room-live-card ${played ? "is-revealed" : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.title)}<br>${escapeHtml(played.artist)}` : "HEMLIGT KORT"}</small></article>`;
     const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.title)}<br>${escapeHtml(card.artist)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
@@ -1072,7 +1074,7 @@ function renderRoomTimelines(match, players) {
     const guess = spectator && !revealed ? `<div class="room-live-guess"><p><span>Artist</span><strong>${escapeHtml(live?.artist) || "Väntar på gissning…"}</strong></p><p><span>Låtnamn</span><strong>${escapeHtml(live?.title) || "Väntar på gissning…"}</strong></p></div>` : "";
     const spectatorCard = spectator && !revealed && player.current_card ? `<div class="room-spectator-card ${flipped ? "is-flipped" : ""}"><strong>${flipped ? escapeHtml(player.current_card.artist) : "HEMLIGT KORT"}</strong>${flipped ? `<span>${escapeHtml(player.current_card.title)}</span><small>Släppt ${escapeHtml(player.current_card.year)}</small>` : "<span>♫</span>"}<button class="button button-purple" data-room-reveal="${escapeHtml(cardKey)}" type="button" aria-pressed="${flipped}">${flipped ? "DÖLJ KORTET" : "VÄND PÅ KORTET"}</button></div>` : "";
     const result = revealed && position !== null && played ? `<p class="room-live-result ${position > 0 && Number(played.year) < Number(cards[position - 1]?.year) || position < cards.length && Number(played.year) > Number(cards[position]?.year) ? "is-wrong" : "is-correct"}">${position > 0 && Number(played.year) < Number(cards[position - 1]?.year) || position < cards.length && Number(played.year) > Number(cards[position]?.year) ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>` : "";
-    return `<article class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><strong>${name}${active ? " · TUR NU" : ""}</strong><span>${correct}/10 rätt · ${mistakes} felplacerade · ${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3 byt-låt-kort</span></div><p class="room-live-stage">${stage}</p>${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div></article>`;
+    return `<article class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><strong>${name}${active ? " · TUR NU" : ""}</strong><span>${correct}/10 rätt · ${mistakes} felplacerade · ${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3 byt-låt-kort</span></div><p class="room-live-stage">${stage}</p>${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
   }).join("")}`;
   if (panel.dataset.markup !== markup) {
     const scrolls = new Map([...panel.querySelectorAll(".room-live-player")].map((row) => [row.querySelector(".room-live-heading strong")?.textContent, row.querySelector(".room-live-track")?.scrollLeft || 0]));
@@ -1458,6 +1460,15 @@ $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest("[data-room-kick]"); if (!button) return; const code = state.activeMatchCode; dialog(`Ta bort ${button.dataset.playerName || "deltagaren"} från matchen?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_remove_room_guest", { match_code_input: code, guest_user_id: button.dataset.roomKick }, "POST"); await syncMatches(); if (state.matches.some((item) => item.code === code)) openMatch(code); } catch (error) { dialog(error.message); } }, true, "TA BORT"); });
 $("#room-live-timelines").addEventListener("click", (event) => {
+  const kick = event.target.closest("[data-room-kick]");
+  if (kick) {
+    const code = state.activeMatchCode;
+    dialog(`Ta bort ${kick.dataset.playerName || "deltagaren"} från matchen?`, async () => {
+      try { await supabaseAuth.dataRequest("rpc/digihits_remove_room_guest", { match_code_input: code, guest_user_id: kick.dataset.roomKick }, "POST"); await syncMatches(); openMatch(code); }
+      catch (error) { dialog(error.message); }
+    }, true, "TA BORT");
+    return;
+  }
   const flip = event.target.closest("[data-room-reveal]");
   if (!flip) return;
   const key = flip.dataset.roomReveal;
