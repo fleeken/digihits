@@ -1083,10 +1083,10 @@ body::before{clip-path:inset(140px 0 0);}
 .room-invitation #room-qr img{max-width:100%}
 .room-invitation input{box-sizing:border-box;width:100%;padding:10px;font:inherit}
 .room-invitation .button{margin:0}
-#guest-room-form .avatar-genre-grid,#guest-room-form .avatar-variant-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-#guest-room-form .avatar-genre-grid button{font-size:11px}
-#guest-room-form .avatar-genre-grid .is-selected,#guest-room-form .avatar-variant-grid .is-selected{outline:3px solid #c38a59}
-#guest-room-form .avatar-variant-grid button{min-height:68px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y)}
+:is(#guest-room-form,#multi-room-form) .avatar-genre-grid,:is(#guest-room-form,#multi-room-form) .avatar-variant-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+:is(#guest-room-form,#multi-room-form) .avatar-genre-grid button{font-size:11px}
+:is(#guest-room-form,#multi-room-form) .avatar-genre-grid .is-selected,:is(#guest-room-form,#multi-room-form) .avatar-variant-grid .is-selected{outline:3px solid #c38a59}
+:is(#guest-room-form,#multi-room-form) .avatar-variant-grid button{min-height:68px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y)}
 .room-avatar-picker{display:grid;gap:12px;text-align:left;}
 .room-avatar-picker .avatar-art{min-height:72px;background-image:var(--avatar-art);background-size:200% 300%;background-position:var(--avatar-x) var(--avatar-y);}
 .room-avatar-picker .is-selected{outline:3px solid #c38a59;}
@@ -1178,30 +1178,24 @@ html[data-app-zoom="140"] .view[data-view-panel="home"] .home-illustration{paddi
 .room-ready-status.is-pending::before{background:#f34c64}
 #lobby-room-invite,#match-room-invite{margin-top:18px!important}
 .room-lobby-player .button{grid-column:1/-1;width:100%;min-height:38px;margin:0}
-.room-lobby-profile{display:grid;gap:12px;padding:16px;border:1px solid #c8b7c5;border-radius:15px;background:#fff9f4}
-.room-lobby-profile h2{margin:0;font-size:18px}
-.room-lobby-profile label{display:grid;gap:5px;font-size:12px;font-weight:900}
-.room-lobby-profile input,.room-lobby-profile select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #a8a1b1;border-radius:9px;background:#fff;color:#223555;font:inherit}
-.room-lobby-avatar{display:grid;grid-template-columns:64px repeat(2,minmax(0,1fr));align-items:end;gap:10px}
-.room-lobby-profile .button{width:100%;margin:0}
+.room-identity-locked{margin:0 0 12px;color:#5d5366;font-size:12px;font-weight:900;text-align:center}
 .room-lobby-actions{display:grid;gap:10px}
 .room-lobby-actions .button{width:100%;min-height:52px;margin:0;font-size:15px}
 .room-lobby-actions .button:disabled{opacity:.45;cursor:not-allowed}
 .room-lobby-actions #room-lobby-ready.is-ready{background:#195b33;border-color:#278c4b;color:#fff}
 .room-lobby-actions p{margin:0;text-align:center;color:#5d5366;font-weight:900}
-@media(max-width:480px){.room-lobby-avatar{grid-template-columns:64px 1fr}.room-lobby-avatar label:last-child{grid-column:2}}
 html:has(body.room-invitation-open){overflow:hidden}
-html:has(#app-dialog:not([hidden]) :is(.room-invitation,#guest-room-form)){zoom:1!important}
+html:has(#app-dialog:not([hidden]) :is(.room-invitation,#guest-room-form,#multi-room-form)){zoom:1!important}
 body.room-invitation-open{position:fixed;top:var(--room-invitation-scroll-top);left:0;right:0;width:100%;overflow:hidden}
 #app-dialog:has(.room-invitation){box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
 #app-dialog .dialog-card:has(.room-invitation){box-sizing:border-box;display:flex;flex-direction:column;height:min(540px,calc(100dvh - 36px));min-height:0;max-height:calc(100dvh - 36px);padding:18px;overflow:hidden}
 #app-dialog .dialog-card:has(.room-invitation) #dialog-message{display:block;flex:1 1 auto;min-height:0;margin:12px 0 0;overflow-y:scroll;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin}
 #app-dialog .dialog-card:has(.room-invitation) .modal-actions{flex:0 0 auto}
 #app-dialog .dialog-card:has(.room-invitation) .room-invitation{padding:2px 3px 10px}
-#app-dialog:has(#guest-room-form){box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
-#app-dialog .dialog-card:has(#guest-room-form){box-sizing:border-box;display:flex;flex-direction:column;height:min(620px,calc(100dvh - 36px));min-height:0;max-height:calc(100dvh - 36px);padding:18px;overflow:hidden;margin:0}
-#app-dialog .dialog-card:has(#guest-room-form) #dialog-message{display:block;flex:1 1 auto;min-height:0;margin:12px 0 0;overflow:hidden}
-#app-dialog #guest-room-form{display:flex;flex-direction:column;gap:10px;height:100%;min-height:0;overflow:hidden}
-#guest-room-form .guest-room-fields{display:grid;grid-auto-rows:max-content;gap:10px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;text-align:left;padding:2px 3px 10px}
-#guest-room-form .guest-room-fields p{margin:0;text-align:center}
-#guest-room-form>.button,#guest-room-form>#guest-room-error{flex:0 0 auto;margin:0}
+#app-dialog:has(:is(#guest-room-form,#multi-room-form)){box-sizing:border-box;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;overscroll-behavior:contain}
+#app-dialog .dialog-card:has(:is(#guest-room-form,#multi-room-form)){box-sizing:border-box;display:flex;flex-direction:column;height:min(620px,calc(100dvh - 36px));min-height:0;max-height:calc(100dvh - 36px);padding:18px;overflow:hidden;margin:0}
+#app-dialog .dialog-card:has(:is(#guest-room-form,#multi-room-form)) #dialog-message{display:block;flex:1 1 auto;min-height:0;margin:12px 0 0;overflow:hidden}
+#app-dialog :is(#guest-room-form,#multi-room-form){display:flex;flex-direction:column;gap:10px;height:100%;min-height:0;overflow:hidden}
+:is(#guest-room-form,#multi-room-form) .guest-room-fields{display:grid;grid-auto-rows:max-content;gap:10px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;text-align:left;padding:2px 3px 10px}
+:is(#guest-room-form,#multi-room-form) .guest-room-fields p{margin:0;text-align:center}
+:is(#guest-room-form,#multi-room-form)>.button,:is(#guest-room-form,#multi-room-form)>small{flex:0 0 auto;margin:0}
