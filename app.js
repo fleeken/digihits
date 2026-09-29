@@ -1,4 +1,4 @@
-const APP_VERSION = "7.52"
+const APP_VERSION = "7.53"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -911,7 +911,7 @@ async function loadRoomLobby(matchId) {
   const host = Number(mine.turn_order) === 0, readyCount = players.filter((player) => player.room_ready).length;
   $("#lobby-leave").textContent = host ? "AVSLUTA MATCHEN" : "LÄMNA MATCHEN";
   $("#room-lobby-count").textContent = `${players.length}/8 deltagare · ${readyCount}/${players.length} redo`;
-  const list = players.map((player) => { const owner = Number(player.turn_order) === 0, self = String(player.user_id) === String(state.userId), choice = avatarChoice(player); return `<article class="room-lobby-player"><i class="avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" aria-hidden="true"></i><div><strong>${escapeHtml(player.display_name)}${self ? " (du)" : ""}</strong><small>${owner ? "VÄRD · " : ""}${player.room_ready ? "🟢 REDO" : "⚪ INTE REDO"}</small></div>${host && !self ? `<button class="button button-leave" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${escapeHtml(player.display_name)}" type="button">TA BORT</button>` : ""}</article>`; }).join("");
+  const list = players.map((player) => { const owner = Number(player.turn_order) === 0, self = String(player.user_id) === String(state.userId), choice = avatarChoice(player); return `<article class="room-lobby-player"><i class="avatar-art" style="${avatarArtStyle(choice.genre, choice.variant)}" aria-hidden="true"></i><div><strong>${escapeHtml(player.display_name)}${self ? " (du)" : ""}</strong><small class="room-ready-status ${player.room_ready ? "is-ready" : "is-pending"}">${owner ? "VÄRD · " : ""}${player.room_ready ? "REDO" : "INTE REDO"}</small></div>${host && !self ? `<button class="button button-leave" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${escapeHtml(player.display_name)}" type="button">TA BORT</button>` : ""}</article>`; }).join("");
   if ($("#room-lobby-players").dataset.markup !== list) { $("#room-lobby-players").innerHTML = list; $("#room-lobby-players").dataset.markup = list; }
   const controls = $("#room-lobby-controls");
   if (roomLobbyProfileCode !== match.code) {
@@ -1281,7 +1281,7 @@ function showRoomInvitation(matchCode) {
   }
   const url = roomInvitationUrl(matchCode);
   $("#dialog-title").textContent = "Bjud in till matchen";
-  $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skicka länken eller låt gästerna skanna QR-koden. Alla samlas i lobbyn, väljer namn och avatar och trycker JAG ÄR REDO innan värden startar.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
+  $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skanna QR-koden eller kopiera länken. Alla väljer namn och avatar och trycker JAG ÄR REDO i lobbyn.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
   $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false; $("#dialog-confirm").textContent = "OK"; $("#dialog-confirm").className = "button button-primary"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false;
   if (window.QRCode) new window.QRCode($("#room-qr"), { text: url, width: 190, height: 190, correctLevel: window.QRCode.CorrectLevel.M });
   else $("#room-qr").textContent = "QR-koden kunde inte laddas. Använd länken nedan.";
