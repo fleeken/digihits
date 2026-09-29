@@ -1,4 +1,4 @@
-const APP_VERSION = "7.51"
+const APP_VERSION = "7.52"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1262,7 +1262,23 @@ async function createMultiRoom(hostName) {
   } catch (error) { await supabaseAuth.dataRequest(`online_matches?id=eq.${matches[0].id}`, { status: "finished" }, "PATCH").catch(() => {}); throw error; }
   rememberTrack(starter); state.changeTrackCards = 0; save(); await syncMatches(); openLobby(matchCode); showRoomInvitation(matchCode);
 }
+let roomInvitationPageScroll = null;
+const roomInvitationScrollObserver = new MutationObserver(() => {
+  if (roomInvitationPageScroll === null || (!$("#app-dialog").hidden && $("#dialog-message").querySelector(".room-invitation"))) return;
+  const scrollY = roomInvitationPageScroll;
+  roomInvitationPageScroll = null;
+  document.body.classList.remove("room-invitation-open");
+  document.body.style.removeProperty("--room-invitation-scroll-top");
+  window.scrollTo(0, scrollY);
+});
+roomInvitationScrollObserver.observe($("#app-dialog"), { attributes: true, attributeFilter: ["hidden"] });
+roomInvitationScrollObserver.observe($("#dialog-message"), { childList: true });
 function showRoomInvitation(matchCode) {
+  if (roomInvitationPageScroll === null) {
+    roomInvitationPageScroll = window.scrollY;
+    document.body.style.setProperty("--room-invitation-scroll-top", `-${roomInvitationPageScroll}px`);
+    document.body.classList.add("room-invitation-open");
+  }
   const url = roomInvitationUrl(matchCode);
   $("#dialog-title").textContent = "Bjud in till matchen";
   $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skicka länken eller låt gästerna skanna QR-koden. Alla samlas i lobbyn, väljer namn och avatar och trycker JAG ÄR REDO innan värden startar.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
