@@ -1,4 +1,4 @@
-const APP_VERSION = "8.01"
+const APP_VERSION = "8.02"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -48,8 +48,13 @@ if (state.appZoomScaleVersion !== 2) {
 state.appZoom = appZoomLevels.includes(Number(state.appZoom)) ? Number(state.appZoom) : 100;
 function applyAppZoom() {
   const zoom = (state.appZoom + 10) / 100;
-  document.documentElement.style.zoom = String(zoom);
-  document.documentElement.style.setProperty("--dialog-inverse-zoom", String(1 / zoom));
+  // Keep fixed navigation outside a zoomed root (Safari scroll positioning).
+  document.documentElement.style.zoom = "";
+  const appShell = document.querySelector(".app-shell");
+  appShell.style.zoom = String(zoom);
+  appShell.style.setProperty("width", `${100 / zoom}%`, "important");
+  document.documentElement.style.setProperty("--menu-scale", String(zoom));
+  document.documentElement.style.setProperty("--dialog-inverse-zoom", "1");
   document.documentElement.dataset.appZoom = String(state.appZoom);
   document.querySelectorAll("[data-app-zoom]").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.appZoom) === state.appZoom)));
 }
@@ -1803,10 +1808,11 @@ function cancelCardDrag() {
 function startDrag(card, event) {
   if (currentView !== "timeline" || event.isPrimary === false || event.button > 0) return;
   event.preventDefault(); cancelCardDrag();
-  const bounds = card.getBoundingClientRect(), scale = Number(document.documentElement.style.zoom) || 1;
+  const bounds = card.getBoundingClientRect(), scale = Number(document.querySelector(".app-shell")?.style.zoom) || 1;
   dragOffsetX = event.clientX - bounds.left; dragOffsetY = event.clientY - bounds.top;
   const ghost = card.cloneNode(true); ghost.removeAttribute("id"); ghost.classList.add("dragging", "drag-ghost");
   ghost.setAttribute("aria-hidden", "true");
+  ghost.style.zoom = String(scale);
   ghost.style.setProperty("width", `${bounds.width / scale}px`, "important"); ghost.style.setProperty("height", `${bounds.height / scale}px`, "important");
   document.body.append(ghost);
   card.classList.add("drag-source"); cardDrag = { source: card, ghost, scale, pointerId: event.pointerId };
