@@ -1,4 +1,4 @@
-const APP_VERSION = "7.92"
+const APP_VERSION = "7.93"
 const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1724,9 +1724,13 @@ window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest("[data-room-kick]"); if (!button) return; const code = state.activeMatchCode; dialog(`Ta bort ${button.dataset.playerName || "deltagaren"} från matchen?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_remove_room_guest", { match_code_input: code, guest_user_id: button.dataset.roomKick }, "POST"); await syncMatches(); if (state.matches.some((item) => item.code === code)) openMatch(code); } catch (error) { dialog(error.message); } }, true, "TA BORT"); });
+document.addEventListener("click", (event) => {
+  const button = event.target.closest(".room-zoom-setting [data-app-zoom]");
+  if (!button || !appZoomLevels.includes(Number(button.dataset.appZoom))) return;
+  state.appZoom = Number(button.dataset.appZoom);
+  save(); applyAppZoom(); refreshTimelineScrollbars();
+});
 $("#room-live-timelines").addEventListener("click", (event) => {
-  const zoomButton = event.target.closest("[data-app-zoom]");
-  if (zoomButton) { state.appZoom = Number(zoomButton.dataset.appZoom); save(); applyAppZoom(); return; }
   const kick = event.target.closest("[data-room-kick]");
   if (kick) {
     const code = state.activeMatchCode;
