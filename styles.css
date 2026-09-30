@@ -1322,3 +1322,8 @@ details.room-spectator-card{display:block}
 [data-view-panel="match"].multi-room-match .room-live-track .year-card.unlocked-card,
 [data-view-panel="match"].multi-room-match .room-live-track .year-card.misplaced-card{transform:translateY(-12px)!important}
 #timeline-row>.slot.has-card{transform:translateY(-12px)!important}
+
+/* Visible countdowns before a new card and the room result handover. */
+.result-countdown{margin:12px 0;padding:10px 14px;border:1px solid #73c8ff;border-radius:12px;background:#142b46;color:#e2f4ff;text-align:center;font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}
+.result-countdown[hidden]{display:none!important}
+#next-round:disabled,#result-continue:disabled,#result-lock:disabled{cursor:wait;opacity:.8}
