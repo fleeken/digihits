@@ -1,4 +1,4 @@
-const APP_VERSION = "7.90"
+const APP_VERSION = "7.91"
 const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -49,6 +49,7 @@ state.appZoom = appZoomLevels.includes(Number(state.appZoom)) ? Number(state.app
 function applyAppZoom() {
   const zoom = (state.appZoom + 10) / 100;
   document.documentElement.style.zoom = String(zoom);
+  document.documentElement.style.setProperty("--app-zoom-factor", String(zoom));
   document.documentElement.style.setProperty("--dialog-inverse-zoom", String(1 / zoom));
   document.documentElement.dataset.appZoom = String(state.appZoom);
   document.querySelectorAll("[data-app-zoom]").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.appZoom) === state.appZoom)));
@@ -162,7 +163,6 @@ async function countDownTurnStart(button, matchCode, view = "match", label = "TU
     button.textContent = `${label} OM ${Math.ceil((until - Date.now()) / 1000)}…`;
     await animationWait(Math.min(1000, until - Date.now()));
   }
-  button.textContent = "";
   return currentView === view && state.activeMatchCode === matchCode && document.visibilityState !== "hidden";
 }
 let resultCountdownTimer = null;
@@ -1954,12 +1954,12 @@ $("#result-continue").addEventListener("click", async () => {
   button.disabled = true; lockButton.disabled = true; if (changeButton) changeButton.disabled = true;
   const matchCode = state.activeMatchCode;
   try {
-    if (!(await countDownTurnStart(button, matchCode, "result", "NYTT LÅTKORT"))) return;
     const activeMatch = state.matches.find((item) => item.code === matchCode), solo = isSoloMatch(activeMatch) && !localMatch(activeMatch);
     await animateTimelineOutcome(currentPlacementCorrect);
     state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save();
     if (solo) await markRoundStarted(); else await saveRoundUnlocked();
     await dealCard(); await syncMatches();
+    if (!(await countDownTurnStart(button, matchCode, "result", "NYTT LÅTKORT"))) return;
     resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); await enterNewCardGuess();
   } catch (error) { alert(error.message); }
   finally { button.disabled = false; button.textContent = label; lockButton.disabled = lockWasDisabled; if (changeButton) changeButton.disabled = changeWasDisabled; }
