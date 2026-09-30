@@ -1,4 +1,4 @@
-const APP_VERSION = "7.61"
+const APP_VERSION = "7.65"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -835,7 +835,14 @@ function prepareWelcomeTurn(view) {
     Promise.all(animations.map((animation) => animation.finished)).then(finish, finish);
   };
 }
+function guestRoomMatch() {
+  if (!supabaseAuth.session()?.access_token || String(state.roomGuestUserId || "") !== String(state.userId || "")) return null;
+  return state.matches.find((match) => match.code === state.activeMatchCode && match.code?.startsWith("M0")) || null;
+}
 function showView(view, focusMatches = false, fromHistory = false) {
+  const guestMatch = guestRoomMatch();
+  if (guestMatch && !["lobby", "match", "guess", "timeline", "result", "chat"].includes(view)) view = guestMatch.status === "waiting" ? "lobby" : "match";
+  document.documentElement.classList.toggle("room-guest-only", Boolean(guestMatch));
   const playWelcomeTurn = prepareWelcomeTurn(view);
   if (view === "home" && focusMatches) view = "matches";
   if (view === "friend-chat") view = "home";
@@ -860,7 +867,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
   updateBottomBadges();
   const bottomMenu = $("#bottom-menu");
   if (bottomMenu) {
-    bottomMenu.hidden = ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(view);
+    bottomMenu.hidden = Boolean(guestMatch) || ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(view);
     const profileToggle = document.querySelector(".profile-toggle");
     if (profileToggle) { profileToggle.hidden = bottomMenu.hidden; updateProfileToggleAvatar(); }
     const selected = selectedMenu;
@@ -882,7 +889,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
 
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-bottom-menu]");
-  if (!button) return;
+  if (!button || guestRoomMatch()) return;
   if (!$("#app-dialog").hidden && $("#dialog-message").classList.contains("level-rules")) $("#app-dialog").hidden = true;
   const targetMenu = button.dataset.bottomMenu;
   const activeMenu = ["profile", "avatar", "change-password"].includes(currentView) ? profileReturnMenu : menuForView(currentView);
@@ -895,6 +902,7 @@ function openLobby(matchCode) {
   state.activeMatchCode = matchCode; save();
   const room = match.code.startsWith("M0");
   $(".lobby-main").classList.toggle("is-room-lobby", room);
+  document.querySelector('[data-view-panel="lobby"]').classList.toggle("room-lobby-view", room);
   $(".lobby-main .lobby-title-row h1").textContent = room ? "Spelarlobby" : "Väntar på motspelare";
   $(".lobby-main .lobby-unlock").hidden = room;
   $("#room-lobby").hidden = !room;
@@ -1057,7 +1065,7 @@ function renderRoomTimelines(match, players) {
   const featured = currentPlayer || livePlayer || lastPlayer;
   const ordered = [featured, lastPlayer, ...players].filter((player, index, entries) => player && entries.indexOf(player) === index);
   const liveTurn = Boolean(livePlayer);
-  const markup = `<div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {
+  const markup = `<div class="app-zoom-setting room-zoom-setting"><strong>ZOOM IN/UT – SPELETS STORLEK</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div></div><div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {
     const active = player === livePlayer, locked = Array.isArray(player.locked_timeline) ? player.locked_timeline : [], unlocked = String(match.currentUserId) === String(player.user_id) && Array.isArray(player.turn_cards) ? player.turn_cards : [];
     const cards = [...locked.map((card, index) => ({ ...card, roomStatus: index === 0 ? "STARTKORT" : "LÅST" })), ...unlocked.map((card) => ({ ...card, roomStatus: "OLÅST" }))].sort((a, b) => Number(a.year) - Number(b.year));
     const live = active ? player.room_live_placement : null;
@@ -1066,17 +1074,18 @@ function renderRoomTimelines(match, players) {
     const score = player.last_round?.score || {}, correct = Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0);
     const mistakes = Number.isFinite(Number(score.mistakes)) && score.mistakes !== "" && score.mistakes != null ? Math.max(0, Number(score.mistakes)) : Math.max(0, Number(player.rounds_started || 0) - Math.max(0, locked.length - 1) - (active ? 1 : 0));
     const name = escapeHtml(player.display_name || "Spelare");
+    const avatar = avatarChoice(player);
     const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
     const kick = !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
-    const stage = active ? revealed ? "Kortet är inlåst – resultat" : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : player === currentPlayer ? "Nästa tur" : "Tidslinje";
+    const stage = active ? revealed ? "Kortet är inlåst – resultat" : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : player === currentPlayer ? "Nästa tur" : "";
     const currentCard = `<article class="year-card room-live-card ${played ? "is-revealed" : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.title)}<br>${escapeHtml(played.artist)}` : "HEMLIGT KORT"}</small></article>`;
     const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.title)}<br>${escapeHtml(card.artist)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
     const spectator = active && String(player.user_id) !== String(state.userId);
     const cardKey = `${match.code}:${player.user_id}:${player.current_card?.id || ""}`, flipped = roomRevealedCards.has(cardKey);
-    const guess = spectator && !revealed ? `<div class="room-live-guess"><p><span>Artist</span><strong>${escapeHtml(live?.artist) || "Väntar på gissning…"}</strong></p><p><span>Låtnamn</span><strong>${escapeHtml(live?.title) || "Väntar på gissning…"}</strong></p></div>` : "";
+    const guess = spectator ? `<div class="room-live-guess"><p><span>Artist</span><strong>${escapeHtml(live?.artist) || "Väntar på gissning…"}</strong></p><p><span>Låtnamn</span><strong>${escapeHtml(live?.title) || "Väntar på gissning…"}</strong></p></div>` : "";
     const spectatorCard = spectator && !revealed && player.current_card ? `<div class="room-spectator-card ${flipped ? "is-flipped" : ""}"><strong>${flipped ? escapeHtml(player.current_card.artist) : "HEMLIGT KORT"}</strong>${flipped ? `<span>${escapeHtml(player.current_card.title)}</span><small>Släppt ${escapeHtml(player.current_card.year)}</small>` : "<span>♫</span>"}<button class="button button-purple" data-room-reveal="${escapeHtml(cardKey)}" type="button" aria-pressed="${flipped}">${flipped ? "DÖLJ KORTET" : "VÄND PÅ KORTET"}</button></div>` : "";
     const result = revealed && position !== null && played ? `<p class="room-live-result ${position > 0 && Number(played.year) < Number(cards[position - 1]?.year) || position < cards.length && Number(played.year) > Number(cards[position]?.year) ? "is-wrong" : "is-correct"}">${position > 0 && Number(played.year) < Number(cards[position - 1]?.year) || position < cards.length && Number(played.year) > Number(cards[position]?.year) ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>` : "";
-    return `<article class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><strong>${name}${player === currentPlayer ? " · TUR NU" : ""}</strong></div><div class="room-live-stats"><div>Rätt <strong>${correct}/10</strong></div><div>Fel <strong>${mistakes}</strong></div><div>Byt <strong>${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3</strong></div></div><p class="room-live-stage">${stage}</p>${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
+    return `<article class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><i class="avatar-art room-live-avatar" style="${avatarArtStyle(avatar.genre, avatar.variant)}" role="img" aria-label="${name}s avatar"></i><strong>${name}${player === currentPlayer ? " · TUR NU" : ""}</strong></div><div class="room-live-stats"><div>Rätt <strong>${correct}/10</strong></div><div>Fel <strong>${mistakes}</strong></div><div>Byt <strong>${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3</strong></div></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
   }).join("")}`;
   const startButton = $("#next-round");
   if (panel.dataset.markup !== markup) {
@@ -1232,6 +1241,9 @@ async function syncMatches() {
   let players = []; try { const ids = rows.map((row) => row.match_id).join(","); if (ids) players = await supabaseAuth.dataRequest(`online_players?match_id=in.(${ids})&active=eq.true&select=id,match_id,user_id,display_name,turn_order,rounds_started,locked_timeline,last_round,swap_cards,avatar_genre,avatar_variant&order=turn_order`); } catch { /* matchlistan fungerar även om namnfrågan nekas */ }
   rows.forEach((row) => { if (row.online_matches?.status === "finished") settleResult(row.online_matches, user.id, players.filter((player) => String(player.match_id) === String(row.match_id))); });
   state.matches = rows.map((row) => { const match = row.online_matches, fetchedPlayers = players.filter((player) => String(player.match_id) === String(row.match_id)), previous = previousMatches.get(String(match?.id || match?.code)), matchPlayers = fetchedPlayers.length ? fetchedPlayers : previous?.players || [], solo = isSoloMatch(match), opponent = matchPlayers.find((player) => String(player.user_id) !== String(user.id))?.display_name || "motspelare"; return !match || match.status === "finished" ? null : { code: match.code, id: match.id, title: solo ? "Solomatch" : match.status === "waiting" ? `${state.playerName}, väntar på motspelare` : `${state.playerName}, ${opponent}`, status: match.status === "waiting" ? "waiting" : String(match.current_user_id) === String(user.id) ? "active" : "opponent", currentUserId: match.current_user_id, solo, locked: match.phase === "locked" || (solo && match.phase === "solo_locked"), round: Math.max(1, ...matchPlayers.map((player) => player.rounds_started || 0)), players: matchPlayers, turnNotice: match.turn_notice, lastResult: match.last_result, updatedAt: match.updated_at }; }).filter(Boolean).map(decorateLocalMatch).sort((a, b) => ({ active: 0, opponent: 1, waiting: 2 }[a.status] - { active: 0, opponent: 1, waiting: 2 }[b.status]) || new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+  if (String(state.anonymousRoomGuestId || "") === String(user.id) && previousActive?.code?.startsWith("M0") && !state.matches.some((match) => match.code === previousActive.code)) {
+    supabaseAuth.signOut(); state.roomGuestUserId = null; state.anonymousRoomGuestId = null; state.activeMatchCode = null; state.roomReturnView = null; save(); showView("welcome"); return;
+  }
   state.matches.filter((match) => !match.solo && match.players.length >= 2 && state.career.createdMatchCodes.includes(String(match.code))).forEach((match) => { if (!state.career.startedMatchCodes.includes(String(match.code))) state.career.startedMatchCodes.push(String(match.code)); });
   evaluateCareerAchievements();
   save(); render();
@@ -1260,19 +1272,47 @@ window.addEventListener("pagehide", () => { save(); stopCurrentTrack(true); });
 document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState === "hidden") { save(); stopCurrentTrack(true); return; }
   if (document.visibilityState === "visible" && supabaseAuth.session()?.access_token) {
+    if (state.pendingResult?.roomWrongRevealUntil) void finishRoomWrongReveal();
     if (spotifyPlayer && !(await spotifyPlayer.getCurrentState().catch(() => null))) resetSpotifyPlayer();
     await refreshRealtimeState();
   }
 });
+let roomWrongRevealPromise = null;
+function finishRoomWrongReveal() {
+  if (roomWrongRevealPromise) return roomWrongRevealPromise;
+  roomWrongRevealPromise = (async () => {
+    const pending = state.pendingResult;
+    if (!pending?.roomWrongRevealUntil || !pending.matchCode?.startsWith("M0")) return;
+    await new Promise((resolve) => setTimeout(resolve, Math.max(0, pending.roomWrongRevealUntil - Date.now())));
+    const code = pending.matchCode;
+    if (state.pendingResult !== pending) return;
+    await syncMatches();
+    const match = state.matches.find((item) => item.code === code);
+    if (match?.status === "active" && String(match.currentUserId) === String(state.userId)) {
+      currentPlacementCorrect = false;
+      state.currentGuess = pending.snapshot?.guess || {};
+      await handoverTurn(pending.snapshot?.timeline);
+    }
+    state.pendingResult = null;
+    delete state.roundResumeViews[code];
+    save();
+    if (currentView === "result" && state.activeMatchCode === code && state.matches.some((item) => item.code === code)) openMatch(code);
+  })().catch((error) => { dialog(error.message || "Turen kunde inte lämnas över. Öppna matchen igen."); }).finally(() => { roomWrongRevealPromise = null; });
+  return roomWrongRevealPromise;
+}
 async function restoreRoomLocation() {
   const code = state.roomReturnView?.code || state.activeMatchCode;
   const match = state.matches.find((item) => item.code === code && item.code?.startsWith("M0"));
-  if (!match || new URLSearchParams(location.search).has("room")) return false;
+  if (!match || (new URLSearchParams(location.search).has("room") && !guestRoomMatch())) return false;
   state.activeMatchCode = code; save();
+  if (match.status === "active" && state.pendingResult?.matchCode === code && state.pendingResult.roomWrongRevealUntil && state.roomReturnView?.view !== "result") {
+    await restoreRoundUnlocked();
+    void finishRoomWrongReveal();
+  }
   if (match.status === "waiting") { openLobby(code); return true; }
   const view = state.roomReturnView?.code === code ? state.roomReturnView.view : "match";
   if (match.status === "active" && ["guess", "timeline", "result"].includes(view)) {
-    if (view === "result" && state.pendingResult?.matchCode === code) { await restoreResultView(); return true; }
+    if (view === "result" && state.pendingResult?.matchCode === code) { await restoreRoundUnlocked(); await restoreResultView(); if (state.pendingResult?.roomWrongRevealUntil) void finishRoomWrongReveal(); return true; }
     await restoreRoundUnlocked();
     if (state.currentCard) {
       if (view === "result") { await restoreResultView(); return true; }
@@ -1374,7 +1414,7 @@ document.addEventListener("submit", async (event) => { if (event.target.id !== "
   if (!supabaseAuth.session()?.access_token) await supabaseAuth.signInGuest();
   const user = await supabaseAuth.user(supabaseAuth.session().access_token);
   const result = await supabaseAuth.dataRequest("rpc/digihits_join_room_match", { match_code_input: form.dataset.code, guest_name: name, chosen_genre: form.dataset.genre || "Pop", chosen_variant: Number(form.dataset.variant || 0) }, "POST");
-  state.playerName = name; state.userId = user.id; state.avatar.genre = form.dataset.genre || "Pop"; state.avatar.variant = Number(form.dataset.variant || 0); save();
+  state.playerName = name; state.userId = user.id; state.roomGuestUserId = user.id; if (user.is_anonymous) state.anonymousRoomGuestId = user.id; state.avatar.genre = form.dataset.genre || "Pop"; state.avatar.variant = Number(form.dataset.variant || 0); save();
   await syncMatches(); startRealtime(); $("#app-dialog").hidden = true; history.replaceState({}, "", location.pathname); const joined = state.matches.find((item) => item.code === (result.match_code || form.dataset.code)); if (joined?.status === "waiting") openLobby(joined.code); else if (joined) openMatch(joined.code);
 } catch (failure) { error.textContent = failure.message || "Kunde inte gå med i matchen."; error.hidden = false; } finally { button.disabled = false; } });
 document.addEventListener("click", async (event) => { const mode = event.target.closest("[data-match-mode]")?.dataset.matchMode; if (!mode) return; try { if (mode === "self") { $("#app-dialog").hidden = true; await createSoloMatch(); } else if (mode === "friend") { if (!state.friends.length) return dialog("Du har inga vänner i vänskapslistan ännu."); $("#dialog-title").textContent = "Spela mot en vän"; $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-category="online" type="button">← TILLBAKA</button><div class="invite-picker">${state.friends.map((friend) => `<div><strong>${escapeHtml(friend.display_name)}</strong><button class="button button-green" data-create-friend-match="${friend.friend_id}" type="button">VÄLJ</button></div>`).join("")}</div>`; } else if (mode === "random") { $("#app-dialog").hidden = true; await createRandomOnlineMatch(); } else if (mode === "computer") { $("#app-dialog").hidden = true; await createLocalMatch("computer"); } else showRoomSetup(); } catch (error) { alert(error.message); } });
@@ -1433,6 +1473,9 @@ $("#copy-lobby-code").addEventListener("click", async () => {
 async function leaveRoom(match) {
   await supabaseAuth.dataRequest("rpc/digihits_leave_room_match", { match_code_input: match.code }, "POST");
   roomLobbyControlsCode = "";
+  if (String(state.anonymousRoomGuestId || "") === String(state.userId || "")) {
+    supabaseAuth.signOut(); state.roomGuestUserId = null; state.anonymousRoomGuestId = null; state.activeMatchCode = null; state.roomReturnView = null; state.matches = []; save(); showView("welcome"); return;
+  }
   await syncMatches();
   showView("home", true);
 }
@@ -1465,6 +1508,8 @@ $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest("[data-room-kick]"); if (!button) return; const code = state.activeMatchCode; dialog(`Ta bort ${button.dataset.playerName || "deltagaren"} från matchen?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_remove_room_guest", { match_code_input: code, guest_user_id: button.dataset.roomKick }, "POST"); await syncMatches(); if (state.matches.some((item) => item.code === code)) openMatch(code); } catch (error) { dialog(error.message); } }, true, "TA BORT"); });
 $("#room-live-timelines").addEventListener("click", (event) => {
+  const zoomButton = event.target.closest("[data-app-zoom]");
+  if (zoomButton) { state.appZoom = Number(zoomButton.dataset.appZoom); save(); applyAppZoom(); return; }
   const kick = event.target.closest("[data-room-kick]");
   if (kick) {
     const code = state.activeMatchCode;
@@ -1670,13 +1715,13 @@ $("#lock-placement").addEventListener("click", async () => {
   let earnedSwapCard = false;
   if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) { if (solo && state.changeTrackCards >= 2) grantDailyAchievement("triple", "Trippel"); state.pendingSwapAward = { matchCode: state.activeMatchCode, cardId: resultCard.id }; state.swapUsedThisRound = false; save(); earnedSwapCard = true; }
   if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
-  if (solo || currentPlacementCorrect) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect }; save(); }
+  if (solo || currentPlacementCorrect || activeMatch?.code.startsWith("M0")) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect, ...(!currentPlacementCorrect && activeMatch?.code.startsWith("M0") ? { roomWrongRevealUntil: Date.now() + 5000 } : {}) }; save(); }
   finishAchievementAwards();
   resultIsLocked = true; $("#result-back").hidden = true;
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
   let soloOutcome;
+  if (!currentPlacementCorrect && activeMatch?.code.startsWith("M0")) { void finishRoomWrongReveal(); return; }
   if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); if (localMatch()?.mode === "room" && !soloOutcome?.won) { $("#wrong-overview").dataset.roomHandoverName = soloOutcome.nextPlayerName; $("#wrong-overview").hidden = false; } } catch (error) { alert(error.message); return; } }
-  if (!currentPlacementCorrect && activeMatch?.code.startsWith("M0") && !soloOutcome?.won) dialog("Felplacerat kort. Turen har gått vidare till nästa spelare.");
   if (soloOutcome?.won) { grantDailyAchievement("soloWin", "Solovinst"); if (Number(soloOutcome.soloSummary?.mistakes || 0) === 0) grantDailyAchievement("soloFlawless", "Felfri"); state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); finishAchievementAwards(); }
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
   else if (earnedSwapCard) dialog(solo ? "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn! Byt-låt-kort påverkar inte antalet genomförda omgångar." : "Grattis, du vann ett byt-låt-kort eftersom du gissade rätt för både artist och låtnamn!");
@@ -1698,7 +1743,7 @@ $("#result-lock").addEventListener("click", async () => {
   } catch (error) { alert(error.message); }
 });
 $("#result-back").addEventListener("click", () => { if (returnToFinalResult && historyResultEntry) { returnToFinalResult = false; viewingLatestRound = false; showHistoryResult(historyResultEntry); } else if (viewingHistoryResult) { viewingHistoryResult = false; viewingLatestRound = false; showView("home", true); } else if (viewingLatestRound) { viewingLatestRound = false; showView(latestRoundReturnView || "match"); } else if (!currentPlacementCorrect) { state.roundUnlocked = []; save(); showView("home", true); } else showView("match"); });
-$("#brand-home").addEventListener("click", () => showView(currentView === "welcome" ? "welcome" : "home"));
+$("#brand-home").addEventListener("click", () => { if (!guestRoomMatch()) showView(currentView === "welcome" ? "welcome" : "home"); });
 $("#install-app").addEventListener("click", () => dialog("I Safari: tryck på Dela-knappen längst ned, välj Lägg till på hemskärmen och bekräfta."));
 const pushKeyBytes = (value) => Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), (character) => character.charCodeAt(0));
 $("#enable-notifications").addEventListener("click", async () => { try { if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("Notiser stöds inte i den här webbläsaren."); const registration = await navigator.serviceWorker.ready, existingSubscription = await registration.pushManager.getSubscription(); if (state.pushNotificationsEnabled) { if (existingSubscription) { await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${encodeURIComponent(existingSubscription.endpoint)}`, null, "DELETE"); await existingSubscription.unsubscribe(); } state.pushNotificationsEnabled = false; save(); render(); dialog("Notiser är inaktiverade på den här enheten."); return; } const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission(); if (permission !== "granted") throw new Error("Notiser tilläts inte. Du kan ändra detta i iPhones inställningar."); const key = window.DIGIHITS_VAPID_PUBLIC_KEY; if (!key) throw new Error("Notisservern är inte klar ännu."); const subscription = existingSubscription || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(key) }); const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), endpoint = encodeURIComponent(subscription.endpoint), data = { endpoint: subscription.endpoint, user_id: String(user.id), subscription: subscription.toJSON() }, existing = await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}&select=endpoint`); if (existing.length) await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}`, data, "PATCH"); else await supabaseAuth.dataRequest("push_subscriptions", data, "POST"); state.pushNotificationsEnabled = true; save(); render(); dialog("Notiser är aktiverade på den här enheten."); } catch (error) { dialog(error.message); } });
@@ -1817,9 +1862,9 @@ if (verification || new URLSearchParams(location.search).get("reset") === "1") {
 } else if (supabaseAuth.session()?.access_token) {
   supabaseAuth.user(supabaseAuth.session().access_token).then(async (user) => {
     if (user.is_anonymous) {
-      state.userId = user.id; await syncMatches(); startRealtime();
+      state.userId = user.id; state.roomGuestUserId = user.id; state.anonymousRoomGuestId = user.id; await syncMatches(); startRealtime();
       const invitedRoom = new URLSearchParams(location.search).get("room");
-      if (invitedRoom) showGuestRoomJoin(invitedRoom.toUpperCase());
+      if (invitedRoom && !guestRoomMatch()) showGuestRoomJoin(invitedRoom.toUpperCase());
       else if (!(await restoreRoomLocation())) showView("home", false, true);
       return;
     }
