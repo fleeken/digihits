@@ -1,4 +1,4 @@
-const APP_VERSION = "7.69"
+const APP_VERSION = "7.70"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1052,6 +1052,12 @@ function openMatch(matchCode) {
   else if (match.id) { $("#match-chat").hidden = soloMatch; overviewLoading.hidden = false; loadOverviewPlayers(match.id, isYourTurn, soloMatch); }
   else overviewLoading.hidden = true;
 }
+function roomMistakes(player) {
+  const saved = player?.last_round?.score?.mistakes;
+  if (saved != null && saved !== "" && Number.isFinite(Number(saved))) return Math.max(0, Number(saved));
+  // A started turn or a dealt starter card is not a failed placement.
+  return player?.last_round?.outcome === "wrong" ? 1 : 0;
+}
 const roomRevealedCards = new Set();
 let roomLivePlayers = [];
 // Keep live controls in place so incoming updates cannot interrupt a tap.
@@ -1101,7 +1107,7 @@ function renderRoomTimelines(match, players) {
     const position = live && ["placing", "revealed"].includes(live.phase) && Number.isInteger(Number(live.position)) ? Math.max(0, Math.min(cards.length, Number(live.position))) : null;
     const revealed = live?.phase === "revealed", played = revealed ? player.current_card : null;
     const score = player.last_round?.score || {}, correct = Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0);
-    const mistakes = Number.isFinite(Number(score.mistakes)) && score.mistakes !== "" && score.mistakes != null ? Math.max(0, Number(score.mistakes)) : Math.max(0, Number(player.rounds_started || 0) - Math.max(0, locked.length - 1) - (active ? 1 : 0));
+    const mistakes = roomMistakes(player);
     const name = escapeHtml(player.display_name || "Spelare");
     const avatar = avatarChoice(player);
     const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
@@ -1662,7 +1668,7 @@ async function handoverTurn(savedTimeline = null) {
   const awaitingFinalChance = !solo && projectedCorrect >= target && !finalReady;
   const won = Boolean(winnerId);
   const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" })), { ...currentCard, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }];
-  const previousScore = minePlayer.last_round?.score || {}, priorCorrect = Math.max(1, Number(previousScore.correct) || (minePlayer.locked_timeline || []).length), priorMistakes = Math.max(0, Number(previousScore.mistakes) || Math.max(0, Number(minePlayer.rounds_started || 0) - Math.max(0, priorCorrect - 1))), score = { correct: currentPlacementCorrect ? priorCorrect + cardsToLock.length : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
+  const previousScore = minePlayer.last_round?.score || {}, priorCorrect = Math.max(1, Number(previousScore.correct) || (minePlayer.locked_timeline || []).length), priorMistakes = match.code.startsWith("M0") ? roomMistakes(minePlayer) : Math.max(0, Number(previousScore.mistakes) || Math.max(0, Number(minePlayer.rounds_started || 0) - Math.max(0, priorCorrect - 1))), score = { correct: currentPlacementCorrect ? priorCorrect + cardsToLock.length : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
   const lastRound = { ended_at: new Date().toISOString(), rounds: Number(minePlayer.rounds_started || 0), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, score, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...roundCards] };
   const currentSwapCards = Math.max(0, Math.min(3, Number(state.changeTrackCards ?? minePlayer.swap_cards) || 0));
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, swap_cards: currentSwapCards, ...(match.code.startsWith("M0") ? { room_live_placement: null } : {}), updated_at: new Date().toISOString() }, "PATCH");
@@ -1759,7 +1765,7 @@ $("#lock-placement").addEventListener("click", async () => {
   if (currentPlacementCorrect && state.roundUnlocked.length + 1 >= 3) grantDailyAchievement("hattrick", "Hattrick");
   if (!solo && currentPlacementCorrect) { state.onlineCorrect += 1; save(); evaluateCareerAchievements(); }
   if (!solo) {
-    const match = state.matches.find((item) => item.code === state.activeMatchCode), player = (match?.players || []).find((item) => String(item.user_id) === String(state.userId)), savedScore = player?.last_round?.score || {}, priorCorrect = Math.max(1, Number(savedScore.correct) || state.lockedTimeline.length), priorMistakes = Number.isFinite(Number(savedScore.mistakes)) && savedScore.mistakes !== "" ? Math.max(0, Number(savedScore.mistakes)) : Math.max(0, Number(player?.rounds_started || 0) - Math.max(0, priorCorrect - 1));
+    const match = state.matches.find((item) => item.code === state.activeMatchCode), player = (match?.players || []).find((item) => String(item.user_id) === String(state.userId)), savedScore = player?.last_round?.score || {}, priorCorrect = Math.max(1, Number(savedScore.correct) || state.lockedTimeline.length), priorMistakes = activeMatch?.code.startsWith("M0") ? roomMistakes(player) : Number.isFinite(Number(savedScore.mistakes)) && savedScore.mistakes !== "" ? Math.max(0, Number(savedScore.mistakes)) : Math.max(0, Number(player?.rounds_started || 0) - Math.max(0, priorCorrect - 1));
     resultSnapshot.score = { correct: currentPlacementCorrect ? priorCorrect + state.roundUnlocked.length + 1 : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
   }
   if (solo) { const score = soloProgress(state.matches.find((match) => match.code === state.activeMatchCode)); currentPlacementCorrect ? score.correct += 1 : score.mistakes += 1; resultSnapshot.score = { ...score }; save(); }
