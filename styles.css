@@ -1303,3 +1303,7 @@ details.room-spectator-card{display:block}
 [data-view-panel="match"].room-live-focus .room-live-player{border:0;border-radius:0;box-shadow:none;padding:12px;background:#111b32}
 
 [data-view-panel="match"].room-live-focus .room-live-heading{display:none!important}
+
+[data-view-panel="match"].multi-room-match .room-live-guess p.is-correct{background:#164934;border:2px solid #66db93}
+[data-view-panel="match"].multi-room-match .room-live-guess p.is-wrong{background:#772b3a;border:2px solid #ff8597}
+.room-live-guess .room-guess-verdict{display:block;margin-top:10px;font-size:15px;font-weight:900;color:#fff}
