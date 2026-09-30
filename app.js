@@ -1,4 +1,5 @@
-const APP_VERSION = "7.79"
+const APP_VERSION = "7.80"
+const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -189,7 +190,7 @@ async function animateTimelineOutcome(correct) {
   if (!row) return;
   const affected = [...row.querySelectorAll(correct ? ".unlocked-card, .correct-card" : ".unlocked-card, .misplaced-card")];
   if (!affected.length) return;
-  await animationWait(correct ? 700 : 5000);
+  await animationWait(correct ? 700 : ROOM_RESULT_REVEAL_MS);
   const stage = animationStage();
   if (correct) {
     row.classList.add("locking-cards");
@@ -1197,7 +1198,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
       return `<p${guessChecked ? ` class="${right ? "is-correct" : "is-wrong"}"` : ""}><span class="room-guess-answer">${guessChecked ? `<b class="room-guess-verdict">${right ? "✓ Rätt" : "✕ Fel"}</b>` : ""}<span class="room-guess-label">${label}:</span><strong>${escapeHtml(guessValues[key]) || (guessChecked ? "Inget svar" : "Väntar på gissning…")}</strong></span></p>`;
     }).join("")}</div>` : "";
     const spectatorCard = spectator && !revealed && player.current_card ? `<details class="room-spectator-card" data-room-reveal="${escapeHtml(cardKey)}"${flipped ? " open" : ""}><summary><strong class="room-card-back">HEMLIGT KORT</strong><span class="room-card-back room-card-symbol">♫</span><span class="button button-purple room-card-flip"><span class="room-card-open-label">VÄND PÅ KORTET</span><span class="room-card-close-label">DÖLJ KORTET</span></span></summary><div class="room-card-answer"><strong>${escapeHtml(player.current_card.artist)}: ${escapeHtml(player.current_card.title)}</strong><small>Släppt ${escapeHtml(player.current_card.year)}</small></div></details>` : "";
-    const revealUntil = misplaced ? Date.parse(live?.updated_at || "") + 5000 : 0;
+    const revealUntil = misplaced ? Date.parse(live?.updated_at || "") + ROOM_RESULT_REVEAL_MS : 0;
     const swapAward = guessChecked && !misplaced && fullAnswer && Number(player.swap_cards || 0) < 3;
     const result = revealed && position !== null && played ? `<p class="room-live-result ${misplaced ? "is-wrong" : "is-correct"}">${misplaced ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>${swapAward ? `<p class="room-swap-award">${String(player.user_id) === String(state.userId) ? "Du" : name} vann ett byt-låt-kort</p>` : ""}${Number.isFinite(revealUntil) && revealUntil > 0 ? `<p class="result-countdown" role="timer" data-result-countdown="${revealUntil}"></p>` : ""}` : "";
     return `<article data-room-player="${escapeHtml(player.user_id)}" class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><i class="avatar-art room-live-avatar" style="${avatarArtStyle(avatar.genre, avatar.variant)}" role="img" aria-label="${name}s avatar"></i><strong>${name}${player === currentPlayer ? " · TUR NU" : ""}</strong></div><div class="room-live-stats"><div>Rätt <strong>${correct}/10</strong></div><div>Fel <strong>${mistakes}</strong></div><div>Byt <strong>${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3</strong></div></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
@@ -1249,7 +1250,7 @@ function renderRoomResultBoard(match, card, snapshot) {
   const failedPosition = snapshot.timeline?.findIndex((item) => String(item.id) === String(card.id) && /FEL ?PLACERAT/.test(item.status));
   const position = Number.isInteger(snapshot.placedPosition) ? snapshot.placedPosition : failedPosition >= 0 ? failedPosition : cards.filter((item) => Number(item.year) <= Number(card.year)).length;
   const player = (match.players || []).find((item) => String(item.user_id) === String(state.userId)) || {};
-  const live = { phase: "revealed", card_id: card.id, position, artist: snapshot.guess.artist || "", title: snapshot.guess.title || "", updated_at: new Date((state.pendingResult?.roomWrongRevealUntil || Date.now() + 5000) - 5000).toISOString() };
+  const live = { phase: "revealed", card_id: card.id, position, artist: snapshot.guess.artist || "", title: snapshot.guess.title || "", updated_at: new Date((state.pendingResult?.roomWrongRevealUntil || Date.now() + ROOM_RESULT_REVEAL_MS) - ROOM_RESULT_REVEAL_MS).toISOString() };
   renderRoomTimelines({ ...match, currentUserId: state.userId }, [{ ...player, user_id: state.userId, display_name: player.display_name || state.playerName, locked_timeline: snapshot.locked, turn_cards: snapshot.unlocked, current_card: card, room_live_placement: live, last_round: { score: snapshot.score }, swap_cards: state.changeTrackCards }], board);
 }
 
@@ -1885,7 +1886,7 @@ $("#lock-placement").addEventListener("click", async () => {
   let earnedSwapCard = false;
   if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards < 3) { if (solo && state.changeTrackCards >= 2) grantDailyAchievement("triple", "Trippel"); state.pendingSwapAward = { matchCode: state.activeMatchCode, cardId: resultCard.id }; state.swapUsedThisRound = false; save(); earnedSwapCard = true; }
   if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
-  if (solo || currentPlacementCorrect || activeMatch?.code.startsWith("M0")) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect, ...(!currentPlacementCorrect && activeMatch?.code.startsWith("M0") ? { roomWrongRevealUntil: Date.now() + 5000 } : {}) }; save(); }
+  if (solo || currentPlacementCorrect || activeMatch?.code.startsWith("M0")) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect, ...(!currentPlacementCorrect && activeMatch?.code.startsWith("M0") ? { roomWrongRevealUntil: Date.now() + ROOM_RESULT_REVEAL_MS } : {}) }; save(); }
   finishAchievementAwards();
   resultIsLocked = true; $("#result-back").hidden = true;
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
