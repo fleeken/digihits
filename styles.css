@@ -1406,3 +1406,9 @@ input.timeline-scrollbar[hidden]{display:none!important}
 button.banner-result-countdown{display:block;width:100%;border:0;background:transparent;font-family:inherit;cursor:pointer}
 button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 :is(.banner-result-countdown,.result-countdown):focus-visible{outline:3px solid #61d9fa;outline-offset:3px}
+
+/* Percentage layout keeps banners edge-to-edge in Safari at every app zoom. */
+.app-shell:has(>.view.active>.match-turn-banner){width:100%!important;max-width:none!important;margin-inline:0!important;padding-inline:0!important}
+.view.active:has(>.match-turn-banner){--match-page-gutter:clamp(12px,3vw,48px);padding-inline:var(--match-page-gutter)}
+.view.active>.match-turn-banner{--banner-gutter:var(--match-page-gutter);width:auto!important;max-width:none!important;margin-inline:calc(-1 * var(--match-page-gutter))!important;padding-inline:var(--match-page-gutter)}
+.app-shell:has(>.view.active>.match-turn-banner)>.brand{margin-inline:clamp(12px,3vw,48px)}

@@ -1,4 +1,4 @@
-const APP_VERSION = "8.00"
+const APP_VERSION = "8.01"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -49,7 +49,6 @@ state.appZoom = appZoomLevels.includes(Number(state.appZoom)) ? Number(state.app
 function applyAppZoom() {
   const zoom = (state.appZoom + 10) / 100;
   document.documentElement.style.zoom = String(zoom);
-  requestAnimationFrame(fitMatchBanners);
   document.documentElement.style.setProperty("--dialog-inverse-zoom", String(1 / zoom));
   document.documentElement.dataset.appZoom = String(state.appZoom);
   document.querySelectorAll("[data-app-zoom]").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.appZoom) === state.appZoom)));
@@ -224,17 +223,6 @@ async function animateTimelineOutcome(correct) {
   affected.forEach((item) => item.remove()); row.classList.add("timeline-centered"); row.scrollTo({ left: Math.max(0, (row.scrollWidth - row.clientWidth) / 2), behavior: "smooth" });
   await animationWait(1000); stage.className = ""; stage.replaceChildren();
 }
-function fitMatchBanners() {
-  document.querySelectorAll(".view.active > .match-turn-banner").forEach((banner) => {
-    const view = banner.parentElement, bounds = view.getBoundingClientRect();
-    if (!view.offsetWidth || !bounds.width) return;
-    const scale = bounds.width / view.offsetWidth;
-    banner.style.width = `${window.innerWidth / scale}px`;
-    banner.style.marginLeft = `${-bounds.left / scale}px`;
-    banner.style.marginRight = "0px";
-  });
-}
-window.addEventListener("resize", fitMatchBanners);
 const roundStripMarkup = new WeakMap();
 function updateHeaderVisibility() {
   const signedIn = Boolean(supabaseAuth.session()?.access_token);
@@ -269,7 +257,6 @@ function renderRoundPlayers() {
     // Compare source markup, not browser-normalized HTML; retain avatars and scroll on unchanged syncs.
     if (roundStripMarkup.get(strip) !== markup) { strip.innerHTML = markup; roundStripMarkup.set(strip, markup); }
   });
-  requestAnimationFrame(fitMatchBanners);
   updateHeaderVisibility();
 }
 function updateRoundStartButton() {
