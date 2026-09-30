@@ -1,4 +1,4 @@
-const APP_VERSION = "7.76"
+const APP_VERSION = "7.77"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -631,7 +631,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $(".result-actions").style.gridTemplateColumns = onlyContinue ? "minmax(0,300px)" : "";
   $(".result-actions").style.justifyContent = onlyContinue ? "center" : "";
   const localTurnMatch = Boolean(localMatch(activeMatch)); overviewButton.textContent = localTurnMatch ? "LÄMNA ÖVER TUREN →" : "TILL MATCHÖVERSIKT"; overviewButton.className = localTurnMatch ? "button button-green wrong-match-button" : "lobby-back wrong-match-button";
-  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = correct || score.correct >= 10 || (localMatch(activeMatch)?.mode === "room" && !overviewButton.dataset.roomHandoverName);
+  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = activeMatch?.code.startsWith("M0") || correct || score.correct >= 10 || (localMatch(activeMatch)?.mode === "room" && !overviewButton.dataset.roomHandoverName);
   $("#result-lock").textContent = "🔒 AVSLUTA OMGÅNG & LÅS IN MINA OLÅSTA KORT";
 }
 
@@ -1113,9 +1113,9 @@ function renderRoomTimelines(match, players) {
     const avatar = avatarChoice(player);
     const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
     const kick = !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
-    const stage = active ? revealed ? "Kortet är inlåst – resultat" : spectatorTurn ? `Just nu: ${name} ${position !== null || live?.phase === "choosing" ? "placerar kortet på tidslinjen" : "gissar artist och låtnamn"}` : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : "";
+    const stage = active ? revealed ? "" : spectatorTurn ? `Just nu: ${name} ${position !== null || live?.phase === "choosing" ? "placerar kortet på tidslinjen" : "gissar artist och låtnamn"}` : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : "";
     const misplaced = revealed && position !== null && played && ((position > 0 && Number(played.year) < Number(cards[position - 1]?.year)) || (position < cards.length && Number(played.year) > Number(cards[position]?.year)));
-    const currentCard = `<article class="year-card room-live-card ${played ? `is-revealed ${misplaced ? "misplaced-card" : "unlocked-card"}` : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.artist)}: ${escapeHtml(played.title)}` : "HEMLIGT KORT"}</small></article>`;
+    const currentCard = `<article class="year-card room-live-card ${played ? `is-revealed ${misplaced ? "misplaced-card" : "unlocked-card"}` : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.artist)}: ${escapeHtml(played.title)}<span class="card-status">${misplaced ? "FELPLACERAT" : "OLÅST"}</span>` : "HEMLIGT KORT"}</small></article>`;
     const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.artist)}: ${escapeHtml(card.title)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
     const spectator = active && String(player.user_id) !== String(state.userId);
     const cardKey = `${match.code}:${player.user_id}:${player.current_card?.id || ""}`;
