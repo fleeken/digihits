@@ -1301,3 +1301,5 @@ details.room-spectator-card{display:block}
 [data-view-panel="match"].room-live-focus .lobby-layout>.match-view{min-height:calc(100dvh - 150px);padding:16px 0}
 [data-view-panel="match"].room-live-focus .lobby-layout>.lobby-side,[data-view-panel="match"].room-live-focus .room-zoom-setting,[data-view-panel="match"].room-live-focus .room-live-intro,[data-view-panel="match"].room-live-focus .room-live-stats{display:none!important}
 [data-view-panel="match"].room-live-focus .room-live-player{border:0;border-radius:0;box-shadow:none;padding:12px;background:#111b32}
+
+[data-view-panel="match"].room-live-focus .room-live-heading{display:none!important}
