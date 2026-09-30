@@ -1,4 +1,4 @@
-const APP_VERSION = "7.95"
+const APP_VERSION = "7.96"
 const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1221,7 +1221,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
   }
   if (zoomControl) {
     zoomControl.hidden = Boolean(resultPanel) || Boolean(currentPlayer?.current_card);
-    const zoomMarkup = `<strong>ZOOM IN/UT – SPELETS STORLEK</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div>`;
+    const zoomMarkup = `<strong>ZOOM</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div>`;
     if (zoomControl.dataset.markup !== zoomMarkup) { zoomControl.innerHTML = zoomMarkup; zoomControl.dataset.markup = zoomMarkup; }
   }
   const markup = `<div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {

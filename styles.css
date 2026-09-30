@@ -1399,3 +1399,6 @@ input.timeline-scrollbar[hidden]{display:none!important}
 .room-zoom-setting[hidden]{display:none!important}
 
 .brand[hidden],#brand-home[hidden],#install-app[hidden],#enable-notifications[hidden]{display:none!important}
+
+.app-zoom-setting>strong{text-align:center}
+.view>.room-zoom-setting{width:min(100%,570px);margin-inline:auto;text-align:center}
