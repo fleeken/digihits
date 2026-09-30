@@ -1272,3 +1272,8 @@ html:has(.modal:not([hidden])),body:has(.modal:not([hidden])){overflow:hidden}
 [data-view-panel="match"].multi-room-match .room-zoom-setting>strong{color:#e9f4ff;font-size:13px}
 [data-view-panel="match"].multi-room-match .room-zoom-setting .app-zoom-levels button{background:#243958;border-color:#7794ba;color:#f6fbff;font-size:13px}
 [data-view-panel="match"].multi-room-match .room-zoom-setting .app-zoom-levels button[aria-pressed="true"]{background:#70e69e;border-color:#3daf69;color:#103522}
+
+/* Center short timelines without hiding the beginning of longer tracks. */
+.timeline-head h1{text-align:center}
+#timeline-row>:first-child,.room-live-track>:first-child{margin-left:auto}
+#timeline-row>:last-child,.room-live-track>:last-child{margin-right:auto}
