@@ -20,5 +20,5 @@ drop trigger if exists digihits_turn_push on public.online_matches;
 create trigger digihits_turn_push
 after update of current_user_id on public.online_matches
 for each row
-when (old.current_user_id is distinct from new.current_user_id)
+when (old.current_user_id is distinct from new.current_user_id and new.code not like 'M0%')
 execute function public.digihits_notify_turn();

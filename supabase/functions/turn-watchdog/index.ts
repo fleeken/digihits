@@ -15,9 +15,10 @@ async function send(userId: string, message: Record<string, unknown>) {
 Deno.serve(async (request) => {
   if (request.headers.get("x-digihits-push-secret") !== Deno.env.get("PUSH_WEBHOOK_SECRET")) return new Response("Unauthorized", { status: 401 });
   const now = Date.now(), fortyEightHours = 48 * 60 * 60 * 1000, seventyTwoHours = 72 * 60 * 60 * 1000;
-  const { data: matches = [] } = await supabase.from("online_matches").select("id,code,current_user_id,turn_started_at,turn_reminder_sent_at").eq("status", "active").not("code", "like", "S0%").not("current_user_id", "is", null);
+  const { data: matches = [] } = await supabase.from("online_matches").select("id,code,current_user_id,turn_started_at,turn_reminder_sent_at").eq("status", "active").not("code", "like", "S0%").not("code", "like", "M0%").not("current_user_id", "is", null);
   let reminders = 0, timeouts = 0;
   for (const match of matches) {
+    if (String(match.code || "").startsWith("M0")) continue;
     const started = new Date(match.turn_started_at || 0).getTime();
     if (!started || now - started < fortyEightHours) continue;
     const { data: players = [] } = await supabase.from("online_players").select("id,user_id,display_name,turn_order").eq("match_id", String(match.id)).eq("active", true).order("turn_order");

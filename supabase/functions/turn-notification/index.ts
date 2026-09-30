@@ -9,6 +9,7 @@ Deno.serve(async (request) => {
   const payload = await request.json();
   const match = payload.record || payload;
   const previous = payload.old_record || {};
+  if (String(match?.code || "").startsWith("M0")) return Response.json({ skipped: true });
   if (!match?.id || !match.current_user_id || String(match.current_user_id) === String(previous.current_user_id)) return Response.json({ skipped: true });
   const { data: players = [] } = await supabase.from("online_players").select("user_id,display_name").eq("match_id", String(match.id)).eq("active", true);
   const target = players.find((player) => String(player.user_id) === String(match.current_user_id));
@@ -17,7 +18,7 @@ Deno.serve(async (request) => {
   const { data: subscriptions = [] } = await supabase.from("push_subscriptions").select("endpoint,subscription").eq("user_id", String(target.user_id));
   const { data: activePlayers = [] } = await supabase.from("online_players").select("match_id").eq("user_id", String(target.user_id)).eq("active", true);
   const activeMatchIds = activePlayers.map((player) => String(player.match_id));
-  const { count } = activeMatchIds.length ? await supabase.from("online_matches").select("id", { count: "exact", head: true }).in("id", activeMatchIds).eq("current_user_id", String(target.user_id)).eq("status", "active").not("code", "like", "S0%") : { count: 0 };
+  const { count } = activeMatchIds.length ? await supabase.from("online_matches").select("id", { count: "exact", head: true }).in("id", activeMatchIds).eq("current_user_id", String(target.user_id)).eq("status", "active").not("code", "like", "S0%").not("code", "like", "M0%") : { count: 0 };
   const message = JSON.stringify({ title: "Din tur i Digihits", body: `Det är din tur mot ${opponent?.display_name || "din motspelare"}.`, url: "./?matches=1#home", badgeCount: count || 1 });
   await Promise.all(subscriptions.map(async (item) => {
     try { await webpush.sendNotification(item.subscription, message); }

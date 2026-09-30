@@ -1,4 +1,4 @@
-const APP_VERSION = "7.72"
+const APP_VERSION = "7.73"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -217,6 +217,7 @@ function updateRoundStartButton() {
 // Därmed kan en onlinematch aldrig hamna i solo-flöde eller solostatistik.
 const isSoloMatch = (match) => String(match?.code || "").startsWith("S0");
 const localMatch = (match = state.matches.find((item) => item.code === state.activeMatchCode)) => state.localMatches?.[match?.code];
+const isPhysicalRoomMatch = (match) => String(match?.code || "").startsWith("M0") || localMatch(match)?.mode === "room";
 function decorateLocalMatch(match) {
   const local = localMatch(match); if (!local) return match;
   match.title = local.mode === "computer" ? `${local.players[0].name}, Datorn` : local.players.map((player) => player.name).join(", ");
@@ -495,7 +496,7 @@ $("#change-avatar-link")?.addEventListener("click", openAvatarEditor);
 $("#app-zoom-setting")?.addEventListener("click", (event) => { const button = event.target.closest("[data-app-zoom]"); if (!button) return; state.appZoom = Number(button.dataset.appZoom); save(); applyAppZoom(); });
 $("#avatar-back")?.addEventListener("click", () => showView("profile"));
 function showTurnNotice(match) {
-  if (isSoloMatch(match) || !["active", "opponent"].includes(match?.status) || (match.players || []).length < 2) return;
+  if (isSoloMatch(match) || isPhysicalRoomMatch(match) || !["active", "opponent"].includes(match?.status) || (match.players || []).length < 2) return;
   if (!match.players.some((player) => Number(player.rounds_started || 0) > 0)) return;
   const notice = match?.turnNotice;
   if (!state.userId || !notice?.user_id || String(notice.user_id) !== String(state.userId)) return;
@@ -545,7 +546,7 @@ function settleResult(match, userId, players = []) {
   if (!alreadyArchived) { state.history.unshift(entry); state.archivedResults.push(match.id); }
   save();
   if (won) evaluateCareerAchievements(comeback, flawless);
-  if (!won && !alreadyArchived && !state.selfWalkovers.includes(match.id)) { const message = `Du förlorade matchen mot ${winner}. Matchens resultat går att se på startsidan under Historik.`; if (window.Notification?.permission === "granted") new Notification("Digihits", { body: message }); dialog(message, () => showHistoryResult(entry), false, "VISA SLUTRESULTAT", "OK"); }
+  if (!won && !alreadyArchived && !state.selfWalkovers.includes(match.id)) { const message = `Du förlorade matchen mot ${winner}. Matchens resultat går att se på startsidan under Historik.`; if (!isPhysicalRoomMatch(match) && window.Notification?.permission === "granted") new Notification("Digihits", { body: message }); dialog(message, () => showHistoryResult(entry), false, "VISA SLUTRESULTAT", "OK"); }
 }
 function grantAchievement(id, label) {
   resetAnnualAchievements();
