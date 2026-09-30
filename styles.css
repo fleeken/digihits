@@ -1376,3 +1376,10 @@ input.timeline-scrollbar[hidden]{display:none!important}
 :is([data-view-panel="match"],[data-view-panel="result"]).multi-room-match :is(.room-live-guess p.is-wrong,.room-live-result.is-wrong){background:#772b3a!important;border:2px solid #ff8597!important;color:#fff}
 :is([data-view-panel="match"],[data-view-panel="result"]).multi-room-match :is(.room-live-guess p.is-correct,.room-live-result.is-correct){background:#164934!important;border:2px solid #66db93!important;color:#fff}
 .room-live-guess :is(.is-wrong,.is-correct) .room-guess-label{color:#e8f1ff}
+
+/* Return countdown replaces the player strip in the existing blue banner. */
+.match-turn-banner.has-result-countdown{display:block!important}
+.match-turn-banner.has-result-countdown .round-player-strip,
+.match-turn-banner.has-result-countdown .view-round-number{display:none!important}
+.banner-result-countdown{margin:0;padding:24px 12px;text-align:center;color:#ccefff;font-weight:800;font-size:clamp(20px,4vw,30px)}
+.view:has(.match-turn-banner.has-result-countdown) [data-result-countdown]{display:none!important}
