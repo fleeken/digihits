@@ -1,4 +1,4 @@
-const APP_VERSION = "7.73"
+const APP_VERSION = "7.74"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1113,7 +1113,7 @@ function renderRoomTimelines(match, players) {
     const avatar = avatarChoice(player);
     const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
     const kick = !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
-    const stage = active ? revealed ? "Kortet är inlåst – resultat" : spectatorTurn ? `Just nu: ${name} ${position !== null || live?.phase === "choosing" ? "placerar kortet på tidslinjen" : "gissar artist och låtnamn"}` : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : player === currentPlayer ? "Nästa tur" : "";
+    const stage = active ? revealed ? "Kortet är inlåst – resultat" : spectatorTurn ? `Just nu: ${name} ${position !== null || live?.phase === "choosing" ? "placerar kortet på tidslinjen" : "gissar artist och låtnamn"}` : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : "";
     const misplaced = revealed && position !== null && played && ((position > 0 && Number(played.year) < Number(cards[position - 1]?.year)) || (position < cards.length && Number(played.year) > Number(cards[position]?.year)));
     const currentCard = `<article class="year-card room-live-card ${played ? `is-revealed${misplaced ? " misplaced-card" : ""}` : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.title)}<br>${escapeHtml(played.artist)}` : "HEMLIGT KORT"}</small></article>`;
     const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.title)}<br>${escapeHtml(card.artist)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
