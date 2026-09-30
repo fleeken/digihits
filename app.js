@@ -1,4 +1,4 @@
-const APP_VERSION = "7.91"
+const APP_VERSION = "7.92"
 const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1056,7 +1056,7 @@ function openMatch(matchCode) {
   const isMultiRoom = match.code.startsWith("M0");
   $("#room-live-timelines").hidden = !isMultiRoom;
   document.querySelector('[data-view-panel="match"]').classList.toggle("multi-room-match", isMultiRoom);
-  if (!isMultiRoom) $("#match-chat").before($("#next-round"));
+  if (!isMultiRoom) { $("#match-chat").before($("#next-round")); document.querySelector('[data-view-panel="match"] > .room-zoom-setting')?.remove(); }
   const matchLeave = document.querySelector('[data-view-panel="match"] .button-leave');
   const isOnlyPlayer = soloMatch || (match.players || []).length <= 1;
   const roomHost = match.code.startsWith("M0") && (match.players || []).some((player) => String(player.user_id) === String(state.userId) && Number(player.turn_order) === 0);
@@ -1186,7 +1186,18 @@ function renderRoomTimelines(match, players, resultPanel = null) {
   const enteringLive = spectatorTurn && !view?.classList.contains("room-live-focus");
   view?.classList.toggle("room-live-focus", spectatorTurn);
   const ordered = spectatorTurn ? [livePlayer] : [featured, lastPlayer, ...players].filter((player, index, entries) => player && entries.indexOf(player) === index);
-  const markup = `<div class="app-zoom-setting room-zoom-setting"><strong>ZOOM IN/UT – SPELETS STORLEK</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div></div><div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {
+  let zoomControl = view?.querySelector(".room-zoom-setting");
+  if (view && !zoomControl) {
+    zoomControl = document.createElement("div");
+    zoomControl.className = "app-zoom-setting room-zoom-setting";
+    view.querySelector(".match-turn-banner")?.before(zoomControl);
+  }
+  if (zoomControl) {
+    zoomControl.hidden = Boolean(resultPanel) || Boolean(currentPlayer?.current_card);
+    const zoomMarkup = `<strong>ZOOM IN/UT – SPELETS STORLEK</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div>`;
+    if (zoomControl.dataset.markup !== zoomMarkup) { zoomControl.innerHTML = zoomMarkup; zoomControl.dataset.markup = zoomMarkup; }
+  }
+  const markup = `<div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {
     const active = player === livePlayer, locked = Array.isArray(player.locked_timeline) ? player.locked_timeline : [], unlocked = String(match.currentUserId) === String(player.user_id) && Array.isArray(player.turn_cards) ? player.turn_cards : [];
     const cards = [...locked.map((card, index) => ({ ...card, roomStatus: index === 0 ? "STARTKORT" : "LÅST" })), ...unlocked.map((card) => ({ ...card, roomStatus: "OLÅST" }))].sort((a, b) => Number(a.year) - Number(b.year));
     const live = active ? player.room_live_placement : null;
