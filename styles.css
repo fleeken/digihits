@@ -1402,3 +1402,7 @@ input.timeline-scrollbar[hidden]{display:none!important}
 
 .app-zoom-setting>strong{text-align:center}
 .view>.room-zoom-setting{width:min(100%,570px);margin-inline:auto;text-align:center}
+
+button.banner-result-countdown{display:block;width:100%;border:0;background:transparent;font-family:inherit;cursor:pointer}
+button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
+:is(.banner-result-countdown,.result-countdown):focus-visible{outline:3px solid #61d9fa;outline-offset:3px}

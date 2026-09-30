@@ -1,4 +1,4 @@
-const APP_VERSION = "7.99"
+const APP_VERSION = "8.00"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -166,6 +166,8 @@ async function countDownTurnStart(button, matchCode, view = "match", label = "TU
   }
   return currentView === view && state.activeMatchCode === matchCode && document.visibilityState !== "hidden";
 }
+const dismissedRoomResults = new Set();
+function roomResultKey(match, player) { return `${match.code}:${player.user_id}:${player.current_card?.id}:${player.room_live_placement?.updated_at}`; }
 let resultCountdownTimer = null;
 function updateResultCountdowns() {
   clearInterval(resultCountdownTimer);
@@ -175,7 +177,7 @@ function updateResultCountdowns() {
     let waiting = false;
     counters.forEach((counter) => {
       const seconds = Math.max(0, Math.ceil((Number(counter.dataset.resultCountdown) - Date.now()) / 1000));
-      counter.textContent = seconds ? `Återgår till tidslinjerna ${seconds}` : "Återgår till tidslinjerna…";
+      counter.textContent = seconds ? `Återgår till tidslinjerna om ${seconds} sek` : "Återgår till tidslinjerna…";
       waiting ||= seconds > 0;
     });
     document.querySelectorAll(".match-turn-banner").forEach((banner) => {
@@ -183,7 +185,7 @@ function updateResultCountdowns() {
       let message = banner.querySelector(".banner-result-countdown");
       banner.classList.toggle("has-result-countdown", Boolean(counter));
       if (counter) {
-        if (!message) { message = document.createElement("p"); message.className = "banner-result-countdown"; message.setAttribute("role", "timer"); banner.append(message); }
+        if (!message) { message = document.createElement("button"); message.type = "button"; message.className = "banner-result-countdown"; banner.append(message); }
         message.textContent = counter.textContent;
       } else message?.remove();
     });
@@ -239,7 +241,7 @@ function updateHeaderVisibility() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   const currentPlayer = match?.players?.find((player) => String(player.user_id) === String(match.currentUserId));
   const liveCard = currentPlayer?.current_card;
-  const liveStarted = match?.code.startsWith("M0") ? Boolean(liveCard && String(currentPlayer.room_live_placement?.card_id) === String(liveCard.id)) : Boolean(liveCard || (state.currentCardMatchCode === match?.code && state.currentCard));
+  const liveStarted = match?.code.startsWith("M0") ? Boolean(liveCard && !dismissedRoomResults.has(roomResultKey(match, currentPlayer)) && String(currentPlayer.room_live_placement?.card_id) === String(liveCard.id)) : Boolean(liveCard || (state.currentCardMatchCode === match?.code && state.currentCard));
   const inTurn = ["guess", "timeline", "result"].includes(currentView) || (currentView === "match" && !roundLoading && liveStarted);
   $("#brand-home").hidden = inTurn;
   $("#install-app").hidden = inTurn;
@@ -705,7 +707,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const localTurnMatch = Boolean(localMatch(activeMatch)); overviewButton.textContent = localTurnMatch ? "LÄMNA ÖVER TUREN →" : "TILL MATCHÖVERSIKT"; overviewButton.className = localTurnMatch ? "button button-green wrong-match-button" : "lobby-back wrong-match-button";
   $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = activeMatch?.code.startsWith("M0") || correct || score.correct >= 10 || (localMatch(activeMatch)?.mode === "room" && !overviewButton.dataset.roomHandoverName);
   let countdown = $("#result-return-countdown");
-  if (!countdown) { countdown = document.createElement("p"); countdown.id = "result-return-countdown"; countdown.className = "result-countdown"; countdown.setAttribute("role", "timer"); $(".result-head").before(countdown); }
+  if (!countdown) { countdown = document.createElement("button"); countdown.type = "button"; countdown.id = "result-return-countdown"; countdown.className = "result-countdown"; $(".result-head").before(countdown); }
   const pending = state.pendingResult;
   countdown.hidden = correct || pending?.matchCode !== state.activeMatchCode || !pending?.roomWrongRevealUntil;
   countdown.dataset.resultCountdown = String(pending?.roomWrongRevealUntil || 0);
@@ -1206,7 +1208,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
   if (!panel || match.code !== state.activeMatchCode) return;
   if (!resultPanel) roomLivePlayers = players;
   panel.hidden = false;
-  const livePlayer = players.find((player) => String(player.user_id) === String(match.currentUserId) && player.current_card && player.room_live_placement?.card_id != null && String(player.room_live_placement.card_id) === String(player.current_card.id));
+  const livePlayer = players.find((player) => String(player.user_id) === String(match.currentUserId) && player.current_card && !dismissedRoomResults.has(roomResultKey(match, player)) && player.room_live_placement?.card_id != null && String(player.room_live_placement.card_id) === String(player.current_card.id));
   const lastPlayer = players.find((player) => String(player.user_id) === String(match.lastResult?.player_id));
   const currentPlayer = players.find((player) => String(player.user_id) === String(match.currentUserId));
   const featured = currentPlayer || livePlayer || lastPlayer;
@@ -1257,7 +1259,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const spectatorCard = spectator && !revealed && player.current_card ? `<details class="room-spectator-card" data-room-reveal="${escapeHtml(cardKey)}"${flipped ? " open" : ""}><summary><strong class="room-card-back">HEMLIGT KORT</strong><span class="room-card-back room-card-symbol">♫</span><span class="button button-purple room-card-flip"><span class="room-card-open-label">VÄND PÅ KORTET</span><span class="room-card-close-label">DÖLJ KORTET</span></span></summary><div class="room-card-answer"><strong>${escapeHtml(player.current_card.artist)}: ${escapeHtml(player.current_card.title)}</strong><small>Släppt ${escapeHtml(player.current_card.year)}</small></div></details>` : "";
     const revealUntil = misplaced ? Date.parse(live?.updated_at || "") + ROOM_RESULT_REVEAL_MS : 0;
 
-    const result = revealed && position !== null && played ? `<p class="room-live-result ${misplaced ? "is-wrong" : "is-correct"}">${misplaced ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>${Number.isFinite(revealUntil) && revealUntil > 0 ? `<p class="result-countdown" role="timer" data-result-countdown="${revealUntil}"></p>` : ""}` : "";
+    const result = revealed && position !== null && played ? `<p class="room-live-result ${misplaced ? "is-wrong" : "is-correct"}">${misplaced ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>${Number.isFinite(revealUntil) && revealUntil > 0 ? `<button class="result-countdown" type="button" data-result-countdown="${revealUntil}"></button>` : ""}` : "";
     return `<article data-room-player="${escapeHtml(player.user_id)}" class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><i class="avatar-art room-live-avatar" style="${avatarArtStyle(avatar.genre, avatar.variant)}" role="img" aria-label="${name}s avatar"></i><strong>${name}</strong></div><div class="room-live-stats"><div><span class="room-stat-label">Rättplacerade</span><strong>${correct}/10</strong></div><div><span class="room-stat-label">Byt-låt-kort</span><strong>${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3</strong></div></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
   }).join("")}`;
   const resultActions = resultPanel ? $(".result-actions") : null;
@@ -1524,13 +1526,18 @@ document.addEventListener("visibilitychange", async () => {
     await refreshRealtimeState();
   }
 });
-let roomWrongRevealPromise = null;
-function finishRoomWrongReveal() {
+let roomWrongRevealPromise = null, wakeRoomWrongReveal = null;
+function finishRoomWrongReveal(skipWait = false) {
+  if (skipWait) { if (state.pendingResult?.roomWrongRevealUntil) { state.pendingResult.roomWrongRevealUntil = Date.now(); save(); } wakeRoomWrongReveal?.(); }
   if (roomWrongRevealPromise) return roomWrongRevealPromise;
   roomWrongRevealPromise = (async () => {
     const pending = state.pendingResult;
     if (!pending?.roomWrongRevealUntil || !pending.matchCode?.startsWith("M0")) return;
-    await new Promise((resolve) => setTimeout(resolve, Math.max(0, pending.roomWrongRevealUntil - Date.now())));
+    await new Promise((resolve) => {
+      const timer = setTimeout(resolve, Math.max(0, pending.roomWrongRevealUntil - Date.now()));
+      wakeRoomWrongReveal = () => { wakeRoomWrongReveal = null; clearTimeout(timer); resolve(); };
+    });
+    wakeRoomWrongReveal = null;
     const code = pending.matchCode;
     if (state.pendingResult !== pending) return;
     await syncMatches();
@@ -1544,9 +1551,25 @@ function finishRoomWrongReveal() {
     delete state.roundResumeViews[code];
     save();
     if (currentView === "result" && state.activeMatchCode === code && state.matches.some((item) => item.code === code)) openMatch(code);
-  })().catch((error) => { dialog(error.message || "Turen kunde inte lämnas över. Öppna matchen igen."); }).finally(() => { roomWrongRevealPromise = null; });
+  })().catch((error) => { dialog(error.message || "Turen kunde inte lämnas över. Öppna matchen igen."); }).finally(() => { roomWrongRevealPromise = null; wakeRoomWrongReveal = null; });
   return roomWrongRevealPromise;
 }
+async function returnToTimelinesNow() {
+  const match = state.matches.find((item) => item.code === state.activeMatchCode);
+  if (!match) return;
+  if (state.pendingResult?.matchCode === match.code && state.pendingResult.roomWrongRevealUntil) {
+    await finishRoomWrongReveal(true);
+    return;
+  }
+  roomLivePlayers.forEach((player) => {
+    if (player.room_live_placement?.phase === "revealed") dismissedRoomResults.add(roomResultKey(match, player));
+  });
+  renderRoomTimelines(match, roomLivePlayers);
+  renderRoundPlayers();
+}
+document.addEventListener("click", (event) => {
+  if (event.target.closest(".banner-result-countdown, [data-result-countdown]")) void returnToTimelinesNow().catch((error) => dialog(error.message));
+});
 async function restoreRoomLocation() {
   const code = state.roomReturnView?.code || state.activeMatchCode;
   const match = state.matches.find((item) => item.code === code && item.code?.startsWith("M0"));
