@@ -1,4 +1,4 @@
-const APP_VERSION = "7.80"
+const APP_VERSION = "7.81"
 const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
