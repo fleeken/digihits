@@ -1,4 +1,4 @@
-const APP_VERSION = "7.96"
+const APP_VERSION = "7.97"
 const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -240,9 +240,9 @@ function updateHeaderVisibility() {
   const inTurn = ["guess", "timeline", "result"].includes(currentView) || (currentView === "match" && Boolean(currentPlayer?.current_card || (state.currentCardMatchCode === match?.code && state.currentCard)));
   $("#brand-home").hidden = inTurn;
   $("#install-app").hidden = inTurn;
-  $("#enable-notifications").hidden = signedIn || inTurn;
+  $("#enable-notifications").hidden = inTurn;
   const profile = document.querySelector(".profile-toggle");
-  if (profile) profile.hidden = signedIn || inTurn || ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(currentView);
+  if (profile) profile.hidden = !signedIn || inTurn || ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(currentView);
   document.querySelector(".brand").hidden = inTurn;
 }
 function renderRoundPlayers() {
