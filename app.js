@@ -1,4 +1,4 @@
-const APP_VERSION = "7.88"
+const APP_VERSION = "7.89"
 const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1217,7 +1217,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const revealUntil = misplaced ? Date.parse(live?.updated_at || "") + ROOM_RESULT_REVEAL_MS : 0;
 
     const result = revealed && position !== null && played ? `<p class="room-live-result ${misplaced ? "is-wrong" : "is-correct"}">${misplaced ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>${Number.isFinite(revealUntil) && revealUntil > 0 ? `<p class="result-countdown" role="timer" data-result-countdown="${revealUntil}"></p>` : ""}` : "";
-    return `<article data-room-player="${escapeHtml(player.user_id)}" class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><i class="avatar-art room-live-avatar" style="${avatarArtStyle(avatar.genre, avatar.variant)}" role="img" aria-label="${name}s avatar"></i><strong>${name}${player === currentPlayer ? " · TUR NU" : ""}</strong></div><div class="room-live-stats"><div><span class="room-stat-label">Rättplacerade</span><strong>${correct}/10</strong></div><div><span class="room-stat-label">Byt-låt-kort</span><strong>${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3</strong></div></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
+    return `<article data-room-player="${escapeHtml(player.user_id)}" class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><i class="avatar-art room-live-avatar" style="${avatarArtStyle(avatar.genre, avatar.variant)}" role="img" aria-label="${name}s avatar"></i><strong>${name}</strong></div><div class="room-live-stats"><div><span class="room-stat-label">Rättplacerade</span><strong>${correct}/10</strong></div><div><span class="room-stat-label">Byt-låt-kort</span><strong>${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3</strong></div></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
   }).join("")}`;
   const resultActions = resultPanel ? $(".result-actions") : null;
   resultActions?.remove();
