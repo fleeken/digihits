@@ -7,6 +7,7 @@ webpush.setVapidDetails(Deno.env.get("VAPID_SUBJECT")!, Deno.env.get("VAPID_PUBL
 Deno.serve(async (request) => {
   if (request.headers.get("x-digihits-push-secret") !== Deno.env.get("PUSH_WEBHOOK_SECRET")) return new Response("Unauthorized", { status: 401 });
   const invite = (await request.json()).record;
+  if (String(invite?.match_code || "").startsWith("M0")) return Response.json({ skipped: true });
   if (!invite?.recipient_id || invite.status !== "pending") return Response.json({ skipped: true });
   const [{ data: sender }, { data: subscriptions = [] }] = await Promise.all([
     supabase.from("digihits_profiles").select("display_name").eq("user_id", String(invite.sender_id)).maybeSingle(),

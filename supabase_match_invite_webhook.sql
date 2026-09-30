@@ -16,4 +16,6 @@ $$;
 drop trigger if exists digihits_match_invite_push on public.digihits_match_invites;
 create trigger digihits_match_invite_push
 after insert on public.digihits_match_invites
-for each row execute function public.digihits_notify_match_invite();
+for each row
+when (new.match_code not like 'M0%')
+execute function public.digihits_notify_match_invite();
