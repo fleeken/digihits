@@ -1,4 +1,4 @@
-const APP_VERSION = "7.67"
+const APP_VERSION = "7.68"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1084,12 +1084,16 @@ function renderRoomTimelines(match, players) {
   if (!panel || match.code !== state.activeMatchCode) return;
   roomLivePlayers = players;
   panel.hidden = false;
-  const livePlayer = players.find((player) => String(player.user_id) === String(match.currentUserId) && player.current_card && player.room_live_placement?.card_id === player.current_card?.id);
+  const livePlayer = players.find((player) => String(player.user_id) === String(match.currentUserId) && player.current_card && player.room_live_placement?.card_id != null && String(player.room_live_placement.card_id) === String(player.current_card.id));
   const lastPlayer = players.find((player) => String(player.user_id) === String(match.lastResult?.player_id));
   const currentPlayer = players.find((player) => String(player.user_id) === String(match.currentUserId));
   const featured = currentPlayer || livePlayer || lastPlayer;
-  const ordered = [featured, lastPlayer, ...players].filter((player, index, entries) => player && entries.indexOf(player) === index);
   const liveTurn = Boolean(livePlayer);
+  const spectatorTurn = liveTurn && String(livePlayer.user_id) !== String(state.userId);
+  const view = panel.closest('[data-view-panel="match"]');
+  const enteringLive = spectatorTurn && !view?.classList.contains("room-live-focus");
+  view?.classList.toggle("room-live-focus", spectatorTurn);
+  const ordered = spectatorTurn ? [livePlayer] : [featured, lastPlayer, ...players].filter((player, index, entries) => player && entries.indexOf(player) === index);
   const markup = `<div class="app-zoom-setting room-zoom-setting"><strong>ZOOM IN/UT – SPELETS STORLEK</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div></div><div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {
     const active = player === livePlayer, locked = Array.isArray(player.locked_timeline) ? player.locked_timeline : [], unlocked = String(match.currentUserId) === String(player.user_id) && Array.isArray(player.turn_cards) ? player.turn_cards : [];
     const cards = [...locked.map((card, index) => ({ ...card, roomStatus: index === 0 ? "STARTKORT" : "LÅST" })), ...unlocked.map((card) => ({ ...card, roomStatus: "OLÅST" }))].sort((a, b) => Number(a.year) - Number(b.year));
@@ -1106,9 +1110,11 @@ function renderRoomTimelines(match, players) {
     const currentCard = `<article class="year-card room-live-card ${played ? "is-revealed" : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.title)}<br>${escapeHtml(played.artist)}` : "HEMLIGT KORT"}</small></article>`;
     const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.title)}<br>${escapeHtml(card.artist)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
     const spectator = active && String(player.user_id) !== String(state.userId);
-    const cardKey = `${match.code}:${player.user_id}:${player.current_card?.id || ""}`, flipped = roomRevealedCards.has(cardKey);
+    const cardKey = `${match.code}:${player.user_id}:${player.current_card?.id || ""}`;
+    const existingCard = [...panel.querySelectorAll("details[data-room-reveal]")].find((card) => card.dataset.roomReveal === cardKey);
+    const flipped = existingCard ? existingCard.open : roomRevealedCards.has(cardKey);
     const guess = spectator ? `<div class="room-live-guess"><p><span>Artist</span><strong>${escapeHtml(live?.artist) || "Väntar på gissning…"}</strong></p><p><span>Låtnamn</span><strong>${escapeHtml(live?.title) || "Väntar på gissning…"}</strong></p></div>` : "";
-    const spectatorCard = spectator && !revealed && player.current_card ? `<div class="room-spectator-card ${flipped ? "is-flipped" : ""}"><strong>${flipped ? escapeHtml(player.current_card.artist) : "HEMLIGT KORT"}</strong>${flipped ? `<span>${escapeHtml(player.current_card.title)}</span><small>Släppt ${escapeHtml(player.current_card.year)}</small>` : "<span>♫</span>"}<button class="button button-purple" data-room-reveal="${escapeHtml(cardKey)}" type="button" aria-pressed="${flipped}">${flipped ? "DÖLJ KORTET" : "VÄND PÅ KORTET"}</button></div>` : "";
+    const spectatorCard = spectator && !revealed && player.current_card ? `<details class="room-spectator-card" data-room-reveal="${escapeHtml(cardKey)}"${flipped ? " open" : ""}><summary><strong class="room-card-back">HEMLIGT KORT</strong><span class="room-card-back room-card-symbol">♫</span><span class="button button-purple room-card-flip"><span class="room-card-open-label">VÄND PÅ KORTET</span><span class="room-card-close-label">DÖLJ KORTET</span></span></summary><div class="room-card-answer"><strong>${escapeHtml(player.current_card.artist)}</strong><span>${escapeHtml(player.current_card.title)}</span><small>Släppt ${escapeHtml(player.current_card.year)}</small></div></details>` : "";
     const result = revealed && position !== null && played ? `<p class="room-live-result ${position > 0 && Number(played.year) < Number(cards[position - 1]?.year) || position < cards.length && Number(played.year) > Number(cards[position]?.year) ? "is-wrong" : "is-correct"}">${position > 0 && Number(played.year) < Number(cards[position - 1]?.year) || position < cards.length && Number(played.year) > Number(cards[position]?.year) ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>` : "";
     return `<article data-room-player="${escapeHtml(player.user_id)}" class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><i class="avatar-art room-live-avatar" style="${avatarArtStyle(avatar.genre, avatar.variant)}" role="img" aria-label="${name}s avatar"></i><strong>${name}${player === currentPlayer ? " · TUR NU" : ""}</strong></div><div class="room-live-stats"><div>Rätt <strong>${correct}/10</strong></div><div>Fel <strong>${mistakes}</strong></div><div>Byt <strong>${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3</strong></div></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}</article>`;
   }).join("")}`;
@@ -1127,6 +1133,9 @@ function renderRoomTimelines(match, players) {
     if (String(match.currentUserId) === String(state.userId)) panel.querySelector(".room-live-player")?.before(startButton);
     else $("#match-chat").before(startButton);
   }
+  if (enteringLive) requestAnimationFrame(() => {
+    if (currentView === "match" && view?.classList.contains("room-live-focus")) window.scrollTo({ top: 0, behavior: "instant" });
+  });
   const live = livePlayer?.room_live_placement;
   const followKey = live && ["placing", "revealed"].includes(live.phase) ? `${match.code}:${livePlayer.user_id}:${live.card_id}:${live.phase}:${live.position}` : "";
   if (panel.dataset.followPlacement !== followKey) {
@@ -1561,13 +1570,13 @@ $("#room-live-timelines").addEventListener("click", (event) => {
     }, true, "TA BORT");
     return;
   }
-  const flip = event.target.closest("[data-room-reveal]");
-  if (!flip) return;
-  const key = flip.dataset.roomReveal;
-  if (roomRevealedCards.has(key)) roomRevealedCards.delete(key); else roomRevealedCards.add(key);
-  const match = state.matches.find((item) => item.code === state.activeMatchCode);
-  if (match) renderRoomTimelines(match, roomLivePlayers);
+
 });
+document.addEventListener("toggle", (event) => {
+  const card = event.target;
+  if (!card.matches?.("details[data-room-reveal]")) return;
+  if (card.open) roomRevealedCards.add(card.dataset.roomReveal); else roomRevealedCards.delete(card.dataset.roomReveal);
+}, true);
 document.addEventListener("click", (event) => { const button = event.target.closest(".final-player-round"); if (button) { const id = button.dataset.playerRound; returnToFinalResult = true; showLatestRound({ ...(latestRounds[id] || {}), historyScore: historyPlayerScores[id] }); } });
 document.addEventListener("click", (event) => { const button = event.target.closest("[data-round-player]"); if (!button) return; const avatar = event.target.closest("i.avatar-art"), room = localMatch(); if (avatar && room?.mode === "room") { showRoomAvatarPicker(state.matches.find((item) => item.code === state.activeMatchCode), Number(button.dataset.roomAvatarIndex)); return; } const storedRound = latestRounds[button.dataset.roundPlayer]; if (!storedRound) { dialog("Spelaren har ingen spelad omgång ännu."); return; } const shouldLockCards = !button.classList.contains("is-current") && storedRound.outcome !== "wrong", lockStatus = (card) => ({ ...card, status: shouldLockCards && ["OLÅST", "LÅST DENNA OMGÅNG"].includes(card.status) ? "LÅST" : card.status }), round = { ...storedRound, cards: (storedRound.cards || []).map(lockStatus), timeline: (storedRound.timeline || []).map(lockStatus) }; latestRoundReturnView = currentView; showLatestRound(round); });
 $("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } const playerState = await spotifyPlayer?.getCurrentState().catch(() => null), expected = state.selectedTracks[activeCard().id]?.uri, sameTrack = expected && playerState?.track_window?.current_track?.uri === expected, actuallyPlaying = Boolean(playerState && !playerState.paused); if (actuallyPlaying && sameTrack) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && sameTrack) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } catch (error) { songStarting = false; setPlayButton(false); if (/ansluta spelaren|starta låten|spelaren kunde inte laddas/i.test(error.message)) dialog("Spotify behöver anslutas igen innan låten kan spelas.", () => { resetSpotifyPlayer(); supabaseAuth.disconnectSpotify(); supabaseAuth.connectSpotify(true).catch((issue) => alert(issue.message)); }, false, "ANSLUT KONTO"); else alert(error.message); } });

@@ -1241,7 +1241,7 @@ html:has(.modal:not([hidden])),body:has(.modal:not([hidden])){overflow:hidden}
 @media(max-width:640px){[data-view-panel="match"].multi-room-match{width:100%}[data-view-panel="match"].multi-room-match .lobby-layout{border-radius:0}[data-view-panel="match"].multi-room-match .lobby-layout>.match-view{padding:18px 12px}[data-view-panel="match"].multi-room-match .room-live-guess{grid-template-columns:1fr}[data-view-panel="match"].multi-room-match .lobby-layout>.lobby-side{padding:18px 12px 26px}[data-view-panel="match"].multi-room-match .lobby-side .button{max-width:none}}
 
 .app-shell:has([data-view-panel="match"].multi-room-match){width:min(calc(100% - 24px),1120px)}
-[data-view-panel="match"].multi-room-match>.match-turn-banner{display:none!important}
+[data-view-panel="match"].multi-room-match>.match-turn-banner:not([hidden]){display:block!important}
 
 [data-view-panel="match"].multi-room-match .room-live-kick{margin-top:16px;padding:10px 14px;border:1px solid #ff9caa;border-radius:9px;background:#742a3b;color:#fff;font:inherit;font-size:12px;font-weight:900;cursor:pointer}
 
@@ -1277,3 +1277,26 @@ html:has(.modal:not([hidden])),body:has(.modal:not([hidden])){overflow:hidden}
 .timeline-head h1{text-align:center}
 #timeline-row>:first-child,.room-live-track>:first-child{margin-left:auto}
 #timeline-row>:last-child,.room-live-track>:last-child{margin-right:auto}
+
+/* Native card disclosure works with touch and keyboard without a click handler. */
+details.room-spectator-card{display:block}
+.room-spectator-card>summary{display:grid;gap:9px;justify-items:center;cursor:pointer;list-style:none}
+.room-spectator-card>summary::-webkit-details-marker{display:none}
+.room-spectator-card .room-card-symbol{font-size:30px}
+.room-spectator-card .room-card-flip{display:grid;place-items:center;box-sizing:border-box}
+.room-spectator-card .room-card-close-label{display:none}
+.room-spectator-card[open]{border-style:solid;border-color:#85d7ff!important;background:#16436d!important}
+.room-spectator-card[open] .room-card-back,.room-spectator-card[open] .room-card-open-label{display:none}
+.room-spectator-card[open] .room-card-close-label{display:inline}
+.room-card-answer{display:grid;gap:9px;margin-top:16px;text-align:center;overflow-wrap:anywhere}
+.room-card-answer strong{font-size:20px;color:#fff}
+.room-card-answer>span{font-size:18px;color:#fff}
+.room-card-answer small{font-size:16px;font-weight:900;color:#c0ffd6}
+/* During a spectator's live turn, the banner and current board fill the game view. */
+.app-shell:has([data-view-panel="match"].active.room-live-focus){width:100%!important;max-width:none;padding-top:env(safe-area-inset-top,0px)!important;padding-bottom:env(safe-area-inset-bottom,0px)!important}
+.app-shell:has([data-view-panel="match"].active.room-live-focus)>.brand,html:has([data-view-panel="match"].active.room-live-focus) #bottom-menu{display:none!important}
+[data-view-panel="match"].room-live-focus>.match-turn-banner{position:sticky;top:0;z-index:5;margin-bottom:0}
+[data-view-panel="match"].room-live-focus .lobby-layout{border-radius:0}
+[data-view-panel="match"].room-live-focus .lobby-layout>.match-view{min-height:calc(100dvh - 150px);padding:16px 0}
+[data-view-panel="match"].room-live-focus .lobby-layout>.lobby-side,[data-view-panel="match"].room-live-focus .room-zoom-setting,[data-view-panel="match"].room-live-focus .room-live-intro,[data-view-panel="match"].room-live-focus .room-live-stats{display:none!important}
+[data-view-panel="match"].room-live-focus .room-live-player{border:0;border-radius:0;box-shadow:none;padding:12px;background:#111b32}
