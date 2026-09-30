@@ -1306,4 +1306,18 @@ details.room-spectator-card{display:block}
 
 [data-view-panel="match"].multi-room-match .room-live-guess p.is-correct{background:#164934;border:2px solid #66db93}
 [data-view-panel="match"].multi-room-match .room-live-guess p.is-wrong{background:#772b3a;border:2px solid #ff8597}
-.room-live-guess .room-guess-verdict{display:block;margin-top:10px;font-size:15px;font-weight:900;color:#fff}
+.room-live-guess .room-guess-answer{display:flex;align-items:baseline;gap:8px;margin:0}
+.room-live-guess .room-guess-answer strong{min-width:0;flex:1}
+.room-live-guess .room-guess-answer .room-guess-label{flex:none;margin:0;font-size:13px}
+.room-live-guess .room-guess-verdict{flex:none;margin:0;font-size:15px;font-weight:900;color:#fff;white-space:nowrap}
+
+/* v7.76: the current turn stays raised until its cards are actually locked. */
+.year-card{text-align:center}
+#timeline-row{padding-top:22px}
+#timeline-row>.year-card.locked-card,.room-live-track .year-card.locked-card{transform:none!important}
+#timeline-row>.year-card.unlocked-card,#timeline-row>.year-card.misplaced-card,
+.room-live-track .year-card.unlocked-card,.room-live-track .year-card.misplaced-card,
+.room-live-track .room-live-card.is-secret,
+[data-view-panel="match"].multi-room-match .room-live-track .year-card.unlocked-card,
+[data-view-panel="match"].multi-room-match .room-live-track .year-card.misplaced-card{transform:translateY(-12px)!important}
+#timeline-row>.slot.has-card{transform:translateY(-12px)!important}

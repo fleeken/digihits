@@ -1,4 +1,4 @@
-const APP_VERSION = "7.75"
+const APP_VERSION = "7.76"
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
@@ -1115,7 +1115,7 @@ function renderRoomTimelines(match, players) {
     const kick = !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
     const stage = active ? revealed ? "Kortet är inlåst – resultat" : spectatorTurn ? `Just nu: ${name} ${position !== null || live?.phase === "choosing" ? "placerar kortet på tidslinjen" : "gissar artist och låtnamn"}` : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : "";
     const misplaced = revealed && position !== null && played && ((position > 0 && Number(played.year) < Number(cards[position - 1]?.year)) || (position < cards.length && Number(played.year) > Number(cards[position]?.year)));
-    const currentCard = `<article class="year-card room-live-card ${played ? `is-revealed${misplaced ? " misplaced-card" : ""}` : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.artist)}: ${escapeHtml(played.title)}` : "HEMLIGT KORT"}</small></article>`;
+    const currentCard = `<article class="year-card room-live-card ${played ? `is-revealed ${misplaced ? "misplaced-card" : "unlocked-card"}` : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.artist)}: ${escapeHtml(played.title)}` : "HEMLIGT KORT"}</small></article>`;
     const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.artist)}: ${escapeHtml(card.title)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
     const spectator = active && String(player.user_id) !== String(state.userId);
     const cardKey = `${match.code}:${player.user_id}:${player.current_card?.id || ""}`;
@@ -1126,7 +1126,7 @@ function renderRoomTimelines(match, players) {
     const fullAnswer = guessChecked && completeSongGuess(guessValues, player.current_card);
     const guess = spectator ? `<div class="room-live-guess">${[["artist", "Artist"], ["title", "Låtnamn"]].map(([key, label]) => {
       const right = guessChecked && (fullAnswer || (key === "artist" ? artistAnswerMatches(guessValues[key], player.current_card.artist) : titleAnswerMatches(guessValues[key], player.current_card.title)));
-      return `<p${guessChecked ? ` class="${right ? "is-correct" : "is-wrong"}"` : ""}><span>${label}</span><strong>${escapeHtml(guessValues[key]) || (guessChecked ? "Inget svar" : "Väntar på gissning…")}</strong>${guessChecked ? `<b class="room-guess-verdict">${right ? "✓ Rätt" : "✕ Fel"}</b>` : ""}</p>`;
+      return `<p${guessChecked ? ` class="${right ? "is-correct" : "is-wrong"}"` : ""}><span class="room-guess-answer">${guessChecked ? `<b class="room-guess-verdict">${right ? "✓ Rätt" : "✕ Fel"}</b>` : ""}<span class="room-guess-label">${label}:</span><strong>${escapeHtml(guessValues[key]) || (guessChecked ? "Inget svar" : "Väntar på gissning…")}</strong></span></p>`;
     }).join("")}</div>` : "";
     const spectatorCard = spectator && !revealed && player.current_card ? `<details class="room-spectator-card" data-room-reveal="${escapeHtml(cardKey)}"${flipped ? " open" : ""}><summary><strong class="room-card-back">HEMLIGT KORT</strong><span class="room-card-back room-card-symbol">♫</span><span class="button button-purple room-card-flip"><span class="room-card-open-label">VÄND PÅ KORTET</span><span class="room-card-close-label">DÖLJ KORTET</span></span></summary><div class="room-card-answer"><strong>${escapeHtml(player.current_card.artist)}: ${escapeHtml(player.current_card.title)}</strong><small>Släppt ${escapeHtml(player.current_card.year)}</small></div></details>` : "";
     const result = revealed && position !== null && played ? `<p class="room-live-result ${misplaced ? "is-wrong" : "is-correct"}">${misplaced ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>` : "";
