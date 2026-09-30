@@ -1366,3 +1366,8 @@ input.timeline-scrollbar[hidden]{display:none!important}
 :is([data-view-panel="match"],[data-view-panel="result"]).multi-room-match .room-live-result{padding:12px;border:1px solid #496b91;border-left:3px solid #66db93;border-radius:12px;background:#101c32;color:#e8f1ff;font-size:16px;line-height:1.45;font-weight:700}
 :is([data-view-panel="match"],[data-view-panel="result"]).multi-room-match .room-live-result.is-wrong{background:#101c32;border-color:#496b91;border-left-color:#ff8597}
 .room-result-view .result-actions{margin-top:14px;gap:10px}
+
+/* Keep turn decisions directly below the room result, above the timeline. */
+.room-result-view .result-actions{grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0;padding:0}
+.room-result-view .result-actions .button{min-height:56px;padding:12px 8px;font-size:14px;line-height:1.35}
+.room-result-view .result-actions[hidden]{display:none!important}
