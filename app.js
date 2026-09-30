@@ -1,4 +1,4 @@
-const APP_VERSION = "7.98"
+const APP_VERSION = "7.99"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -154,6 +154,7 @@ async function animateCardDeal(card, starter = null, beforeClose = null) {
 async function enterNewCardGuess() {
   pendingTimelineDeal = null;
   showView("guess");
+  void publishRoomPlacement("guessing").catch((error) => dialog(error.message));
   startCurrentTrack();
 }
 async function countDownTurnStart(button, matchCode, view = "match", label = "TUREN BÖRJAR") {
@@ -237,7 +238,9 @@ function updateHeaderVisibility() {
   const signedIn = Boolean(supabaseAuth.session()?.access_token);
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   const currentPlayer = match?.players?.find((player) => String(player.user_id) === String(match.currentUserId));
-  const inTurn = ["guess", "timeline", "result"].includes(currentView) || (currentView === "match" && Boolean(currentPlayer?.current_card || (state.currentCardMatchCode === match?.code && state.currentCard)));
+  const liveCard = currentPlayer?.current_card;
+  const liveStarted = match?.code.startsWith("M0") ? Boolean(liveCard && String(currentPlayer.room_live_placement?.card_id) === String(liveCard.id)) : Boolean(liveCard || (state.currentCardMatchCode === match?.code && state.currentCard));
+  const inTurn = ["guess", "timeline", "result"].includes(currentView) || (currentView === "match" && !roundLoading && liveStarted);
   $("#brand-home").hidden = inTurn;
   $("#install-app").hidden = inTurn;
   $("#enable-notifications").hidden = inTurn;
@@ -1220,7 +1223,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     view.querySelector(".match-turn-banner")?.before(zoomControl);
   }
   if (zoomControl) {
-    zoomControl.hidden = Boolean(resultPanel) || Boolean(currentPlayer?.current_card);
+    zoomControl.hidden = Boolean(resultPanel) || (Boolean(livePlayer) && !(roundLoading && currentView === "match"));
     const zoomMarkup = `<strong>ZOOM</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div>`;
     if (zoomControl.dataset.markup !== zoomMarkup) { zoomControl.innerHTML = zoomMarkup; zoomControl.dataset.markup = zoomMarkup; }
   }
@@ -1747,7 +1750,7 @@ $("#chat-form").addEventListener("submit", async (event) => { event.preventDefau
 $("#friend-chat-back").addEventListener("click", () => showView("home", true));
 $("#friend-chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const body = $("#friend-chat-input").value.trim(); if (!state.friendChatId || !body) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_message", { friend: state.friendChatId, message_body: body }, "POST"); $("#friend-chat-input").value = ""; await loadFriendChat(); } catch (error) { alert(error.message); } });
 document.addEventListener("click", (event) => { const achievement = event.target.closest("[data-achievement-info]"); if (!achievement) return; dialog(achievement.dataset.achievementLabel + "\n\n" + achievement.dataset.achievementDescription + "\n\nBelöning: +3 onlinepoäng."); });
-window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify() && !state.activeMatchCode?.startsWith("M0")) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = label; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; showView(state.roundResumeViews[state.activeMatchCode] || "guess"); pausedForNavigation = true; resumeRoundTrack(); return; } if (currentView !== "match" || state.activeMatchCode !== match.code) return; state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard(); resetTurnInput(); if (!(await countDownTurnStart(button, match.code))) return; enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) { button.textContent = label; updateRoundStartButton(); } } };
+window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (!supabaseAuth.spotify() && !state.activeMatchCode?.startsWith("M0")) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = label; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; showView(state.roundResumeViews[state.activeMatchCode] || "guess"); if (currentView === "guess") void publishRoomPlacement("guessing").catch((error) => dialog(error.message)); pausedForNavigation = true; resumeRoundTrack(); return; } if (currentView !== "match" || state.activeMatchCode !== match.code) return; state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard({ deferLive: true }); resetTurnInput(); if (!(await countDownTurnStart(button, match.code))) return; enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) { button.textContent = label; updateRoundStartButton(); } } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest("[data-room-kick]"); if (!button) return; const code = state.activeMatchCode; dialog(`Ta bort ${button.dataset.playerName || "deltagaren"} från matchen?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_remove_room_guest", { match_code_input: code, guest_user_id: button.dataset.roomKick }, "POST"); await syncMatches(); if (state.matches.some((item) => item.code === code)) openMatch(code); } catch (error) { dialog(error.message); } }, true, "TA BORT"); });
@@ -1892,7 +1895,7 @@ async function handoverTurn(savedTimeline = null) {
   state.roundUnlocked = []; state.lockedTimeline = currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline || []; state.changeTrackCards = currentSwapCards; state.currentCard = null; state.currentCardMatchCode = null; save();
   return { won, winnerId, awaitingFinalChance, earnedSwapCard, soloSummary };
 }
-async function dealCard() {
+async function dealCard({ deferLive = false } = {}) {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match?.id) throw new Error("Matchdata saknas.");
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
@@ -1902,7 +1905,7 @@ async function dealCard() {
   const card = pickFreshTrack(available);
   await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { deck, used_track_ids: [...used, card.id], updated_at: new Date().toISOString() }, "PATCH");
   await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}`, { current_card: card, updated_at: new Date().toISOString() }, "PATCH");
-  if (match.code.startsWith("M0")) await publishRoomPlacement("guessing");
+  if (match.code.startsWith("M0") && !deferLive) await publishRoomPlacement("guessing");
   state.currentCard = card; state.currentCardMatchCode = match.code; rememberTrack(card); save();
   const starter = !state.roundAnimationSeen[match.code] && state.lockedTimeline.length === 1 ? state.lockedTimeline[0] : null;
   state.roundAnimationSeen[match.code] = true; pendingTimelineDeal = { card, starter }; save();
@@ -2000,7 +2003,7 @@ $("#result-continue").addEventListener("click", async () => {
     await animateTimelineOutcome(currentPlacementCorrect);
     state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save();
     if (solo) await markRoundStarted(); else await saveRoundUnlocked();
-    await dealCard(); await syncMatches();
+    await dealCard({ deferLive: true }); await syncMatches();
     if (!(await countDownTurnStart(button, matchCode, "result", "NYTT LÅTKORT"))) return;
     resultIsLocked = false; $("#result-back").hidden = false; resetTurnInput(); await enterNewCardGuess();
   } catch (error) { alert(error.message); }
