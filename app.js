@@ -1,4 +1,4 @@
-const APP_VERSION = "7.94"
+const APP_VERSION = "7.95"
 const ROOM_RESULT_REVEAL_MS = 7000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -233,6 +233,18 @@ function fitMatchBanners() {
 }
 window.addEventListener("resize", fitMatchBanners);
 const roundStripMarkup = new WeakMap();
+function updateHeaderVisibility() {
+  const signedIn = Boolean(supabaseAuth.session()?.access_token);
+  const match = state.matches.find((item) => item.code === state.activeMatchCode);
+  const currentPlayer = match?.players?.find((player) => String(player.user_id) === String(match.currentUserId));
+  const inTurn = ["guess", "timeline", "result"].includes(currentView) || (currentView === "match" && Boolean(currentPlayer?.current_card || (state.currentCardMatchCode === match?.code && state.currentCard)));
+  $("#brand-home").hidden = inTurn;
+  $("#install-app").hidden = inTurn;
+  $("#enable-notifications").hidden = signedIn || inTurn;
+  const profile = document.querySelector(".profile-toggle");
+  if (profile) profile.hidden = signedIn || inTurn || ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(currentView);
+  document.querySelector(".brand").hidden = inTurn;
+}
 function renderRoundPlayers() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode), players = match?.players || [];
   const finalSummary = $("#final-match-overview"), isFinal = finalSummary && !finalSummary.hidden;
@@ -253,6 +265,7 @@ function renderRoundPlayers() {
     if (roundStripMarkup.get(strip) !== markup) { strip.innerHTML = markup; roundStripMarkup.set(strip, markup); }
   });
   requestAnimationFrame(fitMatchBanners);
+  updateHeaderVisibility();
 }
 function updateRoundStartButton() {
   if (roundLoading) return;
@@ -731,6 +744,7 @@ async function syncFriends() {
 }
 function alignResetButtons() { document.querySelectorAll(".section-subtitle").forEach((title) => { const reset = title.nextElementSibling; if (!reset?.classList.contains("reset-row") || title.parentElement.classList.contains("section-heading")) return; const heading = document.createElement("div"); heading.className = "section-heading"; title.before(heading); heading.append(title, reset); }); }
 function render() {
+  updateHeaderVisibility();
   resetAnnualAchievements();
   persistCareer();
   updateTurnBadge();
@@ -945,6 +959,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
   });
+  updateHeaderVisibility();
   updateResultCountdowns();
   refreshTimelineScrollbars();
   if (gameView) resumeRoundTrack();

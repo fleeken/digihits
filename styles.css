@@ -1397,3 +1397,5 @@ input.timeline-scrollbar[hidden]{display:none!important}
 
 .view>.room-zoom-setting{margin:0 0 14px}
 .room-zoom-setting[hidden]{display:none!important}
+
+.brand[hidden],#brand-home[hidden],#install-app[hidden],#enable-notifications[hidden]{display:none!important}
