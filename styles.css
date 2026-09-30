@@ -1288,6 +1288,7 @@ details.room-spectator-card{display:block}
 .room-spectator-card[open]{border-style:solid;border-color:#85d7ff!important;background:#16436d!important}
 .room-spectator-card[open] .room-card-back,.room-spectator-card[open] .room-card-open-label{display:none}
 .room-spectator-card[open] .room-card-close-label{display:inline}
+.room-spectator-card:not([open])>.room-card-answer{display:none}
 .room-card-answer{display:grid;gap:9px;margin-top:16px;text-align:center;overflow-wrap:anywhere}
 .room-card-answer strong{font-size:20px;color:#fff}
 .room-card-answer>span{font-size:18px;color:#fff}
