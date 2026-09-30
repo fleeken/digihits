@@ -1,5 +1,5 @@
-const APP_VERSION = "7.97"
-const ROOM_RESULT_REVEAL_MS = 7000;
+const APP_VERSION = "7.98"
+const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
 if (currentHomeImage) currentHomeImage.src = "assets/home-friends-clean-lamp-v659.webp?v=6.59";
