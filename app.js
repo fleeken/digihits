@@ -1,4 +1,4 @@
-const APP_VERSION = "8.03"
+const APP_VERSION = "8.04"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1807,7 +1807,8 @@ function cancelCardDrag() {
 }
 function startDrag(card, event) {
   if (currentView !== "timeline" || event.isPrimary === false || event.button > 0) return;
-  event.preventDefault(); cancelCardDrag();
+  if (event.pointerType !== "touch") event.preventDefault();
+  cancelCardDrag();
   const bounds = card.getBoundingClientRect(), scale = Number(document.querySelector(".app-shell")?.style.zoom) || 1;
   dragOffsetX = event.clientX - bounds.left; dragOffsetY = event.clientY - bounds.top;
   const ghost = card.cloneNode(true); ghost.removeAttribute("id"); ghost.classList.add("dragging", "drag-ghost");
@@ -1820,7 +1821,7 @@ function startDrag(card, event) {
   moveCard(event);
 }
 $("#secret-card").addEventListener("pointerdown", (event) => startDrag($("#secret-card"), event));
-$("#timeline-row").addEventListener("pointerdown", (event) => { const card = event.target.closest(".placed-card"); if (card) { event.preventDefault(); startDrag(card, event); } });
+$("#timeline-row").addEventListener("pointerdown", (event) => { const card = event.target.closest(".placed-card"); if (card) startDrag(card, event); });
 function moveCard(event) {
   if (!cardDrag || event.pointerId !== cardDrag.pointerId) return;
   const card = cardDrag.ghost;
