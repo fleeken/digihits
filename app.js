@@ -1,4 +1,4 @@
-const APP_VERSION = "8.09"
+const APP_VERSION = "8.10"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -672,7 +672,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode), solo = isSoloMatch(activeMatch) && !localMatch(activeMatch);
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.hidden = true; $("#result-back").after(wrongButton); }
-  if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.type = "button"; overviewButton.addEventListener("click", async () => { const match = state.matches.find((item) => item.code === state.activeMatchCode), local = localMatch(match), readyName = overviewButton.dataset.roomHandoverName; if (readyName || (local?.mode === "room" && !currentPlacementCorrect)) { delete overviewButton.dataset.roomHandoverName; await openMatch(match.code); return; } if (!currentPlacementCorrect) await animateTimelineOutcome(false); if (local && !viewingLatestRound) { delete state.roundResumeViews[match.code]; save(); const outcome = await handoverTurn(); resultIsLocked = true; await openMatch(match.code); return; } await openMatch(state.activeMatchCode); }); wrongButton.after(overviewButton); }
+  if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.type = "button"; overviewButton.addEventListener("click", async () => { if (overviewButton.disabled) return; overviewButton.disabled = true; try { if (!currentPlacementCorrect && state.pendingResult?.matchCode === state.activeMatchCode) { await finishRoomWrongReveal(true); return; } await openMatch(state.activeMatchCode); } finally { overviewButton.disabled = false; } }); wrongButton.after(overviewButton); }
   delete overviewButton.dataset.roomHandoverName;
   const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
@@ -698,12 +698,12 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const onlyContinue = !$("#result-continue").hidden && $("#result-lock").hidden;
   $(".result-actions").style.gridTemplateColumns = onlyContinue ? "minmax(0,300px)" : "";
   $(".result-actions").style.justifyContent = onlyContinue ? "center" : "";
-  const localTurnMatch = Boolean(localMatch(activeMatch)); overviewButton.textContent = localTurnMatch ? "LÄMNA ÖVER TUREN →" : "TILL MATCHÖVERSIKT"; overviewButton.className = localTurnMatch ? "button button-green wrong-match-button" : "lobby-back wrong-match-button";
-  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = activeMatch?.code.startsWith("M0") || correct || score.correct >= 10 || (localMatch(activeMatch)?.mode === "room" && !overviewButton.dataset.roomHandoverName);
+  overviewButton.textContent = "Lämna över turen"; overviewButton.className = "button button-green wrong-match-button";
+  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = correct;
   let countdown = $("#result-return-countdown");
   if (!countdown) { countdown = document.createElement("button"); countdown.type = "button"; countdown.id = "result-return-countdown"; countdown.className = "result-countdown"; $(".result-head").before(countdown); }
   const pending = state.pendingResult;
-  countdown.hidden = correct || pending?.matchCode !== state.activeMatchCode || !pending?.roomWrongRevealUntil;
+  countdown.hidden = true;
   countdown.dataset.resultCountdown = String(pending?.roomWrongRevealUntil || 0);
   if (activeMatch) {
     renderRoomResultBoard(activeMatch, card, { locked, unlocked, guess, score, correct, placedPosition: snapshot?.placedPosition, timeline: snapshot?.timeline || timeline });
@@ -1260,7 +1260,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
       return `<p${guessChecked ? ` class="${right ? "is-correct" : "is-wrong"}"` : ""}><span class="room-guess-answer">${guessChecked ? `<b class="room-guess-verdict">${right ? "✓ Rätt" : "✕ Fel"}</b>` : ""}<span class="room-guess-label">${label}:</span><strong>${escapeHtml(guessValues[key]) || (guessChecked ? "Inget svar" : "Väntar på gissning…")}</strong></span></p>`;
     }).join("")}</div>` : "";
     const spectatorCard = spectator && !revealed && player.current_card ? `<details class="room-spectator-card" data-room-reveal="${escapeHtml(cardKey)}"${flipped ? " open" : ""}><summary><strong class="room-card-back">HEMLIGT KORT</strong><span class="room-card-back room-card-symbol">♫</span><span class="button button-purple room-card-flip"><span class="room-card-open-label">VÄND PÅ KORTET</span><span class="room-card-close-label">DÖLJ KORTET</span></span></summary><div class="room-card-answer"><strong>${escapeHtml(player.current_card.artist)}: ${escapeHtml(player.current_card.title)}</strong><small>Släppt ${escapeHtml(player.current_card.year)}</small></div></details>` : "";
-    const revealUntil = misplaced && match.code.startsWith("M0") ? Date.parse(live?.updated_at || "") + ROOM_RESULT_REVEAL_MS : 0;
+    const revealUntil = 0;
 
     const result = revealed && position !== null && played ? `<p class="room-live-result ${misplaced ? "is-wrong" : "is-correct"}">${misplaced ? "✕ Felplacerat kort" : "✓ Rätt placerat kort"} · ${escapeHtml(played.artist)} – ${escapeHtml(played.title)} (${escapeHtml(played.year)})</p>${Number.isFinite(revealUntil) && revealUntil > 0 ? `<button class="result-countdown" type="button" data-result-countdown="${revealUntil}"></button>` : ""}` : "";
     return `<article data-room-player="${escapeHtml(player.user_id)}" class="room-live-player ${active ? "is-current" : ""} ${player === featured ? "is-featured" : ""}"><div class="room-live-heading"><i class="avatar-art room-live-avatar" style="${avatarArtStyle(avatar.genre, avatar.variant)}" role="img" aria-label="${name}s avatar"></i><strong>${name}</strong></div><div class="room-live-stats"><div><span class="room-stat-label">Rättplacerade</span><strong>${correct}/10</strong></div><div><span class="room-stat-label">Byt-låt-kort</span><strong>${Math.max(0, Math.min(3, Number(player.swap_cards) || 0))}/3</strong></div></div>${stage ? `<p class="room-live-stage">${stage}</p>` : ""}${guess}${spectatorCard}${result}<div class="room-live-track">${timeline || "<p>Väntar på startkort.</p>"}</div>${kick}${historyAction}${friendAction}${removeAction}</article>`;
@@ -1315,8 +1315,9 @@ function renderRoomResultBoard(match, card, snapshot) {
   if (!board) { board = document.createElement("section"); board.id = "room-result-board"; board.className = "room-live-timelines"; $(".result-head").before(board); }
   setRoomResultMode(true);
   const solo = isSoloMatch(match) && !localMatch(match);
-  const actions = $(".result-actions"); actions.hidden = !snapshot.correct && !solo;
-  $("#result-continue").hidden = !snapshot.correct && !solo; $("#result-lock").hidden = !snapshot.correct || solo;
+  const actions = $(".result-actions"); actions.hidden = false;
+  actions.append($("#wrong-overview"));
+  $("#result-continue").hidden = !snapshot.correct; $("#result-lock").hidden = !snapshot.correct || solo;
   $("#result-continue").textContent = "Ta ett till låtkort";
   $("#result-lock").textContent = "Lås in & avsluta omgång";
   [".result-head", ".result-checks", "#result-timeline", ".result-match-code", "#solo-result-score"].forEach((selector) => { $(selector).hidden = true; });
@@ -1532,20 +1533,15 @@ document.addEventListener("visibilitychange", async () => {
 });
 let roomWrongRevealPromise = null, wakeRoomWrongReveal = null;
 function finishRoomWrongReveal(skipWait = false) {
-  if (skipWait) { if (state.pendingResult?.roomWrongRevealUntil) { state.pendingResult.roomWrongRevealUntil = Date.now(); save(); } wakeRoomWrongReveal?.(); }
+  if (!skipWait) return Promise.resolve();
   if (roomWrongRevealPromise) return roomWrongRevealPromise;
   roomWrongRevealPromise = (async () => {
     const pending = state.pendingResult;
-    if (!pending?.roomWrongRevealUntil || !pending.matchCode?.startsWith("M0")) return;
-    await new Promise((resolve) => {
-      const timer = setTimeout(resolve, Math.max(0, pending.roomWrongRevealUntil - Date.now()));
-      wakeRoomWrongReveal = () => { wakeRoomWrongReveal = null; clearTimeout(timer); resolve(); };
-    });
-    wakeRoomWrongReveal = null;
+    if (!pending || pending.correct !== false) return;
     const code = pending.matchCode;
-    if (state.pendingResult !== pending) return;
     await syncMatches();
     const match = state.matches.find((item) => item.code === code);
+    if (state.pendingResult !== pending) return;
     if (match?.status === "active" && String(match.currentUserId) === String(state.userId)) {
       currentPlacementCorrect = false;
       state.currentGuess = pending.snapshot?.guess || {};
@@ -1554,10 +1550,11 @@ function finishRoomWrongReveal(skipWait = false) {
     state.pendingResult = null;
     delete state.roundResumeViews[code];
     save();
-    if (currentView === "result" && state.activeMatchCode === code && state.matches.some((item) => item.code === code)) openMatch(code);
-  })().catch((error) => { dialog(error.message || "Turen kunde inte lämnas över. Öppna matchen igen."); }).finally(() => { roomWrongRevealPromise = null; wakeRoomWrongReveal = null; });
+    if (state.activeMatchCode === code && state.matches.some((item) => item.code === code)) await openMatch(code);
+  })().catch((error) => { dialog(error.message || "Turen kunde inte lämnas över. Försök igen."); }).finally(() => { roomWrongRevealPromise = null; });
   return roomWrongRevealPromise;
 }
+
 async function returnToTimelinesNow() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match) return;
@@ -2009,12 +2006,12 @@ $("#lock-placement").addEventListener("click", async () => {
   let earnedSwapCard = false;
   if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards + pendingSwapCardCount() < 3) { if (solo && state.changeTrackCards + pendingSwapCardCount() >= 2) grantDailyAchievement("triple", "Trippel"); earnedSwapCard = queueSwapCardAward(resultCard); }
   if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
-  if (solo || currentPlacementCorrect || activeMatch?.code.startsWith("M0")) { state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect, ...(!currentPlacementCorrect && activeMatch?.code.startsWith("M0") ? { roomWrongRevealUntil: Date.now() + ROOM_RESULT_REVEAL_MS } : {}) }; save(); }
+  state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect }; save();
   finishAchievementAwards();
   resultIsLocked = true; $("#result-back").hidden = true;
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
   let soloOutcome;
-  if (!currentPlacementCorrect && activeMatch?.code.startsWith("M0")) { void finishRoomWrongReveal(); return; }
+  if (!currentPlacementCorrect) return;
   if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); if (localMatch()?.mode === "room" && !soloOutcome?.won) { $("#wrong-overview").dataset.roomHandoverName = soloOutcome.nextPlayerName; $("#wrong-overview").hidden = false; } } catch (error) { alert(error.message); return; } }
   if (soloOutcome?.won) { grantDailyAchievement("soloWin", "Solovinst"); if (Number(soloOutcome.soloSummary?.mistakes || 0) === 0) grantDailyAchievement("soloFlawless", "Felfri"); state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); finishAchievementAwards(); }
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
