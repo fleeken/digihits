@@ -1,4 +1,4 @@
-const APP_VERSION = "8.05"
+const APP_VERSION = "8.06"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -235,7 +235,7 @@ function updateHeaderVisibility() {
   const currentPlayer = match?.players?.find((player) => String(player.user_id) === String(match.currentUserId));
   const liveCard = currentPlayer?.current_card;
   const liveStarted = match?.code.startsWith("M0") ? Boolean(liveCard && !dismissedRoomResults.has(roomResultKey(match, currentPlayer)) && String(currentPlayer.room_live_placement?.card_id) === String(liveCard.id)) : Boolean(liveCard || (state.currentCardMatchCode === match?.code && state.currentCard));
-  const inTurn = ["guess", "timeline", "result"].includes(currentView) || (currentView === "match" && !roundLoading && liveStarted);
+  const inTurn = Boolean(match?.code.startsWith("M0")) && (["guess", "timeline", "result"].includes(currentView) || (currentView === "match" && !roundLoading && liveStarted));
   $("#brand-home").hidden = inTurn;
   $("#install-app").hidden = inTurn;
   $("#enable-notifications").hidden = inTurn;
@@ -245,14 +245,15 @@ function updateHeaderVisibility() {
 }
 function renderRoundPlayers() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode), players = match?.players || [];
+  const solo = isSoloMatch(match) && !localMatch(match);
   const finalSummary = $("#final-match-overview"), isFinal = finalSummary && !finalSummary.hidden;
   const round = Math.max(1, Number(match?.round) || 0, ...players.map((player) => Number(player.rounds_started) || 0));
   document.querySelectorAll(".view-round-number").forEach((label) => {
-    label.hidden = !match || (label.closest('[data-view-panel="result"]') && isFinal);
+    label.hidden = solo || !match || (label.closest('[data-view-panel="result"]') && isFinal);
     if (label.dataset.round !== String(round)) { label.innerHTML = `Omgång <strong>${round}</strong>`; label.dataset.round = String(round); }
   });
   document.querySelectorAll(".round-player-strip").forEach((strip) => {
-    const hidden = !players.length || (strip.id === "result-player-strip" && isFinal);
+    const hidden = solo || !players.length || (strip.id === "result-player-strip" && isFinal);
     const banner = strip.closest(".match-turn-banner");
     if (banner) banner.hidden = hidden;
     if (hidden) { strip.hidden = true; return; }
@@ -542,7 +543,7 @@ const avatarPortraitProfiles = [
 function avatarProfileIndex(traits, fallback = 0) { const wanted = traits || {}, scored = avatarPortraitProfiles.map((profile, index) => ({ index, score: (profile.presentation === wanted.presentation ? 2 : 0) + (profile.skin === wanted.skin ? 2 : 0) + (profile.outfit === wanted.outfit ? 1 : 0) + (index === fallback ? .1 : 0) })); return scored.sort((a, b) => b.score - a.score)[0].index; }
 function avatarChoice(value = {}) { let hash = 0; for (const char of String(value.friend_id || value.user_id || value.display_name || "digihits")) hash = (hash * 31 + char.charCodeAt(0)) >>> 0; const genre = avatarStyles.includes(value.avatar_genre || value.genre) ? (value.avatar_genre || value.genre) : avatarStyles[hash % avatarStyles.length], variant = Number.isInteger(Number(value.avatar_variant ?? value.variant)) && Number(value.avatar_variant ?? value.variant) >= 0 && Number(value.avatar_variant ?? value.variant) < 6 ? Number(value.avatar_variant ?? value.variant) : hash % 6; return { genre, variant }; }
 function ownAvatarChoice() { const saved = state.selectedAvatar; if (avatarStyles.includes(saved?.genre) && Number.isInteger(Number(saved?.variant)) && Number(saved.variant) >= 0 && Number(saved.variant) < 6) return { genre: saved.genre, variant: Number(saved.variant) }; const choice = avatarChoice({ ...(state.avatar || {}), user_id: state.avatar?.user_id || state.userId, display_name: state.playerName }); state.selectedAvatar = { ...choice }; return choice; }
-function updateProfileToggleAvatar() { const button = document.querySelector(".profile-toggle"); if (!button) return; const avatar = ownAvatarChoice(); button.className = "profile-toggle avatar-art"; button.style.cssText = avatarArtStyle(avatar.genre, avatar.variant); button.replaceChildren(); button.setAttribute("aria-label", "Min profil"); }
+function updateProfileToggleAvatar() { const button = document.querySelector(".profile-toggle"); if (!button) return; const avatar = ownAvatarChoice(), avatarKey = `${avatar.genre}:${avatar.variant}`; if (button.dataset.avatarKey === avatarKey) return; button.dataset.avatarKey = avatarKey; button.className = "profile-toggle avatar-art"; button.style.cssText = avatarArtStyle(avatar.genre, avatar.variant); button.replaceChildren(); button.setAttribute("aria-label", "Min profil"); }
 async function persistAvatar() { const token = supabaseAuth.session()?.access_token, a = ownAvatarChoice(), traits = avatarRig(state.avatar); if (!token) throw new Error("Inte inloggad"); await supabaseAuth.dataRequest("rpc/digihits_set_avatar", { chosen_genre: a.genre, chosen_variant: a.variant, chosen_traits: traits }, "POST").catch(() => supabaseAuth.dataRequest("rpc/digihits_set_avatar", { chosen_genre: a.genre, chosen_variant: a.variant }, "POST")); state.avatarDirty = false; state.avatarServerLoaded = true; save(); }
 function renderAvatarRig() { const panel = $("#avatar-panel"); if (!panel) return; state.avatar ||= {}; const genre = avatarStyles.includes(state.avatar.genre) ? state.avatar.genre : "Pop", variant = Number.isInteger(state.avatar.variant) && state.avatar.variant >= 0 && state.avatar.variant < 6 ? state.avatar.variant : 0; state.avatar.genre = genre; state.avatar.variant = variant; const accountAvatar = $("#change-avatar"); if (accountAvatar) { accountAvatar.className = "mini-avatar account-avatar avatar-art"; accountAvatar.style.cssText = avatarArtStyle(genre, variant); accountAvatar.replaceChildren(); } panel.innerHTML = `<h3>MIN ARTIST-AVATAR</h3><div class="avatar-choice-layout"><div class="avatar-choice-preview avatar-art" style="${avatarArtStyle(genre, variant)}" role="img" aria-label="${genre}-artist"></div><div class="avatar-choice-copy"><p>Välj genre och sedan en av sex unika artist-avatarer.</p><div class="avatar-genre-grid">${avatarStyles.map((style) => `<button type="button" class="${style === genre ? "is-selected" : ""}" data-avatar-style="${style}">${style.toUpperCase()}</button>`).join("")}</div><div class="avatar-variant-grid">${Array.from({ length: 6 }, (_, index) => `<button type="button" class="avatar-art ${index === variant ? "is-selected" : ""}" style="${avatarArtStyle(genre, index)}" data-avatar-variant="${index}" aria-label="Välj avatar ${index + 1}"></button>`).join("")}</div><button type="button" class="button avatar-shuffle" data-avatar-style-random>SLUMPA AVATAR</button><button type="button" class="button button-green" data-avatar-save>SPARA AVATAR</button></div></div>`; }
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-avatar-v2]"); if (!select) return; avatarV2()[select.dataset.avatarV2] = select.value; save(); renderAvatar(); });
@@ -1216,11 +1217,12 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     view.querySelector(".match-turn-banner")?.before(zoomControl);
   }
   if (zoomControl) {
-    zoomControl.hidden = Boolean(resultPanel) || (Boolean(livePlayer) && !(roundLoading && currentView === "match"));
+    zoomControl.hidden = !match.code.startsWith("M0") || Boolean(resultPanel) || (Boolean(livePlayer) && !(roundLoading && currentView === "match"));
     const zoomMarkup = `<strong>ZOOM</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div>`;
     if (zoomControl.dataset.markup !== zoomMarkup) { zoomControl.innerHTML = zoomMarkup; zoomControl.dataset.markup = zoomMarkup; }
   }
-  const markup = `<div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>${ordered.map((player) => {
+  const solo = isSoloMatch(match) && !localMatch(match);
+  const markup = `${solo ? "" : `<div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>`}${ordered.map((player) => {
     const active = player === livePlayer, locked = Array.isArray(player.locked_timeline) ? player.locked_timeline : [], unlocked = String(match.currentUserId) === String(player.user_id) && Array.isArray(player.turn_cards) ? player.turn_cards : [];
     const cards = [...locked.map((card, index) => ({ ...card, roomStatus: index === 0 ? "STARTKORT" : "LÅST" })), ...unlocked.map((card) => ({ ...card, roomStatus: "OLÅST" }))].sort((a, b) => Number(a.year) - Number(b.year));
     const live = active ? player.room_live_placement : null;
@@ -1229,7 +1231,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const score = player.last_round?.score || {}, correct = Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0);
     const mistakes = roomMistakes(player);
     const name = escapeHtml(player.display_name || "Spelare");
-    const avatar = avatarChoice(player);
+    const avatar = !match.code.startsWith("M0") && !localMatch(match) && String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(player);
     const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
     const kick = match.code.startsWith("M0") && !resultPanel && !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
     const playerId = player.id || player.user_id;
