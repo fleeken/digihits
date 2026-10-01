@@ -1260,8 +1260,8 @@ html:has(.modal:not([hidden])),body:has(.modal:not([hidden])){overflow:hidden}
 
 .view[data-view-panel="lobby"].room-lobby-view .lobby-layout{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"info" "actions";gap:0}
 .view[data-view-panel="lobby"].room-lobby-view .lobby-layout>.lobby-main{min-height:0}
-.view[data-view-panel="lobby"].room-lobby-view .lobby-layout>.lobby-side{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;border-top:1px solid #d5c8cf}
-.view[data-view-panel="lobby"].room-lobby-view .lobby-side .button{width:auto;flex:1 1 180px;max-width:340px;min-height:52px;margin:0!important}
+.view[data-view-panel="lobby"].room-lobby-view .lobby-layout>.lobby-side{display:flex;flex-direction:column;align-items:stretch;gap:10px;border-top:1px solid #d5c8cf}
+.view[data-view-panel="lobby"].room-lobby-view .lobby-side .button{width:100%;flex:0 0 auto;max-width:none;min-height:52px;margin:0!important}
 .view[data-view-panel="lobby"].room-lobby-view #lobby-room-invite{background:#68d995;color:#113824}
 @media(max-width:640px){.view[data-view-panel="lobby"].room-lobby-view .lobby-side .button{max-width:none}}
 
