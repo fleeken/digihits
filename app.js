@@ -1,4 +1,4 @@
-const APP_VERSION = "8.30"
+const APP_VERSION = "8.31"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -255,16 +255,19 @@ const roundStripMarkup = new WeakMap();
 function updateHeaderVisibility() {
   const signedIn = Boolean(supabaseAuth.session()?.access_token);
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
-  const currentPlayer = match?.players?.find((player) => String(player.user_id) === String(match.currentUserId));
-  const liveCard = currentPlayer?.current_card;
-  const liveStarted = match?.code.startsWith("M0") ? Boolean(liveCard && !dismissedRoomResults.has(roomResultKey(match, currentPlayer)) && String(currentPlayer.room_live_placement?.card_id) === String(liveCard.id)) : Boolean(liveCard || (state.currentCardMatchCode === match?.code && state.currentCard));
-  const inTurn = Boolean(match?.code.startsWith("M0")) && (["guess", "timeline", "result"].includes(currentView) || (currentView === "match" && !roundLoading && liveStarted));
-  $("#brand-home").hidden = inTurn;
-  $("#install-app").hidden = inTurn;
-  $("#enable-notifications").hidden = inTurn;
+  const authView = ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(currentView);
+  const guest = Boolean(state.userId && [state.roomGuestUserId, state.anonymousRoomGuestId].some((id) => id && String(id) === String(state.userId)));
+  const roomGame = Boolean(match && (match.code?.startsWith("M0") || localMatch(match)?.mode === "room")) && ["lobby", "match", "guess", "timeline", "result", "chat"].includes(currentView);
+  const hideNavigation = guest || roomGame;
+  document.documentElement.classList.toggle("room-game-navigation-hidden", hideNavigation);
+  $("#brand-home").hidden = hideNavigation;
+  $("#install-app").hidden = hideNavigation;
+  $("#enable-notifications").hidden = !signedIn || hideNavigation || authView;
   const profile = document.querySelector(".profile-toggle");
-  if (profile) profile.hidden = !signedIn || inTurn || ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(currentView);
-  document.querySelector(".brand").hidden = inTurn;
+  if (profile) profile.hidden = !signedIn || hideNavigation || authView;
+  const bottomMenu = $("#bottom-menu");
+  if (bottomMenu) bottomMenu.hidden = !signedIn || hideNavigation || authView;
+  document.querySelector(".brand").hidden = hideNavigation;
 }
 function matchPlayerAvatar(match, player) {
   const local = localMatch(match);
@@ -1442,8 +1445,8 @@ function renderRoomResultBoard(match, card, snapshot) {
   const solo = isSoloMatch(match) && !localMatch(match);
   const actions = $(".result-actions"); actions.hidden = false;
   actions.append($("#wrong-overview"));
-  $("#result-continue").hidden = !snapshot.correct; $("#result-lock").hidden = !snapshot.correct || solo;
-  $("#result-continue").textContent = "Ta ett till låtkort";
+  $("#result-continue").hidden = !snapshot.correct && !solo; $("#result-lock").hidden = !snapshot.correct || solo;
+  $("#result-continue").textContent = solo ? "Fortsätt spel" : "Ta ett till låtkort";
   $("#result-lock").textContent = "Lås in & avsluta omgång";
   [".result-head", ".result-checks", "#result-timeline", ".result-match-code", "#solo-result-score"].forEach((selector) => { $(selector).hidden = true; });
   const cards = [...snapshot.locked, ...snapshot.unlocked].sort((a, b) => Number(a.year) - Number(b.year));
