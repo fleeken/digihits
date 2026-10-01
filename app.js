@@ -1,4 +1,4 @@
-const APP_VERSION = "8.19"
+const APP_VERSION = "8.20"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -46,6 +46,26 @@ if (state.appZoomScaleVersion !== 2) {
   localStorage.setItem(storageKey, JSON.stringify(state));
 }
 state.appZoom = appZoomLevels.includes(Number(state.appZoom)) ? Number(state.appZoom) : 100;
+let bottomMenuViewportFrame = null;
+function updateBottomMenuViewport() {
+  bottomMenuViewportFrame = null;
+  const menu = document.getElementById("bottom-menu");
+  if (!menu || menu.hidden || !menu.getClientRects().length) return;
+  const viewport = window.visualViewport;
+  const bottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+  const top = Math.max(0, bottom - menu.getBoundingClientRect().height);
+  menu.style.setProperty("--menu-viewport-top", `${top}px`);
+}
+function scheduleBottomMenuViewport() {
+  if (bottomMenuViewportFrame === null) bottomMenuViewportFrame = requestAnimationFrame(updateBottomMenuViewport);
+}
+window.addEventListener("resize", scheduleBottomMenuViewport, { passive: true });
+window.addEventListener("scroll", scheduleBottomMenuViewport, { passive: true });
+window.addEventListener("pageshow", scheduleBottomMenuViewport);
+window.addEventListener("orientationchange", scheduleBottomMenuViewport);
+window.visualViewport?.addEventListener("resize", scheduleBottomMenuViewport, { passive: true });
+window.visualViewport?.addEventListener("scroll", scheduleBottomMenuViewport, { passive: true });
+if (window.ResizeObserver) new ResizeObserver(scheduleBottomMenuViewport).observe(document.getElementById("bottom-menu"));
 function applyAppZoom() {
   const zoom = (state.appZoom + 10) / 100;
   // Keep fixed navigation outside a zoomed root (Safari scroll positioning).
@@ -56,6 +76,7 @@ function applyAppZoom() {
   document.documentElement.style.setProperty("--menu-scale", String(zoom));
   document.documentElement.style.setProperty("--dialog-inverse-zoom", "1");
   document.documentElement.dataset.appZoom = String(state.appZoom);
+  scheduleBottomMenuViewport();
   document.querySelectorAll("[data-app-zoom]").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.appZoom) === state.appZoom)));
 }
 applyAppZoom();
@@ -969,6 +990,7 @@ function showView(view, focusMatches = false, fromHistory = false) {
     panel.classList.toggle("active", panel.dataset.viewPanel === view);
   });
   updateHeaderVisibility();
+  scheduleBottomMenuViewport();
   updateResultCountdowns();
   refreshTimelineScrollbars();
   if (gameView) resumeRoundTrack();
