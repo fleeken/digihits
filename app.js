@@ -1,4 +1,4 @@
-const APP_VERSION = "8.13"
+const APP_VERSION = "8.14"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -261,7 +261,7 @@ function renderRoundPlayers() {
     if (hidden) { strip.hidden = true; return; }
     strip.hidden = false;
     strip.dataset.playerCount = String(players.length);
-    const markup = `<div>${players.map((player, index) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = localMatch(match)?.mode === "room" ? avatarChoice({ display_name: player.display_name, ...localMatch(match).players[index]?.avatar }) : match.code.startsWith("M0") ? avatarChoice(player) : String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"${localMatch(match)?.mode === "room" ? ` data-room-avatar-index="${index}"` : ""}><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
+    const markup = `<div>${players.map((player, index) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.min(10, Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1)), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = localMatch(match)?.mode === "room" ? avatarChoice({ display_name: player.display_name, ...localMatch(match).players[index]?.avatar }) : match.code.startsWith("M0") ? avatarChoice(player) : String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"${localMatch(match)?.mode === "room" ? ` data-room-avatar-index="${index}"` : ""}><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
     // Compare source markup, not browser-normalized HTML; retain avatars and scroll on unchanged syncs.
     if (roundStripMarkup.get(strip) !== markup) { strip.innerHTML = markup; roundStripMarkup.set(strip, markup); }
   });
@@ -1231,7 +1231,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const live = active ? player.room_live_placement : null;
     const position = live && ["placing", "revealed"].includes(live.phase) && Number.isInteger(Number(live.position)) ? Math.max(0, Math.min(cards.length, Number(live.position))) : null;
     const revealed = live?.phase === "revealed", played = revealed ? player.current_card : null;
-    const score = player.last_round?.score || {}, correct = Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0);
+    const score = player.last_round?.score || {}, correct = Math.min(10, Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0));
     const mistakes = roomMistakes(player);
     const name = escapeHtml(player.display_name || "Spelare");
     const avatar = !match.code.startsWith("M0") && (!localMatch(match) || localMatch(match)?.mode === "computer") && String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(player);
@@ -1545,7 +1545,8 @@ function finishRoomWrongReveal(skipWait = false) {
     if (match?.status === "active" && String(match.currentUserId) === String(state.userId)) {
       currentPlacementCorrect = false;
       state.currentGuess = pending.snapshot?.guess || {};
-      await handoverTurn(pending.snapshot?.timeline);
+      const outcome = await handoverTurn(pending.snapshot?.timeline);
+      if (outcome?.won) { state.pendingResult = null; delete state.roundResumeViews[code]; save(); showView("home", true); dialog(`${outcome.winnerId} vann matchen!`); return; }
     }
     state.pendingResult = null;
     delete state.roundResumeViews[code];
@@ -1856,7 +1857,7 @@ document.addEventListener("pointercancel", (event) => { if (cardDrag?.pointerId 
 async function handoverLocalTurn(match, savedTimeline = null) {
   const local = localMatch(match), active = local.players[local.current], currentCard = activeCard();
   active.rounds = Number(active.rounds || 0) + 1;
-  if (currentPlacementCorrect) active.timeline = [...(active.timeline || []), ...state.roundUnlocked, currentCard].sort((a, b) => a.year - b.year);
+  if (currentPlacementCorrect) active.timeline = [...(active.timeline || []), ...state.roundUnlocked, currentCard].slice(0, 10).sort((a, b) => a.year - b.year);
   else active.mistakes = Number(active.mistakes || 0) + 1;
   const roundCards = currentPlacementCorrect ? [...state.roundUnlocked, currentCard].map((card) => ({ ...card, status: "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: "OLÅST" })), { ...currentCard, status: "FELPLACERAT" }];
   active.lastRound = { ended_at: new Date().toISOString(), rounds: active.rounds, outcome: active.timeline.length >= 10 ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, score: { correct: active.timeline.length, mistakes: active.mistakes }, timeline: savedTimeline || [...active.timeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...(currentPlacementCorrect ? [] : roundCards)] };
@@ -1890,18 +1891,14 @@ async function handoverTurn(savedTimeline = null) {
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=id,user_id,turn_order,locked_timeline,rounds_started,swap_cards,last_round&order=turn_order`);
   const mine = players.findIndex((player) => String(player.user_id) === String(user.id)), minePlayer = players[mine], next = players[(mine + 1) % players.length];
   if (!minePlayer || !next || (!solo && players.length < 2)) throw new Error("Det finns ingen aktiv motspelare i matchen.");
-  const currentCard = activeCard(), cardsToLock = currentPlacementCorrect ? [...state.roundUnlocked, currentCard] : [], earnedSwapCard = false;
-  const target = (await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=target_cards`))[0]?.target_cards || 10;
-  const projectedCorrect = currentPlacementCorrect ? (minePlayer.locked_timeline || []).length + cardsToLock.length : (minePlayer.locked_timeline || []).length;
-  const projectedRounds = Number(minePlayer.rounds_started || 0);
-  const playerScores = players.map((player) => { const saved = player.last_round?.score || {}; return { user_id: player.user_id, correct: String(player.user_id) === String(user.id) ? projectedCorrect : Math.max(1, Number(saved.correct) || (player.locked_timeline || []).length), rounds: String(player.user_id) === String(user.id) ? projectedRounds : Number(player.rounds_started || 0) }; });
-  const highestCorrect = Math.max(...playerScores.map((item) => item.correct)), maxRounds = Math.max(...playerScores.map((item) => item.rounds)), allPlayersHadEqualTurns = playerScores.every((item) => item.rounds >= maxRounds), leaders = playerScores.filter((item) => item.correct === highestCorrect);
-  const finalReady = !solo && highestCorrect >= target && allPlayersHadEqualTurns;
-  const winnerId = solo && projectedCorrect >= target ? user.id : finalReady && leaders.length === 1 ? leaders[0].user_id : null;
-  const awaitingFinalChance = !solo && projectedCorrect >= target && !finalReady;
+  const currentCard = activeCard(), cardsToLock = currentPlacementCorrect ? [...state.roundUnlocked, currentCard].filter(Boolean).slice(0, Math.max(0, 10 - (minePlayer.locked_timeline || []).length)) : [], earnedSwapCard = false;
+  const target = 10;
+  const projectedCorrect = Math.min(target, (minePlayer.locked_timeline || []).length + cardsToLock.length);
+  const winnerId = projectedCorrect >= target ? user.id : null;
+  const awaitingFinalChance = false;
   const won = Boolean(winnerId);
   const roundCards = currentPlacementCorrect ? cardsToLock.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "LÅST DENNA OMGÅNG" })) : [...state.roundUnlocked.map((card) => ({ ...card, status: solo ? "RÄTT PLACERAT" : "OLÅST" })), { ...currentCard, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }];
-  const previousScore = minePlayer.last_round?.score || {}, priorCorrect = Math.max(1, Number(previousScore.correct) || (minePlayer.locked_timeline || []).length), priorMistakes = match.code.startsWith("M0") ? roomMistakes(minePlayer) : Math.max(0, Number(previousScore.mistakes) || Math.max(0, Number(minePlayer.rounds_started || 0) - Math.max(0, priorCorrect - 1))), score = { correct: currentPlacementCorrect ? priorCorrect + cardsToLock.length : priorCorrect, mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
+  const previousScore = minePlayer.last_round?.score || {}, priorCorrect = Math.max(1, Number(previousScore.correct) || (minePlayer.locked_timeline || []).length), priorMistakes = match.code.startsWith("M0") ? roomMistakes(minePlayer) : Math.max(0, Number(previousScore.mistakes) || Math.max(0, Number(minePlayer.rounds_started || 0) - Math.max(0, priorCorrect - 1))), score = { correct: Math.min(target, currentPlacementCorrect ? priorCorrect + cardsToLock.length : priorCorrect), mistakes: priorMistakes + (currentPlacementCorrect ? 0 : 1) };
   const lastRound = { ended_at: new Date().toISOString(), rounds: Number(minePlayer.rounds_started || 0), outcome: won ? "won" : currentPlacementCorrect ? "locked" : "wrong", guess: state.currentGuess || {}, cards: roundCards, score, timeline: savedTimeline || [...(minePlayer.locked_timeline || []).map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...roundCards] };
   const currentSwapCards = Math.max(0, Math.min(3, Number(minePlayer.swap_cards || 0) + pendingSwapCardCount(match.code)));
   await supabaseAuth.dataRequest(`online_players?id=eq.${minePlayer.id}`, { locked_timeline: currentPlacementCorrect ? [...(minePlayer.locked_timeline || []), ...cardsToLock] : minePlayer.locked_timeline, turn_cards: [], current_card: null, last_round: lastRound, swap_cards: currentSwapCards, ...(match.code.startsWith("M0") ? { room_live_placement: null } : {}), updated_at: new Date().toISOString() }, "PATCH");
@@ -1924,6 +1921,7 @@ async function handoverTurn(savedTimeline = null) {
 async function dealCard({ deferLive = false } = {}) {
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   if (!match?.id) throw new Error("Matchdata saknas.");
+  if (match.status === "finished" || state.lockedTimeline.length + state.roundUnlocked.length >= 10) throw new Error("Matchen är slut vid 10 rättplacerade kort.");
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const rows = await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}&select=deck,used_track_ids`);
   const matchData = rows[0], deck = expandedMatchDeck(matchData.deck || []); let used = new Set(matchData.used_track_ids || []), available = deck.filter((card) => !used.has(card.id));
@@ -2012,7 +2010,9 @@ $("#lock-placement").addEventListener("click", async () => {
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
   let soloOutcome;
   if (!currentPlacementCorrect) return;
-  if (!currentPlacementCorrect || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); if (localMatch()?.mode === "room" && !soloOutcome?.won) { $("#wrong-overview").dataset.roomHandoverName = soloOutcome.nextPlayerName; $("#wrong-overview").hidden = false; } } catch (error) { alert(error.message); return; } }
+  const reachedTarget = state.lockedTimeline.length + state.roundUnlocked.length + 1 >= 10;
+  if (reachedTarget || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); if (localMatch()?.mode === "room" && !soloOutcome?.won) { $("#wrong-overview").dataset.roomHandoverName = soloOutcome.nextPlayerName; $("#wrong-overview").hidden = false; } } catch (error) { alert(error.message); return; } }
+  if (soloOutcome?.won && !solo) { state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); $(".result-actions").hidden = true; $("#change-track-area").hidden = true; const winnerName = activeMatch.players?.find((player) => String(player.user_id) === String(soloOutcome.winnerId))?.display_name || soloOutcome.winnerId || state.playerName; dialog(`Matchen är slut. ${winnerName} vann med 10 rättplacerade kort!`); return; }
   if (soloOutcome?.won) { grantDailyAchievement("soloWin", "Solovinst"); if (Number(soloOutcome.soloSummary?.mistakes || 0) === 0) grantDailyAchievement("soloFlawless", "Felfri"); state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); finishAchievementAwards(); }
   if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
 
