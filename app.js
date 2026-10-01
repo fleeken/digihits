@@ -1,4 +1,4 @@
-const APP_VERSION = "8.31"
+const APP_VERSION = "8.32"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -252,11 +252,18 @@ async function animateTimelineOutcome(correct) {
   await animationWait(1000); stage.className = ""; stage.replaceChildren();
 }
 const roundStripMarkup = new WeakMap();
+function isGuestSession() {
+  const session = supabaseAuth.session();
+  if (!session?.access_token) return false;
+  if (typeof session.user?.is_anonymous === "boolean") return session.user.is_anonymous;
+  return Boolean(state.userId && state.anonymousRoomGuestId && String(state.anonymousRoomGuestId) === String(state.userId));
+}
 function updateHeaderVisibility() {
   const signedIn = Boolean(supabaseAuth.session()?.access_token);
   const match = state.matches.find((item) => item.code === state.activeMatchCode);
   const authView = ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(currentView);
-  const guest = Boolean(state.userId && [state.roomGuestUserId, state.anonymousRoomGuestId].some((id) => id && String(id) === String(state.userId)));
+  const guest = isGuestSession();
+  document.documentElement.classList.toggle("room-guest-only", guest);
   const roomGame = Boolean(match && (match.code?.startsWith("M0") || localMatch(match)?.mode === "room")) && ["lobby", "match", "guess", "timeline", "result", "chat"].includes(currentView);
   const hideNavigation = guest || roomGame;
   document.documentElement.classList.toggle("room-game-navigation-hidden", hideNavigation);
@@ -520,6 +527,7 @@ function activateAchievementAccount(userId) {
   if (previousId) state.achievementAccounts[previousId] = { achievements: { ...state.achievements }, achievementYear: state.achievementYear, dailyAchievements: { ...state.dailyAchievements }, dailyProgress: { ...state.dailyProgress } };
   const saved = state.achievementAccounts[id];
   state.userId = id;
+  state.roomGuestUserId = null; state.anonymousRoomGuestId = null;
   state.achievements = saved ? { ...(saved.achievements || {}) } : previousId && previousId !== id ? {} : { ...state.achievements };
   state.achievementYear = saved?.achievementYear || state.achievementYear;
   state.dailyAchievements = saved ? { ...(saved.dailyAchievements || {}) } : previousId && previousId !== id ? {} : { ...state.dailyAchievements };
@@ -1016,7 +1024,7 @@ function prepareWelcomeTurn(view) {
   };
 }
 function guestRoomMatch() {
-  if (!supabaseAuth.session()?.access_token || String(state.roomGuestUserId || "") !== String(state.userId || "")) return null;
+  if (!isGuestSession()) return null;
   return state.matches.find((match) => match.code === state.activeMatchCode && match.code?.startsWith("M0")) || null;
 }
 function hasSubmittedCardGuess() {
@@ -1895,7 +1903,7 @@ document.addEventListener("submit", async (event) => { if (event.target.id !== "
   if (!supabaseAuth.session()?.access_token) await supabaseAuth.signInGuest();
   const user = await supabaseAuth.user(supabaseAuth.session().access_token);
   const result = await supabaseAuth.dataRequest("rpc/digihits_join_room_match", { match_code_input: form.dataset.code, guest_name: name, chosen_genre: form.dataset.genre || "Pop", chosen_variant: Number(form.dataset.variant || 0) }, "POST");
-  state.playerName = name; state.userId = user.id; state.roomGuestUserId = user.id; if (user.is_anonymous) state.anonymousRoomGuestId = user.id; state.avatar.genre = form.dataset.genre || "Pop"; state.avatar.variant = Number(form.dataset.variant || 0); save();
+  state.playerName = name; state.userId = user.id; state.roomGuestUserId = user.is_anonymous ? user.id : null; state.anonymousRoomGuestId = user.is_anonymous ? user.id : null; state.avatar.genre = form.dataset.genre || "Pop"; state.avatar.variant = Number(form.dataset.variant || 0); save();
   await syncMatches(); startRealtime(); $("#app-dialog").hidden = true; history.replaceState({}, "", location.pathname); const joined = state.matches.find((item) => item.code === (result.match_code || form.dataset.code)); if (joined?.status === "waiting") openLobby(joined.code); else if (joined) openMatch(joined.code);
 } catch (failure) { error.textContent = failure.message || "Kunde inte gå med i matchen."; error.hidden = false; } finally { button.disabled = false; } });
 document.addEventListener("click", async (event) => { const mode = event.target.closest("[data-match-mode]")?.dataset.matchMode; if (!mode) return; try { if (mode === "self") { $("#app-dialog").hidden = true; await createSoloMatch(); } else if (mode === "friend") { if (!state.friends.length) return dialog("Du har inga vänner i vänskapslistan ännu."); $("#dialog-title").textContent = "Spela mot en vän"; $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-category="online" type="button">← TILLBAKA</button><div class="invite-picker">${state.friends.map((friend) => `<div><strong>${escapeHtml(friend.display_name)}</strong><button class="button button-green" data-create-friend-match="${friend.friend_id}" type="button">VÄLJ</button></div>`).join("")}</div>`; } else if (mode === "random") { $("#app-dialog").hidden = true; await createRandomOnlineMatch(); } else if (mode === "computer") { $("#app-dialog").hidden = true; await createLocalMatch("computer"); } else showRoomSetup(); } catch (error) { alert(error.message); } });
