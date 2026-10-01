@@ -1452,3 +1452,8 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 .unified-game .result-actions{gap:10px;margin:14px 0}
 .unified-game:not(.multi-room-match) #match-friend-invites:not([hidden]){display:block!important;background:#14233e;border:1px solid #496b91;border-radius:14px;padding:14px;color:#e9f4ff}
 .unified-game :is(#overview-loading,#overview-players)[hidden]{display:none!important}
+
+/* Invitations sit beneath the timelines, directly before chat. */
+.unified-game:not(.multi-room-match) .lobby-side #match-friend-invites:not([hidden]){flex:1 1 100%;width:100%;margin:0;padding:0;border:0;background:transparent;box-shadow:none}
+.unified-game .lobby-side #open-invite-friends{display:block;width:100%;max-width:none;margin:0;min-height:52px;font-size:14px}
+.unified-game .lobby-side #open-invite-friends:disabled{background:#465064!important;border-color:#667086!important;color:#c8cfdb!important;box-shadow:none!important;cursor:default;opacity:1}
