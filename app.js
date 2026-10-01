@@ -1,4 +1,4 @@
-const APP_VERSION = "8.33"
+const APP_VERSION = "8.34"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -265,8 +265,8 @@ function updateHeaderVisibility() {
   const authView = ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(currentView);
   const guest = isGuestSession();
   document.documentElement.classList.toggle("room-guest-only", guest);
-  const roomGame = Boolean(match && (match.code?.startsWith("M0") || localMatch(match)?.mode === "room")) && ["lobby", "match", "guess", "timeline", "result", "chat"].includes(currentView);
-  const hideNavigation = guest || roomGame;
+  const realtimeTurn = Boolean(match?.code?.startsWith("M0")) && ["guess", "timeline"].includes(currentView);
+  const hideNavigation = guest || realtimeTurn;
   document.documentElement.classList.toggle("room-game-navigation-hidden", hideNavigation);
   $("#brand-home").hidden = hideNavigation;
   $("#install-app").hidden = hideNavigation;
