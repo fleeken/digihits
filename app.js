@@ -1,4 +1,4 @@
-const APP_VERSION = "8.20"
+const APP_VERSION = "8.22"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1388,6 +1388,14 @@ function publishRoomPlacement(phase, position = null) {
   return roomLiveWrite;
 }
 
+function matchInviteStatusMarkup(invites, players) {
+  const joinedIds = new Set(players.map((player) => String(player.user_id)));
+  return invites.filter((invite) => invite.status !== "accepted" && !joinedIds.has(String(invite.recipient_id))).map((invite) => {
+    const declined = invite.status === "declined";
+    return `<article class="match-invite-status ${declined ? "declined" : "pending"}"><span class="match-invite-icon" aria-hidden="true">${declined ? "–" : "✓"}</span><span class="match-invite-copy"><strong>${declined ? "Inbjudan avvisad" : "Inbjudan skickad"}</strong><small>${declined ? "Av" : "Till"} ${escapeHtml(invite.recipient_name || "spelaren")}${declined ? "" : " · Väntar på svar"}</small></span></article>`;
+  }).join("");
+}
+
 async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   try {
     const room = state.matches.find((item) => item.id === matchId)?.code.startsWith("M0");
@@ -1396,7 +1404,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
     if (match && !localMatch(match)) { match.players = players; if (match.code === state.activeMatchCode) renderRoundPlayers(); }
     if (match) renderRoomTimelines(match, players);
     else $("#room-live-timelines").hidden = true;
-    if (friendBox && match && !solo && !room) { friendBox.hidden = false; const locked = match.locked || players.some((player) => Number(player.rounds_started || 0) >= 2); if (locked) { matchInviteCandidates = []; friendBox.innerHTML = `<button class="button button-green" id="open-invite-friends" type="button" disabled>Omgång 2 har startat</button>`; } else { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))), sent = new Map(state.sentMatchInvites.filter((invite) => String(invite.match_code) === String(match.code)).map((invite) => [String(invite.recipient_id), invite])); matchInviteCandidates = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE")) && !sent.has(String(friend.friend_id))); const sentRows = [...sent.values()].map((invite) => `<p class="match-invite-status ${invite.status}">${escapeHtml(invite.recipient_name || "Spelaren")} · ${invite.status === "pending" ? "INBJUDAN SKICKAD" : invite.status === "accepted" ? "INBJUDAN ACCEPTERAD" : "INBJUDAN AVVISAD"}</p>`).join(""); friendBox.innerHTML = `<button class="button button-green" id="open-invite-friends" type="button">Bjud in vän</button>${sentRows}`; } }
+    if (friendBox && match && !solo && !room) { friendBox.hidden = false; const locked = match.locked || players.some((player) => Number(player.rounds_started || 0) >= 2); if (locked) { matchInviteCandidates = []; friendBox.innerHTML = `<button class="button button-green" id="open-invite-friends" type="button" disabled>Omgång 2 har startat</button>`; } else { const playerNames = new Set(players.map((player) => String(player.display_name).toLocaleLowerCase("sv-SE"))), sent = new Map(state.sentMatchInvites.filter((invite) => String(invite.match_code) === String(match.code)).map((invite) => [String(invite.recipient_id), invite])); matchInviteCandidates = state.friends.filter((friend) => String(friend.friend_id) !== String(state.userId) && !playerNames.has(String(friend.display_name).toLocaleLowerCase("sv-SE")) && !sent.has(String(friend.friend_id))); const sentRows = matchInviteStatusMarkup([...sent.values()], players); friendBox.innerHTML = `<button class="button button-green" id="open-invite-friends" type="button">Bjud in vän</button>${sentRows}`; } }
     if (friendBox && match && !solo && !room) { const joinRequests = await supabaseAuth.dataRequest("rpc/digihits_my_match_join_requests", { match_code_input: match.code }, "POST").catch(() => []); if (joinRequests.length) friendBox.insertAdjacentHTML("beforeend", joinRequests.map((request) => `<article class="block-join-request"><strong>${escapeHtml(request.requester_name)} som du har blockerat vill gå med i denna match.</strong><div><button class="button button-secondary" data-match-join-request="${request.request_id}" type="button">AVVISA</button><button class="button button-green" data-match-join-request="${request.request_id}" data-allow-match-join="true" type="button">TILLÅT</button></div></article>`).join("")); }
     if (!solo) $("#overview-players-count").textContent = String(players.length);
     players.forEach((player) => { latestRounds[player.id] = player.last_round; });
