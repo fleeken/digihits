@@ -1,4 +1,4 @@
-const APP_VERSION = "8.22"
+const APP_VERSION = "8.23"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1915,15 +1915,22 @@ $("#replay-track").addEventListener("click", async () => { try { if (trackStartP
 [$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); scheduleRoomGuess(); }));
 $("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); scheduleRoomGuess(); publishRoomPlacement("choosing").catch((error) => dialog(error.message)); });
 let dragTarget = null, dragOffsetX = 0, dragOffsetY = 0, cardDrag = null;
+let cardDragFrame = null;
 function cancelCardDrag() {
+  if (cardDragFrame !== null) cancelAnimationFrame(cardDragFrame);
+  cardDragFrame = null;
   if (!cardDrag) return;
-  cardDrag.source.classList.remove("drag-source");
-  cardDrag.ghost.remove(); cardDrag = null; dragTarget = null;
-  document.querySelectorAll("[data-slot]").forEach((slot) => slot.classList.remove("is-target"));
+  const drag = cardDrag;
+  cardDrag = null; dragTarget = null;
+  drag.source.classList.remove("drag-source");
+  drag.ghost.remove();
+  try { drag.source.releasePointerCapture(drag.pointerId); } catch {}
+  $("#timeline-row").querySelectorAll("[data-slot]").forEach((slot) => slot.classList.remove("is-target"));
 }
 function startDrag(card, event) {
   if (currentView !== "timeline" || event.isPrimary === false || event.button > 0) return;
-  if (event.pointerType !== "touch") event.preventDefault();
+  // Movable cards own the touch gesture from the first contact.
+  event.preventDefault();
   cancelCardDrag();
   const bounds = card.getBoundingClientRect(), scale = Number(document.querySelector(".app-shell")?.style.zoom) || 1;
   dragOffsetX = event.clientX - bounds.left; dragOffsetY = event.clientY - bounds.top;
@@ -1932,34 +1939,65 @@ function startDrag(card, event) {
   ghost.style.zoom = String(scale);
   ghost.style.setProperty("width", `${bounds.width / scale}px`, "important"); ghost.style.setProperty("height", `${bounds.height / scale}px`, "important");
   document.body.append(ghost);
-  card.classList.add("drag-source"); cardDrag = { source: card, ghost, scale, pointerId: event.pointerId };
+  card.classList.add("drag-source");
+  cardDrag = { source: card, ghost, scale, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, moved: false, lastFrame: null };
   try { card.setPointerCapture(event.pointerId); } catch {}
   moveCard(event);
+  cardDragFrame = requestAnimationFrame(scrollCardDrag);
 }
 $("#secret-card").addEventListener("pointerdown", (event) => startDrag($("#secret-card"), event));
 $("#timeline-row").addEventListener("pointerdown", (event) => { const card = event.target.closest(".placed-card"); if (card) startDrag(card, event); });
+function updateCardDragTarget() {
+  if (!cardDrag) return;
+  const timeline = $("#timeline-row"), bounds = timeline.getBoundingClientRect();
+  const { x, y } = cardDrag;
+  const slots = [...timeline.querySelectorAll("[data-slot]")];
+  slots.forEach((slot) => slot.classList.remove("is-target"));
+  // Ignore clipped slots and choose the gap nearest the finger, even above/below the row.
+  const visible = slots.map((slot) => ({ slot, area: slot.getBoundingClientRect() }))
+    .filter(({ area }) => area.right > bounds.left && area.left < bounds.right);
+  const withinRow = x >= bounds.left - 32 && x <= bounds.right + 32 && y >= bounds.top - 80 && y <= bounds.bottom + 80;
+  const nearest = visible.map(({ slot, area }) => ({ slot, distance: Math.abs(x - (Math.max(area.left, bounds.left) + Math.min(area.right, bounds.right)) / 2) }))
+    .sort((a, b) => a.distance - b.distance)[0];
+  dragTarget = withinRow ? nearest?.slot || null : null;
+  dragTarget?.classList.add("is-target");
+}
 function moveCard(event) {
   if (!cardDrag || event.pointerId !== cardDrag.pointerId) return;
-  const card = cardDrag.ghost;
-  card.style.left = `${(event.clientX - dragOffsetX) / cardDrag.scale}px`;
-  card.style.top = `${(event.clientY - dragOffsetY) / cardDrag.scale}px`;
+  cardDrag.x = event.clientX; cardDrag.y = event.clientY;
+  cardDrag.moved ||= Math.hypot(event.clientX - cardDrag.startX, event.clientY - cardDrag.startY) >= 4;
+  cardDrag.ghost.style.left = `${(event.clientX - dragOffsetX) / cardDrag.scale}px`;
+  cardDrag.ghost.style.top = `${(event.clientY - dragOffsetY) / cardDrag.scale}px`;
+  updateCardDragTarget();
+}
+function scrollCardDrag(now) {
+  cardDragFrame = null;
+  if (!cardDrag) return;
+  if (currentView !== "timeline") return cancelCardDrag();
   const timeline = $("#timeline-row"), bounds = timeline.getBoundingClientRect();
-  if (event.clientX < bounds.left + 46) timeline.scrollLeft -= 18;
-  else if (event.clientX > bounds.right - 46) timeline.scrollLeft += 18;
-  document.querySelectorAll("[data-slot]").forEach((slot) => slot.classList.remove("is-target"));
-  const slots = [...document.querySelectorAll("[data-slot]")], direct = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-slot]");
-  const closest = slots.map((slot) => { const area = slot.getBoundingClientRect(), centerX = area.left + area.width / 2, centerY = area.top + area.height / 2; return { slot, distance: Math.hypot(event.clientX - centerX, event.clientY - centerY) }; }).sort((a, b) => a.distance - b.distance)[0];
-  dragTarget = direct || (closest?.distance <= 145 ? closest.slot : null);
-  dragTarget?.classList.add("is-target");
+  const elapsed = cardDrag.lastFrame === null ? 0 : Math.min(32, now - cardDrag.lastFrame);
+  cardDrag.lastFrame = now;
+  if (cardDrag.moved && cardDrag.y >= bounds.top - 80 && cardDrag.y <= bounds.bottom + 80 && cardDrag.x >= bounds.left - 32 && cardDrag.x <= bounds.right + 32) {
+    const edge = Math.min(56, bounds.width / 4);
+    const direction = cardDrag.x < bounds.left + edge ? -Math.min(1, (bounds.left + edge - cardDrag.x) / edge) : cardDrag.x > bounds.right - edge ? Math.min(1, (cardDrag.x - bounds.right + edge) / edge) : 0;
+    // CSS scrollLeft is unzoomed; keep the perceived speed stable at every app size.
+    const scale = bounds.width / timeline.offsetWidth || 1;
+    timeline.scrollLeft += direction * elapsed * .6 / scale;
+  }
+  updateCardDragTarget();
+  cardDragFrame = requestAnimationFrame(scrollCardDrag);
 }
 document.addEventListener("pointermove", (event) => { if (cardDrag) moveCard(event); });
 document.addEventListener("pointerup", (event) => {
   if (!cardDrag || event.pointerId !== cardDrag.pointerId) return;
-  const target = dragTarget;
+  moveCard(event);
+  const target = dragTarget, sourcePosition = cardDrag.source.dataset.position;
   cancelCardDrag();
-  if (target) placeCard(target.dataset.slot);
+  if (target && target.dataset.slot !== sourcePosition) placeCard(target.dataset.slot);
 });
 document.addEventListener("pointercancel", (event) => { if (cardDrag?.pointerId === event.pointerId) cancelCardDrag(); });
+document.addEventListener("lostpointercapture", (event) => { if (cardDrag?.pointerId === event.pointerId) cancelCardDrag(); });
+window.addEventListener("blur", cancelCardDrag);
 async function handoverLocalTurn(match, savedTimeline = null) {
   const local = localMatch(match), active = local.players[local.current], currentCard = activeCard();
   active.rounds = Number(active.rounds || 0) + 1;
