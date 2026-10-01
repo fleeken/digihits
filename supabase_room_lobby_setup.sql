@@ -1,7 +1,7 @@
 -- Run after supabase_room_guests_setup.sql in the same Supabase project.
 alter table public.online_players add column if not exists room_ready boolean not null default false;
 
--- Joining a room now keeps everyone in the lobby until the host starts it.
+-- Guests join the lobby before start, or the current match until it finishes.
 create or replace function public.digihits_join_room_match(
   match_code_input text, guest_name text, chosen_genre text, chosen_variant integer
 ) returns jsonb language plpgsql security definer set search_path = public as $$
@@ -20,7 +20,6 @@ begin
   if exists (select 1 from public.online_players where match_id = m.id and user_id = auth.uid()::text and active) then
     return jsonb_build_object('match_code', match_code_input);
   end if;
-  if m.status <> 'waiting' then raise exception 'Matchen har redan startat.'; end if;
   if exists (select 1 from public.online_players where match_id = m.id and user_id = auth.uid()::text) then
     raise exception 'Du har redan lämnat den här matchen.'; end if;
   select count(*) into n from public.online_players where match_id = m.id and active;
@@ -34,8 +33,9 @@ begin
   insert into public.online_players(match_id,user_id,display_name,turn_order,locked_timeline,turn_cards,
     swap_cards,rounds_started,active,history_hidden,updated_at,avatar_genre,avatar_variant,room_ready)
   values(m.id,auth.uid()::text,cleaned_name,next_order,jsonb_build_array(starter),'[]'::jsonb,
-    0,0,true,false,now(),chosen_genre,chosen_variant,false);
-  update public.online_matches set updated_at = now() where id = m.id;
+    0,0,true,false,now(),chosen_genre,chosen_variant,m.status <> 'waiting');
+  update public.online_matches set used_track_ids = coalesce(used_track_ids, '[]'::jsonb) || jsonb_build_array(starter->>'id'),
+    updated_at = now() where id = m.id;
   return jsonb_build_object('match_code', match_code_input);
 end; $$;
 revoke all on function public.digihits_join_room_match(text,text,text,integer) from public, anon;

@@ -91,7 +91,6 @@ begin
     or chosen_variant not between 0 and 5 then raise exception 'Välj en giltig avatar.'; end if;
   select * into m from public.online_matches where code = match_code_input for update;
   if m.id is null or m.status = 'finished' then raise exception 'Matchen är avslutad.'; end if;
-  if m.phase = 'locked' then raise exception 'Matchen tar inte emot fler deltagare.'; end if;
   if exists (select 1 from public.online_players where match_id = m.id and user_id = auth.uid()::text and active) then
     return jsonb_build_object('match_code', match_code_input);
   end if;
