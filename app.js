@@ -1,4 +1,4 @@
-const APP_VERSION = "8.29"
+const APP_VERSION = "8.30"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1018,9 +1018,18 @@ function guestRoomMatch() {
 }
 function hasSubmittedCardGuess() {
   const card = activeCard();
-  return Boolean(card?.id && state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === card.id);
+  return Boolean(card?.id && ((state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === card.id) || (state.placementDraft?.matchCode === state.activeMatchCode && state.placementDraft?.cardId === card.id)));
+}
+function cardGuessView(view) {
+  if (view === "guess" && hasSubmittedCardGuess()) return "timeline";
+  if (view === "timeline" && !hasSubmittedCardGuess()) return "guess";
+  return view;
 }
 function resumeCardGuess(fromHistory = false) {
+  if (hasSubmittedCardGuess()) {
+    showView("timeline", false, fromHistory);
+    return;
+  }
   const draft = state.guessDraft, card = activeCard();
   const guess = draft?.matchCode === state.activeMatchCode && draft?.cardId === card?.id ? draft : state.currentGuess || {};
   $("#guess-artist").value = guess.artist || "";
@@ -1032,7 +1041,7 @@ function resumeCardGuess(fromHistory = false) {
   void publishRoomPlacement("guessing").catch((error) => dialog(error.message));
 }
 function showView(view, focusMatches = false, fromHistory = false) {
-  if (view === "timeline" && !hasSubmittedCardGuess()) view = "guess";
+  view = cardGuessView(view);
   if (view !== "timeline") cancelCardDrag();
   const guestMatch = guestRoomMatch();
   if (guestMatch && !["lobby", "match", "guess", "timeline", "result", "chat"].includes(view)) view = guestMatch.status === "waiting" ? "lobby" : "match";
@@ -2004,7 +2013,7 @@ document.addEventListener("click", (event) => { const button = event.target.clos
 $("#play-sample").addEventListener("click", async () => { try { if (trackStartPromise) { await trackStartPromise; return; } const playerState = await spotifyPlayer?.getCurrentState().catch(() => null), expected = state.selectedTracks[activeCard().id]?.uri, sameTrack = expected && playerState?.track_window?.current_track?.uri === expected, actuallyPlaying = Boolean(playerState && !playerState.paused); if (actuallyPlaying && sameTrack) { await spotifyPlayer.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && sameTrack) { await spotifyPlayer.resume(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else { trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } } catch (error) { songStarting = false; setPlayButton(false); if (/ansluta spelaren|starta låten|spelaren kunde inte laddas/i.test(error.message)) dialog("Spotify behöver anslutas igen innan låten kan spelas.", () => { resetSpotifyPlayer(); supabaseAuth.disconnectSpotify(); supabaseAuth.connectSpotify(true).catch((issue) => alert(issue.message)); }, false, "ANSLUT KONTO"); else alert(error.message); } });
 $("#replay-track").addEventListener("click", async () => { try { if (trackStartPromise) await trackStartPromise; loadedSpotifyCardId = null; trackStartPromise = playCurrentTrack().finally(() => { trackStartPromise = null; }); await trackStartPromise; } catch (error) { alert(error.message); } });
 [$("#guess-artist"), $("#guess-track")].forEach((field) => field.addEventListener("input", () => { if (!activeCard()) return; state.guessDraft = { matchCode: state.activeMatchCode, cardId: activeCard().id, artist: $("#guess-artist").value, title: $("#guess-track").value }; save(); scheduleRoomGuess(); }));
-$("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); scheduleRoomGuess(); publishRoomPlacement("choosing").catch((error) => dialog(error.message)); });
+$("#guess-form").addEventListener("submit", async (event) => { event.preventDefault(); if (hasSubmittedCardGuess()) { showView("timeline"); return; } state.currentGuess = { artist: $("#guess-artist").value.trim(), title: $("#guess-track").value.trim() }; state.guessDraft = null; state.guessFinalized = { matchCode: state.activeMatchCode, cardId: activeCard()?.id }; save(); $("#change-track-area").hidden = !state.changeTrackCards; showView("timeline"); scheduleRoomGuess(); publishRoomPlacement("choosing").catch((error) => dialog(error.message)); });
 let dragTarget = null, dragOffsetX = 0, dragOffsetY = 0, cardDrag = null;
 let cardDragFrame = null;
 function cancelCardDrag() {
@@ -2310,7 +2319,9 @@ window.addEventListener("popstate", (event) => {
     return;
   }
   if (resultIsLocked && currentView === "result" && state.pendingResult?.matchCode === state.activeMatchCode) { history.pushState({ view: "result" }, "", "#result"); return; }
-  showView(event.state?.view || "welcome", false, true);
+  const requestedView = event.state?.view || "welcome", view = cardGuessView(requestedView);
+  if (view !== requestedView) history.replaceState({ view }, "", `#${view}`);
+  showView(view, false, true);
 });
 $("#reset-solo-stats")?.addEventListener("click", () => dialog("Nollställ statistik för solomatcher?", () => { state.soloStats = { bestRounds: null, fewestMistakes: null }; save(); render(); }, true, "NOLLSTÄLL"));
 $("#reset-online-stats")?.addEventListener("click", () => dialog("Nollställ statistik för onlinematcher?", () => { state.stats = { wins: 0, losses: 0, walkovers: 0, walkoverLeaves: 0, achievementXp: 0, streak: 0, currentStreak: 0 }; save(); render(); }, true, "NOLLSTÄLL"));
