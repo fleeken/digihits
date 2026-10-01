@@ -1414,8 +1414,8 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 .app-shell:has(>.view.active>.match-turn-banner)>.brand{margin-inline:clamp(12px,3vw,48px)}
 
 /* Fixed navigation remains in an unzoomed viewport coordinate system. */
-#bottom-menu{position:fixed;inset:auto 0 0;width:100%;max-width:none;transform:none;padding:calc(10px * var(--menu-scale,1)) calc(10px * var(--menu-scale,1)) calc(10px * var(--menu-scale,1) + env(safe-area-inset-bottom,0px));-webkit-backdrop-filter:blur(12px)}
-#bottom-menu button{font-size:calc(11px * var(--menu-scale,1));min-height:calc(50px * var(--menu-scale,1));gap:calc(5px * var(--menu-scale,1));padding:calc(5px * var(--menu-scale,1))}
+#bottom-menu{position:fixed;inset:auto 0 0;width:100%;max-width:none;transform:none;padding:calc(4px * var(--menu-scale,1)) calc(8px * var(--menu-scale,1)) calc(4px * var(--menu-scale,1) + env(safe-area-inset-bottom,0px));-webkit-backdrop-filter:blur(12px)}
+#bottom-menu button{font-size:calc(11px * var(--menu-scale,1));min-height:max(44px,calc(44px * var(--menu-scale,1)));gap:calc(3px * var(--menu-scale,1));padding:calc(3px * var(--menu-scale,1))}
 #bottom-menu svg{width:calc(24px * var(--menu-scale,1));height:calc(24px * var(--menu-scale,1))}
 
 /* Timeline swipes can scroll the page vertically or the track horizontally. */
