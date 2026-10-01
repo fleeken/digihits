@@ -1,4 +1,4 @@
-const APP_VERSION = "8.17"
+const APP_VERSION = "8.18"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -719,6 +719,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
     countdown.hidden = true;
   } else setRoomResultMode(false);
   $("#result-lock").textContent = "Lås in & avsluta omgång";
+  scheduleWrongAutoHandover();
 }
 
 function updateTurnBadge() { const count = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length; if (navigator.setAppBadge) (count ? navigator.setAppBadge(count) : navigator.clearAppBadge()).catch(() => {}); }
@@ -1532,6 +1533,7 @@ async function refreshActiveRound() {
 }
 window.addEventListener("pagehide", () => { clearInterval(resultCountdownTimer); resultCountdownTimer = null; save(); stopCurrentTrack(true); });
 document.addEventListener("visibilitychange", async () => {
+  scheduleWrongAutoHandover();
   if (document.visibilityState === "hidden") { clearInterval(resultCountdownTimer); resultCountdownTimer = null; save(); stopCurrentTrack(true); return; }
   if (document.visibilityState === "visible" && supabaseAuth.session()?.access_token) {
     updateResultCountdowns();
@@ -1541,13 +1543,48 @@ document.addEventListener("visibilitychange", async () => {
   }
 });
 let roomWrongRevealPromise = null, wakeRoomWrongReveal = null;
+let wrongAutoHandoverTimer = null;
+function scheduleWrongAutoHandover() {
+  clearTimeout(wrongAutoHandoverTimer); wrongAutoHandoverTimer = null;
+  const pending = state.pendingResult;
+  if (!pending || pending.correct !== false || pending.matchCode !== state.activeMatchCode) return;
+  if (!Number.isFinite(pending.autoHandoverAt)) { pending.autoHandoverAt = Date.now() + 30000; save(); }
+  const remaining = pending.autoHandoverAt - Date.now();
+  wrongAutoHandoverTimer = setTimeout(() => {
+    wrongAutoHandoverTimer = null;
+    if (state.pendingResult === pending) void finishRoomWrongReveal();
+  }, Math.max(0, remaining));
+}
+async function armWrongServerHandover(pending) {
+  const match = state.matches.find((item) => item.code === pending.matchCode);
+  try {
+    await supabaseAuth.dataRequest("rpc/digihits_arm_wrong_handover", {
+      match_code_input: pending.matchCode, result_snapshot: { ...pending.snapshot, card: pending.card, pending_swap_cards: pendingSwapCardCount(pending.matchCode) }, local_snapshot: localMatch(match) || null
+    }, "POST");
+    pending.serverHandoverArmed = true;
+  } catch { pending.serverHandoverArmed = false; }
+  if (state.pendingResult === pending) save();
+}
+
 function finishRoomWrongReveal(skipWait = false) {
-  if (!skipWait) return Promise.resolve();
+  if (!skipWait && (!Number.isFinite(state.pendingResult?.autoHandoverAt) || Date.now() < state.pendingResult.autoHandoverAt)) return Promise.resolve();
   if (roomWrongRevealPromise) return roomWrongRevealPromise;
   roomWrongRevealPromise = (async () => {
     const pending = state.pendingResult;
-    if (!pending || pending.correct !== false) return;
+    if (!pending || pending.correct !== false || pending.matchCode !== state.activeMatchCode) return;
     const code = pending.matchCode;
+    if (pending.serverHandoverArmed) {
+      await supabaseAuth.dataRequest("rpc/digihits_finish_wrong_handover", { match_code_input: code }, "POST");
+      const completed = await supabaseAuth.dataRequest("rpc/digihits_wrong_handover_result", { match_code_input: code }, "POST");
+      if (completed?.[0]?.completed && String(completed[0].card_id) === String(pending.card.id)) {
+        if (completed[0].local_snapshot) state.localMatches[code] = completed[0].local_snapshot;
+        if (completed[0].finished) delete state.localMatches[code];
+        state.pendingResult = null; delete state.roundResumeViews[code]; state.currentCard = null; state.currentCardMatchCode = null; state.roundUnlocked = []; finishSwapCardAwards(code); save();
+        await syncMatches();
+        if (state.activeMatchCode === code) { if (completed[0].finished) { showView("home", true); dialog(`${completed[0].winner_name} vann matchen!`); } else await openMatch(code); }
+        return;
+      }
+    }
     await syncMatches();
     const match = state.matches.find((item) => item.code === code);
     if (state.pendingResult !== pending) return;
@@ -1561,7 +1598,7 @@ function finishRoomWrongReveal(skipWait = false) {
     delete state.roundResumeViews[code];
     save();
     if (state.activeMatchCode === code && state.matches.some((item) => item.code === code)) await openMatch(code);
-  })().catch((error) => { dialog(error.message || "Turen kunde inte lämnas över. Försök igen."); }).finally(() => { roomWrongRevealPromise = null; });
+  })().catch((error) => { if (skipWait) dialog(error.message || "Turen kunde inte lämnas över. Försök igen."); }).finally(() => { roomWrongRevealPromise = null; if (state.pendingResult?.correct === false) { clearTimeout(wrongAutoHandoverTimer); wrongAutoHandoverTimer = setTimeout(scheduleWrongAutoHandover, 1000); } else { clearTimeout(wrongAutoHandoverTimer); wrongAutoHandoverTimer = null; } });
   return roomWrongRevealPromise;
 }
 
@@ -2013,7 +2050,8 @@ $("#lock-placement").addEventListener("click", async () => {
   let earnedSwapCard = false;
   if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards + pendingSwapCardCount() < 3) { if (solo && state.changeTrackCards + pendingSwapCardCount() >= 2) grantDailyAchievement("triple", "Trippel"); earnedSwapCard = queueSwapCardAward(resultCard); }
   if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
-  state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect }; save();
+  state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect, ...(!currentPlacementCorrect ? { autoHandoverAt: Date.now() + 30000 } : {}) }; save();
+  if (!currentPlacementCorrect) void armWrongServerHandover(state.pendingResult);
   finishAchievementAwards();
   resultIsLocked = true; $("#result-back").hidden = true;
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
