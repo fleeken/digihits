@@ -1,4 +1,4 @@
-const APP_VERSION = "8.15"
+const APP_VERSION = "8.16"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -819,7 +819,7 @@ function render() {
     const soloScore = solo ? localSoloPlayer ? { correct: Math.max(1, (localSoloPlayer.timeline || []).length), mistakes: Math.max(0, Number(localSoloPlayer.mistakes) || 0) } : soloProgress(match) : null;
     const soloRounds = localSoloPlayer ? Math.max(0, Number(localSoloPlayer.rounds) || 0) : Math.max(1, Number(match.round) || 1);
     const label = room ? "ÖPPNA RUMSMATCH" : solo ? localMode === "computer" ? "ÖPPNA MATCH MOT DATORN" : "ÖPPNA MATCH MOT DIG SJÄLV" : match.status === "active" ? "ÖPPNA MATCH" : "VISA MATCHÖVERSIKT";
-    const status = room && local ? `${local.players[local.current]?.name || "Spelare"}${/s$/i.test(local.players[local.current]?.name || "") ? "" : "s"} tur` : solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
+    const status = room ? localMode === "room" ? "Skicka runt en mobil" : "Flera mobiler ansluter" : solo ? "DIN TUR" : match.status === "active" ? "DIN TUR" : match.status === "opponent" ? "MOTSTÅNDARES TUR" : "VÄNTAR PÅ MOTSPELARE";
     const matchPlayers = match.players?.length ? match.players : String(match.title || "").split(", ").filter(Boolean).map((display_name) => ({ display_name }));
     const playerRows = matchPlayers.map((player) => { const correct = Math.max(1, Number(player.last_round?.score?.correct) || (player.locked_timeline || []).length || 0); return `<div><strong>${escapeHtml(player.display_name)} <b>(${correct}/10p)</b></strong></div>`; }).join("");
     const unread = !solo && !room ? Number(state.chatUnread[match.code] || 0) : 0;
