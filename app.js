@@ -1,4 +1,4 @@
-const APP_VERSION = "8.28"
+const APP_VERSION = "8.29"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -796,7 +796,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   $(".result-actions").style.gridTemplateColumns = onlyContinue ? "minmax(0,300px)" : "";
   $(".result-actions").style.justifyContent = onlyContinue ? "center" : "";
   overviewButton.textContent = "Lämna över turen"; overviewButton.className = "button button-green wrong-match-button";
-  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = correct;
+  $("#result-back").hidden = true; wrongButton.hidden = true; overviewButton.hidden = correct || solo;
   let countdown = $("#result-return-countdown");
   if (!countdown) { countdown = document.createElement("button"); countdown.type = "button"; countdown.id = "result-return-countdown"; countdown.className = "result-countdown"; $(".result-head").before(countdown); }
   const pending = state.pendingResult;
@@ -1665,7 +1665,9 @@ let wrongAutoHandoverTimer = null;
 function scheduleWrongAutoHandover() {
   clearTimeout(wrongAutoHandoverTimer); wrongAutoHandoverTimer = null;
   const pending = state.pendingResult;
-  if (!pending || pending.correct !== false || pending.matchCode !== state.activeMatchCode) return;
+  if (!pending || pending.correct !== false || pending.matchCode !== state.activeMatchCode || roomWrongRevealPromise) return;
+  const match = state.matches.find((item) => item.code === pending.matchCode);
+  if (match && isSoloMatch(match) && !localMatch(match)) return;
   if (!Number.isFinite(pending.autoHandoverAt)) { pending.autoHandoverAt = Date.now() + 30000; save(); }
   const remaining = pending.autoHandoverAt - Date.now();
   wrongAutoHandoverTimer = setTimeout(() => {
@@ -1685,6 +1687,11 @@ async function armWrongServerHandover(pending) {
 }
 
 function finishRoomWrongReveal(skipWait = false) {
+  if (skipWait && state.pendingResult?.correct === false && state.pendingResult.matchCode === state.activeMatchCode) {
+    clearTimeout(wrongAutoHandoverTimer); wrongAutoHandoverTimer = null;
+    state.pendingResult.autoHandoverAt = Date.now();
+    save();
+  }
   if (!skipWait && (!Number.isFinite(state.pendingResult?.autoHandoverAt) || Date.now() < state.pendingResult.autoHandoverAt)) return Promise.resolve();
   if (roomWrongRevealPromise) return roomWrongRevealPromise;
   roomWrongRevealPromise = (async () => {
@@ -2236,8 +2243,8 @@ $("#lock-placement").addEventListener("click", async () => {
   let earnedSwapCard = false;
   if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards + pendingSwapCardCount() < 3) { if (solo && state.changeTrackCards + pendingSwapCardCount() >= 2) grantDailyAchievement("triple", "Trippel"); earnedSwapCard = queueSwapCardAward(resultCard); }
   if (!currentPlacementCorrect) { resultSnapshot.timeline = [...baseTimeline]; resultSnapshot.timeline.splice(Math.max(0, Math.min(placedAt, baseTimeline.length)), 0, { ...resultCard, placedPosition: placedAt, status: solo ? "FEL PLACERAT" : "FELPLACERAT" }); }
-  state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect, ...(!currentPlacementCorrect ? { autoHandoverAt: Date.now() + 30000 } : {}) }; save();
-  if (!currentPlacementCorrect) void armWrongServerHandover(state.pendingResult);
+  state.pendingResult = { matchCode: state.activeMatchCode, card: resultCard, snapshot: resultSnapshot, correct: currentPlacementCorrect, ...(!currentPlacementCorrect && !solo ? { autoHandoverAt: Date.now() + 30000 } : {}) }; save();
+  if (!currentPlacementCorrect && !solo) void armWrongServerHandover(state.pendingResult);
   finishAchievementAwards();
   resultIsLocked = true; $("#result-back").hidden = true;
   renderRoundResult(currentPlacementCorrect, resultCard, resultSnapshot); showView("result");
@@ -2261,6 +2268,7 @@ $("#result-continue").addEventListener("click", async () => {
   try {
     const activeMatch = state.matches.find((item) => item.code === matchCode), solo = isSoloMatch(activeMatch) && !localMatch(activeMatch);
     await animateTimelineOutcome(currentPlacementCorrect);
+    if (solo && state.pendingResult?.correct === false) await handoverTurn(state.pendingResult.snapshot?.timeline);
     state.pendingResult = null; if (!solo) state.roundUnlocked.push({ ...activeCard(), status: "OLÅST" }); save();
     if (solo) await markRoundStarted(); else await saveRoundUnlocked();
     await dealCard({ deferLive: true }); await syncMatches();
