@@ -1,4 +1,4 @@
-const APP_VERSION = "8.23"
+const APP_VERSION = "8.24"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1952,15 +1952,18 @@ function updateCardDragTarget() {
   const timeline = $("#timeline-row"), bounds = timeline.getBoundingClientRect();
   const { x, y } = cardDrag;
   const slots = [...timeline.querySelectorAll("[data-slot]")];
-  slots.forEach((slot) => slot.classList.remove("is-target"));
   // Ignore clipped slots and choose the gap nearest the finger, even above/below the row.
   const visible = slots.map((slot) => ({ slot, area: slot.getBoundingClientRect() }))
     .filter(({ area }) => area.right > bounds.left && area.left < bounds.right);
   const withinRow = x >= bounds.left - 32 && x <= bounds.right + 32 && y >= bounds.top - 80 && y <= bounds.bottom + 80;
   const nearest = visible.map(({ slot, area }) => ({ slot, distance: Math.abs(x - (Math.max(area.left, bounds.left) + Math.min(area.right, bounds.right)) / 2) }))
     .sort((a, b) => a.distance - b.distance)[0];
-  dragTarget = withinRow ? nearest?.slot || null : null;
-  dragTarget?.classList.add("is-target");
+  const nextTarget = withinRow ? nearest?.slot || null : null;
+  if (nextTarget !== dragTarget) {
+    dragTarget?.classList.remove("is-target");
+    dragTarget = nextTarget;
+    dragTarget?.classList.add("is-target");
+  }
 }
 function moveCard(event) {
   if (!cardDrag || event.pointerId !== cardDrag.pointerId) return;
