@@ -1294,8 +1294,8 @@ details.room-spectator-card{display:block}
 .room-card-answer>span{font-size:18px;color:#fff}
 .room-card-answer small{font-size:16px;font-weight:900;color:#c0ffd6}
 /* During a spectator's live turn, the banner and current board fill the game view. */
-.app-shell:has(:is([data-view-panel="match"],[data-view-panel="result"]).active.room-live-focus){width:100%!important;max-width:none;padding-top:env(safe-area-inset-top,0px)!important;padding-bottom:env(safe-area-inset-bottom,0px)!important}
-.app-shell:has(:is([data-view-panel="match"],[data-view-panel="result"]).active.room-live-focus)>.brand,html:has(:is([data-view-panel="match"],[data-view-panel="result"]).active.room-live-focus) #bottom-menu{display:none!important}
+.room-game-navigation-hidden .app-shell:has(:is([data-view-panel="match"],[data-view-panel="result"]).active.room-live-focus){width:100%!important;max-width:none;padding-top:env(safe-area-inset-top,0px)!important;padding-bottom:env(safe-area-inset-bottom,0px)!important}
+.room-game-navigation-hidden .brand,.room-game-navigation-hidden #bottom-menu{display:none!important}
 :is([data-view-panel="match"],[data-view-panel="result"]).room-live-focus>.match-turn-banner{position:sticky;top:0;z-index:5;margin-bottom:0}
 :is([data-view-panel="match"],[data-view-panel="result"]).room-live-focus .lobby-layout{border-radius:0}
 :is([data-view-panel="match"],[data-view-panel="result"]).room-live-focus .lobby-layout>.match-view{min-height:calc(100dvh - 150px);padding:16px 0}
@@ -1501,3 +1501,6 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 .completed-player-timeline{margin:14px 0;padding:12px;border:2px solid #61d9fa;border-radius:16px;background:#14233e;color:#fff}
 .completed-player-timeline h2{font-size:16px;margin:0 0 12px}
 .completed-player-timeline .room-live-track{overflow-x:auto;display:flex;gap:10px;padding:6px 0}
+
+/* Keep notification access available in both browser and installed app. */
+#enable-notifications:not([hidden]){display:block}
