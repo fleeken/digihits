@@ -1461,3 +1461,6 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 /* The single handover action spans the complete result board. */
 .room-result-view .result-actions:has(#wrong-overview:not([hidden])){display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%}
 .room-result-view .result-actions #wrong-overview{grid-column:1/-1;width:100%;max-width:none;margin:0}
+
+/* Keep removal separate from the latest-round action. */
+.unified-game .room-live-player [data-remove-match-player]{display:block;width:100%;margin-top:12px}

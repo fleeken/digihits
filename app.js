@@ -1,4 +1,4 @@
-const APP_VERSION = "8.16"
+const APP_VERSION = "8.17"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1252,7 +1252,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const remoteOpponent = !resultPanel && !match.code.startsWith("M0") && !localMatch(match) && !isSoloMatch(match) && String(player.user_id) !== String(state.userId);
     const friend = (state.friends || []).some((item) => String(item.friend_id) === String(player.user_id)), friendPending = (state.sentFriendRequests || []).some((item) => String(item.recipient_id) === String(player.user_id));
     const friendAction = remoteOpponent && !friend && !friendPending ? `<button class="button button-green" data-add-match-friend="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">LÄGG TILL VÄN</button>` : "";
-    const removeAction = remoteOpponent && players.length > 2 ? `<button class="button button-leave" data-remove-match-player="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">AVVISA SPELARE FRÅN MATCHEN</button>` : "";
+    const removeAction = remoteOpponent && players.length > 2 ? `<button class="button button-leave" data-remove-match-player="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT SPELARE FRÅN MATCH</button>` : "";
     const stage = active ? revealed ? "" : spectatorTurn ? `Just nu: ${name} ${position !== null || live?.phase === "choosing" ? "placerar kortet på tidslinjen" : "gissar artist och låtnamn"}` : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : "";
     const misplaced = revealed && position !== null && played && (typeof live.correct === "boolean" ? !live.correct : ((position > 0 && Number(played.year) < Number(cards[position - 1]?.year)) || (position < cards.length && Number(played.year) > Number(cards[position]?.year))));
     const currentCard = `<article class="year-card room-live-card ${played ? `is-revealed ${misplaced ? "misplaced-card" : "unlocked-card"}` : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.artist)}: ${escapeHtml(played.title)}<span class="card-status">${misplaced ? "FELPLACERAT" : "OLÅST"}</span>` : "HEMLIGT KORT"}</small></article>`;
@@ -1407,7 +1407,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
       if (room) removeButton.dataset.roomKick = player.user_id;
       else removeButton.dataset.removeMatchPlayer = player.user_id;
       removeButton.dataset.playerName = player.display_name;
-      removeButton.textContent = room ? "TA BORT DELTAGARE" : "AVVISA SPELARE FRÅN MATCHEN";
+      removeButton.textContent = room ? "TA BORT DELTAGARE" : "TA BORT SPELARE FRÅN MATCH";
       roundButton.after(removeButton);
     });
   } catch { /* matchvyn behåller sin lokala reservvy */ } finally { $("#overview-loading")?.setAttribute("hidden", ""); }
