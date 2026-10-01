@@ -1,4 +1,4 @@
-const APP_VERSION = "8.25"
+const APP_VERSION = "8.26"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -697,6 +697,12 @@ function evaluateCareerAchievements(comeback = false, flawless = false) {
 }
 function closeHomeAccordions() {
   document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
+}
+function leaveCompletedResult(fromHistory = false) {
+  delete $("#result-back").dataset.completedMatch;
+  viewingHistoryResult = false; viewingLatestRound = false; returnToFinalResult = false;
+  resultIsLocked = false;
+  showView("home", true, fromHistory);
 }
 function showCompletedResultNavigation() {
   resultIsLocked = false;
@@ -2220,12 +2226,17 @@ $("#result-lock").addEventListener("click", async () => {
   } catch (error) { alert(error.message); }
   finally { button.disabled = false; button.textContent = label; continueButton.disabled = continueWasDisabled; if (changeButton) changeButton.disabled = changeWasDisabled; }
 });
-$("#result-back").addEventListener("click", () => { if ($("#result-back").dataset.completedMatch) { delete $("#result-back").dataset.completedMatch; viewingHistoryResult = false; viewingLatestRound = false; returnToFinalResult = false; resultIsLocked = false; showView("home", true); return; } if (returnToFinalResult && historyResultEntry) { returnToFinalResult = false; viewingLatestRound = false; showHistoryResult(historyResultEntry); } else if (viewingHistoryResult) { viewingHistoryResult = false; viewingLatestRound = false; showView("home", true); } else if (viewingLatestRound) { viewingLatestRound = false; showView(latestRoundReturnView || "match"); } else if (!currentPlacementCorrect) { state.roundUnlocked = []; save(); showView("home", true); } else showView("match"); });
+$("#result-back").addEventListener("click", () => { if ($("#result-back").dataset.completedMatch) { leaveCompletedResult(); return; } if (returnToFinalResult && historyResultEntry) { returnToFinalResult = false; viewingLatestRound = false; showHistoryResult(historyResultEntry); } else if (viewingHistoryResult) { viewingHistoryResult = false; viewingLatestRound = false; showView("home", true); } else if (viewingLatestRound) { viewingLatestRound = false; showView(latestRoundReturnView || "match"); } else if (!currentPlacementCorrect) { state.roundUnlocked = []; save(); showView("home", true); } else showView("match"); });
 $("#brand-home").addEventListener("click", () => { if (!guestRoomMatch()) showView(currentView === "welcome" ? "welcome" : "home"); });
 $("#install-app").addEventListener("click", () => dialog("I Safari: tryck på Dela-knappen längst ned, välj Lägg till på hemskärmen och bekräfta."));
 const pushKeyBytes = (value) => Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), (character) => character.charCodeAt(0));
 $("#enable-notifications").addEventListener("click", async () => { try { if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("Notiser stöds inte i den här webbläsaren."); const registration = await navigator.serviceWorker.ready, existingSubscription = await registration.pushManager.getSubscription(); if (state.pushNotificationsEnabled) { if (existingSubscription) { await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${encodeURIComponent(existingSubscription.endpoint)}`, null, "DELETE"); await existingSubscription.unsubscribe(); } state.pushNotificationsEnabled = false; save(); render(); dialog("Notiser är inaktiverade på den här enheten."); return; } const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission(); if (permission !== "granted") throw new Error("Notiser tilläts inte. Du kan ändra detta i iPhones inställningar."); const key = window.DIGIHITS_VAPID_PUBLIC_KEY; if (!key) throw new Error("Notisservern är inte klar ännu."); const subscription = existingSubscription || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(key) }); const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), endpoint = encodeURIComponent(subscription.endpoint), data = { endpoint: subscription.endpoint, user_id: String(user.id), subscription: subscription.toJSON() }, existing = await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}&select=endpoint`); if (existing.length) await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}`, data, "PATCH"); else await supabaseAuth.dataRequest("push_subscriptions", data, "POST"); state.pushNotificationsEnabled = true; save(); render(); dialog("Notiser är aktiverade på den här enheten."); } catch (error) { dialog(error.message); } });
 window.addEventListener("popstate", (event) => {
+  if (currentView === "result" && $("#result-back").dataset.completedMatch) {
+    history.replaceState({ view: "home" }, "", "#home");
+    leaveCompletedResult(true);
+    return;
+  }
   if (resultIsLocked && currentView === "result" && state.pendingResult?.matchCode === state.activeMatchCode) { history.pushState({ view: "result" }, "", "#result"); return; }
   if (event.state?.view === "guess" && state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === activeCard()?.id) { history.replaceState({ view: "timeline" }, "", "#timeline"); showView("timeline", false, true); return; }
   showView(event.state?.view || "welcome", false, true);
