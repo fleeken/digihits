@@ -1469,3 +1469,13 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 /* Anchor from the visible viewport top instead of Safari's shifting bottom reference. */
 #bottom-menu{top:var(--menu-viewport-top,auto);bottom:0;backdrop-filter:none;-webkit-backdrop-filter:none;background:#fff7eb;transform:translateZ(0);will-change:top}
 #bottom-menu[style*="--menu-viewport-top"]{bottom:auto}
+
+/* Invitation feedback is separate from the invite action and wraps on small screens. */
+#match-friend-invites .match-invite-status{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:10px;margin:12px 0 0;padding:12px 14px;border:1px solid #66db93;border-radius:14px;background:#164934;color:#d5ffe6;text-align:left;font-size:12px;line-height:1.5}
+#match-friend-invites .match-invite-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#66db93;color:#123025;font-size:18px;font-weight:900}
+#match-friend-invites .match-invite-copy{display:grid;gap:3px;min-width:0;overflow-wrap:anywhere}
+#match-friend-invites .match-invite-copy strong{font-size:13px;color:inherit}
+#match-friend-invites .match-invite-copy small{font-size:11px;color:#d5ffe6;font-weight:600}
+#match-friend-invites .match-invite-status.declined{border-color:#e4b77b;background:#382b24;color:#ffe0ba}
+#match-friend-invites .declined .match-invite-icon{background:#e4b77b;color:#382b24}
+#match-friend-invites .declined .match-invite-copy small{color:#ffe0ba}
