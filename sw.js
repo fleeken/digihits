@@ -1,5 +1,7 @@
 self.addEventListener("push", (event) => {
   const data = event.data?.json() || {};
+  const matchCode = String(data.matchCode || data.match_code || "");
+  if (/^(M0|S0)/.test(matchCode)) return;
   const jobs = [self.registration.showNotification(data.title || "Digihits", { body: data.body || "Det är din tur.", icon: "icon-dh-561.png", badge: "icon-dh-561.png", tag: "digihits-turn", renotify: true, data: { url: data.url || "./?matches=1#home" } })];
   if (typeof data.badgeCount === "number" && "setAppBadge" in self.navigator) jobs.push(data.badgeCount ? self.navigator.setAppBadge(data.badgeCount) : self.navigator.clearAppBadge());
   event.waitUntil(Promise.all(jobs));
