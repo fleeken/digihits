@@ -1,4 +1,4 @@
-const APP_VERSION = "8.14"
+const APP_VERSION = "8.15"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -245,6 +245,15 @@ function updateHeaderVisibility() {
   if (profile) profile.hidden = !signedIn || inTurn || ["welcome", "login", "signup", "forgot-password", "reset-password"].includes(currentView);
   document.querySelector(".brand").hidden = inTurn;
 }
+function matchPlayerAvatar(match, player) {
+  const local = localMatch(match);
+  if (local?.mode === "room") return avatarChoice({ display_name: player.display_name, ...local.players[Number(player.turn_order)]?.avatar });
+  if (local?.mode === "computer") return Number(player.turn_order) === 0 ? ownAvatarChoice() : avatarChoice(player);
+  if (String(player.user_id) === String(state.userId) && supabaseAuth.session()?.access_token) return ownAvatarChoice();
+  if (match.code.startsWith("M0")) return avatarChoice(player);
+  const friend = (state.friends || []).find((item) => String(item.friend_id) === String(player.user_id));
+  return avatarChoice(friend || player);
+}
 function renderRoundPlayers() {
   const match = state.matches.find((item) => item.code === state.activeMatchCode), players = match?.players || [];
   const solo = isSoloMatch(match) && !localMatch(match);
@@ -261,7 +270,7 @@ function renderRoundPlayers() {
     if (hidden) { strip.hidden = true; return; }
     strip.hidden = false;
     strip.dataset.playerCount = String(players.length);
-    const markup = `<div>${players.map((player, index) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.min(10, Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1)), friend = state.friends.find((item) => String(item.friend_id) === String(player.user_id)), avatar = localMatch(match)?.mode === "room" ? avatarChoice({ display_name: player.display_name, ...localMatch(match).players[index]?.avatar }) : match.code.startsWith("M0") ? avatarChoice(player) : String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(friend || player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"${localMatch(match)?.mode === "room" ? ` data-room-avatar-index="${index}"` : ""}><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
+    const markup = `<div>${players.map((player, index) => { const current = String(player.user_id) === String(match.currentUserId), score = Math.min(10, Math.max(1, Array.isArray(player.locked_timeline) ? player.locked_timeline.length : Number(player.last_round?.score?.correct) || 1)), avatar = matchPlayerAvatar(match, player), name = String(player.display_name || "Spelare"), turnLabel = `${name}${/s$/i.test(name) ? "" : "s"} tur`; latestRounds[player.user_id || player.id] = player.last_round; return `<button type="button" class="round-player ${current ? "is-current" : ""}" data-round-player="${escapeHtml(player.user_id || player.id)}"${localMatch(match)?.mode === "room" ? ` data-room-avatar-index="${index}"` : ""}><i class="avatar-art" style="${avatarArtStyle(avatar.genre, avatar.variant)}"></i><span><strong>${escapeHtml(name)}</strong><b>${score}/10</b></span>${current ? `<small>${escapeHtml(turnLabel)}</small>` : ""}</button>`; }).join("")}</div>`;
     // Compare source markup, not browser-normalized HTML; retain avatars and scroll on unchanged syncs.
     if (roundStripMarkup.get(strip) !== markup) { strip.innerHTML = markup; roundStripMarkup.set(strip, markup); }
   });
@@ -1234,7 +1243,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const score = player.last_round?.score || {}, correct = Math.min(10, Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0));
     const mistakes = roomMistakes(player);
     const name = escapeHtml(player.display_name || "Spelare");
-    const avatar = !match.code.startsWith("M0") && (!localMatch(match) || localMatch(match)?.mode === "computer") && String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(player);
+    const avatar = matchPlayerAvatar(match, player);
     const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
     const kick = match.code.startsWith("M0") && !resultPanel && !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
     const playerId = player.id || player.user_id;
