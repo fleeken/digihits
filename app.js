@@ -1,4 +1,4 @@
-const APP_VERSION = "8.35"
+const APP_VERSION = "8.36"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -72,7 +72,7 @@ function applyAppZoom() {
   document.documentElement.style.zoom = "";
   const appShell = document.querySelector(".app-shell");
   appShell.style.zoom = String(zoom);
-  appShell.style.setProperty("width", `${100 / zoom}%`, "important");
+  appShell.style.setProperty("width", "100%", "important");
   document.documentElement.style.setProperty("--menu-scale", String(zoom));
   document.documentElement.style.setProperty("--dialog-inverse-zoom", "1");
   document.documentElement.dataset.appZoom = String(state.appZoom);
