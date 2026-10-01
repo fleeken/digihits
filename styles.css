@@ -1420,8 +1420,9 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 
 /* Timeline swipes can scroll the page vertically or the track horizontally. */
 #timeline-row,#timeline-row .slot{touch-action:pan-x pan-y pinch-zoom}
-/* A vertical gesture scrolls; horizontal dragging still repositions the card. */
-#timeline-row .placed-card{touch-action:pan-y pinch-zoom}
+/* Movable cards own their gesture immediately; other timeline areas remain scrollable. */
+#secret-card,#timeline-row .placed-card{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#secret-card *,#timeline-row .placed-card *{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 
 /* Every play mode uses the same framed surfaces and card palette. */
 .unified-game :is(.lobby-main,.guess-view,.timeline-view,.result-view){border:2px solid #61d9fa!important;border-radius:20px!important;background:#14233e!important;color:#e9f4ff;padding:clamp(14px,3vw,22px)!important;box-shadow:0 10px 28px #050b1a55!important}

@@ -1,4 +1,4 @@
-const APP_VERSION = "8.20"
+const APP_VERSION = "8.21"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1915,7 +1915,8 @@ function cancelCardDrag() {
 }
 function startDrag(card, event) {
   if (currentView !== "timeline" || event.isPrimary === false || event.button > 0) return;
-  if (event.pointerType !== "touch") event.preventDefault();
+  // Claim the gesture immediately, including touch; Safari must not turn it into scrolling.
+  event.preventDefault();
   cancelCardDrag();
   const bounds = card.getBoundingClientRect(), scale = Number(document.querySelector(".app-shell")?.style.zoom) || 1;
   dragOffsetX = event.clientX - bounds.left; dragOffsetY = event.clientY - bounds.top;
