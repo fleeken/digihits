@@ -1,4 +1,4 @@
-const APP_VERSION = "8.24"
+const APP_VERSION = "8.25"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -67,7 +67,7 @@ window.visualViewport?.addEventListener("resize", scheduleBottomMenuViewport, { 
 window.visualViewport?.addEventListener("scroll", scheduleBottomMenuViewport, { passive: true });
 if (window.ResizeObserver) new ResizeObserver(scheduleBottomMenuViewport).observe(document.getElementById("bottom-menu"));
 function applyAppZoom() {
-  const zoom = (state.appZoom + 10) / 100;
+  const zoom = state.appZoom / 100;
   // Keep fixed navigation outside a zoomed root (Safari scroll positioning).
   document.documentElement.style.zoom = "";
   const appShell = document.querySelector(".app-shell");
@@ -619,6 +619,7 @@ function showFinalChanceNotice(match) {
   else dialog("Du förlorade matchen men vinnaren är ännu inte korad. " + leader + " har lagt 10 rätt placerade kort men " + (finalNames || "övriga spelare") + " har en sista chans till lika. Vid lika avgörs matchen i en golden point.");
 }
 async function showHistoryResult(entry) {
+  delete $("#result-back").dataset.completedMatch;
   setRoomResultMode(false);
   viewingHistoryResult = true; returnToFinalResult = false; historyResultEntry = entry; state.activeMatchCode = entry.code;
   let players = entry.players || [];
@@ -697,7 +698,21 @@ function evaluateCareerAchievements(comeback = false, flawless = false) {
 function closeHomeAccordions() {
   document.querySelectorAll("[data-accordion]").forEach((section) => { section.classList.remove("is-open"); section.querySelector(".accordion-toggle").setAttribute("aria-expanded", "false"); section.querySelector(".accordion-mark")?.replaceChildren("›"); });
 }
+function showCompletedResultNavigation() {
+  resultIsLocked = false;
+  const back = $("#result-back");
+  back.dataset.completedMatch = state.activeMatchCode;
+  back.textContent = "← Till matcher";
+  back.hidden = false;
+  $(".result-actions").hidden = true;
+  $("#change-track-area").hidden = true;
+  $("#wrong-overview")?.setAttribute("hidden", "");
+  $("#result-return-countdown")?.setAttribute("hidden", "");
+  document.querySelector('[data-view-panel="result"]')?.classList.remove("room-live-focus");
+  scheduleBottomMenuViewport();
+}
 function renderRoundResult(correct, card = activeCard(), snapshot = null) {
+  delete $("#result-back").dataset.completedMatch;
   $("#final-match-overview")?.setAttribute("hidden", ""); $(".result-head").hidden = false; $(".result-checks").hidden = false; $(".result-actions").hidden = false; $("#result-timeline").hidden = false;
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode), solo = isSoloMatch(activeMatch) && !localMatch(activeMatch);
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
@@ -1446,6 +1461,7 @@ async function loadOverviewPlayers(matchId, isYourTurn, solo = false) {
   } catch { /* matchvyn behåller sin lokala reservvy */ } finally { $("#overview-loading")?.setAttribute("hidden", ""); }
 }
 function showLatestRound(round) {
+  delete $("#result-back").dataset.completedMatch;
   setRoomResultMode(false);
   if ($("#result-return-countdown")) $("#result-return-countdown").hidden = true;
   $("#final-match-overview")?.setAttribute("hidden", ""); $(".result-head").hidden = false; $(".result-checks").hidden = false; $(".result-actions").hidden = false; $("#result-timeline").hidden = false;
@@ -2160,9 +2176,9 @@ $("#lock-placement").addEventListener("click", async () => {
   if (!currentPlacementCorrect) return;
   const reachedTarget = state.lockedTimeline.length + state.roundUnlocked.length + 1 >= 10;
   if (reachedTarget || solo) { try { soloOutcome = await handoverTurn(currentPlacementCorrect ? null : resultSnapshot.timeline); if (localMatch()?.mode === "room" && !soloOutcome?.won) { $("#wrong-overview").dataset.roomHandoverName = soloOutcome.nextPlayerName; $("#wrong-overview").hidden = false; } } catch (error) { alert(error.message); return; } }
-  if (soloOutcome?.won && !solo) { state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); $(".result-actions").hidden = true; $("#change-track-area").hidden = true; const winnerName = activeMatch.players?.find((player) => String(player.user_id) === String(soloOutcome.winnerId))?.display_name || soloOutcome.winnerId || state.playerName; dialog(`Matchen är slut. ${winnerName} vann med 10 rättplacerade kort!`); return; }
+  if (soloOutcome?.won && !solo) { state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); showCompletedResultNavigation(); const winnerName = activeMatch.players?.find((player) => String(player.user_id) === String(soloOutcome.winnerId))?.display_name || soloOutcome.winnerId || state.playerName; dialog(`Matchen är slut. ${winnerName} vann med 10 rättplacerade kort!`); return; }
   if (soloOutcome?.won) { grantDailyAchievement("soloWin", "Solovinst"); if (Number(soloOutcome.soloSummary?.mistakes || 0) === 0) grantDailyAchievement("soloFlawless", "Felfri"); state.pendingResult = null; delete state.roundResumeViews[state.activeMatchCode]; save(); finishAchievementAwards(); }
-  if (soloOutcome?.won) { $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
+  if (soloOutcome?.won) { showCompletedResultNavigation(); $("#result-continue").hidden = true; dialog(`Grattis, du har nu 10 rätt placerade kort och matchen är slut. Du klarade det med ${soloOutcome.soloSummary.mistakes} felplacerade kort efter ${soloOutcome.soloSummary.rounds} omgångar.`); }
 
   else if (currentPlacementCorrect && hasCorrectSongGuess(resultCard) && state.changeTrackCards + pendingSwapCardCount() >= 3) dialog("Du gissade rätt för både artist och låtnamn, men du har redan 3/3 byt-låt-kort.");
 });
@@ -2204,13 +2220,13 @@ $("#result-lock").addEventListener("click", async () => {
   } catch (error) { alert(error.message); }
   finally { button.disabled = false; button.textContent = label; continueButton.disabled = continueWasDisabled; if (changeButton) changeButton.disabled = changeWasDisabled; }
 });
-$("#result-back").addEventListener("click", () => { if (returnToFinalResult && historyResultEntry) { returnToFinalResult = false; viewingLatestRound = false; showHistoryResult(historyResultEntry); } else if (viewingHistoryResult) { viewingHistoryResult = false; viewingLatestRound = false; showView("home", true); } else if (viewingLatestRound) { viewingLatestRound = false; showView(latestRoundReturnView || "match"); } else if (!currentPlacementCorrect) { state.roundUnlocked = []; save(); showView("home", true); } else showView("match"); });
+$("#result-back").addEventListener("click", () => { if ($("#result-back").dataset.completedMatch) { delete $("#result-back").dataset.completedMatch; viewingHistoryResult = false; viewingLatestRound = false; returnToFinalResult = false; resultIsLocked = false; showView("home", true); return; } if (returnToFinalResult && historyResultEntry) { returnToFinalResult = false; viewingLatestRound = false; showHistoryResult(historyResultEntry); } else if (viewingHistoryResult) { viewingHistoryResult = false; viewingLatestRound = false; showView("home", true); } else if (viewingLatestRound) { viewingLatestRound = false; showView(latestRoundReturnView || "match"); } else if (!currentPlacementCorrect) { state.roundUnlocked = []; save(); showView("home", true); } else showView("match"); });
 $("#brand-home").addEventListener("click", () => { if (!guestRoomMatch()) showView(currentView === "welcome" ? "welcome" : "home"); });
 $("#install-app").addEventListener("click", () => dialog("I Safari: tryck på Dela-knappen längst ned, välj Lägg till på hemskärmen och bekräfta."));
 const pushKeyBytes = (value) => Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), (character) => character.charCodeAt(0));
 $("#enable-notifications").addEventListener("click", async () => { try { if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("Notiser stöds inte i den här webbläsaren."); const registration = await navigator.serviceWorker.ready, existingSubscription = await registration.pushManager.getSubscription(); if (state.pushNotificationsEnabled) { if (existingSubscription) { await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${encodeURIComponent(existingSubscription.endpoint)}`, null, "DELETE"); await existingSubscription.unsubscribe(); } state.pushNotificationsEnabled = false; save(); render(); dialog("Notiser är inaktiverade på den här enheten."); return; } const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission(); if (permission !== "granted") throw new Error("Notiser tilläts inte. Du kan ändra detta i iPhones inställningar."); const key = window.DIGIHITS_VAPID_PUBLIC_KEY; if (!key) throw new Error("Notisservern är inte klar ännu."); const subscription = existingSubscription || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(key) }); const user = await supabaseAuth.user(supabaseAuth.session()?.access_token), endpoint = encodeURIComponent(subscription.endpoint), data = { endpoint: subscription.endpoint, user_id: String(user.id), subscription: subscription.toJSON() }, existing = await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}&select=endpoint`); if (existing.length) await supabaseAuth.dataRequest(`push_subscriptions?endpoint=eq.${endpoint}`, data, "PATCH"); else await supabaseAuth.dataRequest("push_subscriptions", data, "POST"); state.pushNotificationsEnabled = true; save(); render(); dialog("Notiser är aktiverade på den här enheten."); } catch (error) { dialog(error.message); } });
 window.addEventListener("popstate", (event) => {
-  if (resultIsLocked && currentView === "result") { history.pushState({ view: "result" }, "", "#result"); return; }
+  if (resultIsLocked && currentView === "result" && state.pendingResult?.matchCode === state.activeMatchCode) { history.pushState({ view: "result" }, "", "#result"); return; }
   if (event.state?.view === "guess" && state.guessFinalized?.matchCode === state.activeMatchCode && state.guessFinalized?.cardId === activeCard()?.id) { history.replaceState({ view: "timeline" }, "", "#timeline"); showView("timeline", false, true); return; }
   showView(event.state?.view || "welcome", false, true);
 });
