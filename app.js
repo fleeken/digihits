@@ -1,4 +1,4 @@
-const APP_VERSION = "8.18"
+const APP_VERSION = "8.19"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1114,7 +1114,9 @@ function openMatch(matchCode) {
   state.activeMatchCode = matchCode; save();
   const invite = $("#match-room-invite") || Object.assign(document.createElement("button"), { id: "match-room-invite", className: "button button-green", textContent: "BJUD IN VIA LÄNK / QR" });
   if (!invite.isConnected) $("#match-chat").before(invite);
-  invite.hidden = !match.code.startsWith("M0"); invite.dataset.roomInvite = match.code;
+  invite.hidden = !isPhysicalRoomMatch(match);
+  invite.textContent = local?.mode === "room" ? "LÄGG TILL SPELARE" : "BJUD IN VIA LÄNK / QR";
+  invite.dataset.roomInvite = match.code;
   refreshChatButtons(match);
   $("#overview-code").textContent = local ? (local.mode === "computer" ? "MOT DATORN" : "SAMMA MOBIL") : soloMatch ? "SOLOMATCH" : match.code;
   $("#overview-code").previousElementSibling.textContent = local || soloMatch ? "SPELTYP" : "MATCHKOD";
@@ -1666,10 +1668,26 @@ async function createMultiRoom(hostName, avatar) {
   } catch (error) { await supabaseAuth.dataRequest(`online_matches?id=eq.${matches[0].id}`, { status: "finished" }, "PATCH").catch(() => {}); throw error; }
   rememberTrack(starter); state.changeTrackCards = 0; state.playerName = hostName; save(); await syncMatches(); openLobby(matchCode); showRoomInvitation(matchCode);
 }
+function addLocalRoomPlayer(matchCode, name) {
+  const match = state.matches.find((item) => item.code === matchCode), local = localMatch(match);
+  const cleaned = name.trim();
+  if (!match || match.status !== "active" || local?.mode !== "room" || local.players.some((player) => (player.timeline || []).length >= 10)) throw new Error("Matchen är avslutad.");
+  if (!cleaned || cleaned.length > 18) throw new Error("Ange ett namn på högst 18 tecken.");
+  if (local.players.length >= 8) throw new Error("Matchen är full – högst 8 spelare.");
+  if (local.players.some((player) => player.name.toLocaleLowerCase("sv-SE") === cleaned.toLocaleLowerCase("sv-SE"))) throw new Error("Namnet används redan i matchen.");
+  const starter = pickFreshTrack(testDeck);
+  local.players.push({ name: cleaned, timeline: [{ ...starter }], mistakes: 0, rounds: 0, lastRound: null, swapCards: 0 });
+  rememberTrack(starter); save(); decorateLocalMatch(match);
+}
+function showLocalRoomAddPlayer(matchCode) {
+  $("#dialog-title").textContent = "Lägg till spelare";
+  $("#dialog-message").innerHTML = `<form id="local-room-add-player-form" class="room-player-form" data-code="${escapeHtml(matchCode)}"><p>Spelaren får ett startkort och läggs sist i turordningen.</p><label for="local-room-player-name">Spelarnamn</label><input id="local-room-player-name" maxlength="18" required autocomplete="off"><button type="submit" class="button button-green">LÄGG TILL SPELARE</button><small id="local-room-add-error" class="friend-feedback error" hidden></small></form>`;
+  $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
+}
 function showRoomInvitation(matchCode) {
   const url = roomInvitationUrl(matchCode);
   $("#dialog-title").textContent = "Bjud in till matchen";
-  $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skanna QR-koden eller kopiera länken. Gäster väljer namn och avatar före lobbyn och trycker sedan JAG ÄR REDO.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
+  $("#dialog-message").innerHTML = `<div class="room-invitation"><p>Skanna QR-koden eller kopiera länken. Gäster väljer namn och avatar. Före matchstart trycker de JAG ÄR REDO i lobbyn. Under en pågående match går de med direkt och läggs sist i turordningen. Du kan bjuda in tills matchen är avgjord.</p><div id="room-qr" role="img" aria-label="QR-kod för inbjudningslänken"></div><input readonly aria-label="Inbjudningslänk" value="${escapeHtml(url)}"><button type="button" class="button button-green" id="copy-room-link">KOPIERA LÄNK</button><small>Matchkod: ${escapeHtml(matchCode)} · högst 8 spelare</small></div>`;
   $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = false; $("#dialog-confirm").textContent = "OK"; $("#dialog-confirm").className = "button button-green"; $("#dialog-confirm").onclick = () => { $("#app-dialog").hidden = true; }; $("#app-dialog").hidden = false;
   if (window.QRCode) new window.QRCode($("#room-qr"), { text: url, width: 160, height: 160, correctLevel: window.QRCode.CorrectLevel.M });
   else $("#room-qr").textContent = "QR-koden kunde inte laddas. Använd länken nedan.";
@@ -1720,7 +1738,19 @@ async function joinOnlineMatch(matchCode, allowOwnBlock = false) {
 
 $("#dialog-close").addEventListener("click", () => { $("#app-dialog").hidden = true; });
 document.addEventListener("touchmove", (event) => { if (event.target.closest(".modal:not([hidden])") && !event.target.closest(".modal-card")) event.preventDefault(); }, { passive: false });
-document.addEventListener("click", (event) => { const invite = event.target.closest("[data-room-invite]"); if (invite && !invite.hidden) showRoomInvitation(invite.dataset.roomInvite); });
+document.addEventListener("click", (event) => { const invite = event.target.closest("[data-room-invite]"); if (invite && !invite.hidden) { const match = state.matches.find((item) => item.code === invite.dataset.roomInvite); if (localMatch(match)?.mode === "room") showLocalRoomAddPlayer(match.code); else showRoomInvitation(invite.dataset.roomInvite); } });
+document.addEventListener("submit", async (event) => {
+  if (event.target.id !== "local-room-add-player-form") return;
+  event.preventDefault(); const form = event.target, button = form.querySelector('[type="submit"]'), error = $("#local-room-add-error");
+  button.disabled = true;
+  try {
+    addLocalRoomPlayer(form.dataset.code, $("#local-room-player-name").value);
+    if (state.pendingResult?.matchCode === form.dataset.code && state.pendingResult.correct === false) await armWrongServerHandover(state.pendingResult);
+    $("#app-dialog").hidden = true;
+    if (state.activeMatchCode === form.dataset.code) await openMatch(form.dataset.code);
+  } catch (failure) { error.textContent = failure.message; error.hidden = false; }
+  finally { button.disabled = false; }
+});
 $("#create-match-menu")?.addEventListener("click", showMatchModeDialog);
 document.addEventListener("click", (event) => { const category = event.target.closest("[data-match-category]")?.dataset.matchCategory; if (!category) return; if (category === "online") showOnlineModeDialog(); else if (category === "solo") showSoloModeDialog(); else showRoomModes(); });
 document.addEventListener("click", (event) => { if (event.target.closest("[data-match-back]")) showMatchModeDialog(); });
@@ -2008,7 +2038,7 @@ async function markRoundStarted() {
   const user = await supabaseAuth.user(supabaseAuth.session()?.access_token);
   const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&user_id=eq.${user.id}&select=id,rounds_started`);
   const player = players[0];
-  if (player) { const rounds = (player.rounds_started || 0) + 1, startedAt = new Date().toISOString(); await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: rounds, updated_at: startedAt }, "PATCH"); if (!isSoloMatch(match)) await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { turn_started_at: startedAt, turn_reminder_sent_at: null, turn_notice: null, updated_at: startedAt }, "PATCH"); const local = state.matches.find((match) => match.code === state.activeMatchCode); if (local) { local.round = rounds; save(); } }
+  if (player) { const rounds = (player.rounds_started || 0) + 1, startedAt = new Date().toISOString(); await supabaseAuth.dataRequest(`online_players?id=eq.${player.id}`, { rounds_started: rounds, updated_at: startedAt }, "PATCH"); if (!isSoloMatch(match)) await supabaseAuth.dataRequest(`online_matches?id=eq.${match.id}`, { turn_started_at: startedAt, turn_reminder_sent_at: null, turn_notice: null, ...(!match.code.startsWith("M0") && rounds >= 2 ? { phase: "locked" } : {}), updated_at: startedAt }, "PATCH"); const local = state.matches.find((match) => match.code === state.activeMatchCode); if (local) { local.round = rounds; save(); } }
   if (!isSoloMatch(match)) { const participants = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&active=eq.true&select=user_id`), others = participants.map((item) => String(item.user_id)).filter((id) => id !== String(user.id)), today = localDateKey(); if (participants.length >= 2 && state.career.createdMatchCodes.includes(String(match.code))) state.career.startedMatchCodes = [...new Set([...state.career.startedMatchCodes, String(match.code)])]; state.career.fullHouse ||= participants.length >= 4; state.career.playedWith = [...new Set([...state.career.playedWith, ...others])]; state.career.dailyOpponents[today] = [...new Set([...(state.career.dailyOpponents[today] || []), ...others])]; save(); evaluateCareerAchievements(); }
 }
 async function restoreResultView() {
