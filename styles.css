@@ -1457,3 +1457,7 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 .unified-game:not(.multi-room-match) .lobby-side #match-friend-invites:not([hidden]){flex:1 1 100%;width:100%;margin:0;padding:0;border:0;background:transparent;box-shadow:none}
 .unified-game .lobby-side #open-invite-friends{display:block;width:100%;max-width:none;margin:0;min-height:52px;font-size:14px}
 .unified-game .lobby-side #open-invite-friends:disabled{background:#465064!important;border-color:#667086!important;color:#c8cfdb!important;box-shadow:none!important;cursor:default;opacity:1}
+
+/* The single handover action spans the complete result board. */
+.room-result-view .result-actions:has(#wrong-overview:not([hidden])){display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%}
+.room-result-view .result-actions #wrong-overview{grid-column:1/-1;width:100%;max-width:none;margin:0}
