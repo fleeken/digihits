@@ -1,4 +1,4 @@
-const APP_VERSION = "8.34"
+const APP_VERSION = "8.35"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -67,12 +67,12 @@ window.visualViewport?.addEventListener("resize", scheduleBottomMenuViewport, { 
 window.visualViewport?.addEventListener("scroll", scheduleBottomMenuViewport, { passive: true });
 if (window.ResizeObserver) new ResizeObserver(scheduleBottomMenuViewport).observe(document.getElementById("bottom-menu"));
 function applyAppZoom() {
-  const zoom = state.appZoom / 100;
+  const zoom = state.appZoom / 100 * 0.9;
   // Keep fixed navigation outside a zoomed root (Safari scroll positioning).
   document.documentElement.style.zoom = "";
   const appShell = document.querySelector(".app-shell");
   appShell.style.zoom = String(zoom);
-  appShell.style.setProperty("width", "100%", "important");
+  appShell.style.setProperty("width", `${100 / zoom}%`, "important");
   document.documentElement.style.setProperty("--menu-scale", String(zoom));
   document.documentElement.style.setProperty("--dialog-inverse-zoom", "1");
   document.documentElement.dataset.appZoom = String(state.appZoom);
