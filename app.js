@@ -1,4 +1,4 @@
-const APP_VERSION = "8.06"
+const APP_VERSION = "8.07"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -162,6 +162,8 @@ async function enterNewCardGuess() {
   startCurrentTrack();
 }
 async function countDownTurnStart(button, matchCode, view = "match", label = "TUREN BÖRJAR") {
+  if (currentView !== view || state.activeMatchCode !== matchCode || document.visibilityState === "hidden") return false;
+  if (!String(matchCode).startsWith("M0")) return true;
   const until = Date.now() + 3000;
   while (Date.now() < until) {
     if (currentView !== view || state.activeMatchCode !== matchCode || document.visibilityState === "hidden") return false;
@@ -1082,6 +1084,7 @@ function openMatch(matchCode) {
   $("#room-live-timelines").hidden = false;
   document.querySelector('[data-view-panel="match"]').classList.toggle("multi-room-match", isMultiRoom);
   const matchLeave = document.querySelector('[data-view-panel="match"] .button-leave');
+  matchLeave.hidden = soloMatch || local?.mode === "computer";
   const isOnlyPlayer = soloMatch || (match.players || []).length <= 1;
   const roomHost = match.code.startsWith("M0") && (match.players || []).some((player) => String(player.user_id) === String(state.userId) && Number(player.turn_order) === 0);
   matchLeave.textContent = match.code.startsWith("M0") ? (roomHost ? "AVSLUTA MATCHEN" : "LÄMNA MATCHEN") : isOnlyPlayer ? "RADERA MATCH" : "LÄMNA MATCHEN";
@@ -1221,7 +1224,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const zoomMarkup = `<strong>ZOOM</strong><div class="app-zoom-levels" role="group" aria-label="Spelets storlek">${appZoomLevels.map((level) => `<button type="button" data-app-zoom="${level}" aria-pressed="${state.appZoom === level}">${level}%</button>`).join("")}</div>`;
     if (zoomControl.dataset.markup !== zoomMarkup) { zoomControl.innerHTML = zoomMarkup; zoomControl.dataset.markup = zoomMarkup; }
   }
-  const solo = isSoloMatch(match) && !localMatch(match);
+  const solo = (isSoloMatch(match) && !localMatch(match)) || localMatch(match)?.mode === "computer";
   const markup = `${solo ? "" : `<div class="room-live-intro"><h2>${liveTurn ? `${escapeHtml(livePlayer.display_name || "Spelare")} spelar nu` : "Spelarnas tidslinjer"}</h2><p>${liveTurn ? "Följ gissningen, placeringen och resultatet direkt." : "Spelaren med nästa tur visas överst. Artist och låtnamn visas under pågående tur."}</p></div>`}${ordered.map((player) => {
     const active = player === livePlayer, locked = Array.isArray(player.locked_timeline) ? player.locked_timeline : [], unlocked = String(match.currentUserId) === String(player.user_id) && Array.isArray(player.turn_cards) ? player.turn_cards : [];
     const cards = [...locked.map((card, index) => ({ ...card, roomStatus: index === 0 ? "STARTKORT" : "LÅST" })), ...unlocked.map((card) => ({ ...card, roomStatus: "OLÅST" }))].sort((a, b) => Number(a.year) - Number(b.year));
@@ -1231,7 +1234,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const score = player.last_round?.score || {}, correct = Math.max(1, locked.length + unlocked.length, Number(score.correct) || 0);
     const mistakes = roomMistakes(player);
     const name = escapeHtml(player.display_name || "Spelare");
-    const avatar = !match.code.startsWith("M0") && !localMatch(match) && String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(player);
+    const avatar = !match.code.startsWith("M0") && (!localMatch(match) || localMatch(match)?.mode === "computer") && String(player.user_id) === String(state.userId) ? ownAvatarChoice() : avatarChoice(player);
     const host = players.some((entry) => String(entry.user_id) === String(state.userId) && Number(entry.turn_order) === 0);
     const kick = match.code.startsWith("M0") && !resultPanel && !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
     const playerId = player.id || player.user_id;

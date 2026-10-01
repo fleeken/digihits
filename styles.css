@@ -1428,7 +1428,7 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 .unified-game .room-result-view{border:0}
 .unified-game.room-result-view .result-view{border:0!important;background:transparent!important;box-shadow:none!important;padding:12px!important}
 .unified-game :is(h1,h2,h3,.guess-final-note,.timeline-head p){color:#e9f4ff}
-.unified-game .guess-form input{background:#101c32;border:1px solid #73a6ce;border-radius:12px;color:#fff;min-height:52px;text-align:center}
+.unified-game .guess-form input{background:#101c32;background-image:none!important;padding-inline:16px;border:1px solid #73a6ce;border-radius:12px;color:#fff;min-height:52px;text-align:center}
 .unified-game .guess-form input::placeholder{color:#bad4ed;opacity:1}
 .unified-game :is(.guess-form,.guess-top,.timeline-head){text-align:center}
 .unified-game .button-green{background:#70e69e!important;border:2px solid #33ae69!important;border-radius:14px;color:#103522!important;min-height:52px;font-weight:900}
