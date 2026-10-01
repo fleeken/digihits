@@ -1,4 +1,4 @@
-const APP_VERSION = "8.08"
+const APP_VERSION = "8.09"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -471,7 +471,6 @@ function dialog(message, action, danger = false, confirmText = "FORTSÄTT", canc
 }
 function dialogProgress(message) { $("#dialog-progress")?.remove(); const progress = document.createElement("div"); progress.id = "dialog-progress"; progress.className = "dialog-progress"; progress.innerHTML = "<i></i>"; $("#dialog-message").textContent = message; $("#dialog-message").after(progress); $("#dialog-cancel").hidden = true; $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false; }
 function closeDialogProgress() { $("#dialog-progress")?.remove(); $("#dialog-confirm").hidden = false; $("#app-dialog").hidden = true; }
-function roomHandoverDialog(name, action) { dialog(`Skicka mobilen till ${name}.`, action, false, "REDO"); $("#dialog-confirm").className = "button button-green"; }
 window.alert = (message) => dialog(String(message));
 
 function resetAnnualAchievements() {
@@ -673,7 +672,7 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
   const activeMatch = state.matches.find((match) => match.code === state.activeMatchCode), solo = isSoloMatch(activeMatch) && !localMatch(activeMatch);
   let wrongButton = $("#wrong-matches"), overviewButton = $("#wrong-overview");
   if (!wrongButton) { wrongButton = document.createElement("button"); wrongButton.id = "wrong-matches"; wrongButton.hidden = true; $("#result-back").after(wrongButton); }
-  if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.type = "button"; overviewButton.addEventListener("click", async () => { const match = state.matches.find((item) => item.code === state.activeMatchCode), local = localMatch(match), readyName = overviewButton.dataset.roomHandoverName; if (readyName || (local?.mode === "room" && !currentPlacementCorrect)) { delete overviewButton.dataset.roomHandoverName; roomHandoverDialog(readyName || local.players[local.current].name, () => openMatch(match.code)); return; } if (!currentPlacementCorrect) await animateTimelineOutcome(false); if (local && !viewingLatestRound) { delete state.roundResumeViews[match.code]; save(); const outcome = await handoverTurn(); resultIsLocked = true; if (local.mode === "room") roomHandoverDialog(outcome.nextPlayerName, () => openMatch(match.code)); else await openMatch(match.code); return; } await openMatch(state.activeMatchCode); }); wrongButton.after(overviewButton); }
+  if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.type = "button"; overviewButton.addEventListener("click", async () => { const match = state.matches.find((item) => item.code === state.activeMatchCode), local = localMatch(match), readyName = overviewButton.dataset.roomHandoverName; if (readyName || (local?.mode === "room" && !currentPlacementCorrect)) { delete overviewButton.dataset.roomHandoverName; await openMatch(match.code); return; } if (!currentPlacementCorrect) await animateTimelineOutcome(false); if (local && !viewingLatestRound) { delete state.roundResumeViews[match.code]; save(); const outcome = await handoverTurn(); resultIsLocked = true; await openMatch(match.code); return; } await openMatch(state.activeMatchCode); }); wrongButton.after(overviewButton); }
   delete overviewButton.dataset.roomHandoverName;
   const unlocked = snapshot?.unlocked ?? state.roundUnlocked, locked = snapshot?.locked ?? state.lockedTimeline, guess = snapshot?.guess ?? state.currentGuess ?? {};
   const attempts = state.matches.find((match) => match.code === state.activeMatchCode)?.round || 0;
