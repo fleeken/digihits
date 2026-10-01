@@ -1493,3 +1493,11 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
   .unified-game .room-live-track .year-card strong,.unified-game .result-timeline .year-card strong{font-size:23px}
   .unified-game .room-live-track .year-card small,.unified-game .result-timeline .year-card small{font-size:10px;line-height:1.35}
 }
+
+/* Finished matches cannot regain play controls during live updates. */
+[data-view-panel="result"].result-completed .result-actions,[data-view-panel="result"].result-completed :is(#result-continue,#result-lock,#change-track-area,#wrong-overview){display:none!important}
+#completed-match-verdict{margin:14px 0;padding:18px 14px;border:2px solid #73c8ff;border-radius:16px;background:#14233e;color:#fff;text-align:center;font-size:clamp(18px,4vw,25px);font-weight:900;line-height:1.4}
+#completed-match-verdict[hidden]{display:none!important}
+.completed-player-timeline{margin:14px 0;padding:12px;border:2px solid #61d9fa;border-radius:16px;background:#14233e;color:#fff}
+.completed-player-timeline h2{font-size:16px;margin:0 0 12px}
+.completed-player-timeline .room-live-track{overflow-x:auto;display:flex;gap:10px;padding:6px 0}
