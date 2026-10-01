@@ -1464,3 +1464,7 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 
 /* Keep removal separate from the latest-round action. */
 .unified-game .room-live-player [data-remove-match-player]{display:block;width:100%;margin-top:12px}
+
+/* Anchor from the visible viewport top instead of Safari's shifting bottom reference. */
+#bottom-menu{top:var(--menu-viewport-top,auto);bottom:0;backdrop-filter:none;-webkit-backdrop-filter:none;background:#fff7eb;transform:translateZ(0);will-change:top}
+#bottom-menu[style*="--menu-viewport-top"]{bottom:auto}
