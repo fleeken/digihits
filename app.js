@@ -1,4 +1,4 @@
-const APP_VERSION = "8.37"
+const APP_VERSION = "8.38"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1377,7 +1377,7 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const kick = match.code.startsWith("M0") && !resultPanel && !liveTurn && host && String(player.user_id) !== String(state.userId) ? `<button class="room-live-kick" data-room-kick="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT DELTAGARE</button>` : "";
     const playerId = player.id || player.user_id;
     latestRounds[playerId] = player.last_round;
-    const historyAction = !resultPanel && !match.code.startsWith("M0") && player.last_round ? `<button class="timeline-button show-player-round" data-player-round="${escapeHtml(playerId)}" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : "";
+    const historyAction = !resultPanel ? `<button class="timeline-button show-player-round" data-player-round="${escapeHtml(playerId)}" type="button">VISA SENASTE SPELADE OMGÅNG</button>` : "";
     const remoteOpponent = !resultPanel && !match.code.startsWith("M0") && !localMatch(match) && !isSoloMatch(match) && String(player.user_id) !== String(state.userId);
     const friend = (state.friends || []).some((item) => String(item.friend_id) === String(player.user_id)), friendPending = (state.sentFriendRequests || []).some((item) => String(item.recipient_id) === String(player.user_id));
     const friendAction = remoteOpponent && !friend && !friendPending ? `<button class="button button-green" data-add-match-friend="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">LÄGG TILL VÄN</button>` : "";
@@ -1996,7 +1996,25 @@ $("#friend-chat-form").addEventListener("submit", async (event) => { event.preve
 document.addEventListener("click", (event) => { const achievement = event.target.closest("[data-achievement-info]"); if (!achievement) return; dialog(achievement.dataset.achievementLabel + "\n\n" + achievement.dataset.achievementDescription + "\n\nBelöning: +3 onlinepoäng."); });
 window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (button.textContent === "STARTA MATCH") { state.matchStartConfirmed[state.activeMatchCode] = true; save(); updateRoundStartButton(); return; } if (!supabaseAuth.spotify() && !state.activeMatchCode?.startsWith("M0")) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = label; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; resumeCardGuess(); pausedForNavigation = true; resumeRoundTrack(); return; } if (currentView !== "match" || state.activeMatchCode !== match.code) return; state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard({ deferLive: true }); resetTurnInput(); if (!(await countDownTurnStart(button, match.code))) return; enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) { button.textContent = label; updateRoundStartButton(); } } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
-document.addEventListener("click", (event) => { const button = event.target.closest(".show-player-round"); if (!button) return; showLatestRound(latestRounds[button.dataset.playerRound]); });
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest(".show-player-round");
+  if (!button || button.disabled) return;
+  const playerId = button.dataset.playerRound, matchCode = state.activeMatchCode;
+  let round = latestRounds[playerId];
+  button.disabled = true;
+  try {
+    const match = state.matches.find((item) => item.code === matchCode);
+    if (!round && match?.id && !localMatch(match)) {
+      const players = await supabaseAuth.dataRequest(`online_players?match_id=eq.${match.id}&id=eq.${encodeURIComponent(playerId)}&select=last_round`);
+      round = players[0]?.last_round;
+      if (round) latestRounds[playerId] = round;
+    }
+    if (state.activeMatchCode !== matchCode) return;
+    latestRoundReturnView = currentView;
+    showLatestRound(round);
+  } catch (error) { dialog(error.message); }
+  finally { button.disabled = false; }
+});
 $("#overview-players").addEventListener("click", (event) => { const button = event.target.closest("[data-room-kick]"); if (!button) return; const code = state.activeMatchCode; dialog(`Ta bort ${button.dataset.playerName || "deltagaren"} från matchen?`, async () => { try { await supabaseAuth.dataRequest("rpc/digihits_remove_room_guest", { match_code_input: code, guest_user_id: button.dataset.roomKick }, "POST"); await syncMatches(); if (state.matches.some((item) => item.code === code)) openMatch(code); } catch (error) { dialog(error.message); } }, true, "TA BORT"); });
 document.addEventListener("click", (event) => {
   const button = event.target.closest(".room-zoom-setting [data-app-zoom]");
