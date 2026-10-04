@@ -1,4 +1,4 @@
-const APP_VERSION = "8.40"
+const APP_VERSION = "8.41"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -492,7 +492,7 @@ async function playCurrentTrack(retry = true) {
   if (!rewind || !playingRequestedTrack) throw new Error("Spotify kunde inte starta låten från början.");
   loadedSpotifyCardId = card.id; wasPausedByUser = false; pausedForNavigation = false; songStarting = false; updateSongTimeline(0, track.duration_ms, true); setPlayButton(true);
 }
-function setPlayButton(playing) { if (!playing && songStarting) return; spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
+function setPlayButton(playing) { if (!playing && songStarting) return; spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = "button button-secondary"; }
 function stopCurrentTrack(keepForResume = false) { Promise.resolve(spotifyPlayer?.pause()).catch(() => {}); clearInterval(songTimer); pausedForNavigation = keepForResume && Boolean(state.currentCard && loadedSpotifyCardId); if (!keepForResume) { loadedSpotifyCardId = null; pausedForNavigation = false; } setPlayButton(false); }
 function startCurrentTrack() { clearInterval(songTimer); loadedSpotifyCardId = null; songPosition = 0; songDuration = 0; $("#song-timeline").hidden = true; wasPausedByUser = false; pausedForNavigation = false; songStarting = false; setPlayButton(false); spotifyPlayer?.pause().catch(() => {}); if (!mobileBrowser && supabaseAuth.spotify()) { trackStartPromise = playCurrentTrack().catch(() => { songStarting = false; setPlayButton(false); }).finally(() => { trackStartPromise = null; }); } }
 function resumeRoundTrack() { if (!pausedForNavigation || !state.currentCard || mobileBrowser) return; if (spotifyPlayer && loadedSpotifyCardId === state.currentCard.id) spotifyPlayer.resume().then(() => { pausedForNavigation = false; setPlayButton(true); }).catch(() => playCurrentTrack().catch(() => {})); else startCurrentTrack(); }
@@ -2559,7 +2559,7 @@ async function playCurrentTrack(retry = true) {
     songStarting = false; setPlayButton(false); throw error;
   }
 }
-function setPlayButton(playing) { if (!playing && songStarting) return; spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
+function setPlayButton(playing) { if (!playing && songStarting) return; spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = "button button-secondary"; }
 function stopCurrentTrack(keepForResume = false) { applePreviewAudio?.pause(); clearInterval(songTimer); pausedForNavigation = keepForResume && Boolean(state.currentCard && applePreviewCardId === state.currentCard.id); if (!keepForResume) { applePreviewCardId = null; } setPlayButton(false); }
 // Unlock the same media element inside the round button's gesture, before network awaits.
 function unlockRoundAudio() {
