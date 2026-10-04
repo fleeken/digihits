@@ -1,4 +1,4 @@
-const APP_VERSION = "8.39"
+const APP_VERSION = "8.40"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -2545,7 +2545,7 @@ async function prepareApplePreview(card = activeCard()) {
   return track;
 }
 async function playCurrentTrack(retry = true) {
-  songStarting = true; $("#play-sample").textContent = "LÅTEN STARTAR…"; $("#play-sample").className = "button button-green";
+  songStarting = true; $("#play-sample").textContent = "LÅTEN STARTAR…"; $("#play-sample").className = "button button-secondary";
   try {
     const card = activeCard();
     const track = await prepareApplePreview(card), audio = appleAudio();
