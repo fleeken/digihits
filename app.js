@@ -1,4 +1,4 @@
-const APP_VERSION = "8.38"
+const APP_VERSION = "8.39"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -181,7 +181,7 @@ async function enterNewCardGuess() {
   pendingTimelineDeal = null;
   showView("guess");
   void publishRoomPlacement("guessing").catch((error) => dialog(error.message));
-  startCurrentTrack();
+  startCurrentTrack(true);
 }
 async function countDownTurnStart(button, matchCode, view = "match", label = "TUREN BÖRJAR") {
   if (currentView !== view || state.activeMatchCode !== matchCode || document.visibilityState === "hidden") return false;
@@ -1994,7 +1994,7 @@ $("#chat-form").addEventListener("submit", async (event) => { event.preventDefau
 $("#friend-chat-back").addEventListener("click", () => showView("home", true));
 $("#friend-chat-form").addEventListener("submit", async (event) => { event.preventDefault(); const body = $("#friend-chat-input").value.trim(); if (!state.friendChatId || !body) return; try { await supabaseAuth.dataRequest("rpc/digihits_send_friend_message", { friend: state.friendChatId, message_body: body }, "POST"); $("#friend-chat-input").value = ""; await loadFriendChat(); } catch (error) { alert(error.message); } });
 document.addEventListener("click", (event) => { const achievement = event.target.closest("[data-achievement-info]"); if (!achievement) return; dialog(achievement.dataset.achievementLabel + "\n\n" + achievement.dataset.achievementDescription + "\n\nBelöning: +3 onlinepoäng."); });
-window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (button.textContent === "STARTA MATCH") { state.matchStartConfirmed[state.activeMatchCode] = true; save(); updateRoundStartButton(); return; } if (!supabaseAuth.spotify() && !state.activeMatchCode?.startsWith("M0")) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = label; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; resumeCardGuess(); pausedForNavigation = true; resumeRoundTrack(); return; } if (currentView !== "match" || state.activeMatchCode !== match.code) return; state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard({ deferLive: true }); resetTurnInput(); if (!(await countDownTurnStart(button, match.code))) return; enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) { button.textContent = label; updateRoundStartButton(); } } };
+window.resumeDigihitsRound = async () => { const button = $("#next-round"); if (button.disabled) return; if (button.textContent === "STARTA MATCH") { state.matchStartConfirmed[state.activeMatchCode] = true; save(); updateRoundStartButton(); return; } if (!supabaseAuth.spotify() && !state.activeMatchCode?.startsWith("M0")) { dialog("Du måste ansluta till ett Spotify Premium-konto.", () => supabaseAuth.connectSpotify().catch((error) => alert(error.message)), false, "ANSLUT KONTO"); return; } if (state.pendingResult?.matchCode !== state.activeMatchCode) unlockRoundAudio(); roundLoading = true; button.disabled = true; const label = button.textContent; const loadingLabel = label; let enteredRound = false; button.textContent = loadingLabel; try { const pending = state.pendingResult; if (pending?.matchCode === state.activeMatchCode) { currentPlacementCorrect = pending.correct !== false; resultIsLocked = true; renderRoundResult(currentPlacementCorrect, pending.card, pending.snapshot); enteredRound = true; showView("result"); return; } await syncMatches(); button.textContent = loadingLabel; const match = state.matches.find((item) => item.code === state.activeMatchCode); if (!match || match.status !== "active") throw new Error("Omgången kan inte återupptas just nu."); await restoreRoundUnlocked(); const existingCard = Boolean(state.currentCard); if (existingCard) { enteredRound = true; resumeCardGuess(); await playCurrentTrack(); return; } if (currentView !== "match" || state.activeMatchCode !== match.code) return; state.roundUnlocked = []; save(); await markRoundStarted(); await dealCard({ deferLive: true }); resetTurnInput(); if (!(await countDownTurnStart(button, match.code))) return; enteredRound = true; await enterNewCardGuess(); } catch (error) { alert(error.message); } finally { roundLoading = false; button.disabled = false; if (!enteredRound) { stopCurrentTrack(); button.textContent = label; updateRoundStartButton(); } } };
 $("#next-round").addEventListener("click", window.resumeDigihitsRound);
 document.addEventListener("click", async (event) => {
   const button = event.target.closest(".show-player-round");
@@ -2549,6 +2549,7 @@ async function playCurrentTrack(retry = true) {
   try {
     const card = activeCard();
     const track = await prepareApplePreview(card), audio = appleAudio();
+    if (state.currentCard?.id !== card.id || !["guess", "timeline"].includes(currentView) || document.visibilityState === "hidden") { songStarting = false; setPlayButton(false); return; }
     audio.pause(); audio.currentTime = 0;
     await audio.play();
     wasPausedByUser = false; pausedForNavigation = false; songStarting = false;
@@ -2560,7 +2561,28 @@ async function playCurrentTrack(retry = true) {
 }
 function setPlayButton(playing) { if (!playing && songStarting) return; spotifyPlaying = playing; $("#play-sample").textContent = playing ? "⏸ PAUSA LÅT" : "▶ SPELA LÅT"; $("#play-sample").className = `button ${playing ? "button-secondary" : "button-green"}`; }
 function stopCurrentTrack(keepForResume = false) { applePreviewAudio?.pause(); clearInterval(songTimer); pausedForNavigation = keepForResume && Boolean(state.currentCard && applePreviewCardId === state.currentCard.id); if (!keepForResume) { applePreviewCardId = null; } setPlayButton(false); }
-function startCurrentTrack() { clearInterval(songTimer); applePreviewAudio?.pause(); applePreviewCardId = null; songPosition = 0; songDuration = 0; $("#song-timeline").hidden = true; wasPausedByUser = false; pausedForNavigation = false; songStarting = false; setPlayButton(false); applePreviewPreparing = prepareApplePreview().catch(() => null).finally(() => { applePreviewPreparing = null; }); }
+// Unlock the same media element inside the round button's gesture, before network awaits.
+function unlockRoundAudio() {
+  const audio = appleAudio();
+  const bytes = new Uint8Array(844), header = new DataView(bytes.buffer);
+  const text = (offset, value) => [...value].forEach((letter, index) => { bytes[offset + index] = letter.charCodeAt(0); });
+  text(0, "RIFF"); header.setUint32(4, 836, true); text(8, "WAVE"); text(12, "fmt "); header.setUint32(16, 16, true);
+  header.setUint16(20, 1, true); header.setUint16(22, 1, true); header.setUint32(24, 8000, true); header.setUint32(28, 8000, true);
+  header.setUint16(32, 1, true); header.setUint16(34, 8, true); text(36, "data"); header.setUint32(40, 800, true); bytes.fill(128, 44);
+  const silence = `data:audio/wav;base64,${btoa(String.fromCharCode(...bytes))}`;
+  audio.pause(); applePreviewCardId = null; audio.src = silence; audio.load();
+  audio.play().then(() => { if (audio.src === silence) audio.pause(); }).catch(() => {});
+}
+function startCurrentTrack(autoplay = false) {
+  clearInterval(songTimer); applePreviewAudio?.pause(); applePreviewCardId = null; songPosition = 0; songDuration = 0;
+  $("#song-timeline").hidden = true; wasPausedByUser = false; pausedForNavigation = false; songStarting = false; setPlayButton(false);
+  const card = activeCard(), matchCode = state.activeMatchCode;
+  applePreviewPreparing = (autoplay ? playCurrentTrack() : prepareApplePreview(card)).catch(() => {
+    // Keep the manual play action available if the browser blocks playback or loading fails.
+    if (state.activeMatchCode === matchCode && state.currentCard?.id === card.id) { songStarting = false; setPlayButton(false); }
+  }).finally(() => { applePreviewPreparing = null; });
+}
 function resumeRoundTrack() { if (!pausedForNavigation || !applePreviewAudio || applePreviewCardId !== state.currentCard?.id) return; applePreviewAudio.play().then(() => { pausedForNavigation = false; setPlayButton(true); }).catch(() => {}); }
 $("#play-sample").addEventListener("click", async (event) => { event.stopImmediatePropagation(); try { if (applePreviewPreparing) await applePreviewPreparing; const audio = appleAudio(); if (!audio.paused && applePreviewCardId === state.currentCard?.id) { audio.pause(); wasPausedByUser = true; setPlayButton(false); } else if ((wasPausedByUser || pausedForNavigation) && applePreviewCardId === state.currentCard?.id) { await audio.play(); wasPausedByUser = false; pausedForNavigation = false; setPlayButton(true); } else await playCurrentTrack(); } catch (error) { alert(error.message); } }, true);
 $("#replay-track").addEventListener("click", async (event) => { event.stopImmediatePropagation(); try { if (applePreviewPreparing) await applePreviewPreparing; await playCurrentTrack(); } catch (error) { alert(error.message); } }, true);
+
