@@ -1387,10 +1387,10 @@ input.timeline-scrollbar[hidden]{display:none!important}
 
 /* A travelling highlight indicates that the turn-start button is ready. */
 @property --turn-frame-angle{syntax:"<angle>";initial-value:0deg;inherits:false}
-:is(#next-round.is-visible,#result-continue:not([hidden]),#result-lock:not([hidden]),#wrong-overview:not([hidden]),#play-sample:not([hidden])):not(:disabled){position:relative;isolation:isolate}
-:is(#next-round.is-visible,#result-continue:not([hidden]),#result-lock:not([hidden]),#wrong-overview:not([hidden]),#play-sample:not([hidden])):not(:disabled)::before{content:"";position:absolute;inset:-4px;padding:3px;border-radius:inherit;pointer-events:none;background:conic-gradient(from var(--turn-frame-angle),#61d9fa33 0deg,#61d9fa33 240deg,#61d9fa 295deg,#f2ffff 325deg,#61d9fa33 360deg);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;box-shadow:0 0 12px #61d9fa77;animation:turn-frame-orbit 2.4s linear infinite}
+:is(#next-round.is-visible,#result-continue:not([hidden]),#result-lock:not([hidden]),#wrong-overview:not([hidden]),#play-sample:not([hidden]),#replay-track:not([hidden])):not(:disabled){position:relative;isolation:isolate}
+:is(#next-round.is-visible,#result-continue:not([hidden]),#result-lock:not([hidden]),#wrong-overview:not([hidden]),#play-sample:not([hidden]),#replay-track:not([hidden])):not(:disabled)::before{content:"";position:absolute;inset:-4px;padding:3px;border-radius:inherit;pointer-events:none;background:conic-gradient(from var(--turn-frame-angle),#61d9fa33 0deg,#61d9fa33 240deg,#61d9fa 295deg,#f2ffff 325deg,#61d9fa33 360deg);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;box-shadow:0 0 12px #61d9fa77;animation:turn-frame-orbit 2.4s linear infinite}
 @keyframes turn-frame-orbit{to{--turn-frame-angle:360deg}}
-@media(prefers-reduced-motion:reduce){:is(#next-round.is-visible,#result-continue:not([hidden]),#result-lock:not([hidden]),#wrong-overview:not([hidden]),#play-sample:not([hidden])):not(:disabled)::before{animation:none;--turn-frame-angle:295deg}}
+@media(prefers-reduced-motion:reduce){:is(#next-round.is-visible,#result-continue:not([hidden]),#result-lock:not([hidden]),#wrong-overview:not([hidden]),#play-sample:not([hidden]),#replay-track:not([hidden])):not(:disabled)::before{animation:none;--turn-frame-angle:295deg}}
 
 /* Match the physical viewport width even when the app root is zoomed. */
 .view>.match-turn-banner{max-width:none}
