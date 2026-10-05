@@ -5,7 +5,7 @@ returns table(user_id text, display_name text, avatar_genre text, avatar_variant
   select p.user_id::text, p.display_name, p.avatar_genre, p.avatar_variant, coalesce(p.career_points, 0)
   from public.digihits_profiles p
   join auth.users u on u.id::text = p.user_id::text
-  where lower(p.display_name_key) = lower(trim(requested))
+  where lower(btrim(p.display_name)) = lower(btrim(requested))
      or lower(u.email) = lower(trim(requested))
   limit 1;
 $$;
