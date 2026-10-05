@@ -1,4 +1,4 @@
-const APP_VERSION = "8.41"
+const APP_VERSION = "8.42"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1599,7 +1599,7 @@ function resetTurnInput() {
   state.currentGuess = null; state.guessDraft = null; state.guessFinalized = null; state.placementDraft = null; $("#guess-artist").value = ""; $("#guess-track").value = ""; $("#secret-card").classList.remove("is-placed"); $("#lock-placement").classList.remove("is-visible"); $("#placed-message").textContent = ""; $("#change-track-area").hidden = !state.changeTrackCards;
   const cards = [...state.lockedTimeline.map((card, index) => ({ ...card, status: index === 0 ? "STARTKORT" : "LÅST" })), ...state.roundUnlocked].sort((a, b) => a.year - b.year);
   const slot = (index) => `<div class="slot" data-slot="${index}">PLACERA<br>HÄR</div>`;
-  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${card.status === "STARTKORT" ? "locked-card" : card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small><span class="card-song">${escapeHtml(card.artist)}: ${escapeHtml(card.title)}</span><span class="card-status">${cardStatusLabel(card.status)}</span></small></article>`).join("") + slot(cards.length); save();
+  $("#timeline-row").innerHTML = cards.map((card, index) => `${(index === 0 || cards[index - 1].year !== card.year) ? slot(index) : ""}<article class="year-card ${["STARTKORT", "LÅST"].includes(card.status) ? "locked-card" : card.status === "OLÅST" ? "unlocked-card" : ""}"><strong>${card.year}</strong><small><span class="card-song">${escapeHtml(card.artist)}: ${escapeHtml(card.title)}</span><span class="card-status">${cardStatusLabel(card.status)}</span></small></article>`).join("") + slot(cards.length); save();
 }
 
 async function updateSwapCards(delta) {
