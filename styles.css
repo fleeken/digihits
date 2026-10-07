@@ -1504,3 +1504,6 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 
 /* Keep notification access available in both browser and installed app. */
 #enable-notifications:not([hidden]){display:block}
+
+/* Match the handover button to the full-width result checks in every result layout. */
+[data-view-panel="result"] #wrong-overview{display:block;width:100%;max-width:none;box-sizing:border-box;margin-left:auto;margin-right:auto;text-align:center}
