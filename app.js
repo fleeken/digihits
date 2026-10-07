@@ -1,4 +1,4 @@
-const APP_VERSION = "8.44"
+const APP_VERSION = "8.45"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -709,7 +709,7 @@ function evaluateCareerAchievements(comeback = false, flawless = false) {
   if (state.career.friendIds.length >= 5) grantAchievement("friendshipTone", "Vänskapston");
   if (state.career.fullHouse) grantAchievement("fullHouse", "Fullt hus");
   
-  if (state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp >= 90) grantAchievement("goldRecord", "Guldskiva nådd");
+  if (state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp >= 110) grantAchievement("goldRecord", "Guldskiva nådd");
   finishAchievementAwards();
 }
 function closeHomeAccordions() {
@@ -824,9 +824,9 @@ function renderRoundResult(correct, card = activeCard(), snapshot = null) {
 }
 
 function updateTurnBadge() { const count = state.matches.filter((match) => !isSoloMatch(match) && match.status === "active").length; if (navigator.setAppBadge) (count ? navigator.setAppBadge(count) : navigator.clearAppBadge()).catch(() => {}); }
-function careerLevel(points = 0) { return [{ name:"Uppvärmning", min:-Infinity },{ name:"Soundcheck", min:1 },{ name:"Genombrott", min:9 },{ name:"Hitmakare", min:24 },{ name:"Listetta", min:50 },{ name:"Guldskiva", min:90 },{ name:"Platinaskiva", min:150 },{ name:"Digihits-legendar", min:250 }].filter((level) => points >= level.min).at(-1).name; }
-function careerProgress(points = 0) { const steps = [0, 1, 9, 24, 50, 90, 150, 250], index = steps.reduce((found, min, i) => points >= min ? i : found, 0), next = steps[index + 1]; return next ? Math.max(0, Math.min(100, ((points - steps[index]) / (next - steps[index])) * 100)) : 100; }
-function careerNextLabel(points = 0) { const levels = [{ name:"Soundcheck", min:1 },{ name:"Genombrott", min:9 },{ name:"Hitmakare", min:24 },{ name:"Listetta", min:50 },{ name:"Guldskiva", min:90 },{ name:"Platinaskiva", min:150 },{ name:"Digihits-legendar", min:250 }], next = levels.find((level) => points < level.min); return next ? `${next.min - points}p KVAR TILL ${next.name.toUpperCase()}` : "HÖGSTA NIVÅN"; }
+function careerLevel(points = 0) { return [{ name:"Uppvärmning", min:-Infinity },{ name:"Soundcheck", min:21 },{ name:"Genombrott", min:29 },{ name:"Hitmakare", min:44 },{ name:"Listetta", min:70 },{ name:"Guldskiva", min:110 },{ name:"Platinaskiva", min:170 },{ name:"Digihits-legendar", min:270 }].filter((level) => points >= level.min).at(-1).name; }
+function careerProgress(points = 0) { const steps = [0, 21, 29, 44, 70, 110, 170, 270], index = steps.reduce((found, min, i) => points >= min ? i : found, 0), next = steps[index + 1]; return next ? Math.max(0, Math.min(100, ((points - steps[index]) / (next - steps[index])) * 100)) : 100; }
+function careerNextLabel(points = 0) { const levels = [{ name:"Soundcheck", min:21 },{ name:"Genombrott", min:29 },{ name:"Hitmakare", min:44 },{ name:"Listetta", min:70 },{ name:"Guldskiva", min:110 },{ name:"Platinaskiva", min:170 },{ name:"Digihits-legendar", min:270 }], next = levels.find((level) => points < level.min); return next ? `${next.min - points}p KVAR TILL ${next.name.toUpperCase()}` : "HÖGSTA NIVÅN"; }
 let lastCareerSync = "";
 const achievementNames = { firstWin:"Första vinsten", firstSwap:"Första byt-låt-kortet", matchmaker:"Matchmakaren", hattrick:"Hattrick", fullHouse:"Fullt hus", eveningDj:"Kvällens DJ", friendshipTone:"Vänskapston", socialPlayer:"Sällskapsspelare", comeback:"Vändningen", streak3:"3 vinster i rad", threeFriends:"3 olika vänner", fiveFriends:"5 olika vänner", wins10:"10 onlinevinster", correct100:"100 rätt placerade", streak5:"5 vinster i rad", goldRecord:"Guldskiva nådd", wins25:"25 onlinevinster" };
 function friendAchievementMarkup(friend) { const earned = (Array.isArray(friend?.career_achievements) ? friend.career_achievements : []).filter((id) => achievementNames[id]); return `<section class="achievement-list"><h3>UTMÄRKELSER</h3>${earned.length ? `<div>${earned.map((id) => `<span class="achievement earned"><small>${achievementNames[id]}</small></span>`).join("")}</div>` : "<p>INGA UTMÄRKELSER UPPLÅSTA ÄN</p>"}</section>`; }
@@ -870,7 +870,7 @@ function render() {
   $("#stat-losses").textContent = `${state.stats.losses} st`;
   $("#stat-walkovers").textContent = `${state.stats.walkovers} st`;
   $("#stat-streak").textContent = `${state.stats.streak} st`;
-  const levelSteps = [{ name: "Uppvärmning", min: -Infinity }, { name: "Soundcheck", min: 1 }, { name: "Genombrott", min: 9 }, { name: "Hitmakare", min: 24 }, { name: "Listetta", min: 50 }, { name: "Guldskiva", min: 90 }, { name: "Platinaskiva", min: 150 }, { name: "Digihits-legendar", min: 250 }], points = state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp, levelIndex = Math.max(0, levelSteps.reduce((found, level, index) => points >= level.min ? index : found, 0)), level = levelSteps[levelIndex], nextLevel = levelSteps[levelIndex + 1], levelFloor = levelIndex ? level.min : 0, progress = nextLevel ? Math.max(0, Math.min(100, ((points - levelFloor) / (nextLevel.min - levelFloor)) * 100)) : 100;
+  const levelSteps = [{ name: "Uppvärmning", min: -Infinity }, { name: "Soundcheck", min: 21 }, { name: "Genombrott", min: 29 }, { name: "Hitmakare", min: 44 }, { name: "Listetta", min: 70 }, { name: "Guldskiva", min: 110 }, { name: "Platinaskiva", min: 170 }, { name: "Digihits-legendar", min: 270 }], points = state.stats.wins * 3 - state.stats.walkoverLeaves + state.stats.achievementXp, levelIndex = Math.max(0, levelSteps.reduce((found, level, index) => points >= level.min ? index : found, 0)), level = levelSteps[levelIndex], nextLevel = levelSteps[levelIndex + 1], levelFloor = levelIndex ? level.min : 0, progress = nextLevel ? Math.max(0, Math.min(100, ((points - levelFloor) / (nextLevel.min - levelFloor)) * 100)) : 100;
   const levelPanel = $("#level-panel");
   const opponents = new Set(state.history.filter((match) => match.mode === "online").map((match) => String(match.opponentName || "").trim()).filter(Boolean)).size;
   const achievements = [
@@ -899,7 +899,7 @@ function render() {
     ["correct100", "100", "100 rätt placerade", "Placera totalt 100 kort rätt i onlinematcher.", "online"],
     ["streak5", "⚡", "5 vinster i rad", "Vinn fem onlinematcher i följd.", "online"],
     ["flawless", "✓", "Felfri", "Vinn en onlinematch utan en enda felplacering.", "online"],
-    ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 90 onlinepoäng.", "online"],
+    ["goldRecord", "◆", "Guldskiva nådd", "Nå minst 110 onlinepoäng.", "online"],
     ["wins25", "25", "25 onlinevinster", "Vinn totalt 25 onlinematcher.", "online"]
   ];
   const todayAchievements = state.dailyAchievements[localDateKey()] || {};
@@ -908,7 +908,7 @@ function render() {
   const dailyMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Dagliga utmärkelser · nollställs dagligen kl 00:00</h3><div>" + achievements.filter(([id]) => dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   const permanentMarkup = "<section class=\"achievement-list career-section-panel\"><h3>Årliga utmärkelser · nollställs vid årsskiftet</h3><div>" + achievements.filter(([id]) => !dailyAchievementIds.has(id)).map(achievementButton).join("") + "</div></section>";
   levelPanel.innerHTML = "<section class=\"career-section-panel career-level-panel\"><div class=\"level-head\"><div><small>ONLINE-NIVÅ</small><b>" + level.name + "</b></div><button type=\"button\" aria-label=\"Information om nivåer\">INFORMATION</button></div><div class=\"level-progress\"><i style=\"width:" + progress + "%\"></i><strong>ONLINEPOÄNG: " + points + "</strong></div><small class=\"level-next\">" + (nextLevel ? Math.max(0, nextLevel.min - points) + "p KVAR TILL " + nextLevel.name.toUpperCase() : "HÖGSTA NIVÅN") + "</small></section>" + dailyMarkup + permanentMarkup;
-  levelPanel.querySelector("button").onclick = () => { dialog("Poängregler:\n• Vinst: +3 poäng\n• Förlust: 0 poäng\n• Lämnar walk over: −1 poäng\n\nUtmärkelser:\n• Varje utmärkelse ger +3 poäng\n• Tryck på en utmärkelse för att se exakt hur den låses upp\n• Dagliga utmärkelser nollställs varje dag kl 00:00\n• Årliga utmärkelser nollställs vid årsskiftet\n\nNivåer:\n• Uppvärmning: 0 eller mindre\n• Soundcheck: 1–8\n• Genombrott: 9–23\n• Hitmakare: 24–49\n• Listetta: 50–89\n• Guldskiva: 90–149\n• Platinaskiva: 150–249\n• Digihits-legendar: 250+"); $("#dialog-message").classList.add("level-rules"); $("#dialog-message").innerHTML = $("#dialog-message").textContent.split("\n").map((line) => line.startsWith("• ") ? `<span class="level-rule-item">${escapeHtml(line.slice(2))}</span>` : line ? `<span class="level-rule-line">${escapeHtml(line)}</span>` : `<span class="level-rule-gap"></span>`).join(""); };
+  levelPanel.querySelector("button").onclick = () => { dialog("Poängregler:\n• Vinst: +3 poäng\n• Förlust: 0 poäng\n• Lämnar walk over: −1 poäng\n\nUtmärkelser:\n• Varje utmärkelse ger +3 poäng\n• Tryck på en utmärkelse för att se exakt hur den låses upp\n• Dagliga utmärkelser nollställs varje dag kl 00:00\n• Årliga utmärkelser nollställs vid årsskiftet\n\nNivåer:\n• Uppvärmning: 20 eller mindre\n• Soundcheck: 21–28\n• Genombrott: 29–43\n• Hitmakare: 44–69\n• Listetta: 70–109\n• Guldskiva: 110–169\n• Platinaskiva: 170–269\n• Digihits-legendar: 270+"); $("#dialog-message").classList.add("level-rules"); $("#dialog-message").innerHTML = $("#dialog-message").textContent.split("\n").map((line) => line.startsWith("• ") ? `<span class="level-rule-item">${escapeHtml(line.slice(2))}</span>` : line ? `<span class="level-rule-line">${escapeHtml(line)}</span>` : `<span class="level-rule-gap"></span>`).join(""); };
   renderAvatar();
   $("#solo-best-rounds").textContent = state.soloStats.bestRounds ? `${state.soloStats.bestRounds} st` : "–";
   $("#solo-fewest-mistakes").textContent = state.soloStats.fewestMistakes ?? "–";
