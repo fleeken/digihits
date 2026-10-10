@@ -1,4 +1,4 @@
-const APP_VERSION = "8.46"
+const APP_VERSION = "8.47"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -379,7 +379,7 @@ function showRoomSetup() {
 }
 function showRoomModes() {
   $("#dialog-title").textContent = "Samma fysiska rum";
-  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><div class="match-mode-dialog room-options"><button type="button" data-room-mode="pass">SKICKA RUNT EN MOBIL<small>Ange spelarna manuellt och turas om på en telefon.</small></button><button type="button" data-room-mode="multi">FLERA MOBILER ANSLUTER<small>Skicka en länk eller visa QR-koden. Varje gäst väljer namn och avatar.</small></button></div>`;
+  $("#dialog-message").innerHTML = `<button class="dialog-back-step" data-match-back type="button">← TILLBAKA</button><div class="match-mode-dialog room-options"><button type="button" data-room-mode="pass">SKICKA RUNT EN MOBIL<small>Ange spelarna manuellt och turas om på en telefon.</small></button><button type="button" data-room-mode="multi">FLERA MOBILER ANSLUTER<small>Varje spelare använder sin egen telefon för att ansluta till matchen. En agerar värd och övriga spelare ansluter som gäster.</small></button></div>`;
   $("#dialog-confirm").hidden = true; $("#app-dialog").hidden = false;
 }
 function showMultiRoomSetup() {
