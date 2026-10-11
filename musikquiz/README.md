@@ -3,12 +3,12 @@
 Ett separat familjespel i Digihits-repot, utan kontoinloggning. Varje spelare använder sin egen mobil. Värden delar matchkod, länk eller QR, spelar upp frågorna med telefonens svenska syntetröst och startar omgångarna.
 
 - 141 frågor från olika årtionden och genrer; tio slumpade frågor per match.
-- Fyra svar, 20 sekunders svarstid och ett poäng för varje rätt svar.
+- Fyra svar, högst 20 sekunders svarstid och 100–1 000 poäng för rätt svar. Snabbare svar ger fler poäng; fel svar ger 0.
 - Låsta namn och avatarer. Namn är unika i matchen utan skillnad på versaler/gemener.
 - Grön ”Redo” och röd ”Ej redo” i lobbyn. Alla gäster måste vara redo före start.
 - Fem sekunders nedräkning vid matchstart; tre sekunder före varje fråga. Nedräkningen täcker hela skärmen.
 - Svaren visas först när värdens uppläsning har avslutats. Om telefonens röst inte fungerar kan värden läsa högt och bekräfta att frågan är uppläst.
-- Topplista efter varje fråga; spelarna animeras till sina nya placeringar.
+- Helskärmstopplista efter varje fråga; poängen räknas upp och spelarna animeras till sina nya placeringar. Tre sekunders animation följs av fem sekunders visning, sedan visas frågan med rätt svar.
 
 ## Aktivera själv i Supabase
 
@@ -46,3 +46,14 @@ Värden har en röd **Avsluta match**-knapp längst ner och gästerna en röd **
 Startsidan visar **Skapa match**, ett fält för sex siffror och **Gå med i match**. Nästa steg är namn och avatar, följt av gröna **Spela!**. Matchkoden kontrolleras innan gästen får fylla i sin profil; deltagandet skapas först när gästen trycker på Spela. QR-kod och inbjudningslänk öppnar profilsteget direkt efter kodkontrollen. En befintlig medlem återgår till sin match med sin låsta identitet.
 
 Kör själv [update-v1.3.sql](./update-v1.3.sql) i samma projekts SQL Editor för att aktivera kodkontrollen. Den inkluderar även ändringen från v1.2, så det räcker att köra v1.3 om v1.2 inte redan installerats. Kör inte om `setup.sql`. Uppdateringen ersätter bara Musikquiz-funktionen; inga befintliga matcher, spelare eller poäng raderas.
+
+
+## Uppdatera till v1.4: snabbhetspoäng och helskärmsresultat
+
+Kör själv [update-v1.4.sql](./update-v1.4.sql) i samma projekts SQL Editor. Den innehåller även funktionsändringarna från v1.2 och v1.3. Kör inte om setup.sql. Inga befintliga poäng eller matcher raderas. Starta en ny match efter uppdateringen för att spela alla frågor med den nya poängmodellen.
+
+Man kan ändra svar fram tills alla har svarat eller de 20 sekunderna går ut, vilket som inträffar först. Servern använder det senaste valda svaret och tiden då man bytte till det. Att trycka på samma redan valda svar ändrar inte tiden. Rätt svar ger `max(100, min(1000, round(1000 - 900 × sekunder / 20)))` poäng; fel eller inget svar ger 0. Poängen delas ut en gång när omgången stängs.
+
+Topplistan täcker hela skärmen. Poängen räknas upp under 1,8 sekunder och placeringarna flyttas under nästa 1,2 sekunder. Därefter visas den i fem sekunder. Tidslinjen styrs av serverns resultattid så att omladdning eller en sen nätverksuppdatering inte startar om presentationen. Sedan visas föregående fråga med rätt svar och kontroller för nästa omgång/avslutning. Nästa omgång kan inte starta innan presentationen är klar. Vid reducerad rörelse visas slutvärden direkt med samma synkroniserade visningstid.
+
+Befintlig uppläsningsröst används fortsatt. Inga röstval, externa rösttjänster eller nya kostnader tillkommer.

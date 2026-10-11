@@ -4,15 +4,16 @@
 begin;
 -- Isolated Musikquiz schema. Clients use only the membership-checked RPC.
 -- Isolated Musikquiz schema. Clients use only the membership-checked RPC.
+-- Isolated Musikquiz schema. Clients use only the membership-checked RPC.
 create schema musikquiz;
 revoke all on schema musikquiz from public, anon, authenticated;
 grant usage on schema musikquiz to authenticated;
 create table musikquiz.questions(id int primary key, question text not null, options jsonb not null check(jsonb_array_length(options)=4), correct int not null check(correct between 0 and 3), category text not null);
-create table musikquiz.rooms(code text primary key check(code ~ '^[0-9]{6}$'), host uuid not null, phase text not null default 'lobby' check(phase in ('lobby','start_countdown','ready','round_countdown','reading','answering','results','finished')), round int not null default 0, deck int[] not null, starts_at timestamptz, deadline timestamptz, created_at timestamptz not null default now(), expires_at timestamptz not null default now()+interval '24 hours');
+create table musikquiz.rooms(code text primary key check(code ~ '^[0-9]{6}$'), host uuid not null, phase text not null default 'lobby' check(phase in ('lobby','start_countdown','ready','round_countdown','reading','answering','results','finished')), round int not null default 0, deck int[] not null, starts_at timestamptz, deadline timestamptz, results_at timestamptz, created_at timestamptz not null default now(), expires_at timestamptz not null default now()+interval '24 hours');
 create index rooms_host_created on musikquiz.rooms(host,created_at);
 create table musikquiz.players(code text references musikquiz.rooms on delete cascade, user_id uuid not null, name text not null check(length(name) between 1 and 18), score int not null default 0, avatar int not null check(avatar between 0 and 11), ready boolean not null default false, joined_at timestamptz not null default now(), primary key(code,user_id));
 create unique index player_name_unique on musikquiz.players(code,lower(name));
-create table musikquiz.answers(code text references musikquiz.rooms on delete cascade, round int not null, user_id uuid not null, choice int not null check(choice between 0 and 3), primary key(code,round,user_id), foreign key(code,user_id) references musikquiz.players on delete cascade);
+create table musikquiz.answers(code text references musikquiz.rooms on delete cascade, round int not null, user_id uuid not null, choice int not null check(choice between 0 and 3), answered_at timestamptz not null default now(), points int not null default 0, primary key(code,round,user_id), foreign key(code,user_id) references musikquiz.players on delete cascade);
 alter table musikquiz.questions enable row level security;
 alter table musikquiz.rooms enable row level security;
 alter table musikquiz.players enable row level security;
@@ -72,17 +73,19 @@ begin
   update musikquiz.rooms set phase='start_countdown',starts_at=now()+interval '5 seconds' where code=c returning * into r;
  elsif action='round' then
   if r.phase not in ('ready','results') then raise exception 'Vänta tills omgången är klar.'; end if;
+  if r.phase='results' and r.results_at is not null and now()<r.results_at+interval '8 seconds' then raise exception 'Vänta tills topplistan har visats klart.'; end if;
   if r.round>=array_length(r.deck,1) then
    update musikquiz.rooms set phase='finished' where code=c returning * into r;
   else
-   update musikquiz.rooms set round=round+1,phase='round_countdown',starts_at=now()+interval '3 seconds',deadline=null where code=c returning * into r;
+   update musikquiz.rooms set round=round+1,phase='round_countdown',starts_at=now()+interval '3 seconds',deadline=null,results_at=null where code=c returning * into r;
   end if;
  elsif action='heard' then
   if r.phase='reading' then update musikquiz.rooms set phase='answering',deadline=now()+interval '20 seconds' where code=c returning * into r; end if;
  elsif action='answer' then
   if r.phase<>'answering' or now()>=r.deadline then raise exception 'Svarstiden är slut.'; end if;
   if (payload->>'choice')::int not between 0 and 3 then raise exception 'Välj ett svar.'; end if;
-  insert into musikquiz.answers(code,round,user_id,choice) values(c,r.round,u,(payload->>'choice')::int) on conflict do nothing;
+  insert into musikquiz.answers as existing(code,round,user_id,choice,answered_at) values(c,r.round,u,(payload->>'choice')::int,now())
+   on conflict(code,round,user_id) do update set choice=excluded.choice,answered_at=excluded.answered_at where existing.choice<>excluded.choice;
  elsif action='finish' then
   update musikquiz.rooms set phase='finished' where code=c returning * into r;
  elsif action='ready' then
@@ -96,10 +99,15 @@ begin
  end if;
  if r.phase='answering' and (now()>=r.deadline or (select count(*) from musikquiz.answers where code=c and round=r.round)=(select count(*) from musikquiz.players where code=c)) then
   select * into q from musikquiz.questions where id=r.deck[r.round];
-  update musikquiz.players pl set score=pl.score+1 where pl.code=c and exists(select 1 from musikquiz.answers a where a.code=c and a.round=r.round and a.user_id=pl.user_id and a.choice=q.correct);
-  update musikquiz.rooms set phase='results' where code=c returning * into r;
+  update musikquiz.answers a set points=case when a.choice=q.correct then greatest(100,least(1000,round(1000-900*extract(epoch from (a.answered_at-(r.deadline-interval '20 seconds')))/20)::int)) else 0 end where a.code=c and a.round=r.round;
+  update musikquiz.players pl set score=pl.score+a.points from musikquiz.answers a where pl.code=c and a.code=c and a.round=r.round and a.user_id=pl.user_id;
+  update musikquiz.rooms set phase='results',results_at=clock_timestamp() where code=c returning * into r;
  end if;
- select jsonb_agg(jsonb_build_object('id',user_id,'name',name,'score',score,'avatar',avatar,'ready',ready,'host',user_id=r.host) order by score desc,joined_at) into p from musikquiz.players where code=c;
+ select jsonb_agg(jsonb_build_object('id',user_id,'name',name,'score',score,'avatar',avatar,'ready',ready,'host',user_id=r.host,'roundPoints',gain,'previousScore',score-gain,'previousRank',old_rank) order by score desc,joined_at,user_id) into p from (
+  select pl.*,case when r.phase='results' then coalesce(a.points,0) else 0 end as gain,
+   row_number() over(order by pl.score-case when r.phase='results' then coalesce(a.points,0) else 0 end desc,pl.joined_at,pl.user_id) as old_rank
+  from musikquiz.players pl left join musikquiz.answers a on a.code=pl.code and a.user_id=pl.user_id and a.round=r.round where pl.code=c
+ ) ranked;
  select choice into own_choice from musikquiz.answers where code=c and round=r.round and user_id=u;
  if r.phase in ('reading','answering','results') then
   select * into q from musikquiz.questions where id=r.deck[r.round];
@@ -107,7 +115,7 @@ begin
   if r.phase in ('answering','results') then out_question:=out_question||jsonb_build_object('options',q.options); end if;
   if r.phase='results' then out_question:=out_question||jsonb_build_object('correct',q.correct); end if;
  end if;
- return jsonb_build_object('code',c,'phase',r.phase,'round',r.round,'total',array_length(r.deck,1),'host',r.host=u,'me',u,'players',p,'startsAt',r.starts_at,'deadline',r.deadline,'serverTime',clock_timestamp(),'question',out_question,'choice',own_choice,'answered',(select count(*) from musikquiz.answers where code=c and round=r.round));
+ return jsonb_build_object('code',c,'phase',r.phase,'round',r.round,'total',array_length(r.deck,1),'host',r.host=u,'me',u,'players',p,'startsAt',r.starts_at,'deadline',r.deadline,'serverTime',clock_timestamp(),'resultsAt',r.results_at,'scoringVersion',2,'question',out_question,'choice',own_choice,'answered',(select count(*) from musikquiz.answers where code=c and round=r.round));
 end $$;
 revoke all on function musikquiz.api(text,jsonb) from public,anon,authenticated;
 grant execute on function musikquiz.api(text,jsonb) to authenticated;
