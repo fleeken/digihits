@@ -8,7 +8,7 @@ Ett separat familjespel i Digihits-repot, utan kontoinloggning. Varje spelare an
 - Grön ”Redo” och röd ”Ej redo” i lobbyn. Alla gäster måste vara redo före start.
 - Fem sekunders nedräkning vid matchstart; tre sekunder före varje fråga. Nedräkningen täcker hela skärmen.
 - Svaren visas först när värdens uppläsning har avslutats. Om telefonens röst inte fungerar kan värden läsa högt och bekräfta att frågan är uppläst.
-- Helskärmstopplista efter varje fråga; poängen räknas upp och spelarna animeras till sina nya placeringar. Tre sekunders animation följs av fem sekunders visning, sedan visas frågan med rätt svar.
+- Helskärmstopplista efter varje fråga; poängen räknas upp och spelarna animeras till sina nya placeringar. Sex sekunders animation följs av fem sekunders visning, sedan visas frågan med rätt svar.
 
 ## Aktivera själv i Supabase
 
@@ -54,6 +54,6 @@ Kör själv [update-v1.4.sql](./update-v1.4.sql) i samma projekts SQL Editor. De
 
 Man kan ändra svar fram tills alla har svarat eller de 20 sekunderna går ut, vilket som inträffar först. Servern använder det senaste valda svaret och tiden då man bytte till det. Att trycka på samma redan valda svar ändrar inte tiden. Rätt svar ger `max(100, min(1000, round(1000 - 900 × sekunder / 20)))` poäng; fel eller inget svar ger 0. Poängen delas ut en gång när omgången stängs.
 
-Topplistan täcker hela skärmen. Poängen räknas upp under 1,8 sekunder och placeringarna flyttas under nästa 1,2 sekunder. Därefter visas den i fem sekunder. Tidslinjen styrs av serverns resultattid så att omladdning eller en sen nätverksuppdatering inte startar om presentationen. Sedan visas föregående fråga med rätt svar och kontroller för nästa omgång/avslutning. Nästa omgång kan inte starta innan presentationen är klar. Vid reducerad rörelse visas slutvärden direkt med samma synkroniserade visningstid.
+Topplistan täcker hela skärmen. Poängen räknas upp från föregående totalpoäng under 4,5 sekunder och placeringarna flyttas under nästa 1,5 sekunder. Därefter visas den i fem sekunder. Tidslinjen styrs av serverns resultattid så att omladdning eller en sen nätverksuppdatering inte startar om presentationen. Sedan visas föregående fråga med rätt svar och kontroller för nästa omgång/avslutning. Nästa omgång kan inte starta innan presentationen är klar. Vid reducerad rörelse visas slutvärden direkt med samma synkroniserade visningstid.
 
 Befintlig uppläsningsröst används fortsatt. Inga röstval, externa rösttjänster eller nya kostnader tillkommer.

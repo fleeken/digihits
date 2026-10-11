@@ -11,7 +11,7 @@
  let session=readStore('musikquiz-session-v1'), room=readStore('musikquiz-room-v1'), state=null, busy=false, pollBusy=false, offset=0, signature='',spoken='', voiceError=false, voiceActive=false, previousRanks=[],errorTimer,toastTimer;
  let authPromise=null,actionRevision=0;
  let boardKey='',boardFrame=0,boardRows=[];
- const BOARD_ANIMATION_MS=3000,BOARD_HOLD_MS=5000;
+ const BOARD_COUNT_MS=4500,BOARD_MOVE_MS=1500,BOARD_ANIMATION_MS=BOARD_COUNT_MS+BOARD_MOVE_MS,BOARD_HOLD_MS=5000;
  let pendingCode=new URLSearchParams(location.search).get('code')?.replace(/\D/g,'').slice(0,6)||'';
  function error(e){$('error').textContent=e.message||String(e);$('error').hidden=false;clearTimeout(errorTimer);errorTimer=setTimeout(()=>$('error').hidden=true,6500)}
  function toast(t){$('toast').textContent=t;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,2500)}
@@ -120,9 +120,9 @@
   if(state?.phase!=='results'||!$('scoreboard-overlay'))return;
   const elapsed=resultElapsed();if(elapsed>=BOARD_ANIMATION_MS+BOARD_HOLD_MS){hideScoreboard();return}
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const countProgress=reduced?1:Math.min(1,elapsed/1800),moveProgress=reduced?1:Math.max(0,Math.min(1,(elapsed-1800)/1200));
+  const countProgress=reduced?1:Math.min(1,elapsed/BOARD_COUNT_MS),moveProgress=reduced?1:Math.max(0,Math.min(1,(elapsed-BOARD_COUNT_MS)/BOARD_MOVE_MS));
   const ease=t=>1-Math.pow(1-t,3);
-  boardRows.forEach(({row,p,i,number,rank})=>{const before=p.previousScore??p.score,oldIndex=(p.previousRank??i+1)-1;number.textContent=Math.round(before+(p.score-before)*ease(countProgress)).toLocaleString('sv-SE');row.style.transform=`translateY(${(oldIndex-i)*84*(1-ease(moveProgress))}px)`;row.style.zIndex=oldIndex>i?'2':'1';rank.textContent=moveProgress<.5?oldIndex+1:i+1;row.classList.toggle('moving',oldIndex!==i&&moveProgress<1)});
+  boardRows.forEach(({row,p,i,number,rank})=>{const before=p.previousScore??p.score,oldIndex=(p.previousRank??i+1)-1;number.textContent=Math.round(before+(p.score-before)*countProgress).toLocaleString('sv-SE');row.style.transform=`translateY(${(oldIndex-i)*84*(1-ease(moveProgress))}px)`;row.style.zIndex=oldIndex>i?'2':'1';rank.textContent=moveProgress<.5?oldIndex+1:i+1;row.classList.toggle('moving',oldIndex!==i&&moveProgress<1)});
   const status=$('scoreboard-status');const text=elapsed<BOARD_ANIMATION_MS?'Poäng och placeringar uppdateras…':'Rätt svar visas om '+Math.ceil((BOARD_ANIMATION_MS+BOARD_HOLD_MS-elapsed)/1000)+' s';if(status.textContent!==text)status.textContent=text;
   if(elapsed<BOARD_ANIMATION_MS)boardFrame=requestAnimationFrame(drawScoreboard);
  }
