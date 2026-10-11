@@ -1,0 +1,1 @@
+{"private":true,"scripts":{"test":"cd ../.. && node musikquiz/tests/db-test.cjs && node musikquiz/tests/dom-test.cjs"},"dependencies":{"@electric-sql/pglite":"0.3.14","jsdom":"26.1.0"}}
