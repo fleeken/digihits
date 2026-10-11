@@ -57,3 +57,7 @@ Man kan ändra svar fram tills alla har svarat eller de 20 sekunderna går ut, v
 Topplistan täcker hela skärmen. Poängen räknas upp från föregående totalpoäng under 4,5 sekunder och placeringarna flyttas under nästa 1,5 sekunder. Därefter visas den i fem sekunder. Tidslinjen styrs av serverns resultattid så att omladdning eller en sen nätverksuppdatering inte startar om presentationen. Sedan visas föregående fråga med rätt svar och kontroller för nästa omgång/avslutning. Nästa omgång kan inte starta innan presentationen är klar. Vid reducerad rörelse visas slutvärden direkt med samma synkroniserade visningstid.
 
 Befintlig uppläsningsröst används fortsatt. Inga röstval, externa rösttjänster eller nya kostnader tillkommer.
+
+## Spela igen (v1.4.4)
+
+Kör update-v1.4.4.sql efter v1.4. Värdens Spela igen skickar alla anslutna spelare till samma lobby med samma namn och avatarer, noll poäng och tio nya frågor. Matchkoden behålls så att alla telefoner följer med. Gäster markerar sig redo igen. Till startsidan lämnar bara den egna telefonens matchvy.

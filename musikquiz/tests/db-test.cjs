@@ -13,4 +13,17 @@ await db.query("update musikquiz.answers a set answered_at=r.deadline-interval '
 s=await api(host,'state');assert.equal(s.players.find(p=>p.id===guest).score,910);
 await db.exec(fs.readFileSync('musikquiz/update-v1.4.sql','utf8'));assert.equal((await api(host,'state')).players.find(p=>p.id===guest).score,910);
 await db.query("update musikquiz.rooms set results_at=now()-interval '9 seconds' where code=$1",[code]);await api(host,'round');await db.query("update musikquiz.rooms set starts_at=now()-interval '1 second' where code=$1",[code]);await api(host,'state');await api(host,'heard');await db.query("update musikquiz.rooms set deadline=now()-interval '1 second' where code=$1",[code]);await assert.rejects(api(host,'answer',{choice:0}),/Svarstiden/);s=await api(host,'state');assert.equal(s.phase,'results');assert.equal(s.players.find(p=>p.id===guest).score,910);assert(s.players.every(p=>p.roundPoints===0));await assert.rejects(api(host,'leave'),/Värden/);assert.equal((await api(guest,'leave')).left,true);await assert.rejects(api(guest,'state'),/inte med/);assert.equal((await api(host,'finish')).phase,'finished');
+await db.exec(fs.readFileSync('musikquiz/update-v1.4.4.sql','utf8'));
+const oldDeck=(await db.query('select deck from musikquiz.rooms where code=$1',[code])).rows[0].deck;
+const beforeReplay=(await api(host,'state')).players.map(p=>({id:p.id,name:p.name,avatar:p.avatar}));
+await assert.rejects(api(third,'restart'),/Bara värden/);
+s=await api(host,'restart');assert.equal(s.phase,'lobby');assert.equal(s.round,0);assert.equal(s.code,code);
+assert(s.players.every(p=>p.score===0));assert.equal(s.players.find(p=>p.id===third).ready,false);
+assert.deepEqual(s.players.map(p=>({id:p.id,name:p.name,avatar:p.avatar})),beforeReplay);
+assert.equal((await db.query('select count(*)::int as n from musikquiz.answers where code=$1',[code])).rows[0].n,0);
+const newDeck=(await db.query('select deck from musikquiz.rooms where code=$1',[code])).rows[0].deck;
+assert.equal(newDeck.length,10);assert(newDeck.every(id=>!oldDeck.includes(id)));
+assert.equal((await api(third,'state')).phase,'lobby');await assert.rejects(api(host,'restart'),/Avsluta matchen/);
+await db.exec(fs.readFileSync('musikquiz/update-v1.4.4.sql','utf8'));assert.equal((await api(host,'state')).phase,'lobby');
+
 await db.exec('set role authenticated');await assert.rejects(db.query('select * from musikquiz.questions'),/permission denied/);await db.exec('reset role');await db.exec('set role anon');await assert.rejects(api(host,'state'),/permission denied/);await db.exec('reset role');console.log('PASS: identity/permissions/readiness, answer changes, repeated selection timestamp, last selection timing, early all-answered finish, 910/550/0 speed scores, no double scoring, previous ranks, 8-second presentation gate, timeout, cumulative safe update and exits');await db.close()})().catch(e=>{console.error(e);process.exit(1)});

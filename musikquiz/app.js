@@ -56,7 +56,7 @@
   }
   return {...s,resultsAt:baseline.startedAt,players:s.players.map((p,i)=>{const before=baseline.players.find(x=>x.id===p.id);return {...p,previousScore:p.previousScore??before?.score??p.score,previousRank:p.previousRank??before?.rank??i+1,roundPoints:p.roundPoints??Math.max(0,p.score-(before?.score??p.score))}})};
  }
- function receive(s){if(!s?.code)throw new Error('Matchen kunde inte läsas.');offset=new Date(s.serverTime).getTime()-Date.now();const old=state;s=prepareResults(s,old);if(old?.phase!=='results'&&s.phase==='results')previousRanks=(old?.players||s.players).map(p=>p.id);state=s;room={code:s.code};save('musikquiz-room-v1',room);const sig=JSON.stringify({...s,serverTime:undefined});if(sig!==signature){signature=sig;render(old)}tick();if(s.host&&s.phase==='reading'&&spoken!==s.code+':'+s.round){spoken=s.code+':'+s.round;readQuestion()}}
+ function receive(s){if(!s?.code)throw new Error('Matchen kunde inte läsas.');offset=new Date(s.serverTime).getTime()-Date.now();const old=state;s=prepareResults(s,old);if(old?.phase!=='results'&&s.phase==='results')previousRanks=(old?.players||s.players).map(p=>p.id);if(s.phase==='lobby'&&old?.phase==='finished'){spoken='';save('musikquiz-result-fallback-v1',null)}state=s;room={code:s.code};save('musikquiz-room-v1',room);const sig=JSON.stringify({...s,serverTime:undefined});if(sig!==signature){signature=sig;render(old)}tick();if(s.host&&s.phase==='reading'&&spoken!==s.code+':'+s.round){spoken=s.code+':'+s.round;readQuestion()}}
  function players(list,board=false){return `<ol class="players ${board?'leaderboard':''}">${list.map((p,i)=>`<li class="player" ${board?`data-player="${esc(p.id)}"`:''}>${board?`<span class="rank">${i+1}</span>`:''}<span class="avatar">${avatars[p.avatar]||'🎵'}</span><span class="player-name">${esc(p.name)}${p.id===state.me?' <span class="muted small">(du)</span>':''}${p.host?'<br><span class="host-tag">VÄRD</span>':''}</span>${board?`<span class="score">${p.score}<small> p</small></span>`:`<span class="ready-tag ${p.ready?'is-ready':''}">${p.ready?'✓ Redo':'Ej redo'}</span>`}</li>`).join('')}</ol>`}
  function hostButton(action,label,blocked=false){return state.host?`<button class="primary button-gap" data-action="${action}" data-busy ${blocked?'disabled data-blocked="true"':''}>${label}</button>`:''}
  function waiting(t){return `<div class="waiting"><span class="pulse"></span>${t}</div>`}
@@ -71,14 +71,14 @@
  }body+='</div>';
  if(s.phase==='results')body+=`<div class="round-controls">${hostButton('round',s.round===s.total?'Visa slutresultat':'Starta omgång '+(s.round+1))}${s.host?'':waiting('Väntar på nästa omgång…')}</div>`;
  body+='</div>';
- }else if(s.phase==='finished'){const max=s.players[0]?.score||0;const winners=s.players.filter(p=>p.score===max).map(p=>p.name);body=`<div class="card narrow center"><div class="podium" aria-hidden="true">🏆</div><div class="eyebrow" style="justify-content:center">Slutresultat</div><h2 class="finish-heading">${esc(winners.join(' & '))}</h2><p class="muted">${winners.length>1?'Delad seger':'Vinnare'} med ${max} poäng. Bra spelat, allihop!</p>${players(s.players,true)}<button class="primary button-gap" id="new">Spela igen</button><button class="primary button-gap" id="home">Till startsidan</button></div>`}
+ }else if(s.phase==='finished'){const max=s.players[0]?.score||0;const winners=s.players.filter(p=>p.score===max).map(p=>p.name);body=`<div class="card narrow center"><div class="podium" aria-hidden="true">🏆</div><div class="eyebrow" style="justify-content:center">Slutresultat</div><h2 class="finish-heading">${esc(winners.join(' & '))}</h2><p class="muted">${winners.length>1?'Delad seger':'Vinnare'} med ${max} poäng. Bra spelat, allihop!</p>${players(s.players,true)}${s.host?'<button class="primary button-gap" id="new" data-busy>Spela igen</button>':waiting('Väntar på att värden startar en ny match…')}<button class="primary button-gap" id="home">Till startsidan</button></div>`}
  if(['lobby','ready','results'].includes(s.phase))body+=`<div class="exit-actions"><button class="danger" id="leave" data-busy>${s.host?'Avsluta match':'Lämna match'}</button></div>`;
  app.innerHTML=head+body;
  document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>{unlockVoice();perform(b.dataset.action)});
  document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>perform('answer',{choice:Number(b.dataset.choice)}));
  if($('read'))$('read').onclick=()=>readQuestion();if($('heard'))$('heard').onclick=()=>{speechSynthesisSafeCancel();perform('heard')};
  if($('ready'))$('ready').onclick=()=>perform('ready',{ready:!s.players.find(p=>p.id===s.me).ready});
- if($('new'))$('new').onclick=reset;
+ if($('new'))$('new').onclick=()=>perform('restart');
  if($('home'))$('home').onclick=reset;
  if($('leave'))$('leave').onclick=confirmExit;
  if($('share')){$('share').onclick=share;const qr=qrcode(0,'M');qr.addData(joinLink());qr.make();$('qr').innerHTML=qr.createSvgTag({cellSize:4,margin:0,scalable:true})}

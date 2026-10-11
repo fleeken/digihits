@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "test": "cd ../.. && node musikquiz/tests/poll-race-test.cjs && node musikquiz/tests/db-test.cjs && node musikquiz/tests/dom-test.cjs && node musikquiz/tests/link-test.cjs && node musikquiz/tests/scoreboard-test.cjs"
+    "test": "cd ../.. && node musikquiz/tests/replay-test.cjs && node musikquiz/tests/poll-race-test.cjs && node musikquiz/tests/db-test.cjs && node musikquiz/tests/dom-test.cjs && node musikquiz/tests/link-test.cjs && node musikquiz/tests/scoreboard-test.cjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.3.14",

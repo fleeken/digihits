@@ -59,7 +59,7 @@ begin
  elsif r.phase='round_countdown' and now()>=r.starts_at then
   update musikquiz.rooms set phase='reading' where code=c returning * into r;
  end if;
- if action in ('start','round','heard','finish') and r.host<>u then raise exception 'Bara värden kan göra det.'; end if;
+ if action in ('start','round','heard','finish','restart') and r.host<>u then raise exception 'Bara värden kan göra det.'; end if;
  if action='start' then
   if r.phase<>'lobby' then raise exception 'Matchen har redan startat.'; end if;
   if (select count(*) from musikquiz.players where code=c)<2 then raise exception 'Vänta tills minst en gäst har anslutit.'; end if;
@@ -73,6 +73,16 @@ begin
   else
    update musikquiz.rooms set round=round+1,phase='round_countdown',starts_at=now()+interval '3 seconds',deadline=null,results_at=null where code=c returning * into r;
   end if;
+ elsif action='restart' then
+  if r.phase<>'finished' then raise exception 'Avsluta matchen innan ni spelar igen.'; end if;
+  select array_agg(id) into d from (select id from musikquiz.questions where not (id=any(r.deck)) order by random() limit 10) t;
+  if coalesce(array_length(d,1),0)<10 then
+   select array_agg(id) into d from (select id from musikquiz.questions order by random() limit 10) t;
+  end if;
+  if coalesce(array_length(d,1),0)<10 then raise exception 'Frågorna är inte redo ännu.'; end if;
+  delete from musikquiz.answers where code=c;
+  update musikquiz.players set score=0,ready=(user_id=r.host) where code=c;
+  update musikquiz.rooms set phase='lobby',round=0,deck=d,starts_at=null,deadline=null,results_at=null,expires_at=now()+interval '24 hours' where code=c returning * into r;
  elsif action='heard' then
   if r.phase='reading' then update musikquiz.rooms set phase='answering',deadline=now()+interval '20 seconds' where code=c returning * into r; end if;
  elsif action='answer' then
