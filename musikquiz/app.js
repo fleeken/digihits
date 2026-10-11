@@ -44,7 +44,19 @@
  }
  function unlockVoice(){if(!('speechSynthesis'in window))return;try{const u=new SpeechSynthesisUtterance('');u.lang='sv-SE';speechSynthesis.speak(u)}catch{}}
  function speechSynthesisSafeCancel(){if('speechSynthesis'in window)speechSynthesis.cancel();voiceActive=false}
- function receive(s){if(!s?.code)throw new Error('Matchen kunde inte läsas.');offset=new Date(s.serverTime).getTime()-Date.now();const old=state;if(old?.phase!=='results'&&s.phase==='results')previousRanks=(old?.players||s.players).map(p=>p.id);state=s;room={code:s.code};save('musikquiz-room-v1',room);const sig=JSON.stringify({...s,serverTime:undefined});if(sig!==signature){signature=sig;render(old)}tick();if(s.host&&s.phase==='reading'&&spoken!==s.code+':'+s.round){spoken=s.code+':'+s.round;readQuestion()}}
+ function prepareResults(s,old){
+  if(s.phase!=='results'||Number.isFinite(Date.parse(s.resultsAt)))return s;
+  const key=s.code+':'+s.round,cached=readStore('musikquiz-result-fallback-v1');
+  let baseline;
+  if(cached?.key===key&&Number.isFinite(Date.parse(cached.startedAt))){baseline=cached}
+  else{
+   const previous=old?.code===s.code&&old.phase!=='results'?old.players:s.players;
+   baseline={key,startedAt:Number.isFinite(Date.parse(s.serverTime))?s.serverTime:new Date().toISOString(),players:previous.map((p,i)=>({id:p.id,score:p.score,rank:i+1}))};
+   save('musikquiz-result-fallback-v1',baseline);
+  }
+  return {...s,resultsAt:baseline.startedAt,players:s.players.map((p,i)=>{const before=baseline.players.find(x=>x.id===p.id);return {...p,previousScore:p.previousScore??before?.score??p.score,previousRank:p.previousRank??before?.rank??i+1,roundPoints:p.roundPoints??Math.max(0,p.score-(before?.score??p.score))}})};
+ }
+ function receive(s){if(!s?.code)throw new Error('Matchen kunde inte läsas.');offset=new Date(s.serverTime).getTime()-Date.now();const old=state;s=prepareResults(s,old);if(old?.phase!=='results'&&s.phase==='results')previousRanks=(old?.players||s.players).map(p=>p.id);state=s;room={code:s.code};save('musikquiz-room-v1',room);const sig=JSON.stringify({...s,serverTime:undefined});if(sig!==signature){signature=sig;render(old)}tick();if(s.host&&s.phase==='reading'&&spoken!==s.code+':'+s.round){spoken=s.code+':'+s.round;readQuestion()}}
  function players(list,board=false){return `<ol class="players ${board?'leaderboard':''}">${list.map((p,i)=>`<li class="player" ${board?`data-player="${esc(p.id)}"`:''}>${board?`<span class="rank">${i+1}</span>`:''}<span class="avatar">${avatars[p.avatar]||'🎵'}</span><span class="player-name">${esc(p.name)}${p.id===state.me?' <span class="muted small">(du)</span>':''}${p.host?'<br><span class="host-tag">VÄRD</span>':''}</span>${board?`<span class="score">${p.score}<small> p</small></span>`:`<span class="ready-tag ${p.ready?'is-ready':''}">${p.ready?'✓ Redo':'Ej redo'}</span>`}</li>`).join('')}</ol>`}
  function hostButton(action,label,blocked=false){return state.host?`<button class="primary button-gap" data-action="${action}" data-busy ${blocked?'disabled data-blocked="true"':''}>${label}</button>`:''}
  function waiting(t){return `<div class="waiting"><span class="pulse"></span>${t}</div>`}
