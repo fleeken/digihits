@@ -42,13 +42,14 @@
  }body+='</div>';
  if(s.phase==='results')body+=`<div class="card board-card"><div class="eyebrow">Efter fråga ${s.round}</div><h2 class="page-title">Topplistan</h2>${players(s.players,true)}${hostButton('round',s.round===s.total?'Visa slutresultat':'Starta omgång '+(s.round+1))}${s.host?'':waiting('Väntar på nästa omgång…')}</div>`;
  body+='</div>';
- }else if(s.phase==='finished'){const max=s.players[0]?.score||0;const winners=s.players.filter(p=>p.score===max).map(p=>p.name);body=`<div class="card narrow center"><div class="podium" aria-hidden="true">🏆</div><div class="eyebrow" style="justify-content:center">Slutresultat</div><h2 class="finish-heading">${esc(winners.join(' & '))}</h2><p class="muted">${winners.length>1?'Delad seger':'Vinnare'} med ${max} poäng. Bra spelat, allihop!</p>${players(s.players,true)}<button class="primary button-gap" id="new">Till startsidan</button></div>`}
+ }else if(s.phase==='finished'){const max=s.players[0]?.score||0;const winners=s.players.filter(p=>p.score===max).map(p=>p.name);body=`<div class="card narrow center"><div class="podium" aria-hidden="true">🏆</div><div class="eyebrow" style="justify-content:center">Slutresultat</div><h2 class="finish-heading">${esc(winners.join(' & '))}</h2><p class="muted">${winners.length>1?'Delad seger':'Vinnare'} med ${max} poäng. Bra spelat, allihop!</p>${players(s.players,true)}<button class="primary button-gap" id="new">Spela igen</button><button class="primary button-gap" id="home">Till startsidan</button></div>`}
  app.innerHTML=head+body;
  document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>{unlockVoice();perform(b.dataset.action)});
  document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>perform('answer',{choice:Number(b.dataset.choice)}));
  if($('read'))$('read').onclick=()=>readQuestion();if($('heard'))$('heard').onclick=()=>{speechSynthesisSafeCancel();perform('heard')};
  if($('ready'))$('ready').onclick=()=>perform('ready',{ready:!s.players.find(p=>p.id===s.me).ready});
  if($('new'))$('new').onclick=reset;
+ if($('home'))$('home').onclick=reset;
  if($('leave'))$('leave').onclick=()=>{if(s.host){perform('finish')}else perform('leave')};
  if($('share')){$('share').onclick=share;const qr=qrcode(0,'M');qr.addData(joinLink());qr.make();$('qr').innerHTML=qr.createSvgTag({cellSize:4,margin:0,scalable:true})}
  if(s.phase==='results'&&old?.phase!=='results'){document.querySelector('.board-card')?.scrollIntoView({behavior:'instant',block:'start'});animateRanks();}
