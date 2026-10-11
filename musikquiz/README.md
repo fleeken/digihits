@@ -40,3 +40,9 @@ Lokala tester körs med `npm --prefix musikquiz/tests ci` följt av `npm --prefi
 Öppna [update-v1.2.sql](./update-v1.2.sql), kopiera hela filen via **Raw** och kör den själv i samma Supabase-projekts SQL Editor. Kör inte `setup.sql` igen. Uppdateringen gör att gäster kan lämna i lobbyn och mellan frågorna. Skriptet ersätter bara Musikquiz-funktionen och raderar inga befintliga matcher eller poäng. När en gäst därefter väljer att lämna tas gästens deltagande bort från den matchen.
 
 Värden har en röd **Avsluta match**-knapp längst ner och gästerna en röd **Lämna match**-knapp. Båda visar **Är du säker?** med **Ja** och **Nej** innan någon åtgärd utförs. Värdens avslutning fungerar även före databasuppdateringen; gäster behöver uppdateringen för att kunna lämna mellan frågorna.
+
+## Uppdatera till v1.3: namn och avatar i ett eget steg
+
+Startsidan visar **Skapa match**, ett fält för sex siffror och **Gå med i match**. Nästa steg är namn och avatar, följt av gröna **Spela!**. Matchkoden kontrolleras innan gästen får fylla i sin profil; deltagandet skapas först när gästen trycker på Spela. QR-kod och inbjudningslänk öppnar profilsteget direkt efter kodkontrollen. En befintlig medlem återgår till sin match med sin låsta identitet.
+
+Kör själv [update-v1.3.sql](./update-v1.3.sql) i samma projekts SQL Editor för att aktivera kodkontrollen. Den inkluderar även ändringen från v1.2, så det räcker att köra v1.3 om v1.2 inte redan installerats. Kör inte om `setup.sql`. Uppdateringen ersätter bara Musikquiz-funktionen; inga befintliga matcher, spelare eller poäng raderas.

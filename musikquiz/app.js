@@ -19,11 +19,26 @@
  async function perform(action,payload={}){if(busy)return;busy=true;setDisabled(true);try{const next=await rpc(action,{code:room?.code,...payload});if(next.left){reset();return}receive(next);$('error').hidden=true}catch(e){error(e)}finally{busy=false;setDisabled(false)}}
  function setDisabled(v){document.querySelectorAll('[data-busy]').forEach(b=>b.disabled=v||b.dataset.blocked==='true')}
  function reset(){speechSynthesisSafeCancel();room=null;state=null;pendingCode='';signature='';spoken='';save('musikquiz-room-v1',null);$('countdown').hidden=true;home();history.replaceState(null,'',location.pathname)}
- function home(){app.innerHTML=`<section class="home"><div><div class="eyebrow">Låt musiken föra er samman</div><h1>Vem kan<br>mest om <em>musik?</em></h1><p class="lead">Samla familjen. Anslut med varsin mobil och utmana varandra i ett quiz genom musikens årtionden.</p><div class="chips"><span class="chip">10 frågor</span><span class="chip">2–20 spelare</span><span class="chip">Inga konton behövs</span></div><div class="notes" aria-hidden="true"><span>♫</span><span>♪</span><span>♬</span></div></div><div class="card"><h2>Dags att spela.</h2><p class="muted small">En skapar matchen. Alla andra ansluter.</p><label class="label" for="name">Vad heter du?</label><input id="name" maxlength="18" placeholder="Ditt spelarnamn" autocomplete="nickname" value="${esc(readStore('musikquiz-name')||'')}"><label class="label">Välj din avatar</label><div class="avatar-picker" role="group" aria-label="Välj avatar">${avatars.map((a,i)=>`<button type="button" class="avatar-option ${selectedAvatar===i?'chosen':''}" data-avatar="${i}" aria-label="Avatar ${i+1}" aria-pressed="${selectedAvatar===i}">${a}</button>`).join('')}</div><p class="small muted">Namn och avatar låses när du går med.</p><button class="primary button-gap" id="create" data-busy>Skapa match <span aria-hidden="true">↗</span></button><div class="divider">eller gå med</div><label class="label" for="code">Matchkod</label><input class="code-input" id="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" placeholder="000000" value="${esc(pendingCode)}"><button class="primary button-gap" id="join" data-busy>Gå med i match</button>${room?'<button id="restore" class="secondary session-restore" data-busy>Återgå till match '+esc(room.code)+'</button>':''}<p class="help">Värdens mobil läser upp frågorna. Spela tillsammans i samma rum och slå på ljudet på värdens telefon.</p></div></section>`;
- document.querySelectorAll('[data-avatar]').forEach(b=>b.onclick=()=>{selectedAvatar=Number(b.dataset.avatar);try{localStorage.setItem('musikquiz-avatar',selectedAvatar)}catch{}document.querySelectorAll('[data-avatar]').forEach(n=>{const chosen=Number(n.dataset.avatar)===selectedAvatar;n.classList.toggle('chosen',chosen);n.setAttribute('aria-pressed',chosen)})});
- $('code').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,''));
- const enter=action=>{const name=$('name').value.trim(),code=$('code').value;if(!name){error(new Error('Skriv ditt spelarnamn först.'));$('name').focus();return}if(action==='join'&&!/^\d{6}$/.test(code)){error(new Error('Skriv matchkodens sex siffror.'));$('code').focus();return}save('musikquiz-name',name);unlockVoice();perform(action,{name,code,avatar:selectedAvatar})};
- $('create').onclick=()=>enter('create');$('join').onclick=()=>enter('join');$('code').onkeydown=e=>{if(e.key==='Enter')enter('join')};if($('restore'))$('restore').onclick=()=>perform('state');
+ function home(){
+  app.innerHTML=`<section class="entry-home card narrow"><button class="primary" id="create" data-busy>Skapa match</button><div class="divider">eller gå med</div><label class="label" for="code">Matchkod · 6 siffror</label><input class="code-input" id="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" placeholder="000000" value="${esc(pendingCode)}"><button class="primary button-gap" id="join" data-busy>Gå med i match</button></section>`;
+  $('code').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,''));
+  $('create').onclick=()=>{if(!busy)profileStep('create')};
+  $('join').onclick=checkCode;$('code').onkeydown=e=>{if(e.key==='Enter')checkCode()};
+ }
+ async function checkCode(){
+  if(busy)return;const code=$('code').value;
+  if(!/^\d{6}$/.test(code)){error(new Error('Skriv matchkodens sex siffror.'));$('code').focus();return}
+  busy=true;setDisabled(true);
+  try{const checked=await rpc('check',{code});if(!checked.canJoin)throw new Error('Matchen går inte att ansluta till.');pendingCode=code;$('error').hidden=true;
+   if(checked.member){receive(await rpc('state',{code}))}else{profileStep('join',code)}
+  }catch(e){error(e)}finally{busy=false;setDisabled(false)}
+ }
+ function profileStep(action,code=''){
+  $('error').hidden=true;
+  app.innerHTML=`<section class="card narrow"><h2 class="page-title">Vem spelar?</h2><p class="muted">${action==='create'?'Du blir värd för en ny match.':'Matchkod: '+esc(code)}</p><label class="label" for="name">Ditt namn</label><input id="name" maxlength="18" placeholder="Ditt spelarnamn" autocomplete="nickname" value="${esc(readStore('musikquiz-name')||'')}"><label class="label">Välj din avatar</label><div class="avatar-picker" role="group" aria-label="Välj avatar">${avatars.map((a,i)=>`<button type="button" class="avatar-option ${selectedAvatar===i?'chosen':''}" data-avatar="${i}" aria-label="Avatar ${i+1}" aria-pressed="${selectedAvatar===i}">${a}</button>`).join('')}</div><p class="small muted">Namn och avatar låses när du går med.</p><button class="primary button-gap" id="play" data-busy>Spela!</button><button class="text-button" id="back" data-busy>Tillbaka</button></section>`;
+  document.querySelectorAll('[data-avatar]').forEach(b=>b.onclick=()=>{selectedAvatar=Number(b.dataset.avatar);try{localStorage.setItem('musikquiz-avatar',selectedAvatar)}catch{}document.querySelectorAll('[data-avatar]').forEach(n=>{const chosen=Number(n.dataset.avatar)===selectedAvatar;n.classList.toggle('chosen',chosen);n.setAttribute('aria-pressed',chosen)})});
+  const play=()=>{if(busy)return;const name=$('name').value.trim();if(!name){error(new Error('Skriv ditt spelarnamn först.'));$('name').focus();return}save('musikquiz-name',name);unlockVoice();perform(action,{name,code,avatar:selectedAvatar})};
+  $('play').onclick=play;$('name').onkeydown=e=>{if(e.key==='Enter')play()};$('back').onclick=()=>{if(!busy)home()};
  }
  function unlockVoice(){if(!('speechSynthesis'in window))return;try{const u=new SpeechSynthesisUtterance('');u.lang='sv-SE';speechSynthesis.speak(u)}catch{}}
  function speechSynthesisSafeCancel(){if('speechSynthesis'in window)speechSynthesis.cancel();voiceActive=false}
@@ -76,5 +91,5 @@
  async function poll(){if(!room||!state||pollBusy||busy||document.hidden)return;pollBusy=true;const activeRoom=room;try{const next=await rpc('state',{code:activeRoom.code});if(room!==activeRoom)return;receive(next);const net=$('connection');if(net)net.remove()}catch(e){if(e.status===400||e.status===403){error(e);reset()}else if(!$('connection')){const n=document.createElement('p');n.id='connection';n.className='center muted small';n.textContent='Återansluter till matchen…';app.append(n)}}finally{pollBusy=false}}
  document.addEventListener('visibilitychange',()=>{if(!document.hidden){poll();tick()}});
  window.addEventListener('online',poll);setInterval(poll,900);setInterval(tick,100);home();
- if(room&&!pendingCode)perform('state');
+ if(pendingCode)checkCode();else if(room)perform('state');
 })();

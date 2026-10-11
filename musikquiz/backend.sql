@@ -38,6 +38,12 @@ begin
  if c is null or c !~ '^[0-9]{6}$' then raise exception 'Matchkoden ska vara sex siffror.'; end if;
  select * into r from musikquiz.rooms where code=c for update;
  if not found or r.expires_at<now() then raise exception 'Matchen finns inte eller har gått ut.'; end if;
+ if action='check' then
+  if exists(select 1 from musikquiz.players where code=c and user_id=u) then return jsonb_build_object('code',c,'canJoin',true,'member',true); end if;
+  if r.phase<>'lobby' then raise exception 'Matchen har redan startat.'; end if;
+  if (select count(*) from musikquiz.players where code=c)>=20 then raise exception 'Matchen är full (20 spelare).'; end if;
+  return jsonb_build_object('code',c,'canJoin',true,'member',false);
+ end if;
  if action='join' and not exists(select 1 from musikquiz.players where code=c and user_id=u) then
   if r.phase<>'lobby' then raise exception 'Matchen har redan startat.'; end if;
   if n is null or length(n) not between 1 and 18 then raise exception 'Skriv ett namn med 1–18 tecken.'; end if;
