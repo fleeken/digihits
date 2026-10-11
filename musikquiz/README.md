@@ -34,3 +34,9 @@ Statisk HTML/CSS/JavaScript. Klienten använder bara Supabase publishable key oc
 QR-biblioteket är vendrat från `qrcode-generator` version 1.4.4, Copyright Kazuhiko Arase, MIT License. Ingen QR-tjänst får dina matchlänkar.
 
 Lokala tester körs med `npm --prefix musikquiz/tests ci` följt av `npm --prefix musikquiz/tests test`. Testerna använder en separat PostgreSQL-motor i minnet och två DOM-klienter. De kontaktar inte ditt Supabase-projekt. De verifierar databasbehörighet, namnkollisioner, låsta identiteter, redo-status, nedräkningar, uppläsningsgrinden, svar, poäng och topplistans omordning. Fysisk iPhone-uppläsning behöver provas på telefonen eftersom röster och automatisk uppspelning varierar mellan enheter.
+
+## Uppdatera en redan installerad app till v1.2
+
+Öppna [update-v1.2.sql](./update-v1.2.sql), kopiera hela filen via **Raw** och kör den själv i samma Supabase-projekts SQL Editor. Kör inte `setup.sql` igen. Uppdateringen gör att gäster kan lämna i lobbyn och mellan frågorna. Skriptet ersätter bara Musikquiz-funktionen och raderar inga befintliga matcher eller poäng. När en gäst därefter väljer att lämna tas gästens deltagande bort från den matchen.
+
+Värden har en röd **Avsluta match**-knapp längst ner och gästerna en röd **Lämna match**-knapp. Båda visar **Är du säker?** med **Ja** och **Nej** innan någon åtgärd utförs. Värdens avslutning fungerar även före databasuppdateringen; gäster behöver uppdateringen för att kunna lämna mellan frågorna.

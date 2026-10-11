@@ -78,7 +78,8 @@ begin
   if r.phase<>'lobby' then raise exception 'Matchen har redan startat.'; end if;
   if r.host<>u then update musikquiz.players set ready=coalesce((payload->>'ready')::boolean,false) where code=c and user_id=u; end if;
  elsif action='leave' then
-  if r.phase<>'lobby' or r.host=u then raise exception 'Du kan bara lämna lobbyn som gäst.'; end if;
+  if r.host=u then raise exception 'Värden behöver avsluta matchen.'; end if;
+  if r.phase not in ('lobby','ready','results') then raise exception 'Du kan lämna matchen mellan frågorna.'; end if;
   delete from musikquiz.players where code=c and user_id=u; return jsonb_build_object('left',true);
  elsif action not in ('state','create','join') then raise exception 'Okänd åtgärd.';
  end if;
