@@ -1,4 +1,4 @@
-const APP_VERSION = "8.53"
+const APP_VERSION = "8.54"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1573,7 +1573,7 @@ function showLatestRound(round) {
   if (!overviewButton) { overviewButton = document.createElement("button"); overviewButton.id = "wrong-overview"; overviewButton.className = "lobby-back wrong-match-button"; overviewButton.type = "button"; overviewButton.textContent = "TILL MATCHÖVERSIKT"; overviewButton.addEventListener("click", handleResultHandover); $("#result-back").after(overviewButton); }
   overviewButton.hidden = true;
   $("#change-track-area").hidden = true;
-  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => { const status = card.status || (wrong ? "OLÅST" : "LÅST"), wasUnlocked = !solo && isUnlockedStatus(status), unlocked = wrong && (wasUnlocked || status === "RÄTT PLACERAT"), displayStatus = !wrong && wasUnlocked ? "LÅST" : unlocked ? "OLÅST" : status; return `<article class="year-card ${status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(status) ? "misplaced-card" : unlocked ? "unlocked-card" : !wrong && wasUnlocked ? "round-locked-card" : status === "LÅST" ? "locked-card" : solo ? "correct-card" : "locked-card"}"${status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${card.year}</strong><small><span class="card-song">${escapeHtml(card.artist)}: ${escapeHtml(card.title)}</span><span class="card-status">${cardStatusLabel(displayStatus)}</span></small></article>`; }).join("");
+  $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => { const status = card.status || (wrong ? "OLÅST" : "LÅST"), wasUnlocked = !solo && isUnlockedStatus(status), unlocked = wrong && (wasUnlocked || status === "RÄTT PLACERAT"), displayStatus = !wrong && wasUnlocked ? "LÅST" : unlocked ? "OLÅST" : status; return `<article class="year-card ${status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(status) ? "misplaced-card" : unlocked ? "unlocked-card" : !wrong && wasUnlocked ? "round-locked-card" : status === "LÅST" ? "locked-card" : solo ? "correct-card" : "locked-card"}"${status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${card.year}</strong><small><span class="card-song">${escapeHtml(card.artist)}: ${escapeHtml(card.title)}</span><span class="card-status">${displayStatus === "STARTKORT" ? "STARTKORT" : /FEL ?PLACERAT/.test(displayStatus) ? "FEL" : isUnlockedStatus(displayStatus) ? "OLÅST" : "LÅST"}</span></small></article>`; }).join("");
   let timelinesButton = $("#latest-round-timelines");
   if (!timelinesButton) {
     timelinesButton = document.createElement("button");
