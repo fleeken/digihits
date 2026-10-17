@@ -1522,13 +1522,13 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 [data-view-panel="result"].result-latest-round #result-timeline .year-card{display:grid;grid-template-rows:auto minmax(0,1fr) auto;text-align:center}
 [data-view-panel="result"].result-latest-round #result-timeline .year-card>strong{align-self:start}
 [data-view-panel="result"].result-latest-round #result-timeline .year-card>small{display:contents}
-[data-view-panel="result"].result-latest-round #result-timeline .card-song{display:flex;align-items:center;justify-content:center;align-self:stretch;min-height:0;text-align:center;-webkit-line-clamp:unset;overflow-wrap:anywhere}
+[data-view-panel="result"].result-latest-round #result-timeline .card-song{display:flex;align-items:center;justify-content:flex-start;align-self:stretch;min-height:0;text-align:left;-webkit-line-clamp:unset;overflow-wrap:anywhere}
 [data-view-panel="result"].result-latest-round #result-timeline .card-status{display:block!important;align-self:end;margin:0;text-align:center}
 
 /* Consistent card content layout throughout the app. */
 .year-card{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto;text-align:center}
 .year-card>strong{align-self:start}
 .year-card>small{display:contents}
-.year-card .card-song{display:flex;align-items:center;justify-content:center;align-self:stretch;min-height:0;text-align:center;-webkit-line-clamp:unset;overflow-wrap:anywhere}
+.year-card .card-song{display:flex;align-items:center;justify-content:flex-start;align-self:stretch;min-height:0;text-align:left;-webkit-line-clamp:unset;overflow-wrap:anywhere}
 .year-card .card-status{display:block!important;align-self:end;margin:0;text-align:center}
 .year-card>small:not(:has(.card-song)){display:flex;align-items:center;justify-content:center;grid-row:2}
