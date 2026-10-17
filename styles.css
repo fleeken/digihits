@@ -1507,3 +1507,13 @@ button.result-countdown{width:100%;font-family:inherit;cursor:pointer}
 
 /* Match the handover button to the full-width result checks in every result layout. */
 [data-view-panel="result"] #wrong-overview{display:block;width:100%;max-width:none;box-sizing:border-box;margin-left:auto;margin-right:auto;text-align:center}
+
+/* Latest-round view omits the match code and aggregate statistics. */
+[data-view-panel="result"].result-latest-round :is(.result-match-code,#solo-result-score){display:none!important}
+
+[data-view-panel="result"].result-latest-round>.match-turn-banner,
+[data-view-panel="result"].result-latest-round :is(#result-back,.result-actions){display:none!important}
+[data-view-panel="result"].result-latest-round .result-view{padding:12px!important}
+[data-view-panel="result"].result-latest-round .result-head{margin:0 0 10px;text-align:center}
+[data-view-panel="result"].result-latest-round #result-song{margin:0;font-size:18px;line-height:1.3}
+[data-view-panel="result"].result-latest-round .result-checks{gap:8px;margin:10px 0}
