@@ -1,4 +1,4 @@
-const APP_VERSION = "8.54"
+const APP_VERSION = "8.55"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -138,7 +138,7 @@ function animationStage() {
 }
 const animationDeck = () => `<div class="card-deck"><em class="dealer-arm"><u></u></em>${Array.from({ length: 10 }, (_, index) => `<i style="--deck-index:${index}"></i>`).join("")}<b><span>♫</span>HEMLIGA LÅTKORT</b></div>`;
 const isUnlockedStatus = (status = "") => ["OLÅST", "OLÅST KORT", "LÅST DENNA OMGÅNG"].includes(status);
-const cardStatusLabel = (status = "") => isUnlockedStatus(status) ? "OLÅST KORT" : /FEL ?PLACERAT/.test(status) ? "FELPLACERAT" : status === "LÅST" ? "LÅST KORT" : status;
+const cardStatusLabel = (status = "") => status === "STARTKORT" ? "STARTKORT" : /FEL ?PLACERAT/.test(status) ? "FEL" : isUnlockedStatus(status) ? "OLÅST" : status === "RÄTT PLACERAT" || status === "LÅST" ? "LÅST" : status;
 const animationCard = (card, className = "", secret = false) => `<article class="animation-card ${className}"><span>♫</span><strong>${secret ? "????" : card?.year || "????"}</strong><small>${secret ? "HEMLIGT KORT" : `${escapeHtml(card?.artist || "Okänd artist")}: ${escapeHtml(card?.title || "Okänd låt")}`}</small></article>`;
 async function animateCardDeal(card, starter = null, beforeClose = null) {
   beforeClose?.(); return;
@@ -721,7 +721,7 @@ function completedMatchTitle(won) {
 function completedTimelineMarkup(players) {
   return players.map((player) => {
     const cards = [...(player.locked_timeline || player.timeline || [])].sort((a, b) => Number(a.year) - Number(b.year));
-    return `<article class="completed-player-timeline"><h2>${escapeHtml(player.display_name || player.name || "Spelare")} · ${Math.min(10, cards.length)}/10</h2><div class="room-live-track">${cards.map((card, index) => `<article class="year-card locked-card"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.artist)}: ${escapeHtml(card.title)}<span class="card-status">${index === 0 ? "STARTKORT" : "LÅST"}</span></small></article>`).join("")}</div></article>`;
+    return `<article class="completed-player-timeline"><h2>${escapeHtml(player.display_name || player.name || "Spelare")} · ${Math.min(10, cards.length)}/10</h2><div class="room-live-track">${cards.map((card, index) => `<article class="year-card locked-card"><strong>${escapeHtml(card.year)}</strong><small><span class="card-song">${escapeHtml(card.artist)}: ${escapeHtml(card.title)}</span><span class="card-status">${index === 0 ? "STARTKORT" : "LÅST"}</span></small></article>`).join("")}</div></article>`;
   }).join("");
 }
 function leaveCompletedResult(fromHistory = false) {
@@ -1386,8 +1386,8 @@ function renderRoomTimelines(match, players, resultPanel = null) {
     const removeAction = remoteOpponent && players.length > 2 ? `<button class="button button-leave" data-remove-match-player="${escapeHtml(player.user_id)}" data-player-name="${name}" type="button">TA BORT SPELARE FRÅN MATCH</button>` : "";
     const stage = active ? revealed ? "" : spectatorTurn ? `Just nu: ${name} ${position !== null || live?.phase === "choosing" ? "placerar kortet på tidslinjen" : "gissar artist och låtnamn"}` : position !== null ? "Placerar kortet" : live?.phase === "choosing" ? "Väljer plats för kortet" : "Gissar artist och låtnamn" : "";
     const misplaced = revealed && position !== null && played && (typeof live.correct === "boolean" ? !live.correct : ((position > 0 && Number(played.year) < Number(cards[position - 1]?.year)) || (position < cards.length && Number(played.year) > Number(cards[position]?.year))));
-    const currentCard = `<article class="year-card room-live-card ${played ? `is-revealed ${misplaced ? "misplaced-card" : "unlocked-card"}` : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `${escapeHtml(played.artist)}: ${escapeHtml(played.title)}<span class="card-status">${misplaced ? "FELPLACERAT" : "OLÅST"}</span>` : "HEMLIGT KORT"}</small></article>`;
-    const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small>${escapeHtml(card.artist)}: ${escapeHtml(card.title)}<span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
+    const currentCard = `<article class="year-card room-live-card ${played ? `is-revealed ${misplaced ? "misplaced-card" : "unlocked-card"}` : "is-secret"}"><strong>${played ? escapeHtml(played.year) : "????"}</strong><small>${played ? `<span class="card-song">${escapeHtml(played.artist)}: ${escapeHtml(played.title)}</span><span class="card-status">${misplaced ? "FEL" : "OLÅST"}</span>` : "HEMLIGT KORT"}</small></article>`;
+    const timeline = cards.map((card, index) => `${index === position ? currentCard : ""}<article class="year-card ${card.roomStatus === "OLÅST" ? "unlocked-card" : "locked-card"}"><strong>${escapeHtml(card.year)}</strong><small><span class="card-song">${escapeHtml(card.artist)}: ${escapeHtml(card.title)}</span><span class="card-status">${card.roomStatus}</span></small></article>`).join("") + (position === cards.length ? currentCard : "");
     const spectator = active && (Boolean(resultPanel) || String(player.user_id) !== String(state.userId));
     const cardKey = `${match.code}:${player.user_id}:${player.current_card?.id || ""}`;
     const existingCard = [...panel.querySelectorAll("details[data-room-reveal]")].find((card) => card.dataset.roomReveal === cardKey);
