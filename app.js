@@ -1,4 +1,4 @@
-const APP_VERSION = "8.48"
+const APP_VERSION = "8.49"
 const ROOM_RESULT_REVEAL_MS = 10000;
 document.querySelector("#brand-home small").textContent = `v${APP_VERSION}`;
 const currentHomeImage = document.querySelector(".home-illustration img");
@@ -1054,6 +1054,7 @@ function resumeCardGuess(fromHistory = false) {
   void publishRoomPlacement("guessing").catch((error) => dialog(error.message));
 }
 function showView(view, focusMatches = false, fromHistory = false) {
+  if ($("#latest-round-timelines")) $("#latest-round-timelines").hidden = view !== "result" || !viewingLatestRound;
   view = cardGuessView(view);
   if (view !== "timeline") cancelCardDrag();
   const guestMatch = guestRoomMatch();
@@ -1572,6 +1573,17 @@ function showLatestRound(round) {
   overviewButton.hidden = true;
   $("#change-track-area").hidden = true;
   $("#result-timeline").innerHTML = (round.timeline || round.cards || []).map((card) => { const status = card.status || (wrong ? "OLÅST" : "LÅST"), wasUnlocked = !solo && isUnlockedStatus(status), unlocked = wrong && (wasUnlocked || status === "RÄTT PLACERAT"), displayStatus = !wrong && wasUnlocked ? "LÅST" : unlocked ? "OLÅST" : status; return `<article class="year-card ${status === "STARTKORT" ? "locked-card" : /FEL ?PLACERAT/.test(status) ? "misplaced-card" : unlocked ? "unlocked-card" : !wrong && wasUnlocked ? "round-locked-card" : status === "LÅST" ? "locked-card" : solo ? "correct-card" : "locked-card"}"${status === "STARTKORT" ? " style=\"border-color:#58657a;background:#202632\"" : ""}><strong>${card.year}</strong><small><span class="card-song">${escapeHtml(card.artist)}: ${escapeHtml(card.title)}</span><span class="card-status">${cardStatusLabel(displayStatus)}</span></small></article>`; }).join("");
+  let timelinesButton = $("#latest-round-timelines");
+  if (!timelinesButton) {
+    timelinesButton = document.createElement("button");
+    timelinesButton.id = "latest-round-timelines";
+    timelinesButton.type = "button";
+    timelinesButton.className = "button button-primary";
+    timelinesButton.textContent = "Tillbaka till tidslinjer";
+    timelinesButton.style.cssText = "width:100%;margin-top:14px";
+    timelinesButton.addEventListener("click", () => $("#result-back").click());
+  }
+  $(".result-view").append(timelinesButton);
   $("#result-continue").hidden = true; $("#result-lock").hidden = true; showView("result");
 }
 
